@@ -14,6 +14,7 @@ import type {
   AuditEventCategory,
 } from '../types.js';
 import type { AuditLogStorage } from '../types.js';
+import { parseJSON } from '../../common';
 
 /**
  * 内存审计日志存储

@@ -5,6 +5,7 @@
  */
 
 import { getCollaborationManager } from './manager'
+import { getTimeThreshold } from '../common'
 import type { RoomUser, Room } from './server'
 
 // ============================================================================
@@ -200,7 +201,7 @@ export function isUserTyping(userId: string, users: RoomUser[]): boolean {
  * Get active users (active in last 5 minutes)
  */
 export function getActiveUsers(users: RoomUserInfo[]): RoomUserInfo[] {
-  const threshold = Date.now() - 5 * 60 * 1000
+  const threshold = getTimeThreshold(5)
   return users.filter(user => user.lastActive.getTime() > threshold)
 }
 
@@ -229,7 +230,7 @@ export function getRoomStats(room: RoomInfo) {
  * Check if room is idle (no activity for 30 minutes)
  */
 export function isRoomIdle(room: RoomInfo): boolean {
-  const threshold = Date.now() - 30 * 60 * 1000
+  const threshold = getTimeThreshold(30)
   return room.lastActivity.getTime() < threshold
 }
 

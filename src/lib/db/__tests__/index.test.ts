@@ -44,8 +44,12 @@ vi.mock('../migrations', () => ({
 }))
 describe('Database Module', () => {
   const testDbPath = '/tmp/test-database.sqlite'
+
   beforeEach(async () => {
     vi.clearAllMocks()
+    // Close existing database connection BEFORE changing DATABASE_PATH
+    // This prevents parallel tests from using stale connections
+    closeDatabase()
     // Clean up test database if exists
     try {
       await fs.unlink(testDbPath)

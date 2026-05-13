@@ -9,6 +9,7 @@
  */
 
 import { logger } from '@/lib/logger'
+import { getTimeThreshold } from '../common'
 import type { RoomUser, Room } from './server'
 
 // ============================================================================
@@ -675,7 +676,7 @@ export class PresenceManager {
    * Clean up inactive users (not seen for 30 minutes)
    */
   cleanupInactive(): number {
-    const threshold = Date.now() - 30 * 60 * 1000
+    const threshold = getTimeThreshold(30)
     let cleaned = 0
 
     this.presence.forEach((presence, userId) => {

@@ -16,8 +16,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 
-// Mock React Flow - 必须在导入 WorkflowEditor 之前
-vi.mock('reactflow', () => {
+// Mock React Flow via reactflow-imports module - must mock before importing WorkflowEditor
+vi.mock('../reactflow-imports', () => {
   const React = require('react')
 
   const MockReactFlow = vi.fn(
@@ -46,7 +46,7 @@ vi.mock('reactflow', () => {
   const MockControls = vi.fn(() => React.createElement('div', { 'data-testid': 'controls' }))
 
   return {
-    default: MockReactFlow,
+    ReactFlow: MockReactFlow,
     ReactFlowProvider: ({ children }: { children: React.ReactNode }) =>
       React.createElement('div', { 'data-testid': 'react-flow-provider' }, children),
     useNodesState: vi.fn(initial => [initial, vi.fn(), vi.fn()]),
@@ -72,17 +72,43 @@ vi.mock('reactflow', () => {
   }
 })
 
-// Mock Next.js dynamic imports
+// Also mock reactflow directly for imports used in WorkflowEditor
+vi.mock('reactflow', () => {
+  const React = require('react')
+
+  return {
+    useReactFlow: vi.fn(() => ({
+      zoomIn: vi.fn(),
+      zoomOut: vi.fn(),
+      fitView: vi.fn(),
+      getViewport: vi.fn(() => ({ x: 0, y: 0, zoom: 1 })),
+      setViewport: vi.fn(),
+    })),
+    addEdge: vi.fn((connection, edges) => [...edges, { ...connection, id: `e-${Date.now()}` }]),
+    applyNodeChanges: vi.fn((changes, nodes) => nodes),
+    applyEdgeChanges: vi.fn((changes, edges) => edges),
+    BackgroundVariant: {
+      Dots: 'dots',
+      Lines: 'lines',
+      Cross: 'cross',
+    },
+    Position: {
+      Top: 'top',
+      Bottom: 'bottom',
+      Left: 'left',
+      Right: 'right',
+    },
+  }
+})
+
+// Mock next/dynamic - return simple mock component directly without lazy
 vi.mock('next/dynamic', () => ({
-  default: (loader: () => Promise<{ default: React.ComponentType<any> }>) => {
-    const Component = React.lazy(loader)
-    return (props: any) =>
-      React.createElement(
-        React.Suspense,
-        { fallback: React.createElement('div', {}, 'Loading...') },
-        React.createElement(Component, props)
-      )
-  },
+  default: vi.fn((_loaderFn: () => Promise<{ default: React.ComponentType<any> }>) => {
+    // Return a simple mock component directly - next/dynamic returns the component itself
+    const MockDynamicComponent = (props: any) =>
+      React.createElement('div', { 'data-testid': 'dynamic-mock' })
+    return MockDynamicComponent
+  }),
 }))
 
 // Mock 子组件

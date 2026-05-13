@@ -14,6 +14,7 @@ import type {
   AuditEventCategory,
 } from '../types.js';
 import type { AuditLogStorage } from '../types.js';
+import { parseJSON } from '../../common';
 import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
@@ -362,7 +363,7 @@ export class FileAuditStorage implements AuditLogStorage {
         .trim()
         .split('\n')
         .filter((line) => line.length > 0)
-        .map((line) => JSON.parse(line));
+        .map((line) => parseJSON<AuditEvent>(line, null!));
     } catch (error) {
       console.error(`Error reading audit log file ${filePath}:`, error);
       return [];

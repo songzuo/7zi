@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, fireEvent, waitFor } from '@testing-library/react'
 import { useSwipe } from '../useTouchGestures'
 import type { SwipeHandlers } from '../useTouchGestures'
 
@@ -46,55 +46,42 @@ describe('useSwipe - Basic Swipe Detection', () => {
       onRight: vi.fn(),
     }
     
+    const { result, rerender } = renderHook(() => useSwipe(handlers, 50))
+    
     const element = document.createElement('div')
-    
-    const { result } = renderHook(() => useSwipe(handlers, 50))
-    
-    // Set element ref - this needs to happen before dispatching events
-    // so that the useEffect can attach event listeners
     result.current.current = element
     
-    // Wait for the effect to set up event listeners
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10))
-    })
+    // Rerender after setting ref so useEffect runs with element
+    rerender()
+    
+    // Wait for React to process the useEffect
+    await waitFor(() => expect(result.current.current).toBe(element))
 
-    await act(async () => {
-      const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
-      element.dispatchEvent(touchEvent)
-    })
-
-    await act(async () => {
-      const touchEvent = createTouchEvent('touchend', [createTouch(200, 100)])
-      element.dispatchEvent(touchEvent)
-    })
+    fireEvent.touchStart(element, { touches: [createTouch(100, 100)] })
+    fireEvent.touchEnd(element, { touches: [createTouch(200, 100)] })
 
     expect(handlers.onRight).toHaveBeenCalled()
   })
 
-  it('should call onLeft when swiping left', () => {
+  it('should call onLeft when swiping left', async () => {
     const handlers: SwipeHandlers = {
       onLeft: vi.fn(),
     }
-    const { result } = renderHook(() => useSwipe(handlers, 50))
+    const { result, rerender } = renderHook(() => useSwipe(handlers, 50))
 
     const element = document.createElement('div')
     result.current.current = element
+    rerender()
+    
+    await waitFor(() => expect(result.current.current).toBe(element))
 
-    act(() => {
-      const touchEvent = createTouchEvent('touchstart', [createTouch(200, 100)])
-      element.dispatchEvent(touchEvent)
-    })
-
-    act(() => {
-      const touchEvent = createTouchEvent('touchend', [createTouch(100, 100)])
-      element.dispatchEvent(touchEvent)
-    })
+    fireEvent.touchStart(element, { touches: [createTouch(200, 100)] })
+    fireEvent.touchEnd(element, { touches: [createTouch(100, 100)] })
 
     expect(handlers.onLeft).toHaveBeenCalled()
   })
 
-  it('should call onUp when swiping up', () => {
+  it('should call onUp when swiping up', async () => {
     const handlers: SwipeHandlers = {
       onUp: vi.fn(),
     }
@@ -103,12 +90,12 @@ describe('useSwipe - Basic Swipe Detection', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 200)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
@@ -116,7 +103,7 @@ describe('useSwipe - Basic Swipe Detection', () => {
     expect(handlers.onUp).toHaveBeenCalled()
   })
 
-  it('should call onDown when swiping down', () => {
+  it('should call onDown when swiping down', async () => {
     const handlers: SwipeHandlers = {
       onDown: vi.fn(),
     }
@@ -125,12 +112,12 @@ describe('useSwipe - Basic Swipe Detection', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(100, 200)])
       element.dispatchEvent(touchEvent)
     })
@@ -249,7 +236,7 @@ describe('useSwipe - Basic Swipe Detection', () => {
 })
 
 describe('useSwipe - Direction Detection', () => {
-  it('should prioritize horizontal over vertical', () => {
+  it('should prioritize horizontal over vertical', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
       onDown: vi.fn(),
@@ -259,13 +246,13 @@ describe('useSwipe - Direction Detection', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
     // Diagonal swipe (more horizontal)
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(200, 150)])
       element.dispatchEvent(touchEvent)
     })
@@ -274,7 +261,7 @@ describe('useSwipe - Direction Detection', () => {
     expect(handlers.onDown).not.toHaveBeenCalled()
   })
 
-  it('should handle diagonal swipe correctly', () => {
+  it('should handle diagonal swipe correctly', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
       onDown: vi.fn(),
@@ -284,13 +271,13 @@ describe('useSwipe - Direction Detection', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
     // Equal X and Y distance
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(200, 200)])
       element.dispatchEvent(touchEvent)
     })
@@ -299,7 +286,7 @@ describe('useSwipe - Direction Detection', () => {
     expect(handlers.onRight).toHaveBeenCalled()
   })
 
-  it('should not trigger on zero distance', () => {
+  it('should not trigger on zero distance', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
     }
@@ -308,13 +295,13 @@ describe('useSwipe - Direction Detection', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
     // No movement
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
@@ -322,7 +309,7 @@ describe('useSwipe - Direction Detection', () => {
     expect(handlers.onRight).not.toHaveBeenCalled()
   })
 
-  it('should handle negative X direction (left)', () => {
+  it('should handle negative X direction (left)', async () => {
     const handlers: SwipeHandlers = {
       onLeft: vi.fn(),
     }
@@ -331,12 +318,12 @@ describe('useSwipe - Direction Detection', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(200, 100)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
@@ -344,7 +331,7 @@ describe('useSwipe - Direction Detection', () => {
     expect(handlers.onLeft).toHaveBeenCalled()
   })
 
-  it('should handle positive X direction (right)', () => {
+  it('should handle positive X direction (right)', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
     }
@@ -353,12 +340,12 @@ describe('useSwipe - Direction Detection', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(200, 100)])
       element.dispatchEvent(touchEvent)
     })
@@ -366,7 +353,7 @@ describe('useSwipe - Direction Detection', () => {
     expect(handlers.onRight).toHaveBeenCalled()
   })
 
-  it('should handle negative Y direction (up)', () => {
+  it('should handle negative Y direction (up)', async () => {
     const handlers: SwipeHandlers = {
       onUp: vi.fn(),
     }
@@ -375,12 +362,12 @@ describe('useSwipe - Direction Detection', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 200)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
@@ -388,7 +375,7 @@ describe('useSwipe - Direction Detection', () => {
     expect(handlers.onUp).toHaveBeenCalled()
   })
 
-  it('should handle positive Y direction (down)', () => {
+  it('should handle positive Y direction (down)', async () => {
     const handlers: SwipeHandlers = {
       onDown: vi.fn(),
     }
@@ -397,12 +384,12 @@ describe('useSwipe - Direction Detection', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(100, 200)])
       element.dispatchEvent(touchEvent)
     })
@@ -412,7 +399,7 @@ describe('useSwipe - Direction Detection', () => {
 })
 
 describe('useSwipe - Threshold Control', () => {
-  it('should respect custom threshold', () => {
+  it('should respect custom threshold', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
     }
@@ -421,13 +408,13 @@ describe('useSwipe - Threshold Control', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
     // Swipe 50px (below custom threshold of 100)
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(150, 100)])
       element.dispatchEvent(touchEvent)
     })
@@ -435,7 +422,7 @@ describe('useSwipe - Threshold Control', () => {
     expect(handlers.onRight).not.toHaveBeenCalled()
   })
 
-  it('should trigger on threshold boundary', () => {
+  it('should trigger on threshold boundary', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
     }
@@ -444,13 +431,13 @@ describe('useSwipe - Threshold Control', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
     // Swipe exactly 50px (at threshold)
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(150, 100)])
       element.dispatchEvent(touchEvent)
     })
@@ -458,7 +445,7 @@ describe('useSwipe - Threshold Control', () => {
     expect(handlers.onRight).toHaveBeenCalled()
   })
 
-  it('should trigger above threshold', () => {
+  it('should trigger above threshold', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
     }
@@ -467,13 +454,13 @@ describe('useSwipe - Threshold Control', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
     // Swipe 100px (above threshold)
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(200, 100)])
       element.dispatchEvent(touchEvent)
     })
@@ -481,7 +468,7 @@ describe('useSwipe - Threshold Control', () => {
     expect(handlers.onRight).toHaveBeenCalled()
   })
 
-  it('should use default threshold of 50', () => {
+  it('should use default threshold of 50', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
     }
@@ -490,12 +477,12 @@ describe('useSwipe - Threshold Control', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(200, 100)])
       element.dispatchEvent(touchEvent)
     })
@@ -505,7 +492,7 @@ describe('useSwipe - Threshold Control', () => {
 })
 
 describe('useSwipe - Edge Cases', () => {
-  it('should handle extreme coordinates', () => {
+  it('should handle extreme coordinates', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
     }
@@ -514,12 +501,12 @@ describe('useSwipe - Edge Cases', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(10000, 10000)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(10500, 10000)])
       element.dispatchEvent(touchEvent)
     })
@@ -527,7 +514,7 @@ describe('useSwipe - Edge Cases', () => {
     expect(handlers.onRight).toHaveBeenCalled()
   })
 
-  it('should handle negative coordinates', () => {
+  it('should handle negative coordinates', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
     }
@@ -536,12 +523,12 @@ describe('useSwipe - Edge Cases', () => {
     const element = document.createElement('div')
     result.current.current = element
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(-100, -100)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(-50, -100)])
       element.dispatchEvent(touchEvent)
     })
