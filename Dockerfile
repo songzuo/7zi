@@ -7,7 +7,7 @@
 # Stage 1: Dependencies (依赖安装阶段)
 # 优化：分离 package.json 和 package-lock.json 以利用缓存
 # ============================================
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ RUN npm ci --only=production --legacy-peer-deps && npm cache clean --force
 # ============================================
 # Stage 2: Builder (构建阶段)
 # ============================================
-FROM node:22-alpine AS builder
+FROM node:26-alpine AS builder
 
 WORKDIR /app
 
@@ -57,7 +57,7 @@ RUN npm run build
 # Stage 3: Runner (运行阶段 - 最小化镜像)
 # 使用 node:22-alpine + 非 root 用户
 # ============================================
-FROM node:22-alpine AS runner
+FROM node:26-alpine AS runner
 
 WORKDIR /app
 
