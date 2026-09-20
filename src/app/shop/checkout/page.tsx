@@ -64,7 +64,7 @@ export default function CheckoutPage() {
   const [logistic, setLogistic] = useState('');
 
   const [busy, setBusy] = useState(false);
-  const { fmt, currency } = useCurrency();
+  const { fmt } = useCurrency();
   const [error, setError] = useState('');
   const [placed, setPlaced] = useState<{ order_no: string; total: number; pay: PayResult } | null>(null);
   // guest 升级注册状态：idle | busy | done | exists | error

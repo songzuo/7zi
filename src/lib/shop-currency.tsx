@@ -3,21 +3,23 @@
 // src/lib/shop-currency.tsx
 // ============================================================================
 // 多货币显示上下文（仅显示层换算，内部/结算一律 USD）
-//   · 偏好：localStorage 'szspd_currency'（用户手动切换后记住，优先于 IP 默认）
-//   · IP 默认：加纳（GH）访客 → GHS，其余 → USD（由 /api/shop/currency 提供）
+//   · 支持全球主流 20 种货币（含加纳 GHS）
+//   · 偏好：localStorage 'szspd_currency'（用户手动切换后记住，最高优先）
+//   · IP 默认：国家 → 20 种货币之一；不在清单 → USD（由 /api/shop/currency 提供）
 //   · 汇率：实时拉取 + 1h 缓存（后端），失败回退内置汇率
 // ============================================================================
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-
-export type CurrencyCode = 'USD' | 'GHS';
+import { CURRENCY_SYMBOL, CURRENCY_CODES, type CurrencyCode, type CurrencyMeta } from '@/lib/currency-rates';
 
 interface CurrencyState {
   /** 当前显示货币 */
   currency: CurrencyCode;
   /** 切换货币（记住偏好） */
   setCurrency: (c: CurrencyCode) => void;
-  /** GHS per USD 汇率 */
-  rate: number;
+  /** 全部支持货币（元数据，来自服务端） */
+  currencies: CurrencyMeta[];
+  /** 汇率（per USD，20 种） */
+  rates: Record<string, number>;
   /** 是否已从服务端拿到汇率与 IP 默认（未就绪时按 USD 显示） */
   ready: boolean;
   /** 服务端建议默认货币（IP 检测），仅当用户无偏好时生效 */
@@ -28,13 +30,13 @@ interface CurrencyState {
   convert: (usd: number) => number;
 }
 
-const SYMBOLS: Record<CurrencyCode, string> = { USD: '$', GHS: '₵' };
 const PREF_KEY = 'szspd_currency';
 
 const CurrencyContext = createContext<CurrencyState>({
   currency: 'USD',
   setCurrency: () => {},
-  rate: 1,
+  currencies: [],
+  rates: {},
   ready: false,
   serverDefault: 'USD',
   fmt: (v) => `$${(Number(v) || 0).toFixed(2)}`,
@@ -43,8 +45,9 @@ const CurrencyContext = createContext<CurrencyState>({
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>('USD');
+  const [currencies, setCurrencies] = useState<CurrencyMeta[]>([]);
+  const [rates, setRates] = useState<Record<string, number>>({});
   const [serverDefault, setServerDefault] = useState<CurrencyCode>('USD');
-  const [rate, setRate] = useState(1);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -52,8 +55,8 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     // 1) 本地偏好（用户选择，最高优先）
     try {
       const pref = localStorage.getItem(PREF_KEY);
-      if (pref === 'USD' || pref === 'GHS') {
-        setCurrencyState(pref);
+      if (pref && (CURRENCY_CODES as string[]).includes(pref)) {
+        setCurrencyState(pref as CurrencyCode);
       }
     } catch {}
 
@@ -62,10 +65,15 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       .then((r) => r.json())
       .then((j) => {
         if (!alive) return;
-        if (j?.success && j.rates && Number(j.rates.GHS) > 0) {
-          setRate(Number(j.rates.GHS));
+        if (j?.success && j.rates && Number(j.rates.USD) > 0) {
+          setRates(j.rates);
         }
-        const def = j?.defaultCurrency === 'GHS' ? 'GHS' : 'USD';
+        if (Array.isArray(j?.currencies) && j.currencies.length > 0) {
+          setCurrencies(j.currencies);
+        }
+        const def = j?.defaultCurrency && (CURRENCY_CODES as string[]).includes(j.defaultCurrency)
+          ? (j.defaultCurrency as CurrencyCode)
+          : 'USD';
         setServerDefault(def);
         // 无本地偏好时，用 IP 默认
         let pref: string | null = null;
@@ -91,9 +99,10 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const convert = useCallback(
     (usd: number) => {
       const v = Number(usd) || 0;
-      return currency === 'GHS' ? v * (rate > 0 ? rate : 1) : v;
+      const rate = Number(rates[currency]);
+      return currency === 'USD' ? v : v * (rate > 0 ? rate : 1);
     },
-    [currency, rate]
+    [currency, rates]
   );
 
   const fmt = useCallback(
@@ -104,14 +113,14 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
       });
-      return `${SYMBOLS[currency]}${num}`;
+      return `${CURRENCY_SYMBOL[currency] ?? ''}${num}`;
     },
     [convert, currency]
   );
 
   const value = useMemo<CurrencyState>(
-    () => ({ currency, setCurrency, rate, ready, serverDefault, fmt, convert }),
-    [currency, setCurrency, rate, ready, serverDefault, fmt, convert]
+    () => ({ currency, setCurrency, currencies, rates, ready, serverDefault, fmt, convert }),
+    [currency, setCurrency, currencies, rates, ready, serverDefault, fmt, convert]
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
