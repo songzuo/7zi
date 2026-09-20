@@ -2,6 +2,7 @@
 
 // /shop/orders —— 我的订单（登录态查看，含 CJ 物流状态）
 import { useEffect, useState } from 'react';
+import { useCurrency } from '@/lib/shop-currency';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -57,6 +58,7 @@ export default function MyOrdersPage() {
   const [state, setState] = useState<'loading' | 'guest' | 'empty' | 'ready' | 'error'>('loading');
   const [orders, setOrders] = useState<OrderView[]>([]);
   const [error, setError] = useState('');
+  const { fmt } = useCurrency();
 
   async function load() {
     setState('loading');
@@ -187,8 +189,7 @@ export default function MyOrdersPage() {
                     {badge.label}
                   </span>
                   <span className="text-sm font-bold text-gray-900">
-                    {o.currency === 'USD' ? '$' : o.currency + ' '}
-                    {Number(o.total_amount || 0).toFixed(2)}
+                    {fmt(Number(o.total_amount || 0))}
                   </span>
                 </div>
               </div>
@@ -205,8 +206,7 @@ export default function MyOrdersPage() {
                       <span className="ml-2 font-mono text-xs text-gray-400">{it.sku}</span>
                     </div>
                     <div className="shrink-0 text-gray-600">
-                      {it.quantity} × {o.currency === 'USD' ? '$' : o.currency + ' '}
-                      {Number(it.unit_price || 0).toFixed(2)}
+                      {it.quantity} × {fmt(Number(it.unit_price || 0))}
                     </div>
                   </div>
                 ))}

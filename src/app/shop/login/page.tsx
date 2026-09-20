@@ -28,6 +28,35 @@ export default function ShopLoginPage() {
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  // ---- 找回订单号 ----
+  const [showLookup, setShowLookup] = useState(false);
+  const [lookupEmail, setLookupEmail] = useState('');
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const [lookupError, setLookupError] = useState('');
+  const [lookupOrders, setLookupOrders] = useState<Array<{ order_no: string; created_at: string; total_amount: number; currency: string }>>([]);
+
+  async function handleLookup(e: React.FormEvent) {
+    e.preventDefault();
+    const em = lookupEmail.trim().toLowerCase();
+    if (!em) return;
+    setLookupBusy(true);
+    setLookupError('');
+    setLookupOrders([]);
+    try {
+      const res = await fetch(`/api/shop/orders/lookup?email=${encodeURIComponent(em)}`, { cache: 'no-store' });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j?.success) {
+        setLookupError(j?.error || 'Lookup failed. Please try again.');
+      } else {
+        setLookupOrders(j.orders || []);
+        if ((j.orders || []).length === 0) setLookupError('No orders found for this email.');
+      }
+    } catch {
+      setLookupError('Network error, please try again.');
+    } finally {
+      setLookupBusy(false);
+    }
+  }
 
   async function handleGuestLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -159,7 +188,64 @@ export default function ShopLoginPage() {
                 className={inputCls}
                 placeholder="e.g. SZ20260920XXXX"
               />
+              <div className="mt-1 text-right">
+                <button
+                  type="button"
+                  onClick={() => { setShowLookup(v => !v); setLookupError(''); setLookupOrders([]); }}
+                  className="text-xs text-indigo-600 hover:underline"
+                >
+                  {showLookup ? 'Hide' : 'Forgot your order number?'}
+                </button>
+              </div>
             </div>
+
+            {showLookup && (
+              <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3">
+                <p className="mb-2 text-xs text-gray-600">
+                  Enter your email and we&apos;ll show your recent order numbers — pick one to fill the field above.
+                </p>
+                <form onSubmit={handleLookup} className="flex gap-2">
+                  <input
+                    type="email"
+                    required
+                    value={lookupEmail}
+                    onChange={(e) => setLookupEmail(e.target.value)}
+                    className={inputCls}
+                    placeholder="you@example.com"
+                  />
+                  <button
+                    type="submit"
+                    disabled={lookupBusy}
+                    className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+                  >
+                    {lookupBusy ? '…' : 'Find'}
+                  </button>
+                </form>
+                {lookupError && <p className="mt-2 text-xs text-red-600">{lookupError}</p>}
+                {lookupOrders.length > 0 && (
+                  <ul className="mt-2 space-y-1.5">
+                    {lookupOrders.map((o) => (
+                      <li key={o.order_no}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOrderNo(o.order_no);
+                            setShowLookup(false);
+                            setLookupOrders([]);
+                          }}
+                          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-left text-xs transition-colors hover:border-indigo-300 hover:bg-indigo-50"
+                        >
+                          <span className="font-mono font-semibold text-gray-800">{o.order_no}</span>
+                          <span className="float-right text-gray-500">
+                            {new Date(o.created_at).toLocaleDateString()} · {Number(o.total_amount || 0).toFixed(2)} {o.currency || 'USD'}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
             <button
               type="submit"
               disabled={status === 'busy'}

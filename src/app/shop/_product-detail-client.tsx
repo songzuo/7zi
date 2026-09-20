@@ -8,6 +8,13 @@
 // 详情（规格/描述/多图）走懒加载：SSR 有缓存就直出，没有就由本组件按需拉，
 // 拉过之后落磁盘缓存，后续访问直接 SSR 直出。
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCurrency } from "@/lib/shop-currency";
+
+/** 从 "$12.33" / "12.33" / "From $5.99" 类 label 中解析 USD 数字 */
+function parseUsd(raw: string | undefined): number {
+  const m = String(raw ?? "").match(/[\d.]+/);
+  return m ? parseFloat(m[0]) : 0;
+}
 
 export interface VariantView {
   vid: string;
@@ -76,6 +83,7 @@ export default function ProductDetailClient({
   const [qty, setQty] = useState(1);
   const [mainImage, setMainImage] = useState<string>(product.image);
   const [added, setAdded] = useState("");
+  const { fmt } = useCurrency();
 
   // ---- 详情：SSR 未命中时懒加载 ----
   useEffect(() => {
@@ -213,7 +221,9 @@ export default function ProductDetailClient({
 
           <div className="mb-4 flex flex-wrap items-baseline gap-2">
             <span className="text-3xl font-bold text-indigo-600">
-              {selected ? selected.priceLabel : detail?.priceLabel || product.priceLabel}
+              {selected
+                ? fmt(parseUsd(selected.priceLabel) || Number(selected.price) || 0)
+                : fmt(parseUsd(detail?.priceLabel) || Number(detail?.priceFrom) || parseUsd(product.priceLabel))}
             </span>
             {!selected && detail?.isRange && <span className="text-xs text-gray-500">（按所选规格定价）</span>}
             {selected?.degraded && (
@@ -275,7 +285,7 @@ export default function ProductDetailClient({
                     >
                       <span className="block font-medium">{v.name || v.variantSku || v.vid.slice(-6)}</span>
                       <span className="block text-[11px] text-gray-500">
-                        {v.priceLabel}
+                        {fmt(parseUsd(v.priceLabel) || Number(v.price) || 0)}
                         {soldOut ? " · Sold out" : typeof q === "number" ? ` · ${q} left` : ""}
                       </span>
                     </button>
@@ -318,7 +328,7 @@ export default function ProductDetailClient({
               disabled={outOfStock}
               className="w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
             >
-              {outOfStock ? "Sold out" : `Add to Cart — $${(unitPrice * qty).toFixed(2)}`}
+              {outOfStock ? "Sold out" : `Add to Cart — ${fmt(unitPrice * qty)}`}
             </button>
             {added && (
               <p className="mt-2 rounded-md bg-emerald-50 px-2 py-1 text-[11px] text-emerald-800">{added}</p>

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { useCurrency } from '@/lib/shop-currency';
 import Link from 'next/link';
 
 interface CartItem {
@@ -18,6 +19,7 @@ interface CartItem {
 export default function CartPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [mounted, setMounted] = useState(false);
+  const { fmt } = useCurrency();
 
   useEffect(() => {
     try {
@@ -65,7 +67,7 @@ export default function CartPage() {
                     <p className="text-xs text-gray-500 mt-0.5">Option: <b className="text-gray-700">{item.variantName}</b></p>
                   )}
                   <p className="text-xs text-gray-400 mt-0.5">SKU: {item.sku}</p>
-                  <p className="text-indigo-600 font-bold text-lg">${Number(item.price).toFixed(2)}</p>
+                  <p className="text-indigo-600 font-bold text-lg">{fmt(Number(item.price))}</p>
                 </div>
                 <div className="flex items-center border border-gray-200 rounded-lg">
                   <button onClick={() => updateQty(item.id, item.qty-1)} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-l-lg">-</button>
@@ -73,7 +75,7 @@ export default function CartPage() {
                   <button onClick={() => updateQty(item.id, item.qty+1)} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-r-lg">+</button>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-gray-800">${(Number(item.price) * item.qty).toFixed(2)}</p>
+                  <p className="font-bold text-gray-800">{fmt(Number(item.price) * item.qty)}</p>
                   <button onClick={() => updateQty(item.id, 0)} className="text-red-400 text-xs hover:text-red-600 mt-1">Remove</button>
                 </div>
               </div>
@@ -82,7 +84,7 @@ export default function CartPage() {
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between text-lg font-bold mb-4">
               <span>Total ({cart.reduce((s,i) => s+i.qty, 0)} items)</span>
-              <span className="text-indigo-600">${total.toFixed(2)}</span>
+              <span className="text-indigo-600">{fmt(total)}</span>
             </div>
             <p className="text-gray-500 text-sm mb-4">
               Shipping is calculated at checkout based on your delivery country — live carrier rates to 250+ countries.

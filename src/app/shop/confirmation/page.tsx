@@ -113,7 +113,8 @@ export default function ConfirmationPage() {
     };
   }, [load]);
 
-  const money = (v: number) => `$${(Number(v) || 0).toFixed(2)}`;
+  const { fmt } = useCurrency();
+  const money = (v: number) => fmt(Number(v) || 0);
 
   const headline =
     state === 'paid'

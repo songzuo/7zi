@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductDetailClient from "../_product-detail-client";
 import { loadCatalog, dedupeName, priceDisplay } from "@/lib/cj-data";
+import PriceTag from "../_price-tag";
 import { readCachedDetail } from "@/lib/cj-detail";
 import { buildDetailView } from "@/lib/detail-view";
 
@@ -101,7 +102,9 @@ export default async function ProductDetailPage({
                     {dedupeName(p.name).substring(0, 40)}
                   </h3>
                   <p className="mb-3 text-xs text-gray-400">SKU: {p.sku}</p>
-                  <span className="text-lg font-bold text-indigo-600">{priceDisplay(p)}</span>
+                  <span className="text-lg font-bold text-indigo-600">
+                    <PriceTag usd={Number(p.priceFrom) > 0 ? Number(p.priceFrom) : Number(p.price) || 0} isRange={Number(p.priceFrom) > 0} />
+                  </span>
                 </div>
               </Link>
             ))}

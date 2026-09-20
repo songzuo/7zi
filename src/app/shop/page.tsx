@@ -13,6 +13,7 @@ import {
   type CatalogProduct,
 } from "@/lib/cj-data";
 import { listPriceOf, listPriceDisplay } from "@/lib/list-price";
+import PriceTag from "./_price-tag";
 
 const PAGE_SIZE = 24;
 
@@ -353,7 +354,9 @@ function ProductCard({ p, q }: { p: CatalogProduct; q?: string }) {
             <p className="text-[11px] text-gray-400 mb-2 line-clamp-1">{p.categoryPath}</p>
           )}
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-indigo-600">{listPriceDisplay(p)}</span>
+            <span className="text-lg font-bold text-indigo-600">
+              <PriceTag usd={listPriceOf(p).from} isRange={listPriceOf(p).isRange} />
+            </span>
           </div>
         </div>
       </Link>

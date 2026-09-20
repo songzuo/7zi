@@ -3,6 +3,7 @@
 // 结算页：全球 250 个国家/地区可选 + 目的国实时运费试算 + 真实收银台
 // 金额一律以服务端返回为准（前端不参与定价）。
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useCurrency } from '@/lib/shop-currency';
 import Link from 'next/link';
 
 interface CartItem {
@@ -63,6 +64,7 @@ export default function CheckoutPage() {
   const [logistic, setLogistic] = useState('');
 
   const [busy, setBusy] = useState(false);
+  const { fmt, currency } = useCurrency();
   const [error, setError] = useState('');
   const [placed, setPlaced] = useState<{ order_no: string; total: number; pay: PayResult } | null>(null);
   // guest 升级注册状态：idle | busy | done | exists | error
@@ -248,7 +250,7 @@ export default function CheckoutPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Order placed</h1>
           <p className="text-gray-600 mt-2 text-sm">
             Your order <b className="text-gray-900">{placed.order_no}</b> is reserved. Total
-            <b className="text-gray-900"> ${placed.total.toFixed(2)}</b>.
+            <b className="text-gray-900"> {fmt(placed.total)}</b>.
           </p>
 
           {placed.pay.mode === 'manual' ? (
@@ -514,7 +516,7 @@ export default function CheckoutPage() {
                       </span>
                       <span className="mt-0.5 block text-xs text-gray-500">Estimated delivery {o.agingLabel}</span>
                     </span>
-                    <span className="text-sm font-bold text-gray-900">${o.price.toFixed(2)}</span>
+                    <span className="text-sm font-bold text-gray-900">{fmt(Number(o.price))}</span>
                   </label>
                 ))}
                 {quote?.shipping?.cached && (
@@ -545,7 +547,7 @@ export default function CheckoutPage() {
 
           <button type="submit" disabled={busy || !shippingOption}
             className="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 transition-colors disabled:opacity-50">
-            {busy ? 'Processing…' : `Place Order — $${total.toFixed(2)}`}
+            {busy ? 'Processing…' : `Place Order — ${fmt(total)}`}
           </button>
         </form>
       </div>
@@ -566,7 +568,7 @@ export default function CheckoutPage() {
                       )}
                       <p className="text-xs text-gray-500">x{item.qty}</p>
                     </div>
-                    <span className="text-sm font-bold">${item.lineTotal.toFixed(2)}</span>
+                    <span className="text-sm font-bold">{fmt(item.lineTotal)}</span>
                   </div>
                 ))
               : cart.map((item) => (
@@ -579,20 +581,20 @@ export default function CheckoutPage() {
                       )}
                       <p className="text-xs text-gray-500">x{item.qty}</p>
                     </div>
-                    <span className="text-sm font-bold">${(item.price * item.qty).toFixed(2)}</span>
+                    <span className="text-sm font-bold">{fmt(item.price * item.qty)}</span>
                   </div>
                 ))}
           </div>
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm text-gray-600">
-              <span>Subtotal</span><span>${subtotal.toFixed(2)}</span>
+              <span>Subtotal</span><span>{fmt(subtotal)}</span>
             </div>
             <div className="flex justify-between text-sm text-gray-600">
               <span>Shipping{shippingOption ? ` · ${shippingOption.logisticName}` : ''}</span>
-              <span>{quoteLoading ? '…' : shippingOption ? `$${shippingFee.toFixed(2)}` : '—'}</span>
+              <span>{quoteLoading ? '…' : shippingOption ? fmt(shippingFee) : '—'}</span>
             </div>
             <div className="flex justify-between font-bold text-lg border-t pt-2">
-              <span>Total</span><span className="text-indigo-600">${total.toFixed(2)}</span>
+              <span>Total</span><span className="text-indigo-600">{fmt(total)}</span>
             </div>
             {shippingOption && (
               <p className="text-[11px] text-gray-500">Estimated delivery {shippingOption.agingLabel} · {selectedCountry?.en}</p>

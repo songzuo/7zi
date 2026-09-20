@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { CurrencyProvider } from '@/lib/shop-currency';
+import CurrencySwitcher from './_currency-switcher';
 
 export const metadata: Metadata = {
   title: 'SZSPD Store — Quality Products, China to Ghana & Africa',
@@ -13,6 +15,7 @@ export default function ShopLayout({
   children: React.ReactNode;
 }) {
   return (
+    <CurrencyProvider>
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
         <div className="mx-auto max-w-7xl px-4">
@@ -30,6 +33,7 @@ export default function ShopLayout({
               SZSPD Store <span className="hidden sm:inline text-xs font-normal text-zinc-500">· Serving Ghana · Africa · Worldwide</span>
             </h1>
             <div className="flex items-center gap-3">
+              <CurrencySwitcher />
               <Link
                 href="/shop/orders"
                 className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white transition-colors"
@@ -87,5 +91,6 @@ export default function ShopLayout({
         </div>
       </footer>
     </div>
+    </CurrencyProvider>
   );
 }
