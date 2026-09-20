@@ -481,8 +481,7 @@ export async function upgradeGuestUser(request: {
   const email = String(request.email || '').trim().toLowerCase();
   if (!email) throw UnifiedAppError.validation('Email is required')
 
-  const { hashPassword } = await import('./repository');
-  const guestHash = hashPassword(GUEST_PASSWORD_MARKER);
+  const { verifyPassword } = await import('./repository');
 
   let user = await getUserByEmail(email);
   let created = false;
@@ -497,7 +496,9 @@ export async function upgradeGuestUser(request: {
     created = true;
   }
 
-  const passwordProtected = !created && user.password !== guestHash;
+  // 免密用户 = 密码是固定标记的 PBKDF2（verifyPassword 盐验证；hashPassword 每次随机盐，不可直接比较）
+  const isGuestMarked = verifyPassword(GUEST_PASSWORD_MARKER, user.password);
+  const passwordProtected = !created && !isGuestMarked;
   const { password: _pw, ...safeUser } = user;
   if (passwordProtected) {
     return { user: safeUser, created, passwordProtected: true };
@@ -523,6 +524,6 @@ export async function upgradeGuestUser(request: {
  * 判断用户是否免密用户（guest 升级创建，未设真实密码）
  */
 export async function isGuestUser(user: User): Promise<boolean> {
-  const { hashPassword } = await import('./repository');
-  return user.password === hashPassword(GUEST_PASSWORD_MARKER);
+  const { verifyPassword } = await import('./repository');
+  return verifyPassword(GUEST_PASSWORD_MARKER, user.password);
 }
