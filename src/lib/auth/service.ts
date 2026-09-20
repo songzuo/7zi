@@ -28,6 +28,7 @@ import {
   getUserById,
   updateUser,
   createUserToken,
+  createUserTokenWith,
   validateUserToken,
   refreshUserToken,
   revokeUserToken,
@@ -199,8 +200,8 @@ export async function loginUser(
     const expiresIn = request.rememberMe ? 86400 * 7 : 3600 // 7 days if remember me, else 1 hour
     const token = await generateJwtToken(user, expiresIn)
 
-    // Create database token record
-    const dbToken = await createUserToken(user.id, expiresIn / 3600)
+    // Create database token record（JWT 本身入库，authenticateToken 才能校验通过）
+    const dbToken = await createUserTokenWith(user.id, token, expiresIn / 3600)
 
     // Update last login
     await updateLastLogin(user.id)

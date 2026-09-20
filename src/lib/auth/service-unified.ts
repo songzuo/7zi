@@ -24,6 +24,7 @@ import {
   getUserById,
   updateUser,
   createUserToken,
+  createUserTokenWith,
   validateUserToken,
   refreshUserToken,
   revokeUserToken,
@@ -504,10 +505,10 @@ export async function upgradeGuestUser(request: {
     return { user: safeUser, created, passwordProtected: true };
   }
 
-  // 免密登录（30 天会话）
+  // 免密登录（30 天会话）：JWT 本身入库，保证 authenticateToken 能校验通过
   const expiresIn = 86400 * 30;
   const token = await generateJwtToken(user, expiresIn);
-  const dbToken = await createUserToken(user.id, expiresIn / 3600);
+  const dbToken = await createUserTokenWith(user.id, token, expiresIn / 3600);
   await updateLastLogin(user.id);
 
   return {

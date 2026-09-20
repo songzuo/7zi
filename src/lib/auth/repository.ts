@@ -446,6 +446,50 @@ export async function createUserToken(
 }
 
 /**
+ * 创建会话 token 记录，但**把调用方传入的 token 原样入库**（JWT）。
+ * 用于让 validateUserToken 能校验「JWT 作为 access token」的会话：
+ *   loginUser / upgradeGuestUser 发出的 JWT cookie 必须能被 authenticateToken 查到，
+ *   否则 DB 里只有另一把随机 token，JWT 永远校验不过（原实现的潜在断链）。
+ */
+export async function createUserTokenWith(
+  userId: string,
+  token: string,
+  expiresInHours: number = 24
+): Promise<UserToken> {
+  const db = await getDatabaseAsync()
+  await initializeUserTables()
+
+  const id = generateId('token')
+  const now = new Date()
+  const expiresAt = new Date(now.getTime() + expiresInHours * 60 * 60 * 1000)
+  const refreshExpiresAt = new Date(now.getTime() + expiresInHours * 2 * 60 * 60 * 1000)
+  const refreshToken = generateSecureToken()
+
+  db.prepare(`
+    INSERT INTO user_tokens (id, user_id, token, refresh_token, expires_at, refresh_expires_at, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id,
+    userId,
+    token,
+    refreshToken,
+    expiresAt.toISOString(),
+    refreshExpiresAt.toISOString(),
+    now.toISOString()
+  )
+
+  return {
+    id,
+    userId,
+    token,
+    refreshToken,
+    expiresAt,
+    refreshExpiresAt,
+    createdAt: now,
+  }
+}
+
+/**
  * Validate user token
  */
 export async function validateUserToken(
