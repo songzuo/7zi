@@ -36,7 +36,7 @@
  *   - 每轮最多 MAX_PAGES_PER_RUN 页，避免与 fulfill-tick 抢点数
  *   - 日志 logs/cj-catalog.log，状态 data/cj-catalog-status.json
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, statSync, appendFileSync, unlinkSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, statSync, appendFileSync, unlinkSync, openSync, closeSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { createHash } from "crypto";
@@ -105,10 +105,18 @@ function acquireLock() {
       const age = Date.now() - statSync(LOCK_FILE).mtimeMs;
       if (age < LOCK_STALE_MS) { log(`SKIP 已有实例在运行（锁 ${Math.round(age / 1000)}s）`); return false; }
       log("WARN 发现过期锁，强制接管");
+      unlinkSync(LOCK_FILE);
     }
-    openSync(LOCK_FILE, "w");
+    // 'wx' = 独占创建：文件已存在则抛 EEXIST。
+    // 修复 TOCTOU 竞态：两个进程同时通过 existsSync 检查后，
+    // 只有一个能成功 openSync('wx')，另一个拿到 EEXIST 干净退出。
+    const fd = openSync(LOCK_FILE, "wx");
+    closeSync(fd);
     return true;
-  } catch { return true; }
+  } catch (e) {
+    if (e && e.code === "EEXIST") { log("SKIP 已有实例在运行（竞态拦截）"); return false; }
+    return true;
+  }
 }
 function releaseLock() { try { if (existsSync(LOCK_FILE)) unlinkSync(LOCK_FILE); } catch {} }
 
