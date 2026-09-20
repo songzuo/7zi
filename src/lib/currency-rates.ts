@@ -24,7 +24,7 @@ export interface CurrencyMeta {
   countries: string[];
 }
 
-// 全球主流 20 种货币（含加纳 GHS）。
+// 全球主流 20 种货币（含加纳 GHS）。USD 与 GHS 固定排前两位（客户最常用，方便选择）。
 // countries 按「该地实际使用/法定本币」填写，而非「本国发行的货币」：
 //   美元化国家 → USD；欧元非欧盟国（摩纳哥/黑山/科索沃等）→ EUR；
 //   兰特区（莱索托/纳米比亚/斯威士兰）→ ZAR；澳元区 → AUD；文莱 → SGD（与新加坡元 1:1 流通）等。
@@ -36,6 +36,7 @@ export const CURRENCIES: CurrencyMeta[] = [
       'TC', 'VG', 'AS', 'GU', 'MP', 'PR', 'VI', 'UM',                // 美属领地/岛屿
     ],
   },
+  { code: 'GHS', name: 'Ghana Cedi', symbol: '₵', countries: ['GH'] },
   {
     code: 'EUR', name: 'Euro', symbol: '€',
     countries: [
@@ -47,7 +48,6 @@ export const CURRENCIES: CurrencyMeta[] = [
   { code: 'GBP', name: 'British Pound', symbol: '£', countries: ['GB', 'GI', 'IM', 'JE', 'GG'] },
   { code: 'JPY', name: 'Japanese Yen', symbol: '¥', countries: ['JP'] },
   { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', countries: ['CN'] },
-  { code: 'GHS', name: 'Ghana Cedi', symbol: '₵', countries: ['GH'] },
   { code: 'NGN', name: 'Nigerian Naira', symbol: '₦', countries: ['NG'] },
   {
     code: 'ZAR', name: 'South African Rand', symbol: 'R',
