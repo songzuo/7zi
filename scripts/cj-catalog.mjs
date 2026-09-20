@@ -709,6 +709,11 @@ async function harvestFullSite() {
   let queue = [];
   try { queue = JSON.parse(getMeta.get(FULL_SITE_QUEUE_KEY)?.value || "[]"); } catch {}
   if (!Array.isArray(queue) || queue.length === 0) {
+    // 已有全量完成标记（增量游标存在）→ 不重建，避免手动触发死循环重跑
+    if (getMeta.get(INCR_CURSOR_KEY)?.value) {
+      log(`fullsite：全量已完成（增量游标=${getMeta.get(INCR_CURSOR_KEY)?.value}），如需重跑请清 meta fullSiteQueue`);
+      return { got: 0, done: 0, queueLen: 0 };
+    }
     queue = [[FULL_SITE_START, toV1Time(Date.now() + 86400000)]];
   }
   const pathMap = await buildPathMapFromTree();
@@ -1489,27 +1494,14 @@ async function main() {
       const done = db.prepare("SELECT COUNT(*) c FROM leaves WHERE doneAt IS NOT NULL").get().c;
       const total = db.prepare("SELECT COUNT(*) c FROM leaves").get().c;
       const probedAll = db.prepare("SELECT COUNT(*) c FROM leaves WHERE lastProbeAt IS NOT NULL").get().c;
-      if (total === 0) { await probe(); }
-      else if (done < total || queuePending()) {
+      const pending = queuePending() ? JSON.parse(getMeta.get(FULL_SITE_QUEUE_KEY)?.value || "[]").length : 0;
+      if (pending > 0) {
         // ============ 阶段1（主路径，用户确认策略）：全站全量收割 ============
         // 遍历 V1 list 全站（155万条，时间窗口二分），入库全部有效 SKU——
         // 一次性知道真实可见全集（不再是旧快照 8,683）。队列完成前持续跑；
         // 完成后自动转阶段2（增量刷新）。点数是唯一节奏约束（每 10 分钟一轮）。
-        const q = getMeta.get(FULL_SITE_QUEUE_KEY)?.value;
-        let pending = 0;
-        try { pending = JSON.parse(q || "[]").length; } catch {}
-        if (pending === 0 && done >= total) {
-          // 全站队列已清空：直接进入阶段2（增量刷新 + publish）
-          const before = readStatus().dbProducts || 0;
-          await refresh();
-          if (!stopReason || stopReason.startsWith("page budget")) await publish();
-          if (!stopReason || stopReason.startsWith("page budget")) {
-            try { await curate("new-arrivals", 30); } catch (e) { log(`auto curate 失败：${e.message}`); }
-          }
-        } else {
-          log(`auto：全站全量收割阶段（剩余窗口 ${pending}，库内 ${readStatus().dbProducts || 0} 条）`);
-          try { await harvestFullSite(); } catch (e) { log(`auto fullsite 失败：${e.message}`); }
-        }
+        log(`auto：全站全量收割阶段（剩余窗口 ${pending}，库内 ${db.prepare("SELECT COUNT(*) c FROM products").get().c} 条）`);
+        try { await harvestFullSite(); } catch (e) { log(`auto fullsite 失败：${e.message}`); }
       }
       else {
         const before = readStatus().dbProducts || 0;
