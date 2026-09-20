@@ -698,7 +698,7 @@ function queuePending() {
 /** 增量刷新游标 key：全量完成后记录开始时刻，之后只拉该时刻之后新增的商品 */
 const INCR_CURSOR_KEY = "incrCursor";
 const FULL_SITE_WINDOW_MAX = 6000;             // 窗口条数上限（V1 offset 硬上限，30 页收完）
-const PUBLISH_MAX_PRODUCTS = parseInt(arg("max-products", "50000"), 10); // 收割期渐进上架护栏（--max-products 可调）：前台可见集上限（旧 JSON 8,683 会保留，新收割补足到该值）
+const PUBLISH_MAX_PRODUCTS = parseInt(arg("max-products", "0"), 10);   // 收割期可见集护栏（--max-products 可调）：0 = 不限制（收割多少上架多少，SQLite 全量查询无压力）；>0 时按 lastSeenAt 最新优先截断（供未来选品规则）
 
 /** 窗口二分：total>6000 → 按时间中点切成两半（含 [from,mid],[mid,to]，mid 去重毫秒） */
 function splitWindow(fromStr, toStr) {
@@ -1310,9 +1310,12 @@ async function publish() {
         categoryPath: pathMap.get(row.categoryId) || row.categoryPath || p.categoryPath,
       });
     }
-    const need = Math.max(0, cap - merged.size);
-    if (need > 0) {
-      const fresh = db.prepare("SELECT sku FROM products WHERE price > 0 AND image != '' ORDER BY lastSeenAt DESC LIMIT ?").all(need);
+    const need = cap > 0 ? Math.max(0, cap - merged.size) : -1; // -1 = 不限制（收割多少上架多少）
+    if (need !== 0) {
+      const sql = cap > 0
+        ? "SELECT sku FROM products WHERE price > 0 AND image != '' ORDER BY lastSeenAt DESC LIMIT ?"
+        : "SELECT sku FROM products WHERE price > 0 AND image != ''";
+      const fresh = cap > 0 ? db.prepare(sql).all(need) : db.prepare(sql).all();
       for (const r of fresh) {
         if (merged.has(r.sku)) continue;
         const row = getRow.get(r.sku);
@@ -1347,11 +1350,22 @@ async function publish() {
     catalogSource: "cj-catalog.db",
   };
   if (!DRY_RUN) writeAtomic(DATA_FILE, JSON.stringify(next));
-  log(`publish：前台 ${out.length} 条（更新 ${updated}，库缺回退 ${missing}，剔除陈旧 ${products.length - out.length}）`);
+  log(`publish：前台 JSON ${out.length} 条（更新 ${updated}，库缺回退 ${missing}，剔除陈旧 ${products.length - out.length}）`);
 
-  // 同步更新 visible_products 表（供新 SQLite 查询层用）
-  if (!DRY_RUN) syncVisibleFromJson(out);
-  log(`publish：visible_products 表已同步（${out.length} 条）`);
+  // 同步更新 visible_products 表（供 SQLite 查询层 JOIN 用）
+  // 收割期 = 库内全部有效 SKU（收割多少上架多少，SQLite 全量查询无压力）；
+  // JSON 仅作降级/详情兜底保持护栏内小快照，避免 155 万条 JSON(≈570MB) 撑爆 readFileSync 路径。
+  if (!DRY_RUN) {
+    const t0 = Date.now();
+    const tx = db.transaction(() => {
+      db.exec("DELETE FROM visible_products");
+      db.exec("INSERT INTO visible_products(sku, sortOrder, addedAt, source) SELECT sku, rowid, ?, 'harvest-full' FROM products WHERE price > 0 AND image != ''");
+    });
+    tx(nowIso());
+    log(`publish：visible_products 全量同步完成（${db.prepare("SELECT COUNT(*) c FROM visible_products").get().c} 条，${Date.now() - t0}ms）`);
+  } else {
+    log(`publish：visible_products 全量同步（dry-run 跳过）`);
+  }
 
   writeStatus({ lastPublishAt: nowIso(), publishUpdated: updated, publishCount: out.length });
 }
