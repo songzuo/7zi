@@ -8,10 +8,39 @@ import { NextRequest, NextResponse } from "next/server";
 import { loadCatalog, dedupeName } from "@/lib/cj-data";
 import { getDetail, readCachedDetail, readNegative, getStock, detailCacheStats } from "@/lib/cj-detail";
 import { buildDetailView } from "@/lib/detail-view";
+import Database from "better-sqlite3";
+import { join } from "path";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+// 商品基础信息只读连接（单例 + WAL，与 catalog-db.ts 同模式）。
+// 全量收割后 products 表可达 155 万行，JSON 快照 570MB 无法每次请求全量解析，
+// 基础信息一律 SQLite 索引直查（毫秒级），JSON 仅在 SQLite 不可用时降级。
+let _db: Database.Database | null = null;
+function getDb(): Database.Database {
+  if (_db) return _db;
+  _db = new Database(join(process.cwd(), "data", "cj-catalog.db"), { readonly: true, fileMustExist: true });
+  _db.pragma("journal_mode = WAL");
+  _db.pragma("cache_size = -20000");
+  _db.pragma("mmap_size = 268435456");
+  return _db;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function findProduct(sku: string): any {
+  try {
+    const row = getDb()
+      .prepare("SELECT sku, pid, name, price, image, hasVideo, categoryId, categoryPath FROM products WHERE UPPER(sku) = UPPER(?)")
+      .get(sku);
+    if (row) return row;
+  } catch (e) {
+    console.warn("[api/cj/detail] SQLite 查询失败，降级 JSON:", e);
+  }
+  const catalog = loadCatalog();
+  return catalog.products.find((p) => String(p.sku).toUpperCase() === sku.toUpperCase());
+}
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
@@ -23,10 +52,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "sku 必填" }, { status: 400 });
   }
 
-  // 商品级零售价兜底（商品库里已按加价规则换算好）
-  const catalog = loadCatalog();
-  const product = catalog.products.find((p) => String(p.sku).toUpperCase() === sku.toUpperCase());
-  const fallbackRetail = product?.priceFrom && product.priceFrom > 0 ? product.priceFrom : Number(product?.price) || 0;
+  // 商品级零售价兜底（商品库里已按加价规则换算好；SQLite 行只有 price，JSON 有 priceFrom）
+  const product = findProduct(sku);
+  const fallbackRetail = Number(product?.priceFrom && product.priceFrom > 0 ? product.priceFrom : product?.price) || 0;
 
   if (!product) {
     return NextResponse.json({ ok: false, error: `商品库中不存在该 SKU：${sku}` }, { status: 404 });
