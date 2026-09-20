@@ -1,0 +1,874 @@
+{
+  "common": {
+    "siteName": "7zi Studio",
+    "siteNameShort": "7ziStudio",
+    "tagline": "KI-gestütztes Studio für digitale Innovation",
+    "taglineShort": "KI-gestütztes Studio",
+    "logo": "7ziStudio"
+  },
+  "nav": {
+    "home": "Startseite",
+    "about": "Über uns",
+    "team": "Team",
+    "blog": "Blog",
+    "portfolio": "Portfolio",
+    "dashboard": "Dashboard",
+    "contact": "Kontakt",
+    "global": "7zi Global",
+    "siteNameShort": "7ziStudio",
+    "shop": "Shop",
+    "subagents": "KI-Agenten",
+    "tasks": "Aufgaben",
+    "memory": "Speicher",
+    "language": "Sprache",
+    "theme": "Design",
+    "settings": "Einstellungen",
+    "mobileMenu": {
+      "open": "Menü öffnen",
+      "close": "Menü schließen"
+    }
+  },
+  "home": {
+    "title": "Startseite – KI-gestütztes Studio für digitale Innovation",
+    "description": "7zi Studio besteht aus 11 professionellen KI-Agenten und bietet umfassende digitale Dienstleistungen: Webentwicklung, Markendesign und Marketing. Effizient, professionell und innovativ.",
+    "hero": {
+      "badge": "KI-gestütztes Studio für digitale Innovation",
+      "badgeShort": "KI-gestütztes Studio",
+      "title1": "Neu definieren",
+      "title2": "Team-Zusammenarbeit",
+      "title1Prefix": "Team-Zusammenarbeit mit KI neu definieren",
+      "description": "7zi Studio besteht aus 11 professionellen KI-Agenten – von der strategischen Planung bis zur Produktlieferung bieten wir Ihnen Komplettlösungen für digitale Projekte.",
+      "cta1": "Mehr erfahren",
+      "cta2": "Unser Team",
+      "stats": {
+        "experts": {
+          "value": "11+",
+          "label": "KI-Experten"
+        },
+        "service": {
+          "value": "24/7",
+          "label": "Online-Service"
+        },
+        "delivery": {
+          "value": "100%",
+          "label": "Projektlieferung"
+        }
+      }
+    },
+    "teamPreview": {
+      "title": "11 KI-Experten zu Ihren Diensten",
+      "description": "Unser Team deckt Strategie, Technologie und Betrieb ab – jedes Projekt verfügt über dedizierte KI-Mitglieder",
+      "viewTeam": "Gesamtes Team ansehen"
+    },
+    "services": {
+      "title": "Was wir für Sie tun können",
+      "description": "Umfassende digitale Dienstleistungen für alle Ihre Anforderungen",
+      "web": {
+        "title": "Webentwicklung",
+        "description": "Vom Design bis zur Umsetzung – hochleistungsfähige moderne Websites und Webanwendungen",
+        "features": [
+          "Responsives Design",
+          "Performance-Optimierung",
+          "SEO-freundlich"
+        ]
+      },
+      "design": {
+        "title": "Markendesign",
+        "description": "Professionelles UI/UX-Design zur Schaffung einer einzigartigen visuellen Markenidentität",
+        "features": [
+          "Logo-Design",
+          "Visuelle Identität",
+          "Benutzererlebnis"
+        ]
+      },
+      "marketing": {
+        "title": "Marketing & Promotion",
+        "description": "SEO-Optimierung, Content-Marketing und Social-Media-Management zur Stärkung der Markenbekanntheit",
+        "features": [
+          "SEO-Optimierung",
+          "Content-Strategie",
+          "Social Media"
+        ]
+      }
+    },
+    "whyUs": {
+      "title": "Warum 7zi Studio wählen",
+      "efficient": {
+        "title": "Effiziente Umsetzung",
+        "description": "Das KI-Team arbeitet rund um die Uhr mit schnellen Reaktionszeiten und doppelter Effizienz"
+      },
+      "professional": {
+        "title": "Professioneller Fokus",
+        "description": "11 KI-Experten mit jeweils eigener Spezialisierung – professionelle Standards in jeder Phase"
+      },
+      "cost": {
+        "title": "Kostenoptimierung",
+        "description": "Genießen Sie hochwertige professionelle Dienstleistungen, ohne mehrere Teams einstellen zu müssen"
+      },
+      "iteration": {
+        "title": "Kontinuierliche Iteration",
+        "description": "Schnelle Iteration und Optimierung basierend auf Feedback zur Verbesserung von Produkten und Erlebnissen"
+      }
+    },
+    "cta": {
+      "title": "Bereit loszulegen?",
+      "description": "Gemeinsam verwirklichen wir Ihr nächstes digitales Projekt",
+      "button": "Jetzt Kontakt aufnehmen"
+    }
+  },
+  "team": {
+    "title": "Unser Team - 7zi Studio",
+    "description": "Lernen Sie unser Team aus 11 professionellen KI-Agenten kennen. Experten für Strategie, Technologie, Betrieb und mehr, hier um Ihnen zu dienen.",
+    "hero": {
+      "badge": "11 KI-Experten",
+      "title": "Unser Team",
+      "description": "Von der strategischen Planung bis zur Ausführung – Experten in jeder Phase, um Sie zu führen",
+      "stats": {
+        "members": {
+          "value": "11",
+          "label": "Professionelle Agenten"
+        },
+        "coverage": {
+          "value": "100%",
+          "label": "Abdeckung"
+        },
+        "support": {
+          "value": "24/7",
+          "label": "Online-Support"
+        }
+      }
+    },
+    "filters": {
+      "all": "Alle",
+      "strategy": "Strategie",
+      "tech": "Technik",
+      "creative": "Kreativ",
+      "business": "Business"
+    },
+    "members": {
+      "expert": {
+        "name": "KI-Welt-Experte",
+        "role": "Strategie & Zukunftsplanung",
+        "description": "Fokussiert auf KI-Agent-Entwicklungstrends und Zukunftsgestaltung, bietet dem Team strategische Perspektiven und vorausschauendes Denken.",
+        "skills": [
+          "Strategische Analyse",
+          "Trendvorhersage",
+          "Innovatives Denken"
+        ]
+      },
+      "consultant": {
+        "name": "Berater",
+        "role": "Forschung & Analyse",
+        "description": "Tiefe Forschung zu Marktdynamik und Technologie-Trends, bietet datengestützte Entscheidungsunterstützung für Projekte.",
+        "skills": [
+          "Marktforschung",
+          "Datenanalyse",
+          "Entscheidungsunterstützung"
+        ]
+      },
+      "architect": {
+        "name": "Architekt",
+        "role": "Design & Planung",
+        "description": "Entwirft Systemarchitektur und technische Lösungen, stellt Projektdurchführbarkeit und Skalierbarkeit sicher.",
+        "skills": [
+          "Systemarchitektur",
+          "Technologie-Auswahl",
+          "Lösungsdesign"
+        ]
+      },
+      "executor": {
+        "name": "Executor",
+        "role": "Ausführung & Implementierung",
+        "description": "Führt Aufgaben effizient aus, transformiert Design-Lösungen in hochwertige Code-Implementierungen.",
+        "skills": [
+          "Code-Implementierung",
+          "Aufgabenausführung",
+          "Effizienzoptimierung"
+        ]
+      },
+      "admin": {
+        "name": "Systemadministrator",
+        "role": "Betrieb & Bereitstellung",
+        "description": "Verantwortlich für Systembetrieb, Server-Management und automatisierte Bereitstellung für stabilen Servicebetrieb.",
+        "skills": [
+          "Systembetrieb",
+          "Auto-Bereitstellung",
+          "Sicherheits-Härtung"
+        ]
+      },
+      "tester": {
+        "name": "Tester",
+        "role": "Testen & Debugging",
+        "description": "Schreibt Testfälle, führt funktionale Tests und Leistungsoptimierung durch, um Produktqualität zu gewährleisten.",
+        "skills": [
+          "Funktionale Tests",
+          "Leistungsoptimierung",
+          "Qualitätssicherung"
+        ]
+      },
+      "designer": {
+        "name": "Designer",
+        "role": "UI & Frontend-Design",
+        "description": "Erstellt schöne und benutzerfreundliche Schnittstellen, bietet hervorragendes User-Experience-Design.",
+        "skills": [
+          "UI-Design",
+          "User Experience",
+          "Visuelle Kreativität"
+        ]
+      },
+      "promoter": {
+        "name": "Marketing-Spezialist",
+        "role": "Promotion & SEO",
+        "description": "Entwickelt Promotionsstrategien, optimiert Suchmaschinen-Rankings und stärkt die Markenbekanntheit.",
+        "skills": [
+          "SEO-Optimierung",
+          "Content-Marketing",
+          "Marken-Promotion"
+        ]
+      },
+      "sales": {
+        "name": "Vertrieb & Support",
+        "role": "Vertrieb & Kundenservice",
+        "description": "Kommuniziert mit Kunden, versteht Bedürfnisse, bietet Lösungen und qualitativ hochwertige Service-Unterstützung.",
+        "skills": [
+          "Kundenkommunikation",
+          "Bedarfsanalyse",
+          "Lösungen"
+        ]
+      },
+      "finance": {
+        "name": "Finanzen",
+        "role": "Buchhaltung & Revision",
+        "description": "Verwaltet finanzielle Einnahmen und Ausgaben, führt Kostenrechnung und Finanzanalyse durch, um finanzielle Gesundheit zu gewährleisten.",
+        "skills": [
+          "Finanzmanagement",
+          "Kostenkontrolle",
+          "Finanzanalyse"
+        ]
+      },
+      "media": {
+        "name": "Medien",
+        "role": "Medien & Öffentlichkeit",
+        "description": "Plant und produziert Inhalte, verbreitet über mehrere Kanäle, um Markeneinfluss zu stärken.",
+        "skills": [
+          "Content-Planung",
+          "Medienbetrieb",
+          "Markenkommunikation"
+        ]
+      }
+    },
+    "availability": "24/7 verfügbar",
+    "collaboration": {
+      "title": "Effizienter Kollaborationsmodus",
+      "description": "11 KI-Agenten arbeiten nahtlos zusammen, um reibungslosen Projektfortschritt zu gewährleisten",
+      "items": {
+        "strategy": {
+          "title": "Strategie → Ausführung",
+          "description": "Von der strategischen Planung des KI-Welt-Experten zur effizienten Implementierung des Executors"
+        },
+        "design": {
+          "title": "Design → Entwicklung",
+          "description": "Kreative Lösungen des Designers perfekt implementiert vom Architekten und Executor"
+        },
+        "testing": {
+          "title": "Test → Bereitstellung",
+          "description": "Tester gewährleistet Qualität, Systemadministrator stellt stabil online bereit"
+        },
+        "promotion": {
+          "title": "Promotion → Konversion",
+          "description": "Marketing-Spezialist generiert Traffic, Vertrieb konvertiert, Finanzen verbucht präzise"
+        }
+      }
+    },
+    "cta": {
+      "title": "Bereit, mit uns zu arbeiten?",
+      "description": "11 KI-Experten bereit, exzellente digitale Projekte für Sie zu erstellen",
+      "button": "Kontaktieren Sie uns"
+    }
+  },
+  "about": {
+    "title": "Über uns - 7zi Studio",
+    "description": "Erfahren Sie mehr über 7zi Studio – Ein innovatives digitales Studio angetrieben von 11 KI-Agenten",
+    "hero": {
+      "badge": "Innovatives, KI-gestütztes Studio",
+      "title": "Über uns",
+      "description": "Team-Zusammenarbeit neu definieren — Ein intelligentes Team aus 11 KI-Agenten, schafft 24/7 digitalen Wert für Sie",
+      "scrollHint": "Mehr erfahren"
+    },
+    "intro": {
+      "title": "Über 7zi Studio",
+      "p1": "7zi Studio ist ein innovatives digitales Studio. Wir haben das Konzept eines Teams neu definiert – bestehend aus 11 professionellen KI-Agenten, jeder nutzt seine Expertise, um gemeinsam verschiedene digitale Projekte zu absolvieren.",
+      "p2": "Unser Team verbindet die Kreativität von Menschen mit der effizienten Ausführung von KI. Von der strategischen Planung bis zur Produktlieferung, vom Design bis zur Promotion – jede Phase hat dedizierte KI-Mitglieder verantwortlich.",
+      "p3": "Ob Webentwicklung, Markendesign, SEO-Optimierung oder Content-Marketing, 7zi Studio bietet Ihnen digitale All-in-One-Lösungen.",
+      "stats": {
+        "experts": {
+          "value": "11",
+          "label": "KI-Experten",
+          "sub": "Jeder spezialisiert"
+        },
+        "projects": {
+          "value": "50+",
+          "label": "Abgeschlossene Projekte",
+          "sub": "Kundenzufriedenheit"
+        },
+        "delivery": {
+          "value": "100%",
+          "label": "Lieferquote",
+          "sub": "Pünktliche Lieferung"
+        },
+        "support": {
+          "value": "24/7",
+          "label": "Online-Support",
+          "sub": "Immer ansprechbar"
+        }
+      }
+    },
+    "team": {
+      "badge": "Kernteam",
+      "title": "Unsere Teammitglieder",
+      "description": "11 KI-Agenten mit einzigartiger Expertise, bilden ein effizient kollaborierendes intelligentes Team"
+    },
+    "timeline": {
+      "badge": "Unsere Reise",
+      "title": "Unsere Wachstumskurve",
+      "description": "Vom Start bis zum Wachstum, jeder Schritt nach vorne mit unseren Kunden",
+      "items": [
+        {
+          "year": "2024",
+          "title": "Gründung",
+          "description": "7zi Studio offiziell gegründet, eröffnet eine neue Ära KI-gesteuerter digitaler Studios"
+        },
+        {
+          "year": "2024",
+          "title": "Teambildung",
+          "description": "Alle 11 KI-Agenten im Einsatz, bilden ein vollständiges Kollaborationssystem"
+        },
+        {
+          "year": "2025",
+          "title": "Dienstleistungserweiterung",
+          "description": "Dienstleistungen erweitert auf Webentwicklung, Markendesign, SEO-Optimierung und mehr"
+        },
+        {
+          "year": "2025",
+          "title": "Technologie-Upgrade",
+          "description": "Neueste KI-Technologie eingeführt, optimiert kontinuierlich Team-Kollaborationseffizienz und Ergebnisqualität"
+        }
+      ]
+    },
+    "partners": {
+      "badge": "Partner",
+      "title": "Vertraut von",
+      "description": "Partnerschaft mit exzellenten Unternehmen, um gemeinsam eine digitale Zukunft zu schaffen",
+      "count": "{count} Unternehmen haben sich für eine Zusammenarbeit mit uns entschieden"
+    },
+    "values": {
+      "badge": "Kernwerte",
+      "title": "Unsere Philosophie",
+      "items": {
+        "collaboration": {
+          "title": "Effiziente Kollaboration",
+          "description": "11 KI-Agenten arbeiten zusammen mit ergänzenden Stärken, stellen sicher, dass jedes Projekt effizient voranschreitet."
+        },
+        "innovation": {
+          "title": "Innovationsgetrieben",
+          "description": "Kontinuierlich neue Technologien und Lösungen erkunden, Kunden die innovativsten Lösungen bieten."
+        },
+        "quality": {
+          "title": "Qualitätsfokus",
+          "description": "Qualität in jeder Phase streng kontrollieren, sicherstellen, dass Lieferungen Kundenerwartungen übertreffen."
+        },
+        "customer": {
+          "title": "Kunde zuerst",
+          "description": "Kundenbedürfnisse tief verstehen, personalisierten Service und Support bieten."
+        }
+      }
+    },
+    "process": {
+      "badge": "Workflow",
+      "title": "Wie wir arbeiten",
+      "items": [
+        {
+          "title": "Anforderungsanalyse",
+          "description": "Ziele und Bedürfnisse tief verstehen, detaillierte Projektpläne entwickeln"
+        },
+        {
+          "title": "Lösungsdesign",
+          "description": "Architekten und Designer arbeiten zusammen, um vollständige technische und visuelle Lösungen zu schaffen"
+        },
+        {
+          "title": "Entwicklung",
+          "description": "Executor codiert effizient, Tester führt gleichzeitig Qualitätskontrolle durch"
+        },
+        {
+          "title": "Lieferung",
+          "description": "Systemadministrator stellt online bereit, Marketing-Spezialist startet Marketingpläne"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Bereit, mit uns zu arbeiten?",
+      "description": "Lassen Sie uns gemeinsam Ihr digitales Projekt bauen und unendliche Möglichkeiten schaffen",
+      "button": "Kontaktieren Sie uns"
+    }
+  },
+  "contact": {
+    "title": "Kontakt - 7zi Studio",
+    "description": "Kontaktieren Sie 7zi Studio - KI-gestütztes Innovationsstudio. Geschäftliche Zusammenarbeit, technischer Support, Projektberatung. Wir antworten innerhalb von 24 Stunden.",
+    "hero": {
+      "title": "Kontakt",
+      "description": "Fragen oder Partnerschaftsideen? Wir sind immer bereit, Ihnen zu dienen"
+    },
+    "form": {
+      "title": "Nachricht senden",
+      "name": "Name",
+      "email": "E-Mail",
+      "company": "Unternehmen (Optional)",
+      "subject": "Betreff",
+      "message": "Nachricht",
+      "submit": "Senden",
+      "sending": "Wird gesendet...",
+      "success": "Nachricht erfolgreich gesendet!",
+      "error": "Senden fehlgeschlagen, bitte erneut versuchen"
+    },
+    "info": {
+      "title": "E-Mail-Kontakt",
+      "business": {
+        "title": "Geschäftliche Zusammenarbeit",
+        "email": "business@7zi.studio",
+        "description": "Projektberatung, geschäftliche Zusammenarbeit"
+      },
+      "support": {
+        "title": "Technischer Support",
+        "email": "support@7zi.studio",
+        "description": "Technische Probleme, Kundendienst"
+      },
+      "careers": {
+        "title": "Karriere",
+        "email": "careers@7zi.studio",
+        "description": "KI-Partner-Rekrutierung"
+      }
+    },
+    "social": {
+      "title": "Folgen Sie uns"
+    },
+    "response": {
+      "title": "Reaktionszeit",
+      "description": "Wir antworten normalerweise innerhalb von 24 Stunden. Werktags schnellere Antwort!"
+    },
+    "faq": {
+      "title": "Häufig gestellte Fragen",
+      "items": [
+        {
+          "question": "Welche Dienstleistungen bietet 7zi Studio an?",
+          "answer": "Wir bieten umfassende digitale Dienstleistungen einschließlich Webentwicklung, Markendesign, UI/UX-Design, SEO-Optimierung und Content-Marketing."
+        },
+        {
+          "question": "Wie beginnt man eine Zusammenarbeit?",
+          "answer": "Sie können uns kontaktieren, indem Sie das Kontaktformular ausfüllen oder eine E-Mail senden. Unser Team antwortet innerhalb von 24 Stunden."
+        },
+        {
+          "question": "Wie sieht Ihr Preismodell aus?",
+          "answer": "Wir bieten maßgeschneiderte Angebote basierend auf Projektanforderungen, einschließlich projektbasierter Preise und monatlicher Servicemodelle."
+        },
+        {
+          "question": "Bieten Sie eine kostenlose Beratung an?",
+          "answer": "Ja, wir bieten eine kostenlose Erstkonsultation an. Sie können Ihre Anforderungen detailliert beschreiben, und wir liefern vorläufige Vorschläge."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Noch unsicher?",
+      "description": "Starten Sie jetzt Ihr digitales Projekt und schaffen Sie die Zukunft mit 7zi Studio",
+      "emailButton": "E-Mail senden",
+      "homeButton": "Zurück zur Startseite"
+    }
+  },
+  "portfolio": {
+    "title": "Portfolio - 7zi Studio",
+    "description": "7zi Studio Portfolio - Webentwicklung, mobile Apps, KI-Lösungen und Markendesign-Showcase",
+    "hero": {
+      "badge": "Ausgewählte Arbeiten",
+      "title": "Unser Portfolio",
+      "description": "Von Webentwicklung bis KI-Lösungen – jedes Projekt spiegelt unser Engagement für Qualität wider"
+    },
+    "categories": {
+      "all": "Alle",
+      "website": "Website",
+      "app": "App",
+      "ai": "KI",
+      "design": "Design"
+    },
+    "card": {
+      "viewDetails": "Details ansehen"
+    },
+    "detail": {
+      "backToList": "Zurück zum Portfolio",
+      "visitSite": "Website besuchen",
+      "client": "Kunde",
+      "duration": "Dauer",
+      "category": "Kategorie",
+      "year": "Jahr",
+      "highlights": "Highlights",
+      "techStack": "Tech-Stack",
+      "screenshots": "Screenshots",
+      "testimonial": "Kundenreferenz",
+      "relatedProjects": "Verwandte Projekte"
+    },
+    "cta": {
+      "title": "Bereit, Ihr Projekt zu starten?",
+      "description": "Lassen Sie uns Ihre Ideen gemeinsam verwirklichen",
+      "button": "Kontaktieren Sie uns"
+    },
+    "empty": {
+      "title": "Keine Projekte gefunden",
+      "description": "Versuchen Sie eine andere Kategorie"
+    }
+  },
+  "blog": {
+    "title": "Blog - 7zi Studio",
+    "description": "7zi Studio Blog - KI-Technologie, digitale Transformation und Brancheneinblicke teilen",
+    "readMore": "Weiterlesen",
+    "backToList": "Zurück zur Blog-Liste"
+  },
+  "dashboard": {
+    "title": "Dashboard - 7zi Studio",
+    "description": "Projekt-Dashboard - Projektfortschritt und Daten anzeigen"
+  },
+  "footer": {
+    "copyright": "© 2024 7zi Studio. Alle Rechte vorbehalten.",
+    "aiPowered": "Angetrieben vom KI-Agenten-Team · Unendliche Innovation",
+    "brandDescription": "Ein innovatives digitales Studio, bestehend aus 11 professionellen KI-Agenten, das umfassende digitale Dienstleistungen einschließlich Webentwicklung, Markendesign und Marketing bietet.",
+    "followUs": "Folgen Sie uns",
+    "quickLinks": {
+      "title": "Schnelllinks",
+      "home": "Startseite",
+      "about": "Über uns",
+      "team": "Team",
+      "blog": "Blog",
+      "contact": "Kontakt",
+      "dashboard": "Dashboard"
+    },
+    "services": {
+      "title": "Dienstleistungen",
+      "webDevelopment": "Webentwicklung",
+      "brandDesign": "Markendesign",
+      "seoOptimization": "SEO-Optimierung",
+      "marketing": "Marketing",
+      "uiuxDesign": "UI/UX-Design",
+      "aiSolutions": "KI-Lösungen"
+    },
+    "contact": {
+      "title": "Kontakt",
+      "email": "E-Mail",
+      "website": "Website",
+      "address": "Adresse"
+    },
+    "legal": {
+      "privacyPolicy": "Datenschutzerklärung",
+      "termsOfService": "Nutzungsbedingungen",
+      "cookiePolicy": "Cookie-Richtlinie"
+    }
+  },
+  "errors": {
+    "notFound": {
+      "title": "Seite nicht gefunden",
+      "description": "Die gesuchte Seite existiert nicht oder wurde entfernt.",
+      "solution": "Überprüfen Sie die URL auf Tippfehler oder verwenden Sie die Navigation, um das Gesuchte zu finden.",
+      "backHome": "Zurück zur Startseite",
+      "contactSupport": "Support kontaktieren",
+      "suggestions": {
+        "title": "Vielleicht suchen Sie:",
+        "home": "Startseite",
+        "about": "Über uns",
+        "team": "Team",
+        "blog": "Blog"
+      }
+    },
+    "serverError": {
+      "title": "Serverfehler",
+      "description": "Etwas ist schiefgelaufen.",
+      "solution": "Unser Team wurde benachrichtigt und arbeitet an der Lösung dieses Problems.",
+      "retry": "Erneut versuchen",
+      "backHome": "Zurück zur Startseite",
+      "errorCode": "Fehlercode: {code}"
+    },
+    "unauthorized": {
+      "title": "Authentifizierung erforderlich",
+      "description": "Sie müssen sich einloggen, um auf diese Seite zuzugreifen.",
+      "solution": "Bitte melden Sie sich an, um fortzufahren, oder kontaktieren Sie den Support, wenn dies ein Fehler ist.",
+      "login": "Anmelden",
+      "backHome": "Zurück zur Startseite"
+    },
+    "forbidden": {
+      "title": "Zugriff verweigert",
+      "description": "Sie haben keine Berechtigung, auf diese Seite zuzugreifen.",
+      "solution": "Wenn dies ein Fehler ist, kontaktieren Sie bitte unser Support-Team.",
+      "backHome": "Zurück zur Startseite",
+      "contactSupport": "Support kontaktieren"
+    },
+    "networkError": {
+      "title": "Netzwerkfehler",
+      "description": "Keine Verbindung zum Server möglich.",
+      "solution": "Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+      "retry": "Erneut versuchen",
+      "backHome": "Zurück zur Startseite"
+    },
+    "general": {
+      "title": "Etwas ist schiefgelaufen",
+      "description": "Ein unerwarteter Fehler ist aufgetreten.",
+      "solution": "Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, kontaktieren Sie unser Support-Team.",
+      "retry": "Erneut versuchen",
+      "backHome": "Zurück zur Startseite",
+      "copyError": "Fehlerinfo kopieren",
+      "copied": "Kopiert!",
+      "showDetails": "Details anzeigen",
+      "hideDetails": "Details ausblenden",
+      "goBack": "Zurück",
+      "refresh": "Seite aktualisieren",
+      "support": "Wenn das Problem weiterhin besteht, kontaktieren Sie"
+    }
+  },
+  "time": {
+    "justNow": "gerade eben",
+    "minutesAgo": "vor {count} Minute(n)",
+    "hoursAgo": "vor {count} Stunde(n)",
+    "daysAgo": "vor {count} Tag(en)",
+    "weeksAgo": "vor {count} Woche(n)",
+    "monthsAgo": "vor {count} Monat(en)",
+    "yearsAgo": "vor {count} Jahr(en)"
+  },
+  "mobileMenu": {
+    "open": "Menü öffnen",
+    "close": "Menü schließen",
+    "language": "Sprache",
+    "theme": "Design"
+  },
+  "subagents": "Subagenten",
+  "memory": "Speicher",
+  "tasks": "Aufgaben",
+  "ui": {
+    "button": {
+      "confirm": "Bestätigen",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "close": "Schließen",
+      "submit": "Absenden",
+      "back": "Zurück",
+      "next": "Weiter",
+      "previous": "Vorherige",
+      "loading": "Laden...",
+      "retry": "Erneut versuchen",
+      "search": "Suchen",
+      "filter": "Filtern",
+      "sort": "Sortieren",
+      "export": "Exportieren",
+      "import": "Importieren",
+      "download": "Herunterladen",
+      "upload": "Hochladen",
+      "share": "Teilen",
+      "copy": "Kopieren",
+      "view": "Anzeigen",
+      "create": "Erstellen",
+      "add": "Hinzufügen",
+      "remove": "Entfernen",
+      "clear": "Löschen",
+      "reset": "Zurücksetzen",
+      "apply": "Anwenden"
+    },
+    "input": {
+      "placeholder": {
+        "search": "Suchen...",
+        "name": "Namen eingeben",
+        "email": "E-Mail eingeben",
+        "message": "Nachricht eingeben",
+        "company": "Firmenname eingeben (optional)"
+      },
+      "label": {
+        "name": "Name",
+        "email": "E-Mail",
+        "phone": "Telefon",
+        "company": "Unternehmen",
+        "subject": "Betreff",
+        "message": "Nachricht",
+        "description": "Beschreibung",
+        "category": "Kategorie",
+        "tags": "Tags"
+      }
+    },
+    "modal": {
+      "close": "Modal schließen",
+      "confirmTitle": "Bestätigen",
+      "confirmMessage": "Möchten Sie diese Aktion wirklich ausführen?",
+      "deleteTitle": "Löschung bestätigen",
+      "deleteMessage": "Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie wirklich löschen?"
+    },
+    "toast": {
+      "success": "Erfolg",
+      "error": "Fehler",
+      "warning": "Warnung",
+      "info": "Info",
+      "saved": "Gespeichert",
+      "deleted": "Gelöscht",
+      "updated": "Aktualisiert",
+      "copied": "In die Zwischenablage kopiert"
+    },
+    "tooltip": {
+      "moreInfo": "Weitere Informationen",
+      "viewDetails": "Details anzeigen",
+      "close": "Schließen"
+    },
+    "select": {
+      "placeholder": "Auswählen...",
+      "all": "Alle",
+      "none": "Keine"
+    },
+    "checkbox": {
+      "selectAll": "Alle auswählen",
+      "unselectAll": "Alle abwählen"
+    },
+    "tabs": {
+      "overview": "Übersicht",
+      "details": "Details",
+      "settings": "Einstellungen",
+      "history": "Verlauf"
+    }
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "markAllRead": "Alle als gelesen markieren",
+    "markAsRead": "Als gelesen markieren",
+    "markAsUnread": "Als ungelesen markieren",
+    "delete": "Löschen",
+    "deleteAll": "Alle löschen",
+    "settings": "Benachrichtigungseinstellungen",
+    "types": {
+      "info": "Info",
+      "success": "Erfolg",
+      "warning": "Warnung",
+      "error": "Fehler"
+    },
+    "messages": {
+      "newMessage": "Neue Nachricht",
+      "taskUpdated": "Aufgabe aktualisiert",
+      "taskCompleted": "Aufgabe abgeschlossen",
+      "newComment": "Neuer Kommentar",
+      "mention": "Jemand hat Sie erwähnt",
+      "system": "Systembenachrichtigung",
+      "reminder": "Erinnerung",
+      "deadline": "Frist nähert sich",
+      "overdue": "Überfällig"
+    },
+    "empty": {
+      "title": "Keine Benachrichtigungen",
+      "description": "Sie haben noch keine Benachrichtigungen"
+    }
+  },
+  "email": {
+    "subject": {
+      "contact": "Anfrage von Website",
+      "project": "Projektanfrage",
+      "cooperation": "Geschäftliche Zusammenarbeit",
+      "support": "Technischer Support",
+      "careers": "Karriere",
+      "other": "Andere Anfrage"
+    },
+    "greeting": "Hallo",
+    "body": {
+      "intro": "Neue Anfrage erhalten:",
+      "fromName": "Von: {name}",
+      "fromEmail": "E-Mail: {email}",
+      "company": "Unternehmen: {company}",
+      "subject": "Betreff: {subject}",
+      "message": "Nachricht:",
+      "timestamp": "Gesendet am: {time}"
+    },
+    "footer": {
+      "sentFrom": "Diese Nachricht wurde von der 7zi Studio Website gesendet",
+      "unsubscribe": "Wenn Sie solche E-Mails nicht erhalten möchten, antworten Sie bitte auf diese E-Mail"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "profile": "Profil",
+    "preferences": "Präferenzen",
+    "notifications": "Benachrichtigungen",
+    "security": "Sicherheit",
+    "language": "Sprache",
+    "theme": "Design",
+    "account": "Konto",
+    "save": "Änderungen speichern",
+    "cancel": "Abbrechen"
+  },
+  "loading": {
+    "default": "Laden...",
+    "saving": "Speichern...",
+    "sending": "Senden...",
+    "deleting": "Löschen...",
+    "updating": "Aktualisieren..."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "phone": "Bitte geben Sie eine gültige Telefonnummer ein",
+    "minLength": "Mindestens {min} Zeichen erforderlich",
+    "maxLength": "Maximal {max} Zeichen erlaubt",
+    "url": "Bitte geben Sie eine gültige URL ein",
+    "number": "Bitte geben Sie eine gültige Zahl ein",
+    "date": "Bitte wählen Sie ein gültiges Datum",
+    "file": {
+      "required": "Bitte wählen Sie eine Datei aus",
+      "size": "Dateigröße darf {size}MB nicht überschreiten",
+      "type": "Nicht unterstützter Dateityp"
+    }
+  },
+  "agentDashboard": {
+    "pageTitle": "KI-Team-Scheduler",
+    "activeTasks": "Aktive Aufgaben",
+    "avgResponse": "Durchschnittliche Antwortzeit",
+    "completedToday": "Heute abgeschlossen",
+    "teamEfficiency": "Team-Effizienz",
+    "taskName": "Aufgabenname",
+    "assignee": "Zugewiesen an",
+    "status": "Status",
+    "progress": "Fortschritt",
+    "estimatedTime": "Geschätzte Zeit",
+    "pending": "Ausstehend",
+    "inProgress": "In Bearbeitung",
+    "completed": "Abgeschlossen",
+    "failed": "Fehlgeschlagen",
+    "cancelled": "Abgebrochen",
+    "allTasks": "Alle",
+    "online": "Online",
+    "busy": "Beschäftigt",
+    "idle": "Inaktiv",
+    "offline": "Offline",
+    "teamStatus": "Team-Status",
+    "taskList": "Aufgabenliste",
+    "loading": "Wird geladen...",
+    "noTasks": "Keine Aufgaben",
+    "noAgents": "Keine Agenten",
+    "priority": {
+      "urgent": "Dringend",
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig"
+    },
+    "agentTypes": {
+      "strategic": "Strategisch",
+      "research": "Forschung",
+      "technical": "Technisch",
+      "execution": "Ausführung",
+      "operations": "Betrieb",
+      "quality": "Qualität",
+      "creative": "Kreativ",
+      "marketing": "Marketing",
+      "business": "Business"
+    },
+    "refreshInterval": "Echtzeit-Updates",
+    "totalTasks": "Gesamtaufgaben",
+    "pendingTasks": "Ausstehend",
+    "completedTasks": "Abgeschlossen"
+  }
+}

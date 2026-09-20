@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.turbo/
+.vercel/
+
+# Logs
+logs/
+*.log
+
+# Environment variables (含密钥，绝不入库)
+.env
+.env*.local
+.env.local
+.env.*.local
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Data & runtime (数据只在服务器，本地不入库)
+data/
+*.db
+*.db-shm
+*.db-wal
+backups/
