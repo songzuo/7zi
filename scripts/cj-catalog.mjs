@@ -329,26 +329,31 @@ END;
   }
 })();
 
-// 老库迁移：leaves 表可能缺 cappedAt / visSkuCount 列
+// 老库迁移：leaves 表可能缺 cappedAt / visSkuCount 列；products 缺 createTime 列
 (function migrateLeaves() {
   const cols = db.prepare("PRAGMA table_info(leaves)").all().map(c => c.name);
   if (!cols.includes("cappedAt")) db.exec("ALTER TABLE leaves ADD COLUMN cappedAt TEXT");
   if (!cols.includes("visSkuCount")) db.exec("ALTER TABLE leaves ADD COLUMN visSkuCount INTEGER DEFAULT 0");
 })();
+(function migrateProducts() {
+  const cols = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
+  if (!cols.includes("createTime")) db.exec("ALTER TABLE products ADD COLUMN createTime INTEGER");
+})();
 
 const insProduct = db.prepare(`
-INSERT INTO products (sku, pid, name, price, image, hasVideo, categoryId, categoryPath, firstSeenAt, lastSeenAt)
-VALUES (@sku, @pid, @name, @price, @image, @hasVideo, @categoryId, @categoryPath, @now, @now)
+INSERT INTO products (sku, pid, name, price, image, hasVideo, categoryId, categoryPath, createTime, firstSeenAt, lastSeenAt)
+VALUES (@sku, @pid, @name, @price, @image, @hasVideo, @categoryId, @categoryPath, @createTime, @now, @now)
 ON CONFLICT(sku) DO UPDATE SET
   pid=excluded.pid, name=excluded.name, price=excluded.price, image=excluded.image,
   hasVideo=excluded.hasVideo, categoryId=excluded.categoryId, categoryPath=excluded.categoryPath,
-  lastSeenAt=excluded.lastSeenAt
+  createTime=excluded.createTime, lastSeenAt=excluded.lastSeenAt
 `);
 const insProductNoPath = db.prepare(`
-INSERT INTO products (sku, pid, name, price, image, hasVideo, categoryId, categoryPath, firstSeenAt, lastSeenAt)
-VALUES (@sku, @pid, @name, @price, @image, @hasVideo, @categoryId, @categoryPath, @now, @now)
+INSERT INTO products (sku, pid, name, price, image, hasVideo, categoryId, categoryPath, createTime, firstSeenAt, lastSeenAt)
+VALUES (@sku, @pid, @name, @price, @image, @hasVideo, @categoryId, @categoryPath, @createTime, @now, @now)
 ON CONFLICT(sku) DO UPDATE SET
-  name=excluded.name, price=excluded.price, image=excluded.image, hasVideo=excluded.hasVideo, lastSeenAt=excluded.lastSeenAt
+  name=excluded.name, price=excluded.price, image=excluded.image, hasVideo=excluded.hasVideo,
+  createTime=excluded.createTime, lastSeenAt=excluded.lastSeenAt
 `);
 const getMeta = db.prepare("SELECT value FROM meta WHERE key=?");
 const setMeta = db.prepare("INSERT INTO meta(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
@@ -403,7 +408,8 @@ function upsertProducts(items, pathMap) {
       const row = {
         sku: p.sku, pid: p.id, name: p.name, price: parseFloat(p.price),
         image: p.image, hasVideo: p.hasVideo, categoryId: p.categoryId,
-        categoryPath: pathMap.get(p.categoryId) || null, now,
+        categoryPath: pathMap.get(p.categoryId) || null,
+        createTime: Number(p.createAt) || null, now,
       };
       if (row.categoryPath) insProduct.run(row); else insProductNoPath.run(row);
     }
