@@ -3,8 +3,8 @@
 // /shop/login —— 商城登录
 //   Tab 1「No-password」：邮箱 + 最近订单号 → 免密登录/一键升级（guest 用户专用）
 //   Tab 2「Password」：邮箱 + 密码 → 标准密码登录（已有密码账号）
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 type Mode = 'guest' | 'password';
@@ -12,8 +12,14 @@ type Status = 'idle' | 'busy' | 'error' | 'need-password';
 
 export default function ShopLoginPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const next = params.get('next') || '/shop/orders';
+  const [next, setNext] = useState('/shop/orders');
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const n = p.get('next');
+      if (n && n.startsWith('/')) setNext(n);
+    } catch {}
+  }, []);
 
   const [mode, setMode] = useState<Mode>('guest');
   const [email, setEmail] = useState('');
