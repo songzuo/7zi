@@ -1237,7 +1237,8 @@ async function refresh() {
 // publish：从目录库回写前台 JSON（可见集合不变，价格/图刷新；缺行回退旧值）
 // ---------------------------------------------------------------------------
 async function publish() {
-  const cur = JSON.parse(readFileSync(DATA_FILE, "utf-8"));
+  let cur = { products: [], categories: [] };
+  try { cur = JSON.parse(readFileSync(DATA_FILE, "utf-8")); } catch {}
   const pathMap = new Map();
   try {
     const body = await cjGet("/product/getCategory");
@@ -1252,26 +1253,47 @@ async function publish() {
     }
   } catch (e) { log(`publish：分类树获取失败（${e.message}），沿用旧路径`); }
 
+  // ============ 源切换（用户确认策略）：全量完成后以 products 表为真实可见全集 ============
+  // 旧 publish 以旧 JSON（8,683 快照）为基准，永远发现不了新 SKU。
+  // 全量收割完成后（incrCursor 存在 = 队列清空过），可见集 = products 表全部有效 SKU，
+  // 前台从真实全集回写——这正是"收割=发现"的落地。
+  const fullDone = !!getMeta.get(INCR_CURSOR_KEY)?.value;
   const getRow = db.prepare("SELECT * FROM products WHERE sku=?");
   let updated = 0, kept = 0, missing = 0;
-  const products = (cur.products || []).map(p => {
-    const row = getRow.get(p.sku);
-    if (!row) { missing++; return p; }
-    if (!(row.price > 0) || !row.image) { kept++; return p; }
-    if (String(row.price) !== String(p.price) || row.image !== p.image) updated++;
-    return {
-      ...p,
-      name: row.name || p.name,
-      price: String(row.price),
-      image: row.image || p.image,
-      hasVideo: !!row.hasVideo,
-      categoryPath: pathMap.get(row.categoryId) || row.categoryPath || p.categoryPath,
-    };
-  });
+  let products;
+  if (fullDone) {
+    // 真实全集源：products 表（V1 收割的全站有效 SKU，saleStatus=3 非 test）
+    const all = db.prepare("SELECT sku FROM products WHERE price > 0 AND image != ''").all();
+    products = all.map(r => {
+      const row = getRow.get(r.sku);
+      return {
+        sku: row.sku, id: row.pid, name: row.name, price: String(row.price),
+        image: row.image, hasVideo: !!row.hasVideo,
+        categoryId: row.categoryId, categoryPath: pathMap.get(row.categoryId) || row.categoryPath,
+      };
+    });
+    log(`publish：全量完成，以前台真实全集 ${products.length} 条为源回写`);
+  } else {
+    // 收割期兼容：仍以旧 JSON 为基准（增量回填价格/图），避免前台瞬间大改
+    products = (cur.products || []).map(p => {
+      const row = getRow.get(p.sku);
+      if (!row) { missing++; return p; }
+      if (!(row.price > 0) || !row.image) { kept++; return p; }
+      if (String(row.price) !== String(p.price) || row.image !== p.image) updated++;
+      return {
+        ...p,
+        name: row.name || p.name,
+        price: String(row.price),
+        image: row.image || p.image,
+        hasVideo: !!row.hasVideo,
+        categoryPath: pathMap.get(row.categoryId) || row.categoryPath || p.categoryPath,
+      };
+    });
+  }
   const staleCutoff = getMeta.get("passCompleteAt")?.value;
   let out = products;
-  if (staleCutoff) {
-    // 只有"整轮完成后"才按 lastSeen 过滤下架（首轮收割期间绝不删）
+  if (staleCutoff && !fullDone) {
+    // 收割期按 lastSeen 过滤下架（全量完成后源已是真实集，无需再过滤）
     const seen = db.prepare("SELECT lastSeenAt FROM products WHERE sku=?");
     out = products.filter(p => {
       const r = seen.get(p.sku);
