@@ -2,21 +2,33 @@
 /**
  * cj-catalog.mjs —— CJ 全目录收割/增量刷新/前台发布（点数感知 · 断点续传）
  *
- * 背景（2026-09-19）：
+ * 背景（2026-09-20 二次实测，权威）：
  *   - CJ 2026-07 起改点数计费：base 50,000/天 + 订单转换($1=100点)，UTC 00:00 重置，
- *     每分钟回填 total/1440。listV2 每页 50 点；/product/query 每批 10 点。
- *     耗尽返回 16900500 / HTTP 429（响应体含 pointsInfo.remaining）。
- *   - listV2 无过滤封顶 6000 条（60 页×100）；按叶子 categoryId 翻页可突破
- *     （实测 Women's Clothing 单 L1 就有 129,260 条）。
+ *     每分钟回填 total/1440。耗尽返回 16900500 / HTTP 429（响应体含 pointsInfo.remaining）。
+ *   - 【双通道实测结论】
+ *     V1 /product/list：每页 50 点但 size 最大 200（0.25 点/条 = V2 两倍效率）；total 是真实值
+ *       （Home Office Storage 真实 244,124 条）；支持 createTimeFrom/To 双边界时间切片
+ *       （yyy-MM-dd HH:mm:ss，实测 2026H1=18,642 / H2=11,309）；orderBy=createAt 默认降序；
+ *       offset 硬上限 6000（"the max offset is 6000"）→ 大叶子必须时间游标切片；
+ *       每天最大 1000 次（2024-09-30 文档）→ 单日 20 万条上限；QPS 1 次/秒。
+ *     V2 /product/listV2：每页 50 点但 size 最大 100（0.5 点/条）；totalRecords 字段被 6000 封顶
+ *       （显示值不真实）；page 上限 1000×100=10 万条 → 24 万大叶子仍收不全；可作 fallback。
+ *     /product/query：GET 单 pid（10 点/次）；POST 批量返回 16900202 "not supported"——
+ *       原"每批 20 pid 10 点"假设错误，8683 可见 SKU 逐个刷 ≈ 86,830 点 ≈ 全天点数，不可行。
  *   - 旧 cj-sync 每小时全量抓 6000 条再被防呆丢弃 = 纯烧点，已停用。
  *
- * 模式（默认 auto）：
- *   auto     首轮未完 → harvest 续收；首轮已完 → refresh 增量
- *   harvest  按叶子类目翻页收割全部商品进 SQLite（可跨天断点续传）
- *   refresh  轮转巡检叶子指纹（每叶子 1 页 50 点），指纹变了的叶子才整叶深抓；
- *            另用批量 /product/query 刷新前台可见 SKU（每批 20 个 pid 仅 10 点）
- *   publish  从 SQLite 回写 data/cj-local-data.json（前台可见集合不变，只刷价格/图）
- *   status   打印状态摘要
+ * 模式（默认 auto，两阶段收割架构 v2）：
+ *   阶段 1（全量收割期，done<total）：
+ *     probe      全量规模探测（V1 page=1，真实 total；578 叶 ≈ 28,900 点 ≈ 1/3 天）
+ *     harvest    双通道：小叶子(≤6000) V1 直接翻页（0.25 点/条）；大叶子(>6000) V1 时间游标切片
+ *                （每窗口 ≤6000，断点存 meta cursor:<leafId>）；同秒超量回退 V2 整叶。
+ *                优先级 = 可见 SKU 多的叶子先收（前台自然恢复）→ 大叶子优先。
+ *   阶段 2（增量刷新期，done==total）：
+ *     refresh    V1 轮转巡检 200 条指纹（0.25 点/条），指纹变化才深抓；
+ *                增量新商品走 createTimeFrom=游标（未来版本），可见 SKU 由收割覆盖。
+ *     publish    从 SQLite 回写 data/cj-local-data.json（前台可见集合不变，只刷价格/图）
+ *     curate     按规则自动选品上架
+ *   status   打印状态摘要（含真实规模地图、进度估计、可见覆盖）
  *
  * 设计约束：
  *   - 只增改不删（收割期间绝不删数据）；下架判定延后到"整轮完成"后由 stale 统计呈现
@@ -43,21 +55,26 @@ const LOCK_FILE = join(DATA_DIR, ".cj-catalog.lock");
 const CJ_BASE = "https://developers.cjdropshipping.com/api2.0/v1";
 const CJ_API_KEY = process.env.CJ_API_KEY || "CJ5237017@api@c8d316f7cf414c5f8e5ddb37339ecaac";
 
-const PAGE_SIZE = 100;
-const MIN_INTERVAL_MS = 1150;      // QPS 1/s 留余量
-const MAX_RETRY = 4;
-const FETCH_TIMEOUT_MS = 30000;
-const POINTS_RESERVE = 4000;       // 留给结账运费/详情等运维调用的保底点数
-const MAX_PAGES_PER_RUN = 60;      // 单轮页数上限（60×50=3000 点 ≈ 35 分钟回填量）
-const PROBE_LEAVES_PER_RUN = 40;   // refresh 模式每轮流转巡检的叶子数
-const PID_BATCH = 20;              // /product/query 每批 pid 数（10 点/批）
-const LOCK_STALE_MS = 15 * 60 * 1000;
-
 const argv = process.argv.slice(2);
 const arg = (n, d) => { const h = argv.find(a => a.startsWith(`--${n}=`)); return h ? h.split("=").slice(1).join("=") : d; };
 const MODE = arg("mode", "auto");
 const DRY_RUN = argv.includes("--dry-run");
 const QUIET = argv.includes("--quiet");
+
+const PAGE_SIZE_V1 = 200;         // V1 /product/list 每页最大 200 条（50 点/页 = 0.25 点/条，V2 的两倍效率）
+const PAGE_SIZE_V2 = 100;          // V2 /product/listV2 每页最大 100 条（50 点/页 = 0.5 点/条）
+const V1_MAX_OFFSET = 6000;        // V1 offset 硬上限（实测 "the max offset is 6000"）→ 大叶子必须时间切片
+const V1_DAY_LIMIT = 1000;         // V1 每天最大请求次数（2024-09-30 文档）→ 单日 20 万条上限
+const V1_TIME_FMT = "yyyy-MM-dd HH:mm:ss";
+const MIN_INTERVAL_MS = 1150;      // QPS 1/s 留余量（V1 实测 1 次/秒，现有间隔正好）
+const MAX_RETRY = 4;
+const FETCH_TIMEOUT_MS = 30000;
+const POINTS_RESERVE = parseInt(arg("reserve", "4000"), 10);   // 保底点数（--reserve 可调，留给结账/详情等）
+const MAX_PAGES_PER_RUN = parseInt(arg("pages", "60"), 10);    // 单轮页数上限（--pages 可调）
+const MAX_PAGES_PER_LEAF = 1000;   // 单叶子翻页安全上限（listV2 page 上限 1000，6000 条 totalRecords 封顶只影响字段显示，不影响翻页）
+const PROBE_LEAVES_PER_RUN = parseInt(arg("probe", "40"), 10); // 探测/巡检每轮叶子数
+const PID_BATCH = 20;              // /product/query 每批 pid 数（10 点/批）
+const LOCK_STALE_MS = 15 * 60 * 1000;
 
 function log(msg) {
   const line = `[${new Date().toISOString()}] ${msg}`;
@@ -189,6 +206,40 @@ function dedupeName(name) {
   if (half > 5 && s.substring(0, half) === s.substring(half)) return s.substring(0, half).trim();
   return s;
 }
+function toV1Time(ms) {
+  // 毫秒时间戳 → "yyyy-MM-dd HH:mm:ss"（本地时区，与 CJ 服务器一致用 Asia/Shanghai）
+  const d = new Date(Number(ms));
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+function toV1TimeFromDateStr(s) {
+  // "yyyy-MM-dd HH:mm:ss" → 毫秒时间戳（本地时区解析）
+  const m = String(s).match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
+  if (!m) return NaN;
+  return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime();
+}
+
+// V1 /product/list 归一化（data.list[] 直接是商品数组，字段名与 V2 不同）
+// V1 优势：size 200 / 0.25 点每条 / total 真实 / createTimeFrom-To 时间切片
+function normalizeV1List(raw) {
+  const out = [];
+  for (const p of raw || []) {
+    const sku = String(p.productSku || p.sku || "").trim();
+    const name = dedupeName(p.productNameEn || p.nameEn || "");
+    const price = parsePrice(p.sellPrice);
+    const image = String(p.productImage || p.bigImage || "").trim();
+    if (!sku || !name || !image || !(price > 0)) continue;
+    out.push({
+      id: String(p.pid || p.id || ""),
+      sku, name, price: String(price), image,
+      hasVideo: p.isVideo === 1 || p.isVideo === "1" ? 1 : 0,
+      categoryId: String(p.categoryId || ""),
+      createAt: Number(p.createTime) || 0,  // 毫秒时间戳（实测返回数字）
+    });
+  }
+  return out;
+}
+
 function normalizeProductList(raw) {
   const out = [];
   for (const group of raw || []) {
@@ -229,7 +280,9 @@ CREATE TABLE IF NOT EXISTS leaves (
   totalRecords INTEGER, pages INTEGER,
   fingerprint TEXT,
   harvestedPages INTEGER DEFAULT 0,
-  doneAt TEXT, lastProbeAt TEXT
+  doneAt TEXT, lastProbeAt TEXT,
+  cappedAt TEXT,
+  visSkuCount INTEGER DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
 -- 前台可见集：选品上架清单（curated front-end catalog）
@@ -268,6 +321,13 @@ END;
     db.exec("INSERT INTO products_fts(products_fts) VALUES ('rebuild')");
     log("FTS 索引重建完成");
   }
+})();
+
+// 老库迁移：leaves 表可能缺 cappedAt / visSkuCount 列
+(function migrateLeaves() {
+  const cols = db.prepare("PRAGMA table_info(leaves)").all().map(c => c.name);
+  if (!cols.includes("cappedAt")) db.exec("ALTER TABLE leaves ADD COLUMN cappedAt TEXT");
+  if (!cols.includes("visSkuCount")) db.exec("ALTER TABLE leaves ADD COLUMN visSkuCount INTEGER DEFAULT 0");
 })();
 
 const insProduct = db.prepare(`
@@ -351,43 +411,310 @@ function fingerprint(list) {
   return h.digest("hex").slice(0, 16);
 }
 
-async function harvestLeaf(leafId, pathMap, budget) {
-  // 第 1 页同时拿 totalRecords
-  const first = await cjGet(`/product/listV2?page=1&size=${PAGE_SIZE}&categoryId=${encodeURIComponent(leafId)}`);
-  if (first.pointsExhausted) return "stop";
-  const totalRecords = first.data.totalRecords || 0;
-  const totalPages = Math.ceil(totalRecords / PAGE_SIZE) || 1;
-  db.prepare("UPDATE leaves SET totalRecords=?, pages=? WHERE leafId=?").run(totalRecords, totalPages, leafId);
-
-  let page = 1, got = 0;
-  while (page <= totalPages) {
-    const items = page === 1 ? normalizeProductList(first.data.content) : null;
-    if (page > 1) {
-      const body = await cjGet(`/product/listV2?page=${page}&size=${PAGE_SIZE}&categoryId=${encodeURIComponent(leafId)}`);
-      if (body.pointsExhausted) { db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page - 1, leafId); return "stop"; }
-      const more = normalizeProductList(body.data.content);
-      upsertProducts(more, pathMap);
-      got += more.length;
-    } else if (items) {
-      upsertProducts(items, pathMap);
-      got += items.length;
+// V1 单窗口翻页收割（createTimeFrom/To 可空 = 全量窗口）
+// fromPage 支持断点续传（slice meta 记录窗口边界与已收页数）
+// 返回 { got, stop, lastCreateAt, reachedLimit, pages }
+async function harvestV1Window(leafId, pathMap, budget, timeFrom, timeTo, fromPage = 1) {
+  let page = fromPage, got = 0, maxCreateAt = 0, minCreateAt = Infinity;
+  const q = [`categoryId=${encodeURIComponent(leafId)}`, `pageSize=${PAGE_SIZE_V1}`];
+  if (timeFrom) q.push(`createTimeFrom=${encodeURIComponent(timeFrom)}`);
+  if (timeTo) q.push(`createTimeTo=${encodeURIComponent(timeTo)}`);
+  while (page <= Math.ceil(V1_MAX_OFFSET / PAGE_SIZE_V1)) {
+    if (budget.pages >= MAX_PAGES_PER_RUN) {
+      stopReason = stopReason || `page budget (${MAX_PAGES_PER_RUN})`;
+      return { got, stop: "stop", maxCreateAt, minCreateAt: minCreateAt === Infinity ? 0 : minCreateAt, pages: page - 1 };
     }
+    if (points.remaining !== null && points.remaining <= POINTS_RESERVE) {
+      stopReason = stopReason || `points low (${points.remaining})`;
+      return { got, stop: "stop", maxCreateAt, minCreateAt: minCreateAt === Infinity ? 0 : minCreateAt, pages: page - 1 };
+    }
+    const body = await cjGet(`/product/list?${q.join("&")}&pageNum=${page}`);
+    if (body.pointsExhausted) return { got, stop: "stop", maxCreateAt, minCreateAt: minCreateAt === Infinity ? 0 : minCreateAt, pages: page - 1 };
+    const items = normalizeV1List(body.data && body.data.list);
+    if (items.length === 0) break;
+    for (const it of items) {
+      if (it.createAt > maxCreateAt) maxCreateAt = it.createAt;
+      if (it.createAt > 0 && it.createAt < minCreateAt) minCreateAt = it.createAt;
+    }
+    upsertProducts(items, pathMap);
+    got += items.length;
     db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page, leafId);
     budget.pages++;
+    if (items.length < PAGE_SIZE_V1) break;  // 非满载 = 窗口真实边界
+    page++;
+  }
+  return { got, stop: null, maxCreateAt, minCreateAt: minCreateAt === Infinity ? 0 : minCreateAt, pages: page - 1 };
+}
+
+// V2 fallback：大叶子/超限时用 listV2 翻页（page 上限 1000×100=10 万条，超限标记 cappedAt）
+async function harvestV2Leaf(leafId, pathMap, budget) {
+  let page = 1, got = 0, totalRecords = 0;
+  while (page <= MAX_PAGES_PER_LEAF) {
     if (budget.pages >= MAX_PAGES_PER_RUN) {
-      db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page, leafId);
       stopReason = stopReason || `page budget (${MAX_PAGES_PER_RUN})`;
+      db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page - 1, leafId);
       return "stop";
     }
     if (points.remaining !== null && points.remaining <= POINTS_RESERVE) {
       stopReason = stopReason || `points low (${points.remaining})`;
+      db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page - 1, leafId);
       return "stop";
     }
+    const body = await cjGet(`/product/listV2?page=${page}&size=${PAGE_SIZE_V2}&categoryId=${encodeURIComponent(leafId)}`);
+    if (body.pointsExhausted) { db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page - 1, leafId); return "stop"; }
+    const items = normalizeProductList(body.data.content);
+    if (page === 1) totalRecords = body.data.totalRecords || items.length;
+    if (items.length === 0) break;
+    upsertProducts(items, pathMap);
+    got += items.length;
+    db.prepare("UPDATE leaves SET totalRecords=?, pages=?, harvestedPages=? WHERE leafId=?")
+      .run(totalRecords, page, page, leafId);
+    budget.pages++;
     page++;
   }
-  db.prepare("UPDATE leaves SET doneAt=?, harvestedPages=?, fingerprint=NULL WHERE leafId=?").run(nowIso(), totalPages, leafId);
-  log(`  ✓ 叶子完成 ${leafId}: ${totalRecords} 条（本轮 ${got} 条新抓/更新）`);
+  const finalPages = page - 1;
+  const capped = finalPages >= MAX_PAGES_PER_LEAF;
+  db.prepare("UPDATE leaves SET doneAt=?, harvestedPages=?, pages=?, fingerprint=NULL, cappedAt=? WHERE leafId=?")
+    .run(nowIso(), finalPages, finalPages, capped ? nowIso() : null, leafId);
+  log(`  ✓ 叶子完成 ${leafId} (V2): 实际 ${got} 条（totalRecords=${totalRecords}${capped ? "，达到 V2 页上限可能截断" : ""}）`);
   return "done";
+}
+
+// 双通道收割：V1 优先（0.25 点/条 + 真实 total + 时间切片），大叶子(>6000)游标切片，V2 兜底
+async function harvestLeaf(leafId, pathMap, budget) {
+  // 第一步：V1 page1 探测真实 total（V1 total 是真实值，V2 会封顶 6000）
+  const probeBody = await cjGet(`/product/list?categoryId=${encodeURIComponent(leafId)}&pageNum=1&pageSize=${PAGE_SIZE_V1}`);
+  if (probeBody.pointsExhausted) return "stop";
+  const realTotal = (probeBody.data && probeBody.data.total) || 0;
+  const firstItems = normalizeV1List(probeBody.data && probeBody.data.list);
+  let maxCreateAt = 0;
+  for (const it of firstItems) if (it.createAt > maxCreateAt) maxCreateAt = it.createAt;
+  db.prepare("UPDATE leaves SET totalRecords=?, cappedAt=? WHERE leafId=?")
+    .run(realTotal, realTotal > V1_MAX_OFFSET ? nowIso() : null, leafId);
+
+  // 小叶子（≤6000）：直接 V1 翻页，第一页已拿到
+  if (realTotal <= V1_MAX_OFFSET) {
+    let got = 0, page = 1;
+    const q = `categoryId=${encodeURIComponent(leafId)}&pageSize=${PAGE_SIZE_V1}`;
+    // 第一页复用探测结果
+    if (firstItems.length) {
+      upsertProducts(firstItems, pathMap);
+      got += firstItems.length;
+      db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(1, leafId);
+      budget.pages++;
+    }
+    page = 2;
+    while (page <= Math.ceil(V1_MAX_OFFSET / PAGE_SIZE_V1)) {
+      if (budget.pages >= MAX_PAGES_PER_RUN) {
+        stopReason = stopReason || `page budget (${MAX_PAGES_PER_RUN})`;
+        db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page - 1, leafId);
+        return "stop";
+      }
+      if (points.remaining !== null && points.remaining <= POINTS_RESERVE) {
+        stopReason = stopReason || `points low (${points.remaining})`;
+        db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page - 1, leafId);
+        return "stop";
+      }
+      const body = await cjGet(`/product/list?${q}&pageNum=${page}`);
+      if (body.pointsExhausted) { db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page - 1, leafId); return "stop"; }
+      const items = normalizeV1List(body.data && body.data.list);
+      if (items.length === 0) break;
+      upsertProducts(items, pathMap);
+      got += items.length;
+      for (const it of items) if (it.createAt > maxCreateAt) maxCreateAt = it.createAt;
+      db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page, leafId);
+      budget.pages++;
+      if (items.length < PAGE_SIZE_V1) break;
+      page++;
+    }
+    const finalPages = page - 1;
+    db.prepare("UPDATE leaves SET doneAt=?, harvestedPages=?, pages=?, fingerprint=NULL, cappedAt=NULL WHERE leafId=?")
+      .run(nowIso(), finalPages, finalPages, leafId);
+    log(`  ✓ 叶子完成 ${leafId} (V1): 实际 ${got} 条（真实 total=${realTotal}）`);
+    return "done";
+  }
+
+  // 大叶子（>6000）：V1 时间游标切片。窗口 [cursor, now]，每窗口 ≤6000 条。
+  // orderBy 默认 createAt 降序（实测第一页 = 最新）→ 从最新往回切。
+  log(`  ◎ 大叶子 ${leafId}: 真实 ${realTotal} 条 > 6000，启动时间游标切片（V1，0.25 点/条）`);
+  const metaKey = `cursor:${leafId}`;
+  const sliceKey = `slice:${leafId}`;
+  let cursorStr = getMeta.get(metaKey)?.value || null;  // 已收割到的最大 createTime（"yyyy-MM-dd HH:mm:ss"）
+  let gotAll = 0, cursorMs = cursorStr ? toV1TimeFromDateStr(cursorStr) : Date.now() + 86400000; // 初始 = 未来（含全部）
+  if (isNaN(cursorMs)) cursorMs = Date.now() + 86400000;
+  let rounds = 0;
+  while (true) {
+    if (stopReason) { db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(0, leafId); return "stop"; }
+    if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || "points low"; return "stop"; }
+    // 窗口 [oldest, cursorMs]，oldest = 2000-01-01（覆盖全历史）
+    const winFrom = "2000-01-01 00:00:00";
+    const winTo = toV1Time(cursorMs);
+    // 断点续传：上次未收完的窗口（slice meta 的 to 与当前 winTo 相同）
+    let slice = null;
+    try { slice = JSON.parse(getMeta.get(sliceKey)?.value || "null"); } catch {}
+    if (slice && slice.to === winTo && slice.page > 0) {
+      const sr = await harvestV1Window(leafId, pathMap, budget, winFrom, winTo, slice.page + 1);
+      gotAll += sr.got;
+      if (sr.stop) {
+        setMeta.run(metaKey, toV1Time(cursorMs));
+        setMeta.run(sliceKey, JSON.stringify({ to: winTo, page: slice.page + sr.pages }));
+        return "stop";
+      }
+      // 窗口收完：清除 slice，推进游标到窗口内最小 createAt - 1ms
+      setMeta.run(sliceKey, "null");
+      cursorMs = (sr.minCreateAt || cursorMs) - 1;
+      setMeta.run(metaKey, toV1Time(cursorMs));
+      rounds++;
+      if (cursorMs <= 0) break;
+      continue;
+    }
+    const probeW = await cjGet(`/product/list?categoryId=${encodeURIComponent(leafId)}&pageNum=1&pageSize=${PAGE_SIZE_V1}&createTimeTo=${encodeURIComponent(winTo)}`);
+    if (probeW.pointsExhausted) return "stop";
+    const wTotal = (probeW.data && probeW.data.total) || 0;
+    rounds++;
+    if (wTotal === 0) break;  // 已到最早边界
+    const wItems = normalizeV1List(probeW.data && probeW.data.list);
+    if (wItems.length === 0) break;
+    // 该窗口 ≤6000 → 整窗收割（首页复用）；>6000 → 收紧游标重试（游标向前推进）
+    if (wTotal > V1_MAX_OFFSET) {
+      // 窗口还是太大：游标前移到本窗口第 6000 条的时间（最新 6000 条先收）
+      // 用 orderBy=createAt 降序，第 30 页最后一条 = 第 6000 条
+      const tail = await cjGet(`/product/list?categoryId=${encodeURIComponent(leafId)}&pageNum=30&pageSize=${PAGE_SIZE_V1}&createTimeTo=${encodeURIComponent(winTo)}`);
+      if (tail.pointsExhausted) return "stop";
+      const tailItems = normalizeV1List(tail.data && tail.data.list);
+      if (tailItems.length === 0) { break; }
+      const times = tailItems.map(i => i.createAt || 0).filter(t => t > 0);
+      const boundaryMs = Math.min(...times);
+      const spanMs = Math.max(...times) - boundaryMs;
+      // 同秒超量防护：第 6000 条与窗口最新时间差 < 1 秒 = 同一秒批量上架超 6000 条，
+      // 时间游标会漏掉同秒剩余商品 → 回退 V2 整叶收割（0.5 点/条但完整），标记 cappedAt。
+      if (spanMs < 1000 && wTotal > V1_MAX_OFFSET) {
+        log(`  ! 大叶子 ${leafId} 检测到同秒批量上架超量（窗口 ${wTotal} 条跨 ${spanMs}ms），回退 V2 整叶收割`);
+        const r2 = await harvestV2Leaf(leafId, pathMap, budget);
+        if (r2 === "stop") { setMeta.run(metaKey, toV1Time(cursorMs)); return "stop"; }
+        return "done";
+      }
+      // 先收 [boundaryMs, cursorMs] 这个 ≤6000 的窗口（第 1..30 页，最后一页即 boundaryMs 处）
+      const r = await harvestV1Window(leafId, pathMap, budget, winFrom, winTo);
+      gotAll += r.got;
+      if (r.stop) {
+        // 预算不足：记录窗口级断点（to + 已收页数），下轮从下页继续，不重复不遗漏
+        // 同时持久化当前游标（= 未推进的 winTo），避免下次进入时时间戳漂移
+        setMeta.run(metaKey, toV1Time(cursorMs));
+        setMeta.run(sliceKey, JSON.stringify({ to: winTo, page: r.pages || 0 }));
+        return "stop";
+      }
+      // 下一次从 boundaryMs 往前 1ms 继续（窗口内最小 createAt，v1 降序下 = 第 30 页尾）
+      cursorMs = (r.minCreateAt || boundaryMs) - 1;
+      setMeta.run(metaKey, toV1Time(cursorMs));
+      setMeta.run(sliceKey, "null");
+      continue;
+    }
+    // 窗口 ≤6000：整窗收割（复用探测首页）
+    const wFromPage = (slice && slice.to === winTo && slice.page > 0) ? slice.page + 1 : 2;
+    let page = wFromPage, winGot = (wFromPage === 2 ? wItems.length : 0);
+    if (wFromPage === 2) {
+      upsertProducts(wItems, pathMap);
+      db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(1, leafId);
+      budget.pages++;
+    }
+    while (page <= Math.ceil(V1_MAX_OFFSET / PAGE_SIZE_V1)) {
+      if (budget.pages >= MAX_PAGES_PER_RUN) {
+        stopReason = stopReason || `page budget (${MAX_PAGES_PER_RUN})`;
+        setMeta.run(metaKey, toV1Time(cursorMs));
+        setMeta.run(sliceKey, JSON.stringify({ to: winTo, page: page - 1 }));
+        db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page - 1, leafId);
+        return "stop";
+      }
+      if (points.remaining !== null && points.remaining <= POINTS_RESERVE) {
+        stopReason = stopReason || "points low";
+        setMeta.run(metaKey, toV1Time(cursorMs));
+        setMeta.run(sliceKey, JSON.stringify({ to: winTo, page: page - 1 }));
+        return "stop";
+      }
+      const b = await cjGet(`/product/list?categoryId=${encodeURIComponent(leafId)}&pageNum=${page}&pageSize=${PAGE_SIZE_V1}&createTimeFrom=${encodeURIComponent(winFrom)}&createTimeTo=${encodeURIComponent(winTo)}`);
+      if (b.pointsExhausted) { setMeta.run(metaKey, toV1Time(cursorMs)); setMeta.run(sliceKey, JSON.stringify({ to: winTo, page: page - 1 })); return "stop"; }
+      const more = normalizeV1List(b.data && b.data.list);
+      if (more.length === 0) break;
+      upsertProducts(more, pathMap);
+      winGot += more.length;
+      db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page, leafId);
+      budget.pages++;
+      if (more.length < PAGE_SIZE_V1) break;
+      page++;
+    }
+    gotAll += winGot;
+    // 推进游标：窗口内最小 createAt - 1ms
+    const minMs = Math.min(...wItems.map(i => i.createAt || 0));
+    cursorMs = minMs - 1;
+    setMeta.run(metaKey, toV1Time(cursorMs));
+    setMeta.run(sliceKey, "null");
+    rounds++;
+    if (cursorMs <= 0) break;
+  }
+  db.prepare("UPDATE leaves SET doneAt=?, harvestedPages=?, pages=?, fingerprint=NULL, cappedAt=NULL WHERE leafId=?")
+    .run(nowIso(), 0, rounds, leafId);
+  log(`  ✓ 大叶子完成 ${leafId} (V1 切片): 实际 ${gotAll} 条（真实 total=${realTotal}，共 ${rounds} 个窗口）`);
+  return "done";
+}
+
+// ---------------------------------------------------------------------------
+// probe：全量规模探测（一次性 · 摸清真实数据地图）
+//   对每个叶子取 page=1（50 点/叶），记录 totalRecords 与是否触及 6000 封顶，
+//   得到全目录真实规模分布，用于：① 收割优先级排序 ② 全量天数预估 ③ 是否需分片
+//   578 叶 ≈ 28,900 点 ≈ 约 1/3 天点数，分轮（每轮 PROBE_LEAVES_PER_RUN 叶）跑完
+// ---------------------------------------------------------------------------
+async function probe() {
+  const tree = await fetchCategoryTree();
+  const pathMap = new Map();
+  let leafCount = 0;
+  for (const l1 of tree) for (const l2 of l1.l2s) for (const leaf of l2.leaves) {
+    upLeaf.run(leaf.id, leaf.name, l2.name, l1.name);
+    pathMap.set(leaf.id, `${l1.name} > ${l2.name} > ${leaf.name}`);
+    leafCount++;
+  }
+  stopReason = null;
+
+  // 探测顺序：尚未探测的叶子优先（lastProbeAt IS NULL 排最前），其次可见 SKU 多的
+  const probeList = db.prepare(`
+    SELECT leafId, leafName, visSkuCount, totalRecords, lastProbeAt
+    FROM leaves
+    ORDER BY (lastProbeAt IS NOT NULL) ASC, visSkuCount DESC, leafId
+    LIMIT ?
+  `).all(PROBE_LEAVES_PER_RUN);
+
+  let probed = 0, capped = 0, visProbed = 0;
+  for (const leaf of probeList) {
+    if (stopReason) break;
+    if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || "points low"; break; }
+    try {
+      // V1 探测：total 是真实值（V2 会封顶 6000），顺便验证可收割性
+      const body = await cjGet(`/product/list?categoryId=${encodeURIComponent(leaf.leafId)}&pageNum=1&pageSize=${PAGE_SIZE_V1}`);
+      if (body.pointsExhausted) break;
+      const items = normalizeV1List(body.data && body.data.list);
+      const tr = (body.data && body.data.total) || 0;
+      const isCapped = tr > V1_MAX_OFFSET;  // 真实值超 6000 = 需要时间切片
+      db.prepare("UPDATE leaves SET totalRecords=?, lastProbeAt=?, cappedAt=? WHERE leafId=?")
+        .run(tr, nowIso(), isCapped ? nowIso() : null, leaf.leafId);
+      if (leaf.visSkuCount > 0) visProbed++;
+      if (isCapped) capped++;
+      probed++;
+    } catch (e) {
+      log(`  ! 探测叶子 ${leaf.leafId} 失败：${e.message}`);
+    }
+  }
+
+  const total = db.prepare("SELECT COUNT(*) c FROM leaves").get().c;
+  const probedAll = db.prepare("SELECT COUNT(*) c FROM leaves WHERE lastProbeAt IS NOT NULL").get().c;
+  const sum = db.prepare("SELECT COALESCE(SUM(totalRecords),0) s FROM leaves").get().s;
+  const cappedAll = db.prepare("SELECT COUNT(*) c FROM leaves WHERE cappedAt IS NOT NULL").get().c;
+  log(`probe：本轮探测 ${probed} 叶（可见叶 ${visProbed}，封顶疑似 ${capped}）；累计 ${probedAll}/${total}，规模合计 ${sum} 条，封顶疑似 ${cappedAll} 叶`);
+  log(`probe：可见 SKU 集中叶子已探测：${db.prepare("SELECT COUNT(*) c FROM leaves WHERE visSkuCount>0 AND lastProbeAt IS NOT NULL").get().c}/${db.prepare("SELECT COUNT(*) c FROM leaves WHERE visSkuCount>0").get().c}`);
+  writeStatus({
+    lastSyncAt: nowIso(), lastSyncOk: true, lastError: null,
+    mode: "probe", stopReason,
+    probe: { thisRound: probed, probedAll, leavesTotal: total, sumRecords: sum, cappedLeaves: cappedAll },
+  });
 }
 
 async function harvest() {
@@ -409,10 +736,21 @@ async function harvest() {
   // 第一页商品调用会拿到准确点数，不够的话 harvestLeaf 内部会干净退出。
   stopReason = null;
 
+  // 优先级 = 可见叶子优先（按可见密度：可见数/真实规模，先恢复前台）
+  //          → 非可见叶子按规模降序（大叶长尾切片）。
+  // 理由：Home Office(24万条) 收 1200 页才覆盖 2879 可见 SKU（密度 1.2%），
+  //       而 Rings(≤6000 条) 几分钟收完覆盖 560 可见 SKU（密度 9.3%）——先收密度高的。
   const pending = db.prepare(`
-    SELECT leafId FROM leaves WHERE doneAt IS NULL ORDER BY leafId
+    SELECT leafId, leafName, visSkuCount FROM leaves WHERE doneAt IS NULL
+    ORDER BY
+      (visSkuCount > 0) DESC,
+      CASE WHEN COALESCE(totalRecords,0) > 0 THEN visSkuCount * 1.0 / totalRecords ELSE 1 END DESC,
+      visSkuCount DESC,
+      COALESCE(totalRecords,0) DESC,
+      leafId
   `).all();
   log(`harvest：叶子共 ${leafCount}，待完成 ${pending.length}，本轮页预算 ${MAX_PAGES_PER_RUN}`);
+  log(`harvest：收割优先级 = 可见密度优先（可见SKU数/真实规模）→ 可见多的 → 大叶子（前 5：${pending.slice(0,5).map(l=>`${l.leafName}(${l.visSkuCount}可见)`).join(", ") || "无"}）`);
 
   const budget = { pages: 0 };
   for (const { leafId } of pending) {
@@ -424,6 +762,17 @@ async function harvest() {
   const done = db.prepare("SELECT COUNT(*) c FROM leaves WHERE doneAt IS NOT NULL").get().c;
   const total = db.prepare("SELECT COUNT(*) c FROM leaves").get().c;
   const dbCount = db.prepare("SELECT COUNT(*) c FROM products").get().c;
+  // 全量规模估计：已完成叶子的实际收割量 + 未完成叶子的 totalRecords 合计（探测值，可能被 6000 封顶低估）
+  // 进度估算：已完成叶子的实际入库数（从 products 按已完成 leaf 统计，V1/V2 页大小不同不依赖 harvestedPages）
+  const harvestStat = db.prepare(`
+    SELECT
+      (SELECT COUNT(*) FROM products p WHERE p.categoryId IN (SELECT leafId FROM leaves WHERE doneAt IS NOT NULL)) AS doneRows,
+      COALESCE(SUM(CASE WHEN doneAt IS NULL THEN totalRecords END), 0) AS pendingRecords
+    FROM leaves
+  `).get();
+  const estTotal = harvestStat.doneRows + harvestStat.pendingRecords;
+  const estDonePct = estTotal > 0 ? Math.round((harvestStat.doneRows / estTotal) * 1000) / 10 : 0;
+  log(`harvest：进度 ≈ ${harvestStat.doneRows} / ${estTotal} 条（${estDonePct}%），已收 ${dbCount} 条`);
   if (done === total && total > 0 && !stopReason) {
     // 整轮完成：统计陈旧商品（本轮没见到的 = 疑似下架）
     const passStart = getMeta.get(passKey)?.value;
@@ -436,6 +785,7 @@ async function harvest() {
     lastSyncAt: nowIso(), lastSyncOk: true, lastError: null,
     dbProducts: dbCount, passComplete: done === total && total > 0,
     leavesDone: done, leavesTotal: total, mode: "harvest", stopReason,
+    est: { doneRows: harvestStat.doneRows, estTotal, estDonePct },
   });
 }
 
@@ -444,41 +794,22 @@ async function harvest() {
 //   ① 轮转巡检叶子指纹（每叶 1 页 50 点，变了才整叶深抓）
 //   ② 批量 /product/query 刷新前台可见 SKU（每批 20 pid 仅 10 点）
 // ---------------------------------------------------------------------------
-async function refreshVisibleBatch(visibleSkus) {
-  // pids 来自 product.id（pid），不是 sku —— 从库里查
-  let refreshed = 0, missing = 0, checked = 0;
-  const pids = [];
-  for (const sku of visibleSkus) {
-    const row = db.prepare("SELECT pid FROM products WHERE sku=?").get(sku);
-    if (row && row.pid) pids.push(row.pid); else missing++;
-  }
-  for (let i = 0; i < pids.length; i += PID_BATCH) {
-    if (stopReason) break;
-    if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || "points low"; break; }
-    const batch = pids.slice(i, i + PID_BATCH);
-    try {
-      // CJ v2.0: POST /product/query {pids: "id1,id2"}（每批最多 20，10 点）
-      const body = await cjPost("/product/query", { pids: batch.join(",") });
-      if (body.pointsExhausted) break;
-      const list = body.data || [];
-      const now = nowIso();
-      const tx = db.transaction(() => {
-        for (const p of list) {
-          const sku = String(p.sku || p.variants?.[0]?.sku || "").trim();
-          const price = parsePrice(p.sellPrice ?? p.variants?.[0]?.sellPrice);
-          if (!sku || !(price > 0)) continue;
-          db.prepare("UPDATE products SET price=?, lastSeenAt=? WHERE sku=?").run(String(price), now, sku);
-          refreshed++;
-        }
-      });
-      tx();
-      checked++;
-    } catch (e) {
-      log(`  ! 批量刷新失败（${e.message}），跳过该批`);
-    }
-  }
-  return { refreshed, missing, batches: checked };
+// visible-refresh 独立模式：不依赖收割完成，直接从旧 JSON 拿 pid 刷新并 upsert 入库。
+// 前置条件：import-visible 已把可见 SKU 与 categoryId 映射进库（旧 JSON 里带 pid/id）。
+async function refreshVisibleFromJson() {
+  // 实测：POST /product/query 返回 16900202 "Request method 'POST' not supported"；
+  // GET /product/query 仅单 pid（10 点/次），8,683 SKU ≈ 86,830 点 ≈ 全天点数，不可行。
+  // 可见 SKU 恢复的正确路径 = 收割其所在叶子（harvest 已按 visSkuCount 优先排序），
+  // 本模式保留为兼容入口：仅报告当前可见覆盖，提示改用 harvest。
+  const visTotal = db.prepare("SELECT COUNT(*) c FROM visible_products").get().c;
+  const visInDb = db.prepare("SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)").get().c;
+  log(`visible-refresh：可见 SKU ${visTotal} 条，库内 ${visInDb} 条（POST query 已废弃，由 harvest 覆盖；--mode=harvest 收割可见优先叶子）`);
+  writeStatus({ lastSyncAt: nowIso(), lastSyncOk: true, lastError: null, mode: "visible-refresh", visibleRefresh: { visibleTotal: visTotal, visibleInDb: visInDb } });
+  return { visibleTotal: visTotal, visibleInDb: visInDb };
 }
+
+// POST /product/query 批量刷新已被实测证伪（16900202 POST not supported），
+// 逐 pid GET（10 点/次）成本不可行 → 本函数废弃，可见 SKU 由收割覆盖。
 
 async function refresh() {
   const total = db.prepare("SELECT COUNT(*) c FROM leaves").get().c;
@@ -499,48 +830,65 @@ async function refresh() {
     SELECT leafId, leafName, fingerprint, pages FROM leaves ORDER BY lastProbeAt IS NOT NULL, lastProbeAt ASC LIMIT ?
   `).all(PROBE_LEAVES_PER_RUN);
   let changedLeaves = 0, probed = 0;
+  const budget = { pages: 0 };
   for (const leaf of probeList) {
     if (stopReason) break;
     if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || "points low"; break; }
     try {
-      const body = await cjGet(`/product/listV2?page=1&size=${PAGE_SIZE}&categoryId=${encodeURIComponent(leaf.leafId)}`);
+      // V1 巡检：200 条指纹（比 V2 100 条覆盖更全，点数相同 50 点/页），total 真实
+      const body = await cjGet(`/product/list?categoryId=${encodeURIComponent(leaf.leafId)}&pageNum=1&pageSize=${PAGE_SIZE_V1}`);
       if (body.pointsExhausted) break;
-      const items = normalizeProductList(body.data.content);
+      const items = normalizeV1List(body.data && body.data.list);
       const fp = fingerprint(items);
       probed++;
       db.prepare("UPDATE leaves SET lastProbeAt=?, totalRecords=COALESCE(?,totalRecords) WHERE leafId=?")
-        .run(nowIso(), body.data.totalRecords || null, leaf.leafId);
+        .run(nowIso(), (body.data && body.data.total) || null, leaf.leafId);
       if (fp !== leaf.fingerprint) {
         // 指纹变了：整叶深抓（页 1 的数据已经拿到，直接入库，再补后续页）
+        // 注意：totalRecords 会被 6000 封顶，不能用于算总页数 → 翻到空页为止
         changedLeaves++;
         upsertProducts(items, pathMap);
         db.prepare("UPDATE leaves SET fingerprint=?, harvestedPages=1, doneAt=NULL WHERE leafId=?").run(fp, leaf.leafId);
-        const totalPages = Math.ceil((body.data.totalRecords || PAGE_SIZE) / PAGE_SIZE) || 1;
-        for (let page = 2; page <= totalPages; page++) {
-          if (stopReason) break;
-          const b = await cjGet(`/product/listV2?page=${page}&size=${PAGE_SIZE}&categoryId=${encodeURIComponent(leaf.leafId)}`);
-          if (b.pointsExhausted) break;
-          upsertProducts(normalizeProductList(b.data.content), pathMap);
-          db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page, leaf.leafId);
+        // 深抓：若已知叶子 >6000 走 harvestLeaf 整叶切片，否则 V1 翻页到空页
+        const leafRow = db.prepare("SELECT totalRecords t FROM leaves WHERE leafId=?").get(leaf.leafId);
+        if ((leaf.pages || 0) >= Math.ceil(V1_MAX_OFFSET / PAGE_SIZE_V1) || (leafRow?.t || 0) > V1_MAX_OFFSET) {
+          const sub = { pages: budget.pages };
+          const r = await harvestLeaf(leaf.leafId, pathMap, sub);
+          budget.pages = sub.pages;
+          if (r === "stop") { stopReason = stopReason || "leaf budget"; break; }
+          const hRow = db.prepare("SELECT harvestedPages h FROM leaves WHERE leafId=?").get(leaf.leafId);
+          got = (hRow?.h || 0) * PAGE_SIZE_V1;
+          if (!stopReason) db.prepare("UPDATE leaves SET doneAt=?, harvestedPages=? WHERE leafId=?").run(nowIso(), hRow?.h || 0, leaf.leafId);
+        } else {
+          let page = 2, got2 = items.length;
+          while (page <= Math.ceil(V1_MAX_OFFSET / PAGE_SIZE_V1)) {
+            if (stopReason) break;
+            if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || "points low"; break; }
+            const b = await cjGet(`/product/list?categoryId=${encodeURIComponent(leaf.leafId)}&pageNum=${page}&pageSize=${PAGE_SIZE_V1}`);
+            if (b.pointsExhausted) break;
+            const more = normalizeV1List(b.data && b.data.list);
+            if (more.length === 0) break;
+            upsertProducts(more, pathMap);
+            got2 += more.length;
+            db.prepare("UPDATE leaves SET harvestedPages=? WHERE leafId=?").run(page, leaf.leafId);
+            page++;
+          }
+          got = got2;
+          if (!stopReason) db.prepare("UPDATE leaves SET doneAt=?, harvestedPages=? WHERE leafId=?").run(nowIso(), page - 1, leaf.leafId);
         }
-        if (!stopReason) db.prepare("UPDATE leaves SET doneAt=?, harvestedPages=? WHERE leafId=?").run(nowIso(), totalPages, leaf.leafId);
-        log(`  ↻ 叶子变化 ${leaf.leafName}（${leaf.leafId}）→ 已重抓`);
+        log(`  ↻ 叶子变化 ${leaf.leafName}（${leaf.leafId}）→ 已重抓 ${got} 条`);
       }
     } catch (e) {
       log(`  ! 巡检叶子 ${leaf.leafId} 失败：${e.message}`);
     }
   }
 
-  // ② 批量刷新前台可见 SKU 的价格
-  let visInfo = null;
-  try {
-    const cur = JSON.parse(readFileSync(DATA_FILE, "utf-8"));
-    const visibleSkus = (cur.products || []).map(p => p.sku);
-    if (visibleSkus.length && !stopReason) {
-      visInfo = await refreshVisibleBatch(visibleSkus);
-      if (visInfo) log(`  批量刷新可见 SKU：${visInfo.refreshed} 条更新 / ${visInfo.batches} 批 / 库缺 ${visInfo.missing}`);
-    }
-  } catch (e) { log(`  ! 读取前台 JSON 失败：${e.message}`); }
+  // ② 可见 SKU 价格保活：/product/query 实测仅支持 GET 单 pid（10 点/次），
+  //    8,683 个可见 SKU 逐个刷 = 86,830 点 ≈ 全天点数，成本不可行。
+  //    改为：可见 SKU 所在叶子由 harvest 优先收割自然覆盖；此处仅提示。
+  const visInDb = db.prepare("SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)").get().c;
+  log(`  visible：库内可见 SKU ${visInDb} 条（由 harvest 可见优先收割覆盖，未做逐 pid 刷新）`);
+  const visInfo = { visibleInDb: visInDb };
 
   const dbCount = db.prepare("SELECT COUNT(*) c FROM products").get().c;
   writeStatus({
@@ -634,12 +982,24 @@ function syncVisibleFromJson(products) {
 function importVisible() {
   if (!existsSync(DATA_FILE)) { log("import-visible：JSON 文件不存在"); return; }
   const cur = JSON.parse(readFileSync(DATA_FILE, "utf-8"));
-  const skus = (cur.products || []).map(p => p.sku).filter(Boolean);
-  if (skus.length === 0) { log("import-visible：JSON 中无商品"); return; }
-  if (!DRY_RUN) syncVisibleFromJson(cur.products || []);
+  const prods = (cur.products || []).filter(p => p.sku);
+  if (prods.length === 0) { log("import-visible：JSON 中无商品"); return; }
+  if (!DRY_RUN) syncVisibleFromJson(prods);
+  // 统计每个叶子的可见 SKU 数（按旧 JSON 的 categoryId 归类到 leaves 表），供收割优先级排序
+  const byCat = {};
+  for (const p of prods) {
+    const c = String(p.categoryId || "");
+    if (c) byCat[c] = (byCat[c] || 0) + 1;
+  }
+  const tx = db.transaction(() => {
+    const upd = db.prepare("UPDATE leaves SET visSkuCount=? WHERE leafId=?");
+    for (const [cat, n] of Object.entries(byCat)) upd.run(n, cat);
+  });
+  tx();
   const visCount = db.prepare("SELECT COUNT(*) c FROM visible_products").get().c;
-  log(`import-visible：导入 ${skus.length} 条，visible_products 表现有 ${visCount} 条`);
-  writeStatus({ lastVisibleImportAt: nowIso(), visibleCount: visCount });
+  const leafCount = db.prepare("SELECT COUNT(*) c FROM leaves WHERE visSkuCount>0").get().c;
+  log(`import-visible：导入 ${prods.length} 条，visible_products 表现有 ${visCount} 条，覆盖 ${leafCount} 个叶子`);
+  writeStatus({ lastVisibleImportAt: nowIso(), visibleCount: visCount, visibleLeafCount: leafCount });
 }
 
 // ---------------------------------------------------------------------------
@@ -743,10 +1103,35 @@ function status() {
   const dbCount = db.prepare("SELECT COUNT(*) c FROM products").get().c;
   let visCount = 0;
   try { visCount = db.prepare("SELECT COUNT(*) c FROM visible_products").get().c; } catch {}
+  const probeStat = db.prepare(`
+    SELECT
+      COUNT(*) leaves,
+      COUNT(lastProbeAt) probed,
+      COUNT(cappedAt) capped,
+      COALESCE(SUM(totalRecords),0) sumRecords,
+      (SELECT COUNT(*) FROM products p WHERE p.categoryId IN (SELECT leafId FROM leaves WHERE doneAt IS NOT NULL)) doneRows
+    FROM leaves
+  `).get();
+  const est = s.est || {};
+  const visInDb = db.prepare(`
+    SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)
+  `).get().c;
   const byL1 = db.prepare(`
-    SELECT l1Name, COUNT(*) c FROM leaves GROUP BY l1Name ORDER BY c DESC LIMIT 20
+    SELECT l1Name, COUNT(*) c, COALESCE(SUM(totalRecords),0) rec FROM leaves GROUP BY l1Name ORDER BY rec DESC LIMIT 20
   `).all();
-  console.log(JSON.stringify({ dbProducts: dbCount, visibleProducts: visCount, leavesDone: done, leavesTotal: total, points, ...s, byL1 }, null, 2));
+  const topLeaves = db.prepare(`
+    SELECT leafName, l1Name, totalRecords, visSkuCount, doneAt, cappedAt
+    FROM leaves WHERE visSkuCount>0 OR totalRecords IS NOT NULL
+    ORDER BY visSkuCount DESC, COALESCE(totalRecords,0) DESC LIMIT 15
+  `).all();
+  console.log(JSON.stringify({
+    dbProducts: dbCount, visibleProducts: visCount,
+    leavesDone: done, leavesTotal: total,
+    probe: { probed: probeStat.probed, capped: probeStat.capped, sumRecords: probeStat.sumRecords },
+    est,
+    visibleInDb: visInDb,
+    points, ...s, byL1, topLeaves,
+  }, null, 2));
 }
 
 // ---------------------------------------------------------------------------
@@ -759,15 +1144,30 @@ async function main() {
     log(`=== cj-catalog ${MODE} 开始 ===`);
     if (MODE === "status") { status(); return 0; }
     if (MODE === "harvest") await harvest();
+    else if (MODE === "probe") await probe();
     else if (MODE === "refresh") await refresh();
+    else if (MODE === "visible-refresh") { await refreshVisibleFromJson(); return 0; }
     else if (MODE === "publish") await publish();
     else if (MODE === "import-visible") { importVisible(); return 0; }
     else if (MODE === "curate") { await curate(); return 0; }
     else {
-      // auto：首轮未完 → harvest；完成 → refresh + publish（有变化才发布）
+      // auto：两阶段收割架构
+      //   阶段 1（全量收割期）：先 probe 建立规模地图（未探测的叶子先探测），
+      //     然后 harvest 按"可见 SKU 优先 → 大叶子优先"整叶翻页（翻到空页，6000 不截断），
+      //     期间每轮顺带做一次可见 SKU 刷新（前台数据保活，不依赖收割完成）。
+      //   阶段 2（增量刷新期）：首轮全部 done → refresh 巡检 + publish + curate。
       const done = db.prepare("SELECT COUNT(*) c FROM leaves WHERE doneAt IS NOT NULL").get().c;
       const total = db.prepare("SELECT COUNT(*) c FROM leaves").get().c;
-      if (total === 0 || done < total) await harvest();
+      const probedAll = db.prepare("SELECT COUNT(*) c FROM leaves WHERE lastProbeAt IS NOT NULL").get().c;
+      if (total === 0) { await probe(); }
+      else if (done < total) {
+        // 收割期：每轮先探测一批未探测叶子（摸规模），再收割，再保活可见 SKU
+        if (probedAll < total) await probe();
+        await harvest();
+        // 收割期不再做逐 pid 刷新（POST query 不可用），harvest 可见优先排序自然覆盖
+        const visInDbAfter = db.prepare("SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)").get().c;
+        log(`auto：收割后库内可见 SKU ${visInDbAfter} 条`);
+      }
       else {
         const before = readStatus().dbProducts || 0;
         await refresh();
