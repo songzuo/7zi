@@ -73,7 +73,8 @@ const POINTS_RESERVE = parseInt(arg("reserve", "4000"), 10);   // 保底点数�
 const MAX_PAGES_PER_RUN = parseInt(arg("pages", "60"), 10);    // 单轮页数上限（--pages 可调）
 const MAX_PAGES_PER_LEAF = 1000;   // 单叶子翻页安全上限（listV2 page 上限 1000，6000 条 totalRecords 封顶只影响字段显示，不影响翻页）
 const PROBE_LEAVES_PER_RUN = parseInt(arg("probe", "40"), 10); // 探测/巡检每轮叶子数
-const PID_BATCH = 20;              // /product/query 每批 pid 数（10 点/批）
+const MAX_VISIBLE_PER_RUN = parseInt(arg("visible", "600"), 10); // 可见 SKU 精确收割每轮上限（×10 点）
+const VISIBLE_CURSOR_KEY = "visibleCursor";  // 精确收割游标（JSON 数组下标），断点续传
 const LOCK_STALE_MS = 15 * 60 * 1000;
 
 function log(msg) {
@@ -796,16 +797,101 @@ async function harvest() {
 // ---------------------------------------------------------------------------
 // visible-refresh 独立模式：不依赖收割完成，直接从旧 JSON 拿 pid 刷新并 upsert 入库。
 // 前置条件：import-visible 已把可见 SKU 与 categoryId 映射进库（旧 JSON 里带 pid/id）。
+// =====================================================================
+// 可见 SKU 精确收割（主路径，用户确认的策略）
+//   只收割 visible_products 里的真实可见 SKU：GET /product/query?pid=xxx，
+//   10 点/个（实测），8,683 SKU ≈ 86,830 点 ≈ 1 天点数。
+//   全量叶子收割降级为可选（--mode=harvest），auto 默认不跑全量。
+//   断点：meta[visibleCursor] = JSON 数组下标；新 SKU 上架后再次运行即增量。
+// =====================================================================
 async function refreshVisibleFromJson() {
-  // 实测：POST /product/query 返回 16900202 "Request method 'POST' not supported"；
-  // GET /product/query 仅单 pid（10 点/次），8,683 SKU ≈ 86,830 点 ≈ 全天点数，不可行。
-  // 可见 SKU 恢复的正确路径 = 收割其所在叶子（harvest 已按 visSkuCount 优先排序），
-  // 本模式保留为兼容入口：仅报告当前可见覆盖，提示改用 harvest。
-  const visTotal = db.prepare("SELECT COUNT(*) c FROM visible_products").get().c;
-  const visInDb = db.prepare("SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)").get().c;
-  log(`visible-refresh：可见 SKU ${visTotal} 条，库内 ${visInDb} 条（POST query 已废弃，由 harvest 覆盖；--mode=harvest 收割可见优先叶子）`);
-  writeStatus({ lastSyncAt: nowIso(), lastSyncOk: true, lastError: null, mode: "visible-refresh", visibleRefresh: { visibleTotal: visTotal, visibleInDb: visInDb } });
-  return { visibleTotal: visTotal, visibleInDb: visInDb };
+  if (!existsSync(DATA_FILE)) { log("visible-refresh：JSON 文件不存在"); return null; }
+  const cur = JSON.parse(readFileSync(DATA_FILE, "utf-8"));
+  const prods = (cur.products || []).filter(p => p.sku && (p.id || p.pid));
+  if (prods.length === 0) { log("visible-refresh：JSON 中无带 pid 的可见 SKU"); return null; }
+  const totalVisible = prods.length;
+
+  // 断点续传：从上次下标继续；若 JSON 变了（新 SKU 上架）从头扫新增
+  let cursor = parseInt(getMeta.get(VISIBLE_CURSOR_KEY)?.value || "0", 10);
+  if (!(cursor >= 0) || cursor > totalVisible) cursor = 0;
+  if (cursor === totalVisible) { log(`visible-refresh：已全部收割过（${totalVisible}），本轮扫描新增`); cursor = 0; }
+  const budget = Math.min(MAX_VISIBLE_PER_RUN, totalVisible - cursor);
+
+  let refreshed = 0, updated = 0, inserted = 0, missing = 0, offShelf = 0, checked = 0;
+  const now = nowIso();
+  const tx = db.transaction((list) => {
+    for (const p of list) {
+      const sku = String(p.sku || "").trim();
+      const pid = String(p.id || p.pid || "");
+      const name = dedupeName(p.nameEn || p.productNameEn || "");
+      const price = parsePrice(p.sellPrice ?? p.variants?.[0]?.sellPrice);
+      const image = String(p.bigImage || p.productImage || "").trim();
+      const categoryId = String(p.categoryId || "");
+      const exist = db.prepare("SELECT sku FROM products WHERE sku=?").get(sku);
+      db.prepare(`
+        INSERT INTO products (sku, pid, name, price, image, hasVideo, categoryId, categoryPath, firstSeenAt, lastSeenAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)
+        ON CONFLICT(sku) DO UPDATE SET
+          pid=excluded.pid, name=excluded.name, price=excluded.price, image=excluded.image,
+          hasVideo=excluded.hasVideo, categoryId=excluded.categoryId, lastSeenAt=excluded.lastSeenAt
+      `).run(sku, pid, name, price, image, 0, categoryId, now, now);
+      if (exist) updated++; else inserted++;
+      refreshed++;
+    }
+  });
+
+  let cursorNow = cursor;
+  const pathMap = new Map();
+  for (let i = cursor; i < cursor + budget; i++) {
+    if (stopReason) break;
+    if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || "points low"; break; }
+    const p = prods[i];
+    const pid = String(p.id || p.pid || "");
+    if (!pid) { missing++; cursorNow = i + 1; continue; }
+    try {
+      const body = await cjGet(`/product/query?pid=${encodeURIComponent(pid)}`);
+      if (body.pointsExhausted) { setMeta.run(VISIBLE_CURSOR_KEY, String(i)); break; }
+      checked++;
+      if (body.code === 200 && body.data) {
+        const d = body.data;
+        const sku = String(d.productSku || d.sku || p.sku || "").trim();
+        const name = dedupeName(d.productNameEn || d.nameEn || p.nameEn || "");
+        const price = parsePrice(d.sellPrice ?? p.sellPrice);
+        const image = String(d.bigImage || d.productImage || p.bigImage || "").trim();
+        const categoryId = String(d.categoryId || p.categoryId || "");
+        const status = String(d.status || "");
+        if (status === "3") {
+          const exist = db.prepare("SELECT sku FROM products WHERE sku=?").get(sku);
+          db.prepare(`
+            INSERT INTO products (sku, pid, name, price, image, hasVideo, categoryId, categoryPath, firstSeenAt, lastSeenAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)
+            ON CONFLICT(sku) DO UPDATE SET
+              pid=excluded.pid, name=excluded.name, price=excluded.price, image=excluded.image,
+              hasVideo=excluded.hasVideo, categoryId=excluded.categoryId, lastSeenAt=excluded.lastSeenAt
+          `).run(sku, pid, name, price, image, 0, categoryId, now, now);
+          if (exist) updated++; else inserted++;
+          refreshed++;
+        } else {
+          offShelf++;
+        }
+      } else {
+        offShelf++;
+      }
+    } catch (e) {
+      log(`  ! visible-refresh 查询 pid=${pid} 失败（${e.message}），跳过`);
+    }
+    cursorNow = i + 1;
+    if ((i + 1 - cursor) % 50 === 0) setMeta.run(VISIBLE_CURSOR_KEY, String(i + 1));
+  }
+  setMeta.run(VISIBLE_CURSOR_KEY, String(cursorNow));
+
+  const info = { refreshed, updated, inserted, missing, offShelf, checked, cursor: cursorNow, totalVisible };
+  log(`visible-refresh：精确收割 ${info.refreshed} 条（更新 ${updated} / 新增 ${inserted} / 下架 ${offShelf} / 缺pid ${missing}），游标 ${cursor}→${cursorNow}/${totalVisible}`);
+  writeStatus({
+    lastSyncAt: nowIso(), lastSyncOk: true, lastError: null,
+    mode: "visible-refresh", stopReason, visibleRefresh: info,
+  });
+  return info;
 }
 
 // POST /product/query 批量刷新已被实测证伪（16900202 POST not supported），
@@ -883,12 +969,15 @@ async function refresh() {
     }
   }
 
-  // ② 可见 SKU 价格保活：/product/query 实测仅支持 GET 单 pid（10 点/次），
-  //    8,683 个可见 SKU 逐个刷 = 86,830 点 ≈ 全天点数，成本不可行。
-  //    改为：可见 SKU 所在叶子由 harvest 优先收割自然覆盖；此处仅提示。
-  const visInDb = db.prepare("SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)").get().c;
-  log(`  visible：库内可见 SKU ${visInDb} 条（由 harvest 可见优先收割覆盖，未做逐 pid 刷新）`);
-  const visInfo = { visibleInDb: visInDb };
+  // ② 可见 SKU 增量收割：GET query 单 pid 10 点/个（实测），
+  //    增量巡检期只补收新上架/未在库的可见 SKU（游标续传，新 SKU 自动覆盖）
+  let visInfo = null;
+  if (!stopReason) {
+    try { visInfo = await refreshVisibleFromJson(); } catch (e) { log(`  ! 可见 SKU 增量收割失败：${e.message}`); }
+  } else {
+    const visInDb = db.prepare("SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)").get().c;
+    visInfo = { visibleInDb: visInDb };
+  }
 
   const dbCount = db.prepare("SELECT COUNT(*) c FROM products").get().c;
   writeStatus({
@@ -1161,12 +1250,20 @@ async function main() {
       const probedAll = db.prepare("SELECT COUNT(*) c FROM leaves WHERE lastProbeAt IS NOT NULL").get().c;
       if (total === 0) { await probe(); }
       else if (done < total) {
-        // 收割期：每轮先探测一批未探测叶子（摸规模），再收割，再保活可见 SKU
-        if (probedAll < total) await probe();
-        await harvest();
-        // 收割期不再做逐 pid 刷新（POST query 不可用），harvest 可见优先排序自然覆盖
-        const visInDbAfter = db.prepare("SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)").get().c;
-        log(`auto：收割后库内可见 SKU ${visInDbAfter} 条`);
+        // 阶段1主路径（用户确认策略）：可见 SKU 精确收割（GET query 10点/个），
+        // 只收真实可见的 8,683 个 SKU，前台 77→8683 恢复；新 SKU 上架后增量。
+        // 叶子全量收割降级为可选：可见精确收割完成或点数富余时 --mode=harvest 手动跑。
+        const visDone = db.prepare("SELECT COUNT(*) c FROM visible_products").get().c;
+        const visRefreshed = db.prepare("SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)").get().c;
+        log(`auto：可见 SKU 精确收割阶段（${visRefreshed}/${visDone} 已在库）`);
+        if (visRefreshed < visDone && !stopReason) {
+          try { await refreshVisibleFromJson(); } catch (e) { log(`auto visible 收割失败：${e.message}`); }
+        }
+        if ((visRefreshed >= visDone || stopReason) && argv.includes("--full")) {
+          // 仅当显式 --full 时做叶子全量收割（扩充目录用）
+          await probe();
+          await harvest();
+        }
       }
       else {
         const before = readStatus().dbProducts || 0;
