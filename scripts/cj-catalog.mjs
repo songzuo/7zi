@@ -698,6 +698,7 @@ function queuePending() {
 /** 增量刷新游标 key：全量完成后记录开始时刻，之后只拉该时刻之后新增的商品 */
 const INCR_CURSOR_KEY = "incrCursor";
 const FULL_SITE_WINDOW_MAX = 6000;             // 窗口条数上限（V1 offset 硬上限，30 页收完）
+const PUBLISH_MAX_PRODUCTS = parseInt(arg("max-products", "50000"), 10); // 收割期渐进上架护栏（--max-products 可调）：前台可见集上限（旧 JSON 8,683 会保留，新收割补足到该值）
 
 /** 窗口二分：total>6000 → 按时间中点切成两半（含 [from,mid],[mid,to]，mid 去重毫秒） */
 function splitWindow(fromStr, toStr) {
@@ -1272,6 +1273,7 @@ async function publish() {
   // 全量收割完成后（incrCursor 存在 = 队列清空过），可见集 = products 表全部有效 SKU，
   // 前台从真实全集回写——这正是"收割=发现"的落地。
   const fullDone = !!getMeta.get(INCR_CURSOR_KEY)?.value;
+  const dbCount = db.prepare("SELECT COUNT(*) c FROM products").get().c;
   const getRow = db.prepare("SELECT * FROM products WHERE sku=?");
   let updated = 0, kept = 0, missing = 0;
   let products;
@@ -1288,26 +1290,47 @@ async function publish() {
     });
     log(`publish：全量完成，以前台真实全集 ${products.length} 条为源回写`);
   } else {
-    // 收割期兼容：仍以旧 JSON 为基准（增量回填价格/图），避免前台瞬间大改
-    products = (cur.products || []).map(p => {
+    // ===== 收割期渐进上架（收割多少上架多少，护栏控规模）=====
+    // 前台 = 旧 JSON 商品（库缺回退旧值） ∪ 库内新收割商品（按 lastSeenAt 最新优先补足到护栏）
+    // 前端逐步看到收割成果，而不是等全量完成一次性从 8,683 突变到 155 万。
+    const cap = PUBLISH_MAX_PRODUCTS;
+    const oldList = (cur.products || []);
+    const merged = new Map();
+    for (const p of oldList) {
       const row = getRow.get(p.sku);
-      if (!row) { missing++; return p; }
-      if (!(row.price > 0) || !row.image) { kept++; return p; }
+      if (!row) { missing++; merged.set(p.sku, p); continue; }
+      if (!(row.price > 0) || !row.image) { kept++; }
       if (String(row.price) !== String(p.price) || row.image !== p.image) updated++;
-      return {
+      merged.set(p.sku, {
         ...p,
         name: row.name || p.name,
         price: String(row.price),
         image: row.image || p.image,
         hasVideo: !!row.hasVideo,
         categoryPath: pathMap.get(row.categoryId) || row.categoryPath || p.categoryPath,
-      };
-    });
+      });
+    }
+    const need = Math.max(0, cap - merged.size);
+    if (need > 0) {
+      const fresh = db.prepare("SELECT sku FROM products WHERE price > 0 AND image != '' ORDER BY lastSeenAt DESC LIMIT ?").all(need);
+      for (const r of fresh) {
+        if (merged.has(r.sku)) continue;
+        const row = getRow.get(r.sku);
+        merged.set(r.sku, {
+          sku: row.sku, id: row.pid, name: row.name, price: String(row.price),
+          image: row.image, hasVideo: !!row.hasVideo,
+          categoryId: row.categoryId, categoryPath: pathMap.get(row.categoryId) || row.categoryPath,
+        });
+      }
+    }
+    products = Array.from(merged.values());
+    log(`publish：收割期渐进上架——旧 JSON ${oldList.length} 条保留，库内新收割补足至 ${products.length} 条（护栏 ${cap}，新入库 ${products.length - oldList.length}）`);
   }
   const staleCutoff = getMeta.get("passCompleteAt")?.value;
   let out = products;
-  if (staleCutoff && !fullDone) {
-    // 收割期按 lastSeen 过滤下架（全量完成后源已是真实集，无需再过滤）
+  if (staleCutoff && !fullDone && cur.products && cur.products.length > 0 && products.length === (cur.products || []).length) {
+    // 仅当仍为纯旧 JSON 兼容（未并入库内新收割）时按 lastSeen 过滤；
+    // 渐进上架后源已是库内真实集（收割=发现，不删）。
     const seen = db.prepare("SELECT lastSeenAt FROM products WHERE sku=?");
     out = products.filter(p => {
       const r = seen.get(p.sku);
@@ -1317,6 +1340,9 @@ async function publish() {
   const next = {
     ...cur,
     products: out,
+    productCount: out.length,
+    staleCount: 0,
+    totalProducts: dbCount,
     lastSyncAt: nowIso(),
     catalogSource: "cj-catalog.db",
   };
