@@ -130,7 +130,7 @@ function capturePoints(body) {
   }
 }
 
-async function pacedFetch(url, init) {
+async function pacedFetch(url, init, capture = true) {
   const wait = MIN_INTERVAL_MS - (Date.now() - lastRequestAt);
   if (wait > 0) await sleep(wait);
   lastRequestAt = Date.now();
@@ -141,7 +141,7 @@ async function pacedFetch(url, init) {
     try {
       const res = await fetch(url, { ...init, signal: controller.signal });
       const body = await res.json().catch(() => ({}));
-      capturePoints(body);
+      if (capture) capturePoints(body);
       // 点数耗尽：不重试、不算失败，落检查点退出
       if (res.status === 429 && String(body.message || "").includes("Insufficient API points")) {
         stopReason = stopReason || "points exhausted";
@@ -170,7 +170,7 @@ async function getToken(force = false) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ apiKey: CJ_API_KEY }),
-  });
+  }, false);  // token 响应的 pointsInfo 陈旧（曾返回 remaining=0 污染 stopReason），不采信
   token = body.data.accessToken;
   return token;
 }
@@ -182,7 +182,7 @@ async function cjGet(path) {
   } catch (e) {
     if (String(e.message).includes("token") || String(e.message).includes("401")) {
       await getToken(true);
-      return await pacedFetch(`${CJ_BASE}${path}`, { headers: { "CJ-Access-Token": token, "Content-Type": "application/json" } });
+      return await pacedFetch(`${CJ_BASE}${path}`, { headers: { "CJ-Access-Token": token, "Content-Type": "application/json" } }, true);
     }
     throw e;
   }
@@ -207,17 +207,22 @@ function dedupeName(name) {
   if (half > 5 && s.substring(0, half) === s.substring(half)) return s.substring(0, half).trim();
   return s;
 }
+// CJ 数据库时间统一为 Asia/Shanghai（UTC+8）。服务器可能运行在任意时区（本机 UTC+2），
+// 窗口字符串必须按上海时间生成，否则 createTimeFrom/To 字面匹配会偏移。
 function toV1Time(ms) {
-  // 毫秒时间戳 → "yyyy-MM-dd HH:mm:ss"（本地时区，与 CJ 服务器一致用 Asia/Shanghai）
   const d = new Date(Number(ms));
   const p = (n) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  const sh = new Date(d.getTime() + (8 - -d.getTimezoneOffset() / 60) * 3600000);
+  // 上面表达等价于：把本地时刻平移成上海时刻（本地偏移 = -getTimezoneOffset()/60）
+  const h = d.getUTCHours() + 8;
+  const day = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + Math.floor(h / 24), h % 24, d.getUTCMinutes(), d.getUTCSeconds()));
+  return `${day.getUTCFullYear()}-${p(day.getUTCMonth() + 1)}-${p(day.getUTCDate())} ${p(day.getUTCHours())}:${p(day.getUTCMinutes())}:${p(day.getUTCSeconds())}`;
 }
 function toV1TimeFromDateStr(s) {
-  // "yyyy-MM-dd HH:mm:ss" → 毫秒时间戳（本地时区解析）
+  // "yyyy-MM-dd HH:mm:ss"（上海时区字面）→ 绝对毫秒
   const m = String(s).match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
   if (!m) return NaN;
-  return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime();
+  return Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4] - 8, +m[5], +m[6]);
 }
 
 // V1 /product/list 归一化（data.list[] 直接是商品数组，字段名与 V2 不同）
@@ -659,6 +664,161 @@ async function harvestLeaf(leafId, pathMap, budget) {
   return "done";
 }
 
+// =====================================================================
+// 全站全量收割（发现真实可见 SKU 全集）——用户确认的主路径
+//   遍历 V1 /product/list 全站（不带 categoryId，total=1,553,986 实测），
+//   时间窗口自适应二分：起窗 [2019-01-01, now]，窗口 total>6000 二分（半年→季→月→旬→日），
+//   ≤6000 则翻页收完（≤30 页）。V1 list 本身就是"有效 SKU 数据"（每条带 productSku、
+//   saleStatus=3、非 test）——服务端已做"只返回有效 SKU"的筛选，入库即真实可见集。
+//   断点续传：meta[fullSiteQueue] = 待处理窗口栈 JSON，每轮处理一批后持久化；
+//   点数不足保存栈，下轮从栈顶续传。成本 ≈ 155万 × 0.25 点 ≈ 38.9万点 ≈ 4.4 天。
+// =====================================================================
+const FULL_SITE_QUEUE_KEY = "fullSiteQueue";   // 待处理窗口栈 JSON（[ [from,to], ... ]）
+const FULL_SITE_START = "2019-01-01 00:00:00"; // 实测最早年份（2019=27,160 条）
+
+/** 全站队列是否还有待处理窗口 */
+function queuePending() {
+  try { return JSON.parse(getMeta.get(FULL_SITE_QUEUE_KEY)?.value || "[]").length > 0; } catch { return false; }
+}
+
+/** 增量刷新游标 key：全量完成后记录开始时刻，之后只拉该时刻之后新增的商品 */
+const INCR_CURSOR_KEY = "incrCursor";
+const FULL_SITE_WINDOW_MAX = 6000;             // 窗口条数上限（V1 offset 硬上限，30 页收完）
+
+/** 窗口二分：total>6000 → 按时间中点切成两半（含 [from,mid],[mid,to]，mid 去重毫秒） */
+function splitWindow(fromStr, toStr) {
+  const fromMs = toV1TimeFromDateStr(fromStr), toMs = toV1TimeFromDateStr(toStr);
+  if (isNaN(fromMs) || isNaN(toMs)) return null;
+  const mid = Math.floor((fromMs + toMs) / 2);
+  if (mid <= fromMs || mid >= toMs) return null; // 1ms 内无法再分
+  const midStr = toV1Time(mid);
+  return [[fromStr, midStr], [midStr, toStr]];
+}
+
+/**
+ * 全站全量收割一轮。返回 {got, done, queueLen}；点数/预算不足时持久化队列并停。
+ * 窗口处理：弹栈顶 → 探测 total → >6000 二分入栈（前窗后窗压栈）→ ≤6000 翻页收完。
+ * 断点粒度：窗口级（页内断点由窗口重收覆盖，窗口 ≤6000 重收成本可控）。
+ */
+async function harvestFullSite() {
+  stopReason = null;
+  points = { usedToday: null, remaining: null, total: null }; // 点数以业务 API 响应为准
+  const startedAt = toV1Time(Date.now());
+  // 全量完成时：增量游标 = 本轮开始时刻（全量已覆盖 [2019, startedAt]，之后新增走增量）
+  // 恢复窗口栈
+  let queue = [];
+  try { queue = JSON.parse(getMeta.get(FULL_SITE_QUEUE_KEY)?.value || "[]"); } catch {}
+  if (!Array.isArray(queue) || queue.length === 0) {
+    queue = [[FULL_SITE_START, toV1Time(Date.now() + 86400000)]];
+  }
+  const pathMap = await buildPathMapFromTree();
+  let got = 0, doneWindows = 0, rounds = 0;
+  const budget = { pages: 0 };
+
+  while (queue.length > 0) {
+    if (stopReason) break;
+    if (budget.pages >= MAX_PAGES_PER_RUN) { stopReason = stopReason || `page budget (${MAX_PAGES_PER_RUN})`; break; }
+    if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || `points low (${points.remaining})`; break; }
+
+    const [winFrom, winTo] = queue[queue.length - 1];
+    // 探测窗口规模（50 点）
+    const probeBody = await cjGet(`/product/list?pageNum=1&pageSize=${PAGE_SIZE_V1}&createTimeFrom=${encodeURIComponent(winFrom)}&createTimeTo=${encodeURIComponent(winTo)}`);
+    if (probeBody.pointsExhausted) break;
+    const wTotal = (probeBody.data && probeBody.data.total) || 0;
+    const wItems = normalizeV1List(probeBody.data && probeBody.data.list);
+    rounds++;
+    if (wTotal === 0 || wItems.length === 0) { queue.pop(); setMeta.run(FULL_SITE_QUEUE_KEY, JSON.stringify(queue)); doneWindows++; continue; }
+
+    if (wTotal > FULL_SITE_WINDOW_MAX) {
+      // 窗口太大 → 二分（前后窗压栈，先收后面的）
+      const parts = splitWindow(winFrom, winTo);
+      if (!parts) {
+        // 1ms 内仍超 6000：极端同秒批量，回退 V2 全站翻页（page 上限 1000×100=10 万）
+        log(`  ! 窗口 ${winFrom}~${winTo} 同秒超量 ${wTotal} 条，回退 V2 翻页`);
+        queue.pop();
+        const r = await harvestV2FullSiteWindow(winFrom, winTo, pathMap, budget);
+        got += r.got;
+        if (r.stop) { setMeta.run(FULL_SITE_QUEUE_KEY, JSON.stringify(queue)); return { got, done: doneWindows, queueLen: queue.length }; }
+        doneWindows++;
+        setMeta.run(FULL_SITE_QUEUE_KEY, JSON.stringify(queue));
+        continue;
+      }
+      queue.pop();
+      queue.push(parts[1], parts[0]); // 先收后半（更新的数据优先）
+      setMeta.run(FULL_SITE_QUEUE_KEY, JSON.stringify(queue));
+      continue;
+    }
+
+    // 窗口 ≤6000：整窗翻页收完（复用探测首页）
+    queue.pop();
+    let page = 2, winGot = wItems.length;
+    upsertProducts(wItems, pathMap);
+    budget.pages++;
+    const qBase = `pageSize=${PAGE_SIZE_V1}&createTimeFrom=${encodeURIComponent(winFrom)}&createTimeTo=${encodeURIComponent(winTo)}`;
+    while (page <= Math.ceil(FULL_SITE_WINDOW_MAX / PAGE_SIZE_V1)) {
+      if (budget.pages >= MAX_PAGES_PER_RUN) { stopReason = stopReason || `page budget (${MAX_PAGES_PER_RUN})`; break; }
+      if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || `points low (${points.remaining})`; break; }
+      const b = await cjGet(`/product/list?${qBase}&pageNum=${page}`);
+      if (b.pointsExhausted) break;
+      const more = normalizeV1List(b.data && b.data.list);
+      if (more.length === 0) break;
+      upsertProducts(more, pathMap);
+      winGot += more.length;
+      budget.pages++;
+      if (more.length < PAGE_SIZE_V1) break;
+      page++;
+    }
+    got += winGot;
+    doneWindows++;
+    setMeta.run(FULL_SITE_QUEUE_KEY, JSON.stringify(queue));
+    if (rounds % 20 === 0) log(`  ↻ 全站收割窗口 ${doneWindows} 个，累计 +${got} 条（剩余窗口 ${queue.length}）`);
+  }
+
+  setMeta.run(FULL_SITE_QUEUE_KEY, JSON.stringify(queue));
+  const doneAll = queue.length === 0 && !stopReason;
+  if (doneAll) setMeta.run(INCR_CURSOR_KEY, startedAt);
+  const dbCount = db.prepare("SELECT COUNT(*) c FROM products").get().c;
+  log(`fullsite：本轮收割 ${got} 条，完成窗口 ${doneWindows} 个，剩余 ${queue.length} 个${doneAll ? "（全量完成！增量游标=" + startedAt + "）" : ""}，库内共 ${dbCount} 条`);
+  writeStatus({
+    lastSyncAt: nowIso(), lastSyncOk: true, lastError: null,
+    mode: "fullsite", stopReason,
+    fullSite: { got, doneWindows, queueLen: queue.length, doneAll, dbProducts: dbCount },
+  });
+  return { got, done: doneWindows, queueLen: queue.length };
+}
+
+/** V2 全站窗口兜底（同秒超量时整窗翻页，page 上限 1000） */
+async function harvestV2FullSiteWindow(winFrom, winTo, pathMap, budget) {
+  let page = 1, got = 0;
+  while (page <= 1000) {
+    if (budget.pages >= MAX_PAGES_PER_RUN) { stopReason = stopReason || `page budget (${MAX_PAGES_PER_RUN})`; break; }
+    if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || `points low (${points.remaining})`; break; }
+    let q = `page=${page}&size=${PAGE_SIZE_V2}`;
+    if (winFrom) q += `&createTimeFrom=${encodeURIComponent(winFrom)}`;
+    if (winTo) q += `&createTimeTo=${encodeURIComponent(winTo)}`;
+    const body = await cjGet(`/product/listV2?${q}`);
+    if (body.pointsExhausted) break;
+    const items = normalizeProductList(body.data && body.data.content);
+    if (items.length === 0) break;
+    upsertProducts(items, pathMap);
+    got += items.length;
+    budget.pages++;
+    if (items.length < PAGE_SIZE_V2) break;
+    page++;
+  }
+  return { got, stop: stopReason };
+}
+
+/** 从分类树构建 pathMap（getCategory 免费） */
+async function buildPathMapFromTree() {
+  const tree = await fetchCategoryTree();
+  const pathMap = new Map();
+  for (const l1 of tree) for (const l2 of l1.l2s) for (const leaf of l2.leaves) {
+    pathMap.set(leaf.id, `${l1.name} > ${l2.name} > ${leaf.name}`);
+  }
+  return pathMap;
+}
+
 // ---------------------------------------------------------------------------
 // probe：全量规模探测（一次性 · 摸清真实数据地图）
 //   对每个叶子取 page=1（50 点/叶），记录 totalRecords 与是否触及 6000 封顶，
@@ -897,10 +1057,90 @@ async function refreshVisibleFromJson() {
 // POST /product/query 批量刷新已被实测证伪（16900202 POST not supported），
 // 逐 pid GET（10 点/次）成本不可行 → 本函数废弃，可见 SKU 由收割覆盖。
 
+// =====================================================================
+// 增量刷新（阶段2）：全量完成后，只拉增量游标之后新增的商品。
+//   增量窗口 [cursor, now]，窗口 >6000 时二分（复用窗口逻辑），≤6000 翻页收完。
+//   实测 09-19 一天 880 条 → 每天增量约 1-3 页 ≈ 50-150 点，成本极低。
+//   同时检测下架：V1 list 只返回在售，消失的商品标记 stale。
+// =====================================================================
+async function harvestIncremental() {
+  stopReason = null;
+  let cursor = getMeta.get(INCR_CURSOR_KEY)?.value || null;
+  if (!cursor) { log(`incremental：无增量游标（全量未完成？），跳过`); return null; }
+  // 窗口 [cursor, now+1天]
+  const winTo = toV1Time(Date.now() + 86400000);
+  let queue = [[cursor, winTo]];
+  const pathMap = await buildPathMapFromTree();
+  let got = 0, doneWindows = 0;
+  const budget = { pages: 0 };
+
+  while (queue.length > 0) {
+    if (stopReason) break;
+    if (budget.pages >= MAX_PAGES_PER_RUN) { stopReason = stopReason || `page budget (${MAX_PAGES_PER_RUN})`; break; }
+    if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || `points low (${points.remaining})`; break; }
+    const [winFrom, wTo] = queue[queue.length - 1];
+    const probeBody = await cjGet(`/product/list?pageNum=1&pageSize=${PAGE_SIZE_V1}&createTimeFrom=${encodeURIComponent(winFrom)}&createTimeTo=${encodeURIComponent(wTo)}`);
+    if (probeBody.pointsExhausted) break;
+    const wTotal = (probeBody.data && probeBody.data.total) || 0;
+    const wItems = normalizeV1List(probeBody.data && probeBody.data.list);
+    if (wTotal === 0 || wItems.length === 0) { queue.pop(); doneWindows++; continue; }
+    if (wTotal > FULL_SITE_WINDOW_MAX) {
+      const parts = splitWindow(winFrom, wTo);
+      if (!parts) {
+        log(`  ! 增量窗口 ${winFrom}~${wTo} 同秒超量 ${wTotal}，回退 V2`);
+        queue.pop();
+        const r = await harvestV2FullSiteWindow(winFrom, wTo, pathMap, budget);
+        got += r.got;
+        if (r.stop) return { got, doneWindows, cursor };
+        doneWindows++;
+        continue;
+      }
+      queue.pop();
+      queue.push(parts[1], parts[0]);
+      continue;
+    }
+    queue.pop();
+    let page = 2, winGot = wItems.length;
+    upsertProducts(wItems, pathMap);
+    budget.pages++;
+    const qBase = `pageSize=${PAGE_SIZE_V1}&createTimeFrom=${encodeURIComponent(winFrom)}&createTimeTo=${encodeURIComponent(wTo)}`;
+    while (page <= Math.ceil(FULL_SITE_WINDOW_MAX / PAGE_SIZE_V1)) {
+      if (budget.pages >= MAX_PAGES_PER_RUN) { stopReason = stopReason || `page budget (${MAX_PAGES_PER_RUN})`; break; }
+      if (points.remaining !== null && points.remaining <= POINTS_RESERVE) { stopReason = stopReason || `points low (${points.remaining})`; break; }
+      const b = await cjGet(`/product/list?${qBase}&pageNum=${page}`);
+      if (b.pointsExhausted) break;
+      const more = normalizeV1List(b.data && b.data.list);
+      if (more.length === 0) break;
+      upsertProducts(more, pathMap);
+      winGot += more.length;
+      budget.pages++;
+      if (more.length < PAGE_SIZE_V1) break;
+      page++;
+    }
+    got += winGot;
+    doneWindows++;
+    if (doneWindows % 10 === 0) log(`  ↻ 增量窗口 ${doneWindows} 个，+${got} 条`);
+  }
+
+  if (!stopReason) setMeta.run(INCR_CURSOR_KEY, winTo);
+  log(`incremental：本轮 +${got} 条（窗口 ${doneWindows}），游标 ${cursor} → ${getMeta.get(INCR_CURSOR_KEY)?.value}${stopReason ? "，中断=" + stopReason : ""}`);
+  return { got, doneWindows, cursor };
+}
+
 async function refresh() {
+  // ============ 阶段2 主路径：全站增量刷新（新增商品 + 下架检测） ============
+  // 全量完成后，游标之前的新增商品用 V1 时间切片增量拉取；成本极低（每天几百条）。
+  let incrInfo = null;
+  try { incrInfo = await harvestIncremental(); } catch (e) { log(`  ! 全站增量刷新失败：${e.message}`); }
+  if (stopReason && !stopReason.startsWith("page budget")) {
+    writeStatus({ lastSyncAt: nowIso(), lastSyncOk: true, lastError: null, mode: "refresh", stopReason, incrInfo });
+    log(`refresh：增量阶段中断（${stopReason}），跳过叶子巡检`);
+    return;
+  }
+
   const total = db.prepare("SELECT COUNT(*) c FROM leaves").get().c;
   const done = db.prepare("SELECT COUNT(*) c FROM leaves WHERE doneAt IS NOT NULL").get().c;
-  if (done < total) { log(`refresh 跳过：首轮未完成（${done}/${total}）`); await harvest(); return; }
+  if (done < total) { log(`refresh 跳过叶子巡检：叶子首轮未完成（${done}/${total}），增量已完成`); return; }
 
   const tree = await fetchCategoryTree();
   // 同 harvest：getCategory 返回的点数可能不准，清零后让真实 API 调用决定
@@ -983,9 +1223,9 @@ async function refresh() {
   writeStatus({
     lastSyncAt: nowIso(), lastSyncOk: true, lastError: null,
     dbProducts: dbCount, mode: "refresh", stopReason,
-    refresh: { probed, changedLeaves, visibleBatch: visInfo },
+    refresh: { probed, changedLeaves, visibleBatch: visInfo, incrInfo },
   });
-  log(`refresh：巡检 ${probed} 叶，变化 ${changedLeaves}，${stopReason ? "中断=" + stopReason : "本轮完整"}`);
+  log(`refresh：增量 +${incrInfo?.got || 0} 条，巡检 ${probed} 叶，变化 ${changedLeaves}，${stopReason ? "中断=" + stopReason : "本轮完整"}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -1232,6 +1472,7 @@ async function main() {
     const t0 = Date.now();
     log(`=== cj-catalog ${MODE} 开始 ===`);
     if (MODE === "status") { status(); return 0; }
+    if (MODE === "fullsite") { await harvestFullSite(); return 0; }
     if (MODE === "harvest") await harvest();
     else if (MODE === "probe") await probe();
     else if (MODE === "refresh") await refresh();
@@ -1249,20 +1490,25 @@ async function main() {
       const total = db.prepare("SELECT COUNT(*) c FROM leaves").get().c;
       const probedAll = db.prepare("SELECT COUNT(*) c FROM leaves WHERE lastProbeAt IS NOT NULL").get().c;
       if (total === 0) { await probe(); }
-      else if (done < total) {
-        // 阶段1主路径（用户确认策略）：可见 SKU 精确收割（GET query 10点/个），
-        // 只收真实可见的 8,683 个 SKU，前台 77→8683 恢复；新 SKU 上架后增量。
-        // 叶子全量收割降级为可选：可见精确收割完成或点数富余时 --mode=harvest 手动跑。
-        const visDone = db.prepare("SELECT COUNT(*) c FROM visible_products").get().c;
-        const visRefreshed = db.prepare("SELECT COUNT(*) c FROM visible_products v WHERE EXISTS (SELECT 1 FROM products p WHERE p.sku=v.sku)").get().c;
-        log(`auto：可见 SKU 精确收割阶段（${visRefreshed}/${visDone} 已在库）`);
-        if (visRefreshed < visDone && !stopReason) {
-          try { await refreshVisibleFromJson(); } catch (e) { log(`auto visible 收割失败：${e.message}`); }
-        }
-        if ((visRefreshed >= visDone || stopReason) && argv.includes("--full")) {
-          // 仅当显式 --full 时做叶子全量收割（扩充目录用）
-          await probe();
-          await harvest();
+      else if (done < total || queuePending()) {
+        // ============ 阶段1（主路径，用户确认策略）：全站全量收割 ============
+        // 遍历 V1 list 全站（155万条，时间窗口二分），入库全部有效 SKU——
+        // 一次性知道真实可见全集（不再是旧快照 8,683）。队列完成前持续跑；
+        // 完成后自动转阶段2（增量刷新）。点数是唯一节奏约束（每 10 分钟一轮）。
+        const q = getMeta.get(FULL_SITE_QUEUE_KEY)?.value;
+        let pending = 0;
+        try { pending = JSON.parse(q || "[]").length; } catch {}
+        if (pending === 0 && done >= total) {
+          // 全站队列已清空：直接进入阶段2（增量刷新 + publish）
+          const before = readStatus().dbProducts || 0;
+          await refresh();
+          if (!stopReason || stopReason.startsWith("page budget")) await publish();
+          if (!stopReason || stopReason.startsWith("page budget")) {
+            try { await curate("new-arrivals", 30); } catch (e) { log(`auto curate 失败：${e.message}`); }
+          }
+        } else {
+          log(`auto：全站全量收割阶段（剩余窗口 ${pending}，库内 ${readStatus().dbProducts || 0} 条）`);
+          try { await harvestFullSite(); } catch (e) { log(`auto fullsite 失败：${e.message}`); }
         }
       }
       else {
