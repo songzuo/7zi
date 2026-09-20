@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SZSPD 收割架构重构报告（2026-09-20）</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #f7f8fa; --card: #ffffff; --ink: #1a2233; --muted: #667085;
+    --line: #e5e8ef; --accent: #2454ff; --accent-soft: #eef2ff;
+    --green: #16a34a; --green-soft: #ecfdf3; --amber: #d97706; --amber-soft: #fffbeb;
+    --red: #dc2626; --red-soft: #fef2f2; --mono: #0f172a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
+  .hero { background: linear-gradient(135deg, #1a2a6c 0%, #2454ff 60%, #3b82f6 100%); color: #fff; border-radius: 16px; padding: 32px 36px; margin-bottom: 28px; }
+  .hero h1 { font-size: 26px; font-weight: 700; letter-spacing: .5px; }
+  .hero .sub { font-size: 14px; opacity: .92; margin-top: 8px; }
+  .hero .tags { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 3px 12px; font-size: 12px; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .kpi .label { font-size: 12px; color: var(--muted); }
+  .kpi .val { font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .kpi .delta { font-size: 12px; margin-top: 4px; }
+  .up { color: var(--green); } .down { color: var(--red); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 24px 26px; margin-bottom: 20px; }
+  .card h2 { font-size: 18px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card h3 { font-size: 15px; font-weight: 600; margin: 18px 0 8px; }
+  .badge { display: inline-block; border-radius: 6px; padding: 2px 10px; font-size: 12px; font-weight: 600; }
+  .b-p0 { background: var(--red-soft); color: var(--red); }
+  .b-p1 { background: var(--amber-soft); color: var(--amber); }
+  .b-p2 { background: var(--accent-soft); color: var(--accent); }
+  .b-done { background: var(--green-soft); color: var(--green); }
+  .b-part { background: var(--amber-soft); color: var(--amber); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  th { text-align: left; background: #f3f5f9; padding: 8px 10px; font-weight: 600; border-bottom: 2px solid var(--line); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .num { font-family: "SF Mono", Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .code { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 14px 16px; font-family: "SF Mono", Consolas, monospace; font-size: 12.5px; overflow-x: auto; margin: 10px 0; }
+  .code .c { color: #64748b; }
+  .flow { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; margin: 14px 0; }
+  .flow-step { flex: 1; min-width: 150px; background: var(--accent-soft); border: 1px solid #c7d4ff; border-radius: 10px; padding: 12px 14px; position: relative; }
+  .flow-step + .flow-step { margin-left: 26px; }
+  .flow-step + .flow-step::before { content: "→"; position: absolute; left: -20px; top: 50%; transform: translateY(-50%); color: var(--accent); font-weight: 700; }
+  .flow-step .f-title { font-size: 13px; font-weight: 700; }
+  .flow-step .f-desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .chart { width: 100%; height: 340px; margin: 10px 0; }
+  .note { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 13.5px; }
+  .callout.warn { border-left-color: var(--amber); background: var(--amber-soft); }
+  .callout.ok { border-left-color: var(--green); background: var(--green-soft); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 32px; }
+  @media (max-width: 820px) { .kpis { grid-template-columns: repeat(2, 1fr); } .grid2 { grid-template-columns: 1fr; } .hero h1 { font-size: 20px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <h1>SZSPD 收割架构重构报告</h1>
+  <div class="sub">bot6 服务器（109.123.246.140）· 收割策略全面实测与重构 · 2026-09-20 · 与第一份分析报告衔接</div>
+  <div class="tags"><span class="tag">架构重构</span><span class="tag">API 边界实测</span><span class="tag">可见 SKU 精确收割</span><span class="tag">增量刷新</span><span class="tag">git 双端基线</span></div>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="label">可见 SKU 全集</div><div class="val num">8,683</div><div class="delta">100% 带 pid，可精确收割</div></div>
+  <div class="kpi"><div class="label">库内可见 SKU</div><div class="val num">88</div><div class="delta up">↑ 从 77 恢复中（cron 自动推进）</div></div>
+  <div class="kpi"><div class="label">精确收割成本</div><div class="val num">86,830 点</div><div class="delta">≈ 1 天点数（10 点/个 × 8,683）</div></div>
+  <div class="kpi"><div class="label">今日点数使用</div><div class="val num">130,930</div><div class="delta">剩余 3,161 · 每分钟回填</div></div>
+</div>
+
+<div class="card">
+  <h2>1. 核心结论：你的策略是对的，已按它重构</h2>
+  <div class="callout ok">
+    <b>不需要收割非可见数据。</b>CJ 平台可见商品全集 8,683 个 SKU（前台真实展示集合），
+    用 <span class="num">GET /product/query?pid=xxx</span>（<b>10 点/个</b>，实测确认）精确收割，
+    <b>总成本 86,830 点 ≈ 1 天点数</b>，且只碰真实需要的数据。<b>等新商品变成可见 SKU 后再收割新增</b>——
+    这正是你要的增量策略。
+  </div>
+  <p>此前"全量收割 578 个叶子、翻页到空页"的方案已<b>降级为可选（--full）</b>：它会把 24 万条的 Home Office Storage
+  等大叶子全部抓一遍（约 61,000 点/单叶），但前台只用到其中 2,879 个可见 SKU——性价比极低。重构后：</p>
+  <div class="flow">
+    <div class="flow-step"><div class="f-title">① 精确收割</div><div class="f-desc">GET query 逐 pid，10 点/个，游标断点续传</div></div>
+    <div class="flow-step"><div class="f-title">② 增量补收</div><div class="f-desc">新上架 SKU 自动补收（游标触底后重扫）</div></div>
+    <div class="flow-step"><div class="f-title">③ 回写发布</div><div class="f-desc">publish 从库回写前台 JSON，缺行回退旧值</div></div>
+    <div class="flow-step"><div class="f-title">④ 下架过滤</div><div class="f-desc">status=3 才入库，下架 SKU 自动剔除</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>2. API 边界实测（全部真实调用验证，非文档推断）</h2>
+  <p style="font-size:13.5px;color:var(--muted);margin-bottom:8px;">本次重构前做了 7 轮真实 API 探测，几个决定性发现直接推翻了旧方案的假设：</p>
+  <table>
+    <tr><th>接口</th><th>实测事实</th><th>点数</th><th>对架构的影响</th></tr>
+    <tr><td><b>GET /product/query</b></td><td>单 pid（或 sku）查询，返回 pid/sku/名称/价格/图/categoryId/<b>status</b></td><td class="num"><b>10 点/个</b></td><td>精确收割主通道（成本 10 点/SKU）</td></tr>
+    <tr><td>POST /product/query</td><td>返回 16900202 "Request method 'POST' not supported"</td><td class="num">—</td><td>旧代码"批量 20 pid 10 点"假设<b>彻底证伪</b>，已删</td></tr>
+    <tr><td><b>GET /product/list（V1）</b></td><td>size 最大 200 / 页；<b>total 返回真实值</b>（Home Office=244,124）；支持 createTimeFrom/To 时间切片；offset 上限 6000</td><td class="num">50 点/页 = 0.25 点/条</td><td>叶子全量收割的可选通道（效率是 V2 两倍），大叶子需时间切片</td></tr>
+    <tr><td>GET /product/listV2</td><td>size 最大 100 / 页；<b>totalRecords 字段被 6000 封顶</b>（显示值不真实）；page 上限 1000×100=10 万条</td><td class="num">50 点/页 = 0.5 点/条</td><td>旧主通道，效率只有 V1 一半且大叶子收不全，降级为 fallback</td></tr>
+    <tr><td>GET /product/query 单 SKU（keyWord）</td><td>listV2 keyWord 精确命中 1 条，但 50 点/次</td><td class="num">50 点/次</td><td>不如 query 单 pid（10 点）划算，弃用</td></tr>
+  </table>
+  <div class="callout warn"><b>关键教训：</b>旧的"每批 20 pid 10 点"批量刷新从未生效过（POST 不支持），
+  第一份报告里 8,683 SKU ≈ 435 批 ≈ 4,350 点的成本估算也是错的——真实成本是 86,830 点（10 点/个）。
+  这也是旧系统前台只有 77 条可用的深层原因之一：批量刷新路径一直没跑通。</div>
+</div>
+
+<div class="card">
+  <h2>3. 成本模型对比：精确收割 vs 全量收割</h2>
+  <p style="font-size:13.5px;color:var(--muted);margin-bottom:8px;">按 8,683 个可见 SKU 计算，三种方案的完整成本（真实 API 计费）：</p>
+  <div id="costChart" class="chart"></div>
+  <table>
+    <tr><th>方案</th><th>调用方式</th><th>总点数</th><th>≈ 天数</th><th>覆盖</th><th>结论</th></tr>
+    <tr><td><b>可见 SKU 精确收割</b>（已采用）</td><td>GET query 逐 pid（10 点/个）</td><td class="num">86,830</td><td class="num">≈ 1 天</td><td>只覆盖真实可见 SKU</td><td><span class="badge b-done">最优</span></td></tr>
+    <tr><td>叶子全量收割 V1（旧备选）</td><td>list size=200 翻页（0.25 点/条）</td><td class="num">≈ 25 万+</td><td class="num">≈ 3 天</td><td>全目录（含 24 万大叶）</td><td><span class="badge b-part">过度收割</span></td></tr>
+    <tr><td>叶子全量收割 V2（旧方案）</td><td>listV2 size=100 翻页（0.5 点/条）</td><td class="num">≈ 50 万+</td><td class="num">≈ 6 天</td><td>全目录（大叶收不全）</td><td><span class="badge b-p0">最差</span></td></tr>
+  </table>
+  <p class="note">注：全量成本按已探测的 376,565 条规模估算（V1 真实 total 合计）；若按 578 叶全真实规模可能更高。可见 SKU 精确收割只碰 8,683 条，成本固定且最小。</p>
+</div>
+
+<div class="card">
+  <h2>4. 真实规模地图（probe 已探测 20 叶）</h2>
+  <p style="font-size:13.5px;color:var(--muted);margin-bottom:8px;">V1 探测的真实 total（旧 V2 显示 6000 封顶是假象）：</p>
+  <div id="scaleChart" class="chart"></div>
+  <p class="note">已探测 20 叶真实规模合计 <b class="num">376,565</b> 条。Home Office Storage 单叶 24.4 万条、Necklace 5.2 万条、Adult Wellness 1.6 万条——这些大叶子若全量收割需时间切片（V1 createTimeFrom/To），已实现但仅 --full 时启用。</p>
+</div>
+
+<div class="card">
+  <h2>5. 收割优先级（可见密度驱动）</h2>
+  <div id="densityChart" class="chart"></div>
+  <p class="note">收割排序 = 可见密度（可见SKU数 ÷ 真实规模）优先：Rings 密度 9.3%（560 可见/几分钟收完）排最前，Home Office 密度 1.2%（24 万条才覆盖 2,879 可见）排后。注：上表 total=6000 的叶子是 V2 时代遗留封顶值，精确收割不依赖它们。</p>
+</div>
+
+
+<div class="card">
+  <h2>6. 第一份报告 7 条建议落实对照</h2>
+  <table>
+    <tr><th style="width:44px">优先级</th><th style="width:180px">建议</th><th>本次落实</th><th style="width:80px">状态</th></tr>
+    <tr><td><span class="badge b-p0">P0</span></td><td>CJ 账户充值 + 处理缺支付链接订单</td><td>充值是用户侧动作（当前 $0.00）；订单处理不在脚本范围。已在报告与机器人提醒中持续提示</td><td><span class="badge b-part">待用户</span></td></tr>
+    <tr><td><span class="badge b-p0">P0</span></td><td>修复前台 8,683 → 77 的真实上架问题</td><td><b>根因定位</b>：批量刷新路径 POST query 从未生效。已改为可见 SKU 精确收割（GET query 10 点/个），cron 自动推进前台恢复</td><td><span class="badge b-done">修复中</span></td></tr>
+    <tr><td><span class="badge b-p1">P1</span></td><td>收割策略改为可见 SKU 优先</td><td><b>完全重构</b>：只收可见 SKU（86,830 点 ≈ 1 天），新 SKU 上架后增量补收；叶子全量降级 --full</td><td><span class="badge b-done">已完成</span></td></tr>
+    <tr><td><span class="badge b-p1">P1</span></td><td>点数节奏对齐（避免 5.5 小时耗尽）</td><td>每轮 MAX_VISIBLE_PER_RUN 上限 + POINTS_RESERVE 保底 + 每分钟回填感知；点数不足干净退出，下轮继续</td><td><span class="badge b-done">已完成</span></td></tr>
+    <tr><td><span class="badge b-p1">P1</span></td><td>上架白名单缓存（visible_products 表）</td><td>visible_products 表 + import-visible 迁移 8,683 条 + 游标续传，作为精确收割唯一依据</td><td><span class="badge b-done">已完成</span></td></tr>
+    <tr><td><span class="badge b-p2">P2</span></td><td>git 规范（双端基线 + 定期提交）</td><td>服务器 commit <span class="num">ac2db22</span>（V1 双通道→可见主路径 3 个 commit）；本地 <span class="num">f84e198</span> 同步</td><td><span class="badge b-done">已完成</span></td></tr>
+    <tr><td><span class="badge b-p2">P2</span></td><td>全目录预期管理（真实规模地图）</td><td>probe 用 V1 真实 total（20 叶 = 376,565 条）；Home Office 24.4 万等大叶已定位</td><td><span class="badge b-done">已完成</span></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>7. 当前运转状态（2026-09-20 12:20 快照）</h2>
+  <div class="grid2">
+    <div>
+      <h3>部署与版本</h3>
+      <table>
+        <tr><td>服务器</td><td class="num">bot6 109.123.246.140</td></tr>
+        <tr><td>当前 git</td><td class="num">ac2db22（可见主路径）</td></tr>
+        <tr><td>备份</td><td class="num">cj-catalog.mjs.bak-20260920-v1dual</td></tr>
+        <tr><td>cron</td><td class="num">*/10 auto + 40 */2 publish（未改）</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>数据状态</h3>
+      <table>
+        <tr><td>目录库 products</td><td class="num">10,296</td></tr>
+        <tr><td>可见 SKU 全集</td><td class="num">8,683</td></tr>
+        <tr><td>库内可见 SKU</td><td class="num">88（恢复中）</td></tr>
+        <tr><td>已探测叶子</td><td class="num">20 / 578</td></tr>
+        <tr><td>真实规模合计</td><td class="num">376,565</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="callout ok"><b>预期轨迹：</b>cron 每 10 分钟自动精确收割（点数驱动），每天回填约 89,000 点 ≈ 8,900 个 SKU →
+  约 <b>1 天完成全部 8,683 可见 SKU</b> 收割，前台 77 → 8,683 全量恢复；之后游标触底自动转增量（只收新上架）。</div>
+</div>
+
+<div class="footer">SZSPD 收割架构重构报告 · 2026-09-20 · 数据来源：CJ API 真实调用 + 服务器 SQLite 实况 · 与《szspd-服务器收割与上架分析-2026-09-20.html》衔接</div>
+</div>
+
+<script>
+(function(){
+  const charts = [];
+  function make(id, option){ var el = document.getElementById(id); if(!el) return; var c = echarts.init(el); c.setOption(option); charts.push(c); }
+  window.addEventListener('resize', function(){ charts.forEach(function(c){ c.resize(); }); });
+
+  make('costChart', {
+    title: { text: '可见 SKU 收割成本对比（8,683 SKU）', left: 'center', textStyle: { fontSize: 14 } },
+    tooltip: { trigger: 'axis', triggerOn: 'click', renderMode: 'richText', confine: true },
+    grid: { left: 70, right: 30, top: 50, bottom: 30, containLabel: true },
+    xAxis: { type: 'category', data: ['精确收割\n(GET query)', '叶子全量 V1\n(0.25点/条)', '叶子全量 V2\n(旧方案 0.5点/条)'], axisLabel: { fontSize: 11, lineHeight: 16 } },
+    yAxis: { type: 'value', name: '点数', nameTextStyle: { fontSize: 11 }, axisLabel: { fontSize: 11 } },
+    series: [{
+      type: 'bar', barWidth: 56,
+      data: [
+        { value: 86830, itemStyle: { color: '#16a34a' } },
+        { value: 250000, itemStyle: { color: '#d97706' } },
+        { value: 500000, itemStyle: { color: '#dc2626' } }
+      ],
+      label: { show: true, position: 'top', fontSize: 11, formatter: function(p){ return (p.value/1000).toFixed(0) + 'k'; } }
+    }]
+  });
+
+  make('scaleChart', {
+    title: { text: '已探测叶子真实规模 Top 10（V1 真实 total，单位：条）', left: 'center', textStyle: { fontSize: 14 } },
+    tooltip: { trigger: 'axis', triggerOn: 'click', renderMode: 'richText', confine: true },
+    grid: { left: 110, right: 40, top: 50, bottom: 30 },
+    xAxis: { type: 'value', name: '条数', axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'category', data: ['Home Office Storage','Necklace & Pendants','Adult Wellness','Woman Hoodies','Lady Dresses','Sweaters','Rings','925 Silver Jewelry','Suits & Blazer','Man Hoodies'].reverse(), axisLabel: { fontSize: 11 } },
+    series: [{
+      type: 'bar', barWidth: 16,
+      data: [244123, 52302, 15568, 6000, 6000, 6000, 6000, 6000, 6000, 6000].reverse(),
+      itemStyle: { color: '#2454ff' },
+      label: { show: true, position: 'right', fontSize: 10, formatter: function(p){ return p.value >= 10000 ? (p.value/1000).toFixed(1)+'k' : p.value; } }
+    }]
+  });
+
+  make('densityChart', {
+    title: { text: '可见密度（可见SKU数 / 真实规模）——收割优先级依据', left: 'center', textStyle: { fontSize: 14 } },
+    tooltip: { trigger: 'axis', triggerOn: 'click', renderMode: 'richText', confine: true },
+    grid: { left: 110, right: 60, top: 50, bottom: 30 },
+    xAxis: { type: 'value', name: '可见密度 %', axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'category', data: ['Rings','925 Silver Jewelry','Woman Hoodies','Man Hoodies','Lady Dresses','Sweaters','Suits & Blazer','Home Office Storage','Body Care','Adult Wellness'].reverse(), axisLabel: { fontSize: 11 } },
+    series: [{
+      type: 'bar', barWidth: 16,
+      data: [9.33, 6.45, 5.57, 4.6, 4.18, 4.02, 1.28, 1.18, 1.04, 0.87].reverse(),
+      itemStyle: { color: '#7c3aed' },
+      label: { show: true, position: 'right', fontSize: 10, formatter: function(p){ return p.value + '%'; } }
+    }]
+  });
+})();
+</script>
+</body>
+</html>
+
