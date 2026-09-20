@@ -65,6 +65,8 @@ export default function CheckoutPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [placed, setPlaced] = useState<{ order_no: string; total: number; pay: PayResult } | null>(null);
+  // guest 升级注册状态：idle | busy | done | exists | error
+  const [upgrade, setUpgrade] = useState<{ status: string; msg?: string; linked?: number }>({ status: 'idle' });
 
   useEffect(() => {
     try { setCart(JSON.parse(localStorage.getItem('cart') || '[]')); } catch { setCart([]); }
@@ -213,6 +215,27 @@ export default function CheckoutPage() {
     }
   }
 
+  // ---------------- guest 一键升级注册（首次下单后，可用订单信息建号并登录） ----------------
+  async function handleUpgrade() {
+    if (!placed) return;
+    setUpgrade({ status: 'busy' });
+    try {
+      const res = await fetch('/api/shop/checkout/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, order_no: placed.order_no, name: form.name }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.success) {
+        setUpgrade({ status: j?.code === 'PASSWORD_ACCOUNT_EXISTS' ? 'exists' : 'error', msg: j?.error || '升级失败，请稍后再试' });
+        return;
+      }
+      setUpgrade({ status: 'done', msg: j.created ? '账号已创建并登录' : '已登录', linked: j.linkedOrders ?? 0 });
+    } catch {
+      setUpgrade({ status: 'error', msg: '网络异常，请稍后再试' });
+    }
+  }
+
   if (!mounted) return null;
 
   // ---------------- 下单成功，等待付款 ----------------
@@ -252,6 +275,94 @@ export default function CheckoutPage() {
               Redirecting to the secure payment page…
             </div>
           )}
+
+          {/* ---------------- Guest 一键升级注册 ---------------- */}
+          <div className="mt-6 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-5">
+            {upgrade.status === 'idle' && (
+              <>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-sm font-bold text-gray-900">Create your account in one tap</h2>
+                    <p className="text-xs text-gray-600 mt-1">
+                      Use your order info (<b>{form.email}</b>) to create an account — no password needed.
+                      You'll be able to track this and future orders, and checkout faster next time.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button type="button" onClick={handleUpgrade}
+                    className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700">
+                    Create account &amp; login
+                  </button>
+                  <button type="button"
+                    onClick={() => setUpgrade({ status: 'skipped' })}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50">
+                    Skip — continue as guest
+                  </button>
+                </div>
+              </>
+            )}
+
+            {upgrade.status === 'busy' && (
+              <p className="text-sm text-indigo-700">Creating your account…</p>
+            )}
+
+            {upgrade.status === 'done' && (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                <p className="font-semibold">{upgrade.msg}</p>
+                <p className="mt-1 text-xs">
+                  {upgrade.linked && upgrade.linked > 0
+                    ? `${upgrade.linked} past order(s) linked to your account.`
+                    : 'You can now track orders and check out faster.'}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link href="/shop" className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
+                    Continue shopping
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {upgrade.status === 'exists' && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                <p className="font-semibold">This email already has an account</p>
+                <p className="mt-1 text-xs">{upgrade.msg || 'Please sign in with your password to view your orders.'}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link href="/login" className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-700">
+                    Sign in with password
+                  </Link>
+                  <button type="button"
+                    onClick={() => setUpgrade({ status: 'skipped' })}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50">
+                    Continue as guest
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {upgrade.status === 'error' && (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                <p>{upgrade.msg}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button type="button" onClick={handleUpgrade}
+                    className="rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700">
+                    Retry
+                  </button>
+                  <button type="button"
+                    onClick={() => setUpgrade({ status: 'skipped' })}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50">
+                    Skip
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {upgrade.status === 'skipped' && (
+              <p className="text-xs text-gray-500">
+                No problem — you can still shop as a guest anytime. This option will appear again after your next order.
+              </p>
+            )}
+          </div>
         </div>
       </div>
     );

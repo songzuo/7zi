@@ -457,3 +457,72 @@ export function hasAnyPermission(permissions: string[], requiredPermissions: str
 export function hasAllPermissions(permissions: string[], requiredPermissions: string[]): boolean {
   return requiredPermissions.every(p => hasPermission(permissions, p))
 }
+
+/**
+ * Guest 升级注册（免密）：首次访客下单后，用「邮箱 + 订单号」一键建号并登录。
+ * - 邮箱无用户 → 创建免密用户（password 为固定标记 hash，无法密码登录）
+ * - 邮箱有免密用户 → 直接登录
+ * - 邮箱已有密码用户 → 返回 passwordProtected=true，拒绝自动登录（防冒用），提示走密码登录
+ * 用户此后可随时走「忘记密码」设置真实密码（reset 后自动脱离免密标记）。
+ */
+export const GUEST_PASSWORD_MARKER = "!szspd-guest-no-password";
+
+export async function upgradeGuestUser(request: {
+  email: string;
+  name?: string;
+}): Promise<{
+  user: Omit<User, 'password'>;
+  created: boolean;
+  passwordProtected: boolean;
+  token?: string;
+  refreshToken?: string | null;
+  expiresAt?: Date;
+}> {
+  const email = String(request.email || '').trim().toLowerCase();
+  if (!email) throw UnifiedAppError.validation('Email is required')
+
+  const { hashPassword } = await import('./repository');
+  const guestHash = hashPassword(GUEST_PASSWORD_MARKER);
+
+  let user = await getUserByEmail(email);
+  let created = false;
+
+  if (!user) {
+    user = await createUser({
+      email,
+      password: GUEST_PASSWORD_MARKER,
+      name: String(request.name || '').trim() || email.split('@')[0] || 'Member',
+      role: UserRole.MEMBER,
+    });
+    created = true;
+  }
+
+  const passwordProtected = !created && user.password !== guestHash;
+  const { password: _pw, ...safeUser } = user;
+  if (passwordProtected) {
+    return { user: safeUser, created, passwordProtected: true };
+  }
+
+  // 免密登录（30 天会话）
+  const expiresIn = 86400 * 30;
+  const token = await generateJwtToken(user, expiresIn);
+  const dbToken = await createUserToken(user.id, expiresIn / 3600);
+  await updateLastLogin(user.id);
+
+  return {
+    user: safeUser,
+    created,
+    passwordProtected: false,
+    token,
+    refreshToken: dbToken.refreshToken,
+    expiresAt: dbToken.expiresAt,
+  };
+}
+
+/**
+ * 判断用户是否免密用户（guest 升级创建，未设真实密码）
+ */
+export async function isGuestUser(user: User): Promise<boolean> {
+  const { hashPassword } = await import('./repository');
+  return user.password === hashPassword(GUEST_PASSWORD_MARKER);
+}

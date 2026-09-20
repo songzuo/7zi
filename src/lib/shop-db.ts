@@ -140,6 +140,7 @@ function db(): Database.Database {
       customer_name TEXT NOT NULL,
       customer_email TEXT NOT NULL,
       customer_phone TEXT DEFAULT '',
+      user_id TEXT DEFAULT '',           -- 归属用户（guest 升级注册后关联；'' = 纯访客）
       shipping_address TEXT DEFAULT '{}',
       subtotal REAL DEFAULT 0,
       shipping_fee REAL DEFAULT 0,
@@ -211,6 +212,8 @@ function db(): Database.Database {
     );
 
     CREATE INDEX IF NOT EXISTS idx_shop_orders_no ON shop_orders(order_no);
+    CREATE INDEX IF NOT EXISTS idx_shop_orders_email ON shop_orders(customer_email);
+    CREATE INDEX IF NOT EXISTS idx_shop_orders_user ON shop_orders(user_id);
     CREATE INDEX IF NOT EXISTS idx_shop_orders_status ON shop_orders(payment_status, fulfill_status);
     CREATE INDEX IF NOT EXISTS idx_shop_order_items_order ON shop_order_items(order_id);
     CREATE INDEX IF NOT EXISTS idx_settlements_created ON settlements(created_at);
@@ -223,6 +226,7 @@ function db(): Database.Database {
   );
   const additive: [string, string][] = [
     ['customer_phone', "TEXT DEFAULT ''"],
+    ['user_id', "TEXT DEFAULT ''"],
     ['subtotal', 'REAL DEFAULT 0'],
     ['shipping_fee', 'REAL DEFAULT 0'],
     ['country_code', "TEXT DEFAULT ''"],
@@ -419,6 +423,7 @@ export interface CreateOrderInput {
   }[];
   /** 允许指定单号（幂等重试用） */
   order_no?: string;
+  user_id?: string; // guest 升级注册后新订单自动归属
 }
 
 export async function createOrder(data: CreateOrderInput): Promise<{ order: ShopOrder; order_no: string }> {
@@ -429,16 +434,17 @@ export async function createOrder(data: CreateOrderInput): Promise<{ order: Shop
     const info = conn
       .prepare(
         `INSERT INTO shop_orders
-           (order_no,customer_name,customer_email,customer_phone,shipping_address,
+           (order_no,customer_name,customer_email,customer_phone,user_id,shipping_address,
             subtotal,shipping_fee,total_amount,currency,country_code,logistic_name,
             payment_status,payment_provider,order_status,fulfill_status)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
       )
       .run(
         order_no,
         data.customer_name,
         data.customer_email,
         data.customer_phone || '',
+        data.user_id || '',
         JSON.stringify(data.shipping_address || {}),
         data.subtotal ?? 0,
         data.shipping_fee ?? 0,
@@ -485,6 +491,39 @@ export async function getOrderByNo(orderNo: string): Promise<ShopOrder | null> {
   const row = db().prepare('SELECT * FROM shop_orders WHERE order_no=?').get(orderNo) as any;
   return row ? normalizeOrder(row) : null;
 }
+
+/**
+ * 查某邮箱的全部订单（guest 升级注册时用于：验证确实下过单 + 关联历史订单）
+ */
+export function getOrdersByEmail(email: string): ShopOrder[] {
+  const rows = db()
+    .prepare('SELECT * FROM shop_orders WHERE LOWER(customer_email)=LOWER(?) ORDER BY id')
+    .all(String(email || '').trim()) as any[];
+  return rows.map(normalizeOrder);
+}
+
+/**
+ * 把某邮箱下所有未归属订单关联到用户（幂等：已归属的不动）
+ * @returns 本次新关联的订单数
+ */
+export function attachOrdersToUser(email: string, userId: string): number {
+  if (!email || !userId) return 0;
+  const info = db()
+    .prepare("UPDATE shop_orders SET user_id=? WHERE LOWER(customer_email)=LOWER(?) AND (user_id='' OR user_id IS NULL)")
+    .run(userId, String(email).trim());
+  return Number(info.changes || 0);
+}
+
+/**
+ * 校验订单号 + 邮箱是否匹配（guest 升级的双因子验证：知道订单号 + 邮箱）
+ */
+export function verifyOrderOwnership(orderNo: string, email: string): boolean {
+  const row = db()
+    .prepare('SELECT 1 FROM shop_orders WHERE order_no=? AND LOWER(customer_email)=LOWER(?)')
+    .get(String(orderNo || '').trim(), String(email || '').trim());
+  return !!row;
+}
+
 
 export async function getOrderItems(orderId: number): Promise<ShopOrderItem[]> {
   return db().prepare('SELECT * FROM shop_order_items WHERE order_id=?').all(orderId) as ShopOrderItem[];

@@ -7,6 +7,7 @@ import { createOrder, getOrderByNo, getOrderItems } from '@/lib/shop-db';
 import { createPaySession, providerStatus } from '@/lib/pay-gateway';
 import { quoteFreightMulti, countryByCode } from '@/lib/cj-geo';
 import { priceLines } from '@/lib/shop-pricing';
+import { authenticateToken } from '@/lib/auth/service';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -22,6 +23,17 @@ interface IncomingItem {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    // 当前登录用户（可选）：guest 升级注册后下单自动归属；未登录 = 纯访客
+    let userId = '';
+    try {
+      const token = request.cookies.get('auth_token')?.value;
+      if (token && token.length >= 10) {
+        const auth = await authenticateToken(token);
+        if (auth?.context?.userId) userId = auth.context.userId;
+      }
+    } catch { userId = ''; }
+
     const customer_name = String(body?.customer_name || '').trim();
     const customer_email = String(body?.customer_email || '').trim();
     const customer_phone = String(body?.customer_phone || '').trim();
@@ -114,6 +126,7 @@ export async function POST(request: NextRequest) {
       customer_name,
       customer_email,
       customer_phone,
+      user_id: userId,
       shipping_address: {
         address: String(addr.address || '').trim(),
         address2: String(addr.address2 || '').trim(),
