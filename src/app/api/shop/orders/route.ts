@@ -8,6 +8,9 @@ import { createPaySession, providerStatus } from '@/lib/pay-gateway';
 import { quoteFreightMulti, countryByCode } from '@/lib/cj-geo';
 import { priceLines } from '@/lib/shop-pricing';
 import { authenticateToken } from '@/lib/auth/service';
+import { getOrdersByUserId } from '@/lib/shop-db';
+import { syncOrderCjStatus, syncOrdersCjStatus } from '@/lib/cj-tracking';
+import { orderStatusLabel } from '@/lib/cj-channel';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -191,6 +194,71 @@ export async function POST(request: NextRequest) {
  * 需要看全部订单请走内部通道 /api/internal/wholesale?action=shop-orders。
  */
 export async function GET(request: NextRequest) {
+  // ---- 我的订单（登录态）：GET /api/shop/orders?mine=1 ----
+  if (request.nextUrl.searchParams.get('mine') === '1') {
+    let userId = '';
+    try {
+      const token = request.cookies.get('auth_token')?.value;
+      if (token && token.length >= 10) {
+        const auth = await authenticateToken(token);
+        if (auth?.context?.userId) userId = auth.context.userId;
+      }
+    } catch {}
+    if (!userId) {
+      return NextResponse.json({ success: false, code: 'UNAUTHORIZED', error: '请先登录' }, { status: 401 });
+    }
+
+    const limit = Math.min(50, Math.max(1, Number(request.nextUrl.searchParams.get('limit')) || 20));
+    const orders = getOrdersByUserId(userId, limit, 0);
+
+    // CJ 物流状态：每单 10 分钟冷却；本请求最多强刷 2 单（其余返回缓存）
+    const rows = orders.map((o) => {
+      const base = {
+        order_no: o.order_no,
+        created_at: o.created_at,
+        currency: o.currency,
+        total_amount: o.total_amount,
+        payment_status: o.payment_status,
+        order_status: o.order_status,
+        fulfill_status: o.fulfill_status,
+        logistic_name: o.logistic_name,
+        items: (o.items || []).map((it) => ({
+          sku: it.sku,
+          name: it.name,
+          quantity: it.quantity,
+          unit_price: it.unit_price,
+          variant_name: it.variant_name || '',
+        })),
+        cj: {
+          order_id: o.cj_order_id || '',
+          status: o.cj_status || '',
+          status_label: o.cj_status ? orderStatusLabel(o.cj_status) : '',
+          tracking_number: o.cj_tracking_number || '',
+          tracking_url: o.cj_tracking_url || '',
+          status_at: o.cj_status_at || '',
+        },
+      };
+      return base;
+    });
+
+    // 同步最新 1 单物流（强制刷 CJ，1 QPS 节拍 ~1s），其余单有 10 分钟冷却缓存
+    if (rows.length > 0) {
+      try {
+        const synced = await syncOrdersCjStatus(orders as any, 1);
+        const latest = synced[0];
+        if (latest?.ok && rows[0]) {
+          rows[0].cj.status = latest.status || rows[0].cj.status;
+          rows[0].cj.status_label = latest.status ? orderStatusLabel(latest.status) : rows[0].cj.status_label;
+          rows[0].cj.tracking_number = latest.trackingNumber || rows[0].cj.tracking_number;
+          rows[0].cj.tracking_url = latest.trackingUrl || rows[0].cj.tracking_url;
+          rows[0].cj.status_at = new Date().toISOString();
+        }
+      } catch {}
+    }
+
+    return NextResponse.json({ success: true, mine: true, orders: rows });
+  }
+
   const orderNo =
     request.nextUrl.searchParams.get('order_no') || request.nextUrl.searchParams.get('order');
   const email = (request.nextUrl.searchParams.get('email') || '').trim().toLowerCase();

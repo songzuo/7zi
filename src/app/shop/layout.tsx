@@ -29,10 +29,16 @@ export default function ShopLayout({
             <h1 className="text-base font-semibold text-zinc-900 dark:text-white">
               SZSPD Store <span className="hidden sm:inline text-xs font-normal text-zinc-500">· Serving Ghana · Africa · Worldwide</span>
             </h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/shop/orders"
+                className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white transition-colors"
+              >
+                📦 Orders
+              </Link>
               <Link
                 href="/shop/cart"
-                className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white"
+                className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white transition-colors"
               >
                 🛒 Cart
               </Link>

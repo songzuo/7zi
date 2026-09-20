@@ -69,6 +69,10 @@ export interface ShopOrder {
   /** CJ 侧订单状态原文（如 "Shipped" / "In transit"），由定时任务同步 */
   cj_status: string;
   cj_status_at: string;
+  /** CJ 运单号（trackNumber），由 CJ 订单详情同步 */
+  cj_tracking_number: string;
+  /** CJ 运单轨迹链接（trackingUrl） */
+  cj_tracking_url: string;
   /** CJ 发货单号（CJ 开头）—— payBalanceV2 与物流追踪都用它 */
   cj_shipment_order_id: string;
   /** CJ 支付单号（P 开头），建单时返回 */
@@ -159,6 +163,8 @@ function db(): Database.Database {
       cj_error TEXT DEFAULT '',
       cj_status TEXT DEFAULT '',
       cj_status_at TEXT DEFAULT '',
+      cj_tracking_number TEXT DEFAULT '',
+      cj_tracking_url TEXT DEFAULT '',
       cj_shipment_order_id TEXT DEFAULT '',
       cj_pay_id TEXT DEFAULT '',
       cj_pay_state TEXT DEFAULT 'none',
@@ -227,6 +233,8 @@ function db(): Database.Database {
   const additive: [string, string][] = [
     ['customer_phone', "TEXT DEFAULT ''"],
     ['user_id', "TEXT DEFAULT ''"],
+    ['cj_tracking_number', "TEXT DEFAULT ''"],
+    ['cj_tracking_url', "TEXT DEFAULT ''"],
     ['subtotal', 'REAL DEFAULT 0'],
     ['shipping_fee', 'REAL DEFAULT 0'],
     ['country_code', "TEXT DEFAULT ''"],
@@ -500,6 +508,52 @@ export function getOrdersByEmail(email: string): ShopOrder[] {
     .prepare('SELECT * FROM shop_orders WHERE LOWER(customer_email)=LOWER(?) ORDER BY id')
     .all(String(email || '').trim()) as any[];
   return rows.map(normalizeOrder);
+}
+
+/**
+ * 按用户查订单（我的订单）：登录态 user_id 归属 + 商品明细
+ */
+export function getOrdersByUserId(
+  userId: string,
+  limit = 50,
+  offset = 0
+): (ShopOrder & { items: ShopOrderItem[] })[] {
+  if (!userId) return [];
+  const rows = db()
+    .prepare(
+      `SELECT * FROM shop_orders WHERE user_id=? ORDER BY id DESC LIMIT ? OFFSET ?`
+    )
+    .all(userId, Math.min(100, Math.max(1, limit)), Math.max(0, offset)) as any[];
+  return rows.map((r) => {
+    const o = normalizeOrder(r);
+    return { ...o, items: db().prepare('SELECT * FROM shop_order_items WHERE order_id=?').all(o.id) as ShopOrderItem[] };
+  });
+}
+
+/**
+ * 写回 CJ 订单物流状态（由 CJ 订单详情接口刷新后落库）
+ */
+export function updateOrderCjTracking(
+  orderNo: string,
+  patch: { status?: string; trackingNumber?: string; trackingUrl?: string }
+): ShopOrder | null {
+  db()
+    .prepare(
+      `UPDATE shop_orders
+       SET cj_status=COALESCE(?,cj_status),
+           cj_tracking_number=COALESCE(?,cj_tracking_number),
+           cj_tracking_url=COALESCE(?,cj_tracking_url),
+           cj_status_at=datetime('now'),
+           updated_at=datetime('now')
+       WHERE order_no=?`
+    )
+    .run(
+      patch.status || null,
+      patch.trackingNumber || null,
+      patch.trackingUrl || null,
+      orderNo
+    );
+  return getOrderByNo(orderNo);
 }
 
 /**
