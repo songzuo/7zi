@@ -72,12 +72,30 @@ export function clientIp(headers: Headers): string {
 }
 
 /**
+ * Turbopack 打包时会把 process.cwd() 虚拟化为其他路径（如 /ROOT），
+ * 导致 geoip-lite 无法找到数据文件。这里在 require 之前
+ * 用真实环境变量 PWD 或早先注入的 GEOIP_DATA_DIR 修正数据路径。
+ */
+function ensureGeoipDataPath(): void {
+  try {
+    const path = require('path');
+    const dataDir =
+      process.env.GEOIP_DATA_DIR ||
+      path.join(process.env.PWD || process.cwd(), 'node_modules', 'geoip-lite', 'data');
+    if (!process.env.GEOIP_COUNTRY) process.env.GEOIP_COUNTRY = path.join(dataDir, 'geoip-country.dat');
+    if (!process.env.GEOIP_CITY) process.env.GEOIP_CITY = path.join(dataDir, 'geoip-city.dat');
+    if (!process.env.GEOIP_CITY6) process.env.GEOIP_CITY6 = path.join(dataDir, 'geoip-city6.dat');
+  } catch {}
+}
+
+/**
  * 按 IP 国家给出默认货币：国家 → 该国实际流通货币（20 种之一）；不在清单 → USD
  */
 export async function defaultCurrencyForIp(headers: Headers): Promise<{ currency: CurrencyCode; country: string }> {
   const ip = clientIp(headers);
   if (!ip) return { currency: 'USD', country: '' };
   try {
+    ensureGeoipDataPath();
     // geoip-lite 无官方类型，动态引入
     // @ts-ignore
     const geoip = require('geoip-lite');

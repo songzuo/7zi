@@ -9,6 +9,9 @@ export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
+    const fwd = request.headers.get('x-forwarded-for') || '';
+    const real = request.headers.get('x-real-ip') || '';
+
     const [rates, ipInfo] = await Promise.all([
       getCurrencyRates(),
       defaultCurrencyForIp(request.headers),
@@ -23,6 +26,7 @@ export async function GET(request: NextRequest) {
       ipCountry: ipInfo.country,
       updatedAt: rates.updatedAt,
       source: rates.source,
+      debug: { xff: fwd, xri: real, ip: request.ip, geoTest },
     });
   } catch (e: any) {
     return NextResponse.json(
