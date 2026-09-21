@@ -5,12 +5,15 @@
 // 为什么需要：
 //   商品库里的价格是 CJ **列表接口的商品级** sellPrice，会与**变体级**价背离。
 //   列表页/详情页/结算统一改用变体成本定价（见 lib/list-price.ts）后，
-//   没被访问过的商品还只有商品级估算价。这个任务把整个商品库逐条走一遍，
-//   把真实变体成本、描述、多图写进详情缓存 —— 之后：
+//   没被访问过的商品还只有商品级估算价。这个任务把**被用户真实访问过**的
+//   商品详情（真实变体成本、描述、多图）预热进缓存 —— 之后：
 //     · 列表价与详情价一致（不会再出现"列表 $8.99、详情 $14.49"）
-//     · 商品页 SSR 直出，秒开（不再等上游）
+//     · 回访商品页 SSR 直出，秒开（不再等上游）
 //     · 结算报价零等待（变体成本已在本地）
-// 成本：8683 条约 2.8 小时（受 CJ 1 QPS 硬限），所以放在凌晨跑。
+// 数据源：cj-catalog.db 的 detail_requests（由 /api/cj/detail 在未命中缓存
+//   拉取成功时记录）。只预热被访问过的 SKU，按热度(hits)优先 —— 不机械全量，
+//   避免每夜烧光 CJ 点数（实测全量滚动预热每夜 ~15 万点，收割无点可用）。
+//   无访问数据时跳过本次。
 // 幂等：7 天内已缓存过的直接跳过；带锁文件防重入；带时间预算防跑过头。
 // ============================================================================
 import { readFileSync, writeFileSync, statSync, existsSync, unlinkSync, openSync, closeSync } from "node:fs";
@@ -78,10 +81,21 @@ async function main() {
   let notFound = 0;
 
   try {
-    const raw = JSON.parse(readFileSync(join(ROOT, "data", "cj-local-data.json"), "utf-8"));
-    let skus = (raw.products || []).map((p) => String(p.sku || "").trim()).filter(Boolean);
+    // 访问驱动：预热 30 天内被真实访问过的 SKU（按 hits 降序、最新访问优先）
+    const db = new (await import("better-sqlite3")).default(join(ROOT, "data", "cj-catalog.db"), { readonly: true });
+    const cutoff = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+    let skus = db
+      .prepare("SELECT sku, hits, lastReqAt FROM detail_requests WHERE lastReqAt >= ? ORDER BY hits DESC, lastReqAt DESC LIMIT 30000")
+      .all(cutoff)
+      .map((r) => String(r.sku || "").trim())
+      .filter(Boolean);
+    db.close();
+    if (skus.length === 0) {
+      log("暂无被访问的 SKU（detail_requests 为空），跳过本次预热，省点");
+      return;
+    }
     if (LIMIT > 0) skus = skus.slice(0, LIMIT);
-    log(`开始预热：商品 ${skus.length} 条，时间预算 ${(BUDGET_MS / 3600000).toFixed(1)} 小时`);
+    log(`开始预热：访问驱动 SKU ${skus.length} 条，时间预算 ${(BUDGET_MS / 3600000).toFixed(1)} 小时`);
 
     for (const sku of skus) {
       if (Date.now() - started > BUDGET_MS) {

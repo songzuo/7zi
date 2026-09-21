@@ -6,7 +6,7 @@
 // 返回的每个变体都已带我方零售价（服务端算价，前端不参与定价）。
 import { NextRequest, NextResponse } from "next/server";
 import { loadCatalog, dedupeName } from "@/lib/cj-data";
-import { getDetail, readCachedDetail, readNegative, getStock, detailCacheStats } from "@/lib/cj-detail";
+import { getDetail, readCachedDetail, readNegative, getStock, detailCacheStats, recordDetailRequest } from "@/lib/cj-detail";
 import { buildDetailView } from "@/lib/detail-view";
 import Database from "better-sqlite3";
 import { join } from "path";
@@ -80,6 +80,12 @@ export async function GET(request: NextRequest) {
   }
 
   const view = buildDetailView(r.detail, fallbackRetail);
+
+  // 访问驱动预热：记录被真实拉取的 sku（仅上游命中且非缓存），
+  // 供夜间 warm 按热度预热，避免机械全量烧点。
+  if (r.ok && !r.cached) {
+    try { recordDetailRequest(sku); } catch {}
+  }
 
   // 库存是可选的二级懒加载（每个变体一次上游调用），默认不强拉
   let stock: Record<string, { qty: number; area: string }> | null = null;

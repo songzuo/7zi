@@ -13,6 +13,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync, unlinkSync, renameSync } from "fs";
 import { createHash } from "crypto";
 import { join } from "path";
+import Database from "better-sqlite3";
 import { cjCall } from "./cj-channel";
 
 const DATA_DIR = join(process.cwd(), "data");
@@ -600,6 +601,27 @@ export async function getStock(sku: string, vids: string[]): Promise<{ ok: boole
 }
 
 /** 缓存统计（诊断用） */
+/**
+ * 记录某 SKU 被真实访问（访问驱动预热的数据源）：
+ * 只在 /api/cj/detail 上游拉取成功（未命中缓存）时调用。
+ */
+export function recordDetailRequest(sku: string) {
+  try {
+    const db = new Database(join(process.cwd(), "data", "cj-catalog.db"), { fileMustExist: true });
+    db.pragma("journal_mode = WAL");
+    db.exec(`CREATE TABLE IF NOT EXISTS detail_requests (
+      sku TEXT PRIMARY KEY,
+      hits INTEGER DEFAULT 1,
+      lastReqAt TEXT
+    )`);
+    db.prepare(
+      `INSERT INTO detail_requests (sku, hits, lastReqAt) VALUES (?, 1, ?)
+       ON CONFLICT(sku) DO UPDATE SET hits = hits + 1, lastReqAt = excluded.lastReqAt`
+    ).run(sku, new Date().toISOString());
+    db.close();
+  } catch {}
+}
+
 export function detailCacheStats() {
   let files = 0;
   let bytes = 0;
