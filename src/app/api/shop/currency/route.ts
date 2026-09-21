@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       ipCountry: ipInfo.country,
       updatedAt: rates.updatedAt,
       source: rates.source,
-      debug: { xff: fwd, xri: real, ip: request.ip, geoTest },
+      debug: { xff: fwd, xri: real, ip: request.ip },
     });
   } catch (e: any) {
     return NextResponse.json(
