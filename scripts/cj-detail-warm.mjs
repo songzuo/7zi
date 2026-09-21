@@ -81,15 +81,27 @@ async function main() {
   let notFound = 0;
 
   try {
-    // 访问驱动：预热 30 天内被真实访问过的 SKU（按 hits 降序、最新访问优先）
+    // 访问驱动：预热真实被访问过的 SKU（埋点 sku_events.type='detail'，
+    // 含缓存命中回访，按 views 热度排序；30 天窗口）
     const db = new (await import("better-sqlite3")).default(join(ROOT, "data", "cj-catalog.db"), { readonly: true });
     const cutoff = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
     let skus = db
-      .prepare("SELECT sku, hits, lastReqAt FROM detail_requests WHERE lastReqAt >= ? ORDER BY hits DESC, lastReqAt DESC LIMIT 30000")
+      .prepare("SELECT sku, views FROM sku_events WHERE type = 'detail' AND lastAt >= ? ORDER BY views DESC, lastAt DESC LIMIT 30000")
       .all(cutoff)
       .map((r) => String(r.sku || "").trim())
       .filter(Boolean);
     db.close();
+    if (skus.length === 0) {
+      // 埋点未生效时回退：detail_requests（未命中拉取记录）兜底
+      const db2 = new (await import("better-sqlite3")).default(join(ROOT, "data", "cj-catalog.db"), { readonly: true });
+      skus = db2
+        .prepare("SELECT sku, hits, lastReqAt FROM detail_requests WHERE lastReqAt >= ? ORDER BY hits DESC, lastReqAt DESC LIMIT 30000")
+        .all(cutoff)
+        .map((r) => String(r.sku || "").trim())
+        .filter(Boolean);
+      db2.close();
+      if (skus.length > 0) log("埋点为空，回退 detail_requests 数据源");
+    }
     if (skus.length === 0) {
       log("暂无被访问的 SKU（detail_requests 为空），跳过本次预热，省点");
       return;

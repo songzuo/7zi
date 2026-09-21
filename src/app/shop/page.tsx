@@ -14,6 +14,7 @@ import {
 } from "@/lib/cj-data";
 import { listPriceOf, listPriceDisplay } from "@/lib/list-price";
 import PriceTag from "./_price-tag";
+import ImpressionTracker from "./_impression-tracker";
 
 const PAGE_SIZE = 24;
 
@@ -266,6 +267,7 @@ export default async function ShopPage({
             <ProductCard key={p.id} p={p} q={q} />
           ))}
         </div>
+        <ImpressionTracker skus={result.items.map((p) => p.sku)} />
       )}
 
       {/* 分页 */}

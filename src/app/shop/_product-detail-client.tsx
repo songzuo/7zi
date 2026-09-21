@@ -9,6 +9,7 @@
 // 拉过之后落磁盘缓存，后续访问直接 SSR 直出。
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCurrency } from "@/lib/shop-currency";
+import { trackEvent } from "./_tracking";
 
 /** 从 "$12.33" / "12.33" / "From $5.99" 类 label 中解析 USD 数字 */
 function parseUsd(raw: string | undefined): number {
@@ -84,6 +85,11 @@ export default function ProductDetailClient({
   const [mainImage, setMainImage] = useState<string>(product.image);
   const [added, setAdded] = useState("");
   const { fmt } = useCurrency();
+
+  // ---- 埋点：详情页真实访问（无论缓存命中与否，节流批量上报）----
+  useEffect(() => {
+    trackEvent(product.sku, "detail");
+  }, [product.sku]);
 
   // ---- 详情：SSR 未命中时懒加载 ----
   useEffect(() => {
@@ -173,6 +179,7 @@ export default function ProductDetailClient({
       }
       localStorage.setItem(CART_KEY, JSON.stringify(cart));
       setAdded(`已加入购物车：${lineName} × ${qty}`);
+      trackEvent(product.sku, "cart");
       setTimeout(() => setAdded(""), 4000);
     } catch (e) {
       setAdded(e instanceof Error ? e.message : "加入购物车失败");
