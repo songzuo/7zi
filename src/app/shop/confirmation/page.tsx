@@ -9,7 +9,8 @@
 //
 // 查询需要「单号 + 下单邮箱」一对（防枚举），邮箱从下单时写入的 localStorage 取。
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { trackFunnel } from '../_funnel';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCurrency } from '@/lib/shop-currency';
 
 interface OrderItem {
@@ -48,6 +49,7 @@ interface LastOrder {
 export default function ConfirmationPage() {
   const [order, setOrder] = useState<OrderView | null>(null);
   const [state, setState] = useState<'loading' | 'waiting' | 'paid' | 'notfound' | 'noorder'>('loading');
+  const orderNoRef = useRef('');
   const [tries, setTries] = useState(0);
 
   const load = useCallback(async (): Promise<boolean> => {
@@ -59,6 +61,7 @@ export default function ConfirmationPage() {
     }
     const qs = new URLSearchParams(window.location.search);
     const orderNo = qs.get('order') || qs.get('reference') || last?.order_no || '';
+    orderNoRef.current = orderNo;
     const email = last?.email || '';
 
     if (!orderNo || !email) {
@@ -83,6 +86,7 @@ export default function ConfirmationPage() {
       setOrder(o);
       if (o.payment_status === 'paid') {
         setState('paid');
+        trackFunnel('payment_success', { orderId: String(orderNo || '') });
         return true;
       }
       setState('waiting');
@@ -105,6 +109,9 @@ export default function ConfirmationPage() {
       // 收款到账前轮询：最多 20 次，间隔从 2s 递增到 6s（约 1.5 分钟）
       if (!done && n < 20 && alive) {
         timer = setTimeout(tick, n < 5 ? 2000 : 6000);
+      } else if (alive && !done) {
+        // 轮询 20 次仍未到账 → 记为未完成支付（用户放弃/支付未完成）
+        trackFunnel('payment_fail', { orderId: String(orderNoRef.current || '') });
       }
     };
     void tick();

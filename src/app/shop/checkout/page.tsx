@@ -5,6 +5,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useCurrency } from '@/lib/shop-currency';
 import Link from 'next/link';
+import { trackFunnel } from '../_funnel';
 
 interface CartItem {
   id: number | string;
@@ -49,6 +50,9 @@ const WHATSAPP = 'https://wa.me/233248009090';
 export default function CheckoutPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    trackFunnel("checkout"); // 进入结算页
+  }, []);
 
   const [countries, setCountries] = useState<{ hot: Country[]; all: Country[] }>({ hot: [], all: [] });
   const [countryQuery, setCountryQuery] = useState('');
@@ -200,6 +204,11 @@ export default function CheckoutPage() {
         return;
       }
       const pay: PayResult = j.payment || { provider: 'manual', mode: 'manual', reference: j.order_no, amountUsd: j.order?.total_amount || total };
+      // 漏斗：发起支付（订单已创建，进入支付环节）
+      trackFunnel("payment_start", {
+        orderId: String(j.order_no || ""),
+        amount: Number(j.order?.total_amount ?? total) || undefined,
+      });
       localStorage.removeItem('cart');
       setCart([]);
       // 记下本单，供支付回跳后的确认页自查状态。
