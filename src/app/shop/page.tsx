@@ -262,12 +262,14 @@ export default async function ShopPage({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {result.items.map((p) => (
-            <ProductCard key={p.id} p={p} q={q} />
-          ))}
-        </div>
-        <ImpressionTracker skus={result.items.map((p) => p.sku)} />
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {result.items.map((p) => (
+              <ProductCard key={p.id} p={p} q={q} />
+            ))}
+          </div>
+          <ImpressionTracker skus={result.items.map((p) => p.sku)} />
+        </>
       )}
 
       {/* 分页 */}
