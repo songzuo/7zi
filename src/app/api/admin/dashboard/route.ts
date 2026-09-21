@@ -1,8 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Database from "better-sqlite3";
 import { join } from "path";
+import { WS_COOKIE, channelAccessToken } from "@/lib/cj-channel";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+/** 与 /internal/wholesale 同一道闸门：无口令一律 401，不吐任何业务数据 */
+function denied() {
+  return NextResponse.json({ success: false, error: "unauthorized" }, { status: 401 });
+}
 
 // 分析库（与 catalog 分开，避免单例冲突）
 let _adb: Database.Database | null = null;
@@ -131,7 +138,10 @@ function getCostAudit() {
   }, { totalProducts: 0, bands: [] });
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const cookie = req.cookies.get(WS_COOKIE)?.value || "";
+  if (!cookie || cookie !== channelAccessToken()) return denied();
+
   try {
     const harvest = getHarvestMeta();
     const funnel = getFunnelStats();

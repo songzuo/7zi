@@ -2,7 +2,19 @@
 
 import { useState } from "react";
 
-export default function Gate() {
+/**
+ * 内部通道口令闸门（客户端）
+ *
+ * 复用方：/internal/wholesale（默认文案）、/admin/dashboard（自带文案）。
+ * 只负责收口令 → POST /api/internal/wholesale/auth 换 cookie；通过后整页 reload。
+ */
+export default function Gate({
+  title = "内部通道",
+  hint = "此页面为内部测试用的 CJ 代发通道，未对外开放，也不在任何导航中。请输入访问口令。",
+}: {
+  title?: string;
+  hint?: string;
+}) {
   const [token, setToken] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -37,11 +49,9 @@ export default function Gate() {
           <span className="inline-flex h-6 items-center rounded bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 px-2 text-xs font-black tracking-widest text-white">
             SZ
           </span>
-          <span className="text-sm font-semibold text-zinc-900">内部通道</span>
+          <span className="text-sm font-semibold text-zinc-900">{title}</span>
         </div>
-        <p className="mb-6 text-xs leading-relaxed text-zinc-500">
-          此页面为内部测试用的 CJ 代发通道，未对外开放，也不在任何导航中。请输入访问口令。
-        </p>
+        <p className="mb-6 text-xs leading-relaxed text-zinc-500">{hint}</p>
         <label className="mb-1 block text-xs font-medium text-zinc-600">访问口令</label>
         <input
           type="password"
