@@ -26,7 +26,9 @@ const nextConfig: NextConfig = {
 
   // better-sqlite3 是原生模块（含 .node 二进制），必须作为外部包在运行时加载，
   // 否则 Turbopack 打包进 bundle 后会报 "Module not found: Can't resolve 'bindings'"。
-  serverExternalPackages: ['better-sqlite3'],
+  // geoip-lite 需要在运行时读取 data/*.dat（相对包内路径），打包后 __dirname 失效，
+  // 同样必须外部化。
+  serverExternalPackages: ['better-sqlite3', 'geoip-lite'],
 
   reactStrictMode: false,
 
