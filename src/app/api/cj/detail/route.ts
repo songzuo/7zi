@@ -5,7 +5,7 @@
 // 所有上游调用走 cj-channel 的 1 QPS 串行队列。
 // 返回的每个变体都已带我方零售价（服务端算价，前端不参与定价）。
 import { NextRequest, NextResponse } from "next/server";
-import { loadCatalog, dedupeName } from "@/lib/cj-data";
+import { dedupeName } from "@/lib/cj-data";
 import { getDetail, readCachedDetail, readNegative, getStock, detailCacheStats, recordDetailRequest } from "@/lib/cj-detail";
 import { buildDetailView } from "@/lib/detail-view";
 import Database from "better-sqlite3";
@@ -36,10 +36,9 @@ function findProduct(sku: string): any {
       .get(sku);
     if (row) return row;
   } catch (e) {
-    console.warn("[api/cj/detail] SQLite 查询失败，降级 JSON:", e);
+    console.warn("[api/cj/detail] SQLite 查询失败:", e);
   }
-  const catalog = loadCatalog();
-  return catalog.products.find((p) => String(p.sku).toUpperCase() === sku.toUpperCase());
+  return null;
 }
 
 export async function GET(request: NextRequest) {

@@ -1349,7 +1349,10 @@ async function publish() {
     lastSyncAt: nowIso(),
     catalogSource: "cj-catalog.db",
   };
-  if (!DRY_RUN) writeAtomic(DATA_FILE, JSON.stringify(next));
+  // JSON 回写已废弃（前台主路径已 SQLite 化，cj-local-data.json 不再作为生产依赖）。
+  // 仅保留旧文件存在时读取的兼容逻辑用于过渡，后续可删。
+  // if (!DRY_RUN) writeAtomic(DATA_FILE, JSON.stringify(next));
+  log(`publish：前台 JSON 回写已跳过（主路径 SQLite 化）`);
   log(`publish：前台 JSON ${out.length} 条（更新 ${updated}，库缺回退 ${missing}，剔除陈旧 ${products.length - out.length}）`);
 
   // 同步更新 visible_products 表（供 SQLite 查询层 JOIN 用）

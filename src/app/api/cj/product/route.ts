@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const DATA_FILE = path.join(process.cwd(), 'data', 'cj-local-data.json');
+import { getProductBySku, isCatalogReady } from "@/lib/catalog-db";
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,11 +13,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-    const data = JSON.parse(raw);
-    const products = data.products || [];
+    if (!isCatalogReady()) {
+      return NextResponse.json(
+        { success: false, error: 'Catalog not ready' },
+        { status: 503 }
+      );
+    }
 
-    const found = products.find((p: any) => p.id === pid || p.sku === pid);
+    const found = getProductBySku(pid);
 
     if (!found) {
       return NextResponse.json(
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        pid: found.id,
+        pid: found.pid || found.sku,
         sku: found.sku,
         productName: found.name,
         price: found.price,
@@ -40,8 +40,8 @@ export async function GET(request: NextRequest) {
         hasVideo: found.hasVideo,
         categoryId: found.categoryId,
       },
-      _source: 'local',
-      _filterVersion: data.filterVersion || 'unknown',
+      _source: 'sqlite',
+      _filterVersion: 'sqlite-fts5',
     });
   } catch (error: any) {
     console.error('Product API error:', error);

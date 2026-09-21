@@ -11,10 +11,19 @@
 //   · 上游查不到成本 → 回落到商品级零售价，并由履约侧的成本闸门兜底
 // 前端传来的任何金额一律忽略，只信 sku + vid + qty。
 // ============================================================================
-import { loadCatalog, dedupeName } from "./cj-data";
+import { getProductBySku } from "./catalog-db";
 import { readCachedDetail, getDetail, type DetailVariant } from "./cj-detail";
 import { resolveVariantInfo } from "./cj-geo";
 import { retailFromCost, parseCostRange } from "./pricing";
+
+/** 商品名去重（后半截与前半截重复时截断，常见于 CJ 长名） */
+function dedupeName(name: string): string {
+  const half = Math.floor(name.length / 2);
+  if (half > 5 && name.substring(0, half) === name.substring(half)) {
+    return name.substring(0, half).trim();
+  }
+  return name;
+}
 
 export interface LineRequest {
   sku: string;
@@ -82,13 +91,12 @@ export async function priceLine(input: LineRequest): Promise<PricedLine | null> 
   if (!sku) return null;
   const qty = Math.max(1, Math.min(999, Number(input.qty) || 1));
 
-  const catalog = loadCatalog();
-  const product = catalog.products.find((p) => String(p.sku).toUpperCase() === sku);
+  const product = getProductBySku(sku);
   if (!product) return null;
 
   const name = dedupeName(product.name);
   const image = product.image;
-  const catalogRetail = product.priceFrom && product.priceFrom > 0 ? product.priceFrom : Number(product.price) || 0;
+  const catalogRetail = Number(product.price) || 0;
 
   const vidIn = input.vid === undefined || input.vid === null ? "" : String(input.vid).trim();
 
@@ -185,8 +193,6 @@ export async function priceLines(items: LineRequest[]): Promise<PriceResult> {
   const degraded: string[] = [];
   const seen = new Set<string>();
   const seenVariant = new Set<string>();
-  const catalog = loadCatalog();
-
   for (const it of items || []) {
     const sku = String(it?.sku || "").trim().toUpperCase();
     if (!sku) continue;
@@ -194,7 +200,7 @@ export async function priceLines(items: LineRequest[]): Promise<PriceResult> {
     if (!p) {
       // priceLine 对「商品不存在」与「多规格没选规格」都返回 null，
       // 但给客户的说法完全不同，这里按商品库是否存在来分桶。
-      const inCatalog = catalog.products.some((x) => String(x.sku).toUpperCase() === sku);
+      const inCatalog = !!getProductBySku(sku);
       if (inCatalog) {
         if (!seenVariant.has(sku)) {
           needsVariant.push(sku);
