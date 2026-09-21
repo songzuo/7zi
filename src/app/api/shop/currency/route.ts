@@ -1,7 +1,8 @@
 // src/app/api/shop/currency/route.ts
 // GET /api/shop/currency —— 汇率 + 该访客默认货币（IP 国家 → 20 种主流货币）
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrencyRates, defaultCurrencyForIp, CURRENCIES, type CurrencyCode } from '@/lib/currency-rates';
+import { getCurrencyRates, defaultCurrencyForIp } from '@/lib/currency-rates';
+import { CURRENCIES, type CurrencyCode } from '@/lib/currency';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
