@@ -9,7 +9,7 @@
 //   · 汇率：实时拉取 + 1h 缓存（后端），失败回退内置汇率
 // ============================================================================
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { CURRENCY_SYMBOL, CURRENCY_CODES, type CurrencyCode, type CurrencyMeta } from '@/lib/currency-rates';
+import { CURRENCY_SYMBOL, CURRENCY_CODES, type CurrencyCode, type CurrencyMeta } from '@/lib/currency';
 
 interface CurrencyState {
   /** 当前显示货币 */

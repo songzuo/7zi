@@ -2,7 +2,7 @@
 
 // 导航货币切换器：20 种主流货币下拉（记住用户偏好）
 import { useCurrency } from '@/lib/shop-currency';
-import { CURRENCY_SYMBOL } from '@/lib/currency-rates';
+import { CURRENCY_SYMBOL } from '@/lib/currency';
 
 export default function CurrencySwitcher() {
   const { currency, setCurrency, currencies, rates, ready } = useCurrency();
