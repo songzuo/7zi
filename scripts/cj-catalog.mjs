@@ -381,13 +381,25 @@ function writeStatus(patch) {
   // 同步关键信息到旧状态文件，让内部面板不至于显示"死"数据
   try {
     const legacy = JSON.parse(readFileSync(LEGACY_STATUS, "utf-8"));
+    // 全量口径刷新：sourceTotal 必须是「上游货源真实总量」，不能再留着 cj-sync
+    // 时代的值 —— 那时无过滤翻页被上游截断在 6000 条，遗留的 6000 会被前台
+    // 状态栏当成"上游总货源"展示，与实际全量（几十万级）严重不符。
+    // 这里每次同步都从目录库实时统计，前台/内部面板读到的都是真值。
+    let dbProducts = null, visibleProducts = null;
+    try {
+      dbProducts = db.prepare("SELECT COUNT(*) c FROM products").get().c;
+      visibleProducts = db.prepare("SELECT COUNT(*) c FROM visible_products").get().c;
+    } catch { /* 表未就绪时忽略，保留旧值 */ }
     writeAtomic(LEGACY_STATUS, JSON.stringify({
       ...legacy,
       lastSyncAt: patch.lastSyncAt || legacy.lastSyncAt,
       lastSyncOk: patch.lastSyncOk !== undefined ? patch.lastSyncOk : legacy.lastSyncOk,
       lastError: patch.lastError !== undefined ? patch.lastError : legacy.lastError,
+      mode: patch.mode || legacy.mode,
+      sourceTotal: dbProducts ?? patch.dbProducts ?? legacy.sourceTotal,
+      productCount: patch.publishCount ?? visibleProducts ?? legacy.productCount,
       catalogHarvest: {
-        dbProducts: patch.dbProducts, passComplete: patch.passComplete,
+        dbProducts: dbProducts ?? patch.dbProducts, visibleProducts, passComplete: patch.passComplete,
         note: "已切换为 cj-catalog.mjs 点数感知收割（data/cj-catalog.db）",
       },
     }, null, 2));
@@ -1370,7 +1382,7 @@ async function publish() {
     log(`publish：visible_products 全量同步（dry-run 跳过）`);
   }
 
-  writeStatus({ lastPublishAt: nowIso(), publishUpdated: updated, publishCount: out.length });
+  writeStatus({ lastPublishAt: nowIso(), publishUpdated: updated, publishCount: out.length, mode: "publish" });
 }
 
 // ---------------------------------------------------------------------------

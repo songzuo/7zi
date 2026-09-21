@@ -37,7 +37,7 @@ export async function GET() {
         ok: status.lastSyncOk ?? null,
         error: status.lastError || null,
         durationMs: status.lastSyncDurationMs ?? null,
-        sourceTotal: status.sourceTotal ?? null,
+        sourceTotal: stats.totalProducts || status.sourceTotal || null,
         added: status.added ?? null,
         removed: status.removed ?? null,
         retained: status.retained ?? null,

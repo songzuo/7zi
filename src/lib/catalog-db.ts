@@ -132,44 +132,51 @@ function getLeafCategoryIds(categoryId: string): string[] {
   if (!categoryId) return [];
   const db = getDb();
 
-  // 先看是不是叶子（leaves 表存的全是叶子）
+  // 1) 叶子分类 id（leaves 表主键）→ 自身
   const leaf = db.prepare("SELECT leafId FROM leaves WHERE leafId = ?").get(categoryId);
   if (leaf) return [categoryId];
 
-  // 不是叶子：按 l1Name/l2Name 路径找子叶子
-  // 方案：先查这个 id 在 leaves 里作为 l1 或 l2 的情况
-  const asL2 = db.prepare("SELECT leafId FROM leaves WHERE l2Name = (SELECT l2Name FROM leaves WHERE leafId = ? LIMIT 1)").all(categoryId);
-  if (asL2 && asL2.length > 0) {
-    // categoryId 其实是个 l2 的 id —— 但我们没有 l2 id 字段，只有名字
-    // 换个思路：用 categoryPath 模糊匹配
+  // 2) 合成 id：l1:<名> / l2:<L1>/<L2>（getCategoryTree / getSubCategories 产出）
+  //    以及 getTopCategories 直接用的「一级分类名」
+  //    关键：走只有 578 行的 leaves 表解析，绝不用 categoryPath LIKE 扫 products（35 万行全表扫，700ms+）
+  const pick = (sql: string, ...args: any[]) =>
+    (db.prepare(sql).all(...args) as any[]).map((r) => r.leafId);
+
+  if (categoryId.startsWith("l1:")) {
+    const ids = pick("SELECT leafId FROM leaves WHERE l1Name = ?", categoryId.slice(3));
+    if (ids.length) return ids;
+  }
+  if (categoryId.startsWith("l2:")) {
+    const [l1, l2] = categoryId.slice(3).split("/");
+    const ids = pick("SELECT leafId FROM leaves WHERE l1Name = ? AND l2Name = ?", l1, l2);
+    if (ids.length) return ids;
   }
 
-  // 简化方案：直接从 products 表按 categoryId 查（目录库的 products 有 categoryId）
-  // 对于父级分类，我们用 categoryPath 的前缀匹配
-  const pathRow = db.prepare("SELECT categoryPath FROM products WHERE categoryId = ? LIMIT 1").get(categoryId);
-  if (pathRow && pathRow.categoryPath) {
-    // 有路径 → 用路径前缀找同路径下的所有叶子
-    const path = pathRow.categoryPath;
-    const parts = path.split(" > ");
-    if (parts.length === 1) {
-      // 一级分类前缀
-      const rows = db.prepare("SELECT DISTINCT categoryId FROM products WHERE categoryPath LIKE ?").all(parts[0] + " > %");
-      return rows.map((r: any) => r.categoryId);
-    } else if (parts.length === 2) {
-      // 二级分类前缀
-      const rows = db.prepare("SELECT DISTINCT categoryId FROM products WHERE categoryPath LIKE ?").all(parts[0] + " > " + parts[1] + " > %");
-      return rows.map((r: any) => r.categoryId);
-    }
+  // 3) 一级分类名 → 其下所有叶子
+  const byL1 = pick("SELECT leafId FROM leaves WHERE l1Name = ?", categoryId);
+  if (byL1.length) return byL1;
+
+  // 4) "L1 > L2" 形式的二级路径 → 该二级下的所有叶子
+  if (categoryId.includes(" > ")) {
+    const [l1, l2] = categoryId.split(" > ");
+    const ids = pick("SELECT leafId FROM leaves WHERE l1Name = ? AND l2Name = ?", l1, l2);
+    if (ids.length) return ids;
   }
 
-  // 找不到路径信息 → 就当单个分类处理
+  // 5) 兜底：当作单个分类 id 处理
   return [categoryId];
 }
 
 // ---------------------------------------------------------------------------
 // 分类树（从 leaves 表构建，带在售商品数）
+//   计数走 578 个相关子查询，实测 ~1s —— 前台每次渲染都算一遍是不可接受的，
+//   故加进程内 TTL 缓存（分类结构基本不变，只有计数会随收割/发布缓慢变化）。
 // ---------------------------------------------------------------------------
-export function getCategoryTree(): CategoryNode[] {
+let _treeCache: { at: number; tree: CategoryNode[] } | null = null;
+const TREE_TTL_MS = 5 * 60 * 1000;
+export function getCategoryTree(force = false): CategoryNode[] {
+  const now = Date.now();
+  if (!force && _treeCache && now - _treeCache.at < TREE_TTL_MS) return _treeCache.tree;
   const db = getDb();
   try {
     const rows = db.prepare(`
@@ -214,12 +221,13 @@ export function getCategoryTree(): CategoryNode[] {
       l1.productCount += leaf.productCount;
     }
 
-    return Array.from(l1Map.values());
+    const tree = Array.from(l1Map.values());
+    _treeCache = { at: Date.now(), tree };
+    return tree;
   } catch {
     return [];
   }
 }
-
 // ---------------------------------------------------------------------------
 // 顶层分类（用于分类胶囊，带数量）
 // ---------------------------------------------------------------------------
