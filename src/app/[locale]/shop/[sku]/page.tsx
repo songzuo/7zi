@@ -13,19 +13,29 @@ function parsePrice(raw: string): string {
  * 优先 SQLite 主键查询（O(1)），不可用时降级到 JSON find（O(n)）。
  */
 function getProduct(sku: string) {
-  if (isCatalogReady()) {
+  let dbReady = false;
+  try {
+    dbReady = isCatalogReady();
+  } catch {
+    dbReady = false;
+  }
+
+  if (dbReady) {
     try {
       const p = getProductBySku(sku);
       if (p) {
         const related = getRelatedProducts(sku, 4);
         return { product: p, related, source: "sqlite" };
       }
+      // 库可用但查不到 = 真不存在：直接返回空，**不要**回落 JSON
+      // （为不存在的 SKU 解析 111MB JSON = 一次常驻 +450MB，属内存炸弹）
+      return { product: null, related: [], source: "sqlite" };
     } catch (e) {
       console.warn("[shop/sku] SQLite 查询失败，降级到 JSON:", e);
     }
   }
 
-  // 降级：旧 JSON 路径
+  // 降级：旧 JSON 路径（只在目录库不可用时）
   const catalog = loadCatalog();
   const product = catalog.products.find((p) => p.sku === sku || p.id === sku);
   if (!product) return { product: null, related: [], source: "json" };

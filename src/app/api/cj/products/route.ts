@@ -80,7 +80,35 @@ export async function GET(request: NextRequest) {
     }
 
     if (!result) {
-      // 降级：旧 JSON 路径
+      // ⚠️ 目录库可用时绝不回落 JSON：解析 111MB 快照 = 一次常驻 +450MB。
+      //    库可用却走到这里 = SQLite 查询异常，宁可返回空列表，也不要把内存打上去。
+      let dbOk = false;
+      try {
+        dbOk = isCatalogReady();
+      } catch {
+        dbOk = false;
+      }
+      if (dbOk) {
+        return NextResponse.json({
+          success: true,
+          data: {
+            list: [],
+            total: 0,
+            page,
+            limit,
+            totalPages: 1,
+            query: q || null,
+            categoryId: categoryId || null,
+            categoryName: categoryName || null,
+            sort: sort || "relevance",
+          },
+          _source: "sqlite-empty",
+          _filterVersion: "sqlite-fts5",
+          _syncedAt: null,
+        });
+      }
+
+      // 降级：旧 JSON 路径（只在目录库不可用时）
       const catalog = loadCatalog();
       const status = loadSyncStatus();
 

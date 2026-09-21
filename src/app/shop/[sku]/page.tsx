@@ -67,8 +67,11 @@ export default async function ProductDetailPage({
     }
   }
 
-  if (!product) {
-    // ---- 兜底：旧 JSON 全量路径 ----
+  if (!product && !dbReady) {
+    // ---- 兜底：旧 JSON 全量路径（**只在目录库不可用时**）----
+    // ⚠️ 库可用却查不到 = 这个 SKU 真的不存在（或已收割但尚未进可见集），必须直接 404。
+    //    绝不为它去解析 111MB JSON：一次解析常驻 +450MB，任何 /shop/<乱码> 都能触发，
+    //    等于把一个"随机 URL 即可打爆内存"的炸弹挂在公网上（2026-09-21 实测 822MB→1271MB）。
     const catalog = loadCatalog();
     const hit = catalog.products.find((p) => p.sku === sku || p.id === sku);
     product = hit || null;

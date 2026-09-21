@@ -150,8 +150,10 @@ export default async function ShopPage({
     }
   }
 
-  if (!sqliteUsed) {
-    // ---- 兜底：旧 JSON 全量路径（目录库未就绪的小数据集场景） ----
+  if (!sqliteUsed && !sqliteReady) {
+    // ---- 兜底：旧 JSON 全量路径（**仅**目录库不可用时）----
+    // 库可用却走进来（例如 getCategoryTree 抛错）也不该解析 111MB JSON：那是常驻 +450MB。
+    // 宁可这一页少显示，也不要为了兜底把内存打上去。
     const catalog = loadCatalog();
     const counts = categoryCounts(catalog);
     const r = searchCatalog(catalog, { q, categoryId: cat, sort, page: currentPage, limit: PAGE_SIZE });

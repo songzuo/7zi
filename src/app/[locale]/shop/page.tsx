@@ -33,7 +33,15 @@ function queryProducts(params: {
   q?: string;
   sort?: SearchOptions["sort"];
 }) {
-  if (isCatalogReady()) {
+  const dbReady = (() => {
+    try {
+      return isCatalogReady();
+    } catch {
+      return false;
+    }
+  })();
+
+  if (dbReady) {
     try {
       const result = searchCatalog({
         page: params.page,
@@ -50,11 +58,19 @@ function queryProducts(params: {
         source: "sqlite",
       };
     } catch (e) {
-      console.warn("[shop] SQLite 查询失败，降级到 JSON:", e);
+      console.warn("[shop] SQLite 查询失败，不再回落 JSON（库可用）:", e);
     }
+    // 库可用但查询异常：返回空结果，**绝不**为兜底去解析 111MB JSON（常驻 +450MB）
+    return {
+      products: [],
+      totalCount: 0,
+      totalPages: 1,
+      currentPage: params.page,
+      source: "sqlite",
+    };
   }
 
-  // 降级：旧 JSON 路径
+  // 降级：旧 JSON 路径（只在目录库不可用时）
   const catalog = loadCatalog();
   const result = searchCatalogJson(catalog, {
     page: params.page,
@@ -73,14 +89,24 @@ function queryProducts(params: {
 }
 
 function queryCategories() {
-  if (isCatalogReady()) {
+  let dbReady = false;
+  try {
+    dbReady = isCatalogReady();
+  } catch {
+    dbReady = false;
+  }
+
+  if (dbReady) {
     try {
       const cats = getTopCategories(20);
       return cats.map((c) => ({ id: c.id, name: c.name }));
-    } catch {
-      // fall through
+    } catch (e) {
+      // 库可用却查询异常：返回空分类，不回落 JSON（解析 111MB = 常驻 +450MB）
+      console.warn("[shop] 分类查询失败，返回空（不回落 JSON）:", e);
+      return [];
     }
   }
+
   const catalog = loadCatalog();
   if (catalog.categories && catalog.categories.length > 0) {
     return catalog.categories.slice(0, 20).map((c) => ({ id: c.id, name: c.name }));
