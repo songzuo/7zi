@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import createNextIntlPlugin from 'next-intl/plugin'
 
 
 
@@ -285,4 +286,10 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+// ============================================================================
+// next-intl 插件（修复主站 /en /zh 等多语言路由 500：
+// 缺插件包裹时 next-intl v4 运行时找不到 config → SSR 报错）
+// ============================================================================
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
+
+export default withNextIntl(nextConfig)
