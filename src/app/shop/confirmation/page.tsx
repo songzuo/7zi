@@ -10,6 +10,7 @@
 // 查询需要「单号 + 下单邮箱」一对（防枚举），邮箱从下单时写入的 localStorage 取。
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { useCurrency } from '@/lib/shop-currency';
 
 interface OrderItem {
   sku: string;
