@@ -1,8 +1,10 @@
 'use client';
 
 // /shop/login —— 商城登录
-//   Tab 1「No-password」：邮箱 + 最近订单号 → 免密登录/一键升级（guest 用户专用）
+//   Tab 1「No-password」：邮箱直接免密登录（该邮箱有订单即可，无需订单号；架构简化）
 //   Tab 2「Password」：邮箱 + 密码 → 标准密码登录（已有密码账号）
+// 安全：email-login 仅在邮箱存在订单时放行；有密码账号的邮箱强制走密码登录（防冒用）；
+//       限流 + 我的订单不返回地址/电话等 PII。
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -23,55 +25,26 @@ export default function ShopLoginPage() {
 
   const [mode, setMode] = useState<Mode>('guest');
   const [email, setEmail] = useState('');
-  const [orderNo, setOrderNo] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
-  // ---- 找回订单号 ----
-  const [showLookup, setShowLookup] = useState(false);
-  const [lookupEmail, setLookupEmail] = useState('');
-  const [lookupBusy, setLookupBusy] = useState(false);
-  const [lookupError, setLookupError] = useState('');
-  const [lookupOrders, setLookupOrders] = useState<Array<{ order_no: string; created_at: string; total_amount: number; currency: string }>>([]);
 
-  async function handleLookup(e: React.FormEvent) {
-    e.preventDefault();
-    const em = lookupEmail.trim().toLowerCase();
-    if (!em) return;
-    setLookupBusy(true);
-    setLookupError('');
-    setLookupOrders([]);
-    try {
-      const res = await fetch(`/api/shop/orders/lookup?email=${encodeURIComponent(em)}`, { cache: 'no-store' });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok || !j?.success) {
-        setLookupError(j?.error || 'Lookup failed. Please try again.');
-      } else {
-        setLookupOrders(j.orders || []);
-        if ((j.orders || []).length === 0) setLookupError('No orders found for this email.');
-      }
-    } catch {
-      setLookupError('Network error, please try again.');
-    } finally {
-      setLookupBusy(false);
-    }
-  }
-
+  // ---- No-password：仅邮箱 → 免密登录（有订单即放行）----
   async function handleGuestLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !orderNo) {
+    if (!email) {
       setStatus('error');
-      setError('Please enter both your email and the order number from your last checkout.');
+      setError('Please enter the email you used at checkout.');
       return;
     }
     setStatus('busy');
     setError('');
     try {
-      const res = await fetch('/api/shop/checkout/upgrade', {
+      const res = await fetch('/api/shop/auth/email-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, order_no: orderNo }),
+        body: JSON.stringify({ email }),
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok || !j?.success) {
@@ -82,7 +55,7 @@ export default function ShopLoginPage() {
           return;
         }
         setStatus('error');
-        setError(j?.error || 'Sign-in failed. Please check your email and order number.');
+        setError(j?.error || 'Sign-in failed. Please check your email.');
         return;
       }
       setStatus('idle');
@@ -156,7 +129,7 @@ export default function ShopLoginPage() {
         {/* 提示条 */}
         {mode === 'guest' && status !== 'need-password' ? (
           <p className="mt-4 rounded-lg bg-indigo-50 px-3 py-2 text-xs text-indigo-700">
-            No password needed — sign in with the email and order number from your last purchase.
+            No password needed — enter the email you used at checkout and we&apos;ll sign you in.
           </p>
         ) : null}
         {info ? (
@@ -177,75 +150,9 @@ export default function ShopLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className={inputCls}
                 placeholder="you@example.com"
+                autoComplete="email"
               />
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Order number</label>
-              <input
-                required
-                value={orderNo}
-                onChange={(e) => setOrderNo(e.target.value)}
-                className={inputCls}
-                placeholder="e.g. SZ20260920XXXX"
-              />
-              <div className="mt-1 text-right">
-                <button
-                  type="button"
-                  onClick={() => { setShowLookup(v => !v); setLookupError(''); setLookupOrders([]); }}
-                  className="text-xs text-indigo-600 hover:underline"
-                >
-                  {showLookup ? 'Hide' : 'Forgot your order number?'}
-                </button>
-              </div>
-            </div>
-
-            {showLookup && (
-              <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3">
-                <p className="mb-2 text-xs text-gray-600">
-                  Enter your email and we&apos;ll show your recent order numbers — pick one to fill the field above.
-                </p>
-                <form onSubmit={handleLookup} className="flex gap-2">
-                  <input
-                    type="email"
-                    required
-                    value={lookupEmail}
-                    onChange={(e) => setLookupEmail(e.target.value)}
-                    className={inputCls}
-                    placeholder="you@example.com"
-                  />
-                  <button
-                    type="submit"
-                    disabled={lookupBusy}
-                    className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
-                  >
-                    {lookupBusy ? '…' : 'Find'}
-                  </button>
-                </form>
-                {lookupError && <p className="mt-2 text-xs text-red-600">{lookupError}</p>}
-                {lookupOrders.length > 0 && (
-                  <ul className="mt-2 space-y-1.5">
-                    {lookupOrders.map((o) => (
-                      <li key={o.order_no}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOrderNo(o.order_no);
-                            setShowLookup(false);
-                            setLookupOrders([]);
-                          }}
-                          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-left text-xs transition-colors hover:border-indigo-300 hover:bg-indigo-50"
-                        >
-                          <span className="font-mono font-semibold text-gray-800">{o.order_no}</span>
-                          <span className="float-right text-gray-500">
-                            {new Date(o.created_at).toLocaleDateString()} · {Number(o.total_amount || 0).toFixed(2)} {o.currency || 'USD'}
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
             <button
               type="submit"
               disabled={status === 'busy'}
@@ -253,6 +160,9 @@ export default function ShopLoginPage() {
             >
               {status === 'busy' ? 'Signing in…' : 'Sign in'}
             </button>
+            <p className="text-center text-[11px] text-gray-400">
+              Works with any email that has placed an order.
+            </p>
           </form>
         ) : (
           <form onSubmit={handlePasswordLogin} className="mt-4 space-y-4">
@@ -265,6 +175,7 @@ export default function ShopLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className={inputCls}
                 placeholder="you@example.com"
+                autoComplete="email"
               />
             </div>
             <div>
@@ -276,6 +187,7 @@ export default function ShopLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className={inputCls}
                 placeholder="••••••••"
+                autoComplete="current-password"
               />
             </div>
             <button

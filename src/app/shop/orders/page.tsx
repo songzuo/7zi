@@ -95,7 +95,7 @@ export default function MyOrdersPage() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-2xl">🔐</div>
         <h1 className="text-xl font-bold text-gray-900">Sign in to view your orders</h1>
         <p className="mt-2 text-sm text-gray-500">
-          Use the email and order number from your last checkout — no password needed. Your order history and tracking will show here.
+          Use the email from your last checkout — no password needed. Your order history and tracking will show here.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link

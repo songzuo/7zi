@@ -73,6 +73,22 @@ export default function CheckoutPage() {
   useEffect(() => {
     try { setCart(JSON.parse(localStorage.getItem('cart') || '[]')); } catch { setCart([]); }
     setMounted(true);
+
+    // ---- 默认目的国：用户偏好（localStorage） > IP 自动判断 > GH ----
+    let pref: string | null = null;
+    try { pref = localStorage.getItem('szspd_country'); } catch {}
+    if (pref && /^[A-Z]{2}$/.test(pref)) {
+      setForm((f) => ({ ...f, countryCode: pref }));
+      return;
+    }
+    // 与货币同一套 IP 判断（/api/shop/currency 返回 ipCountry）
+    fetch('/api/shop/currency', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((j) => {
+        const cc = String(j?.ipCountry || '').toUpperCase();
+        if (/^[A-Z]{2}$/.test(cc)) setForm((f) => ({ ...f, countryCode: cc }));
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -421,7 +437,13 @@ export default function CheckoutPage() {
                 <input value={countryQuery} onChange={(e) => setCountryQuery(e.target.value)}
                   placeholder="Search country… (e.g. Ghana, Nigeria, Kenya)"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
-                <select value={form.countryCode} onChange={(e) => setForm({ ...form, countryCode: e.target.value })}
+                <select
+                  value={form.countryCode}
+                  onChange={(e) => {
+                    const cc = e.target.value;
+                    setForm({ ...form, countryCode: cc });
+                    try { localStorage.setItem('szspd_country', cc); } catch {}
+                  }}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
                   {searchResults ? (
                     <>
