@@ -260,6 +260,115 @@ function writeEnvelope(sku: string, env: CacheEnvelope<any>) {
   } catch {}
 }
 
+// ---------------------------------------------------------------------------
+// 详情永久落库（product_details 表）：数据库是详情主存储（永久），
+// 磁盘缓存只保留负缓存/库存等临时数据，内存 LRU 是免费加速层。
+// ---------------------------------------------------------------------------
+
+let detailDb: Database.Database | null = null;
+
+function getDetailDb(): Database.Database {
+  if (detailDb) return detailDb;
+  detailDb = new Database(join(process.cwd(), "data", "cj-catalog.db"), { fileMustExist: true });
+  detailDb.pragma("journal_mode = WAL");
+  detailDb.pragma("cache_size = -20000");
+  detailDb.pragma("mmap_size = 268435456");
+  detailDb.exec(`CREATE TABLE IF NOT EXISTS product_details (
+    sku TEXT PRIMARY KEY,
+    pid TEXT,
+    description_html TEXT,
+    description_text TEXT,
+    images TEXT,
+    video TEXT,
+    variants TEXT,
+    variant_keys TEXT,
+    specs TEXT,
+    weight_grams INTEGER,
+    upstream_price TEXT,
+    fetched_at INTEGER,
+    updated_at TEXT
+  )`);
+  return detailDb;
+}
+
+export function writeDetailToDb(d: ProductDetailData) {
+  try {
+    const db = getDetailDb();
+    db.prepare(
+      `INSERT INTO product_details
+         (sku, pid, description_html, description_text, images, video, variants,
+          variant_keys, specs, weight_grams, upstream_price, fetched_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(sku) DO UPDATE SET
+         pid = excluded.pid,
+         description_html = excluded.description_html,
+         description_text = excluded.description_text,
+         images = excluded.images,
+         video = excluded.video,
+         variants = excluded.variants,
+         variant_keys = excluded.variant_keys,
+         specs = excluded.specs,
+         weight_grams = excluded.weight_grams,
+         upstream_price = excluded.upstream_price,
+         fetched_at = excluded.fetched_at,
+         updated_at = excluded.updated_at`
+    ).run(
+      d.sku,
+      d.pid || "",
+      d.descriptionHtml || "",
+      d.descriptionText || "",
+      JSON.stringify(d.images || []),
+      d.video || null,
+      JSON.stringify(d.variants || []),
+      JSON.stringify(d.variantKeys || []),
+      JSON.stringify(d.specs || []),
+      d.weightGrams ?? null,
+      d.upstreamPrice || null,
+      new Date(d.fetchedAt).getTime(),
+      new Date().toISOString()
+    );
+  } catch {}
+}
+
+/** 从 DB 读详情（fetched_at 判断新鲜/过期），无则 null */
+function readDetailFromDb(sku: string): DetailHit | null {
+  try {
+    const row = getDetailDb()
+      .prepare("SELECT * FROM product_details WHERE sku = ?")
+      .get(sku) as any;
+    if (!row || !row.fetched_at) return null;
+    const fetchedAtMs = Number(row.fetched_at);
+    const ageMs = Date.now() - fetchedAtMs;
+    if (ageMs > DETAIL_STALE_MS) return null; // 太旧，当作未命中
+    const detail: ProductDetailData = {
+      sku: row.sku,
+      pid: row.pid || "",
+      descriptionHtml: row.description_html || "",
+      descriptionText: row.description_text || "",
+      images: safeParseArr(row.images),
+      video: row.video || null,
+      variants: safeParseArr(row.variants),
+      variantKeys: safeParseArr(row.variant_keys),
+      specs: safeParseArr(row.specs),
+      weightGrams: row.weight_grams ?? null,
+      upstreamPrice: row.upstream_price || null,
+      fetchedAt: new Date(fetchedAtMs).toISOString(),
+    };
+    return { detail, ageMs, stale: ageMs > DETAIL_FRESH_MS };
+  } catch {
+    return null;
+  }
+}
+
+function safeParseArr(raw: unknown): any[] {
+  try {
+    const v = JSON.parse(String(raw || "[]"));
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
 /** 缓存文件数超限时，按 mtime 删最旧的一批 */
 function pruneCache() {
   try {
@@ -419,32 +528,26 @@ const MEM_MAX = 400;
  */
 export function readCachedDetail(sku: string): DetailHit | null {
   if (!sku) return null;
-  const p = cachePath(sku);
-  let mtimeMs = 0;
-  try {
-    mtimeMs = statSync(p).mtimeMs;
-  } catch {
-    return null;
-  }
+
+  // 1) 内存 LRU（免费加速层）
   const cachedMem = memCache.get(sku);
-  if (cachedMem && cachedMem.mtimeMs === mtimeMs) {
+  if (cachedMem) {
     memHits++;
     return cachedMem.hit;
   }
 
-  const env = readEnvelope(sku);
-  if (!env || env.kind !== "detail" || !env.data) return null;
-  const ageMs = Date.now() - env.fetchedAt;
-  if (ageMs > DETAIL_STALE_MS) return null; // 太旧，当作未命中
-
-  const hit: DetailHit = { detail: env.data as ProductDetailData, ageMs, stale: ageMs > DETAIL_FRESH_MS };
-  if (memCache.size >= MEM_MAX) {
-    const firstKey = memCache.keys().next().value;
-    if (firstKey !== undefined) memCache.delete(firstKey);
+  // 2) 数据库（永久主存储）
+  const hit = readDetailFromDb(sku);
+  if (hit) {
+    if (memCache.size >= MEM_MAX) {
+      const firstKey = memCache.keys().next().value;
+      if (firstKey !== undefined) memCache.delete(firstKey);
+    }
+    memCache.set(sku, { mtimeMs: hit.detail.fetchedAt, hit });
+    memMisses++;
+    return hit;
   }
-  memCache.set(sku, { mtimeMs, hit });
-  memMisses++;
-  return hit;
+  return null;
 }
 
 /** 同步读负缓存（用来快速回绝已下架商品） */
@@ -482,8 +585,13 @@ async function fetchDetailOnce(sku: string): Promise<DetailResult> {
     }
 
     const detail = normalizeDetail(sku, j.data);
-    writeEnvelope(sku, { v: 1, sku, kind: "detail", fetchedAt: Date.now(), data: detail });
-    pruneCache();
+    // 详情永久落库（数据库为主存储），内存 LRU 同步更新
+    writeDetailToDb(detail);
+    if (memCache.size >= MEM_MAX) {
+      const firstKey = memCache.keys().next().value;
+      if (firstKey !== undefined) memCache.delete(firstKey);
+    }
+    memCache.set(sku, { mtimeMs: detail.fetchedAt, hit: { detail, ageMs: 0, stale: false } });
     return { ok: true, detail, cached: false, stale: false };
   } catch (e: any) {
     return { ok: false, reason: "upstream_error", message: e?.message || String(e) };
@@ -607,8 +715,7 @@ export async function getStock(sku: string, vids: string[]): Promise<{ ok: boole
  */
 export function recordDetailRequest(sku: string) {
   try {
-    const db = new Database(join(process.cwd(), "data", "cj-catalog.db"), { fileMustExist: true });
-    db.pragma("journal_mode = WAL");
+    const db = getDetailDb();
     db.exec(`CREATE TABLE IF NOT EXISTS detail_requests (
       sku TEXT PRIMARY KEY,
       hits INTEGER DEFAULT 1,
@@ -618,7 +725,6 @@ export function recordDetailRequest(sku: string) {
       `INSERT INTO detail_requests (sku, hits, lastReqAt) VALUES (?, 1, ?)
        ON CONFLICT(sku) DO UPDATE SET hits = hits + 1, lastReqAt = excluded.lastReqAt`
     ).run(sku, new Date().toISOString());
-    db.close();
   } catch {}
 }
 
@@ -635,9 +741,16 @@ export function detailCacheStats() {
       } catch {}
     }
   } catch {}
+  let dbCount = 0;
+  try {
+    dbCount = getDetailDb()
+      .prepare("SELECT COUNT(*) AS c FROM product_details")
+      .get()?.c ?? 0;
+  } catch {}
   return {
     files,
     bytes,
+    dbDetails: dbCount,
     memEntries: memCache.size,
     inflight: Q.inflight.size,
     stockInflight: Q.stockInflight.size,
