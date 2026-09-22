@@ -5,6 +5,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useCurrency } from '@/lib/shop-currency';
 import Link from 'next/link';
+import { getBrand } from '@/config/brand';
 import { trackFunnel } from '../_funnel';
 
 interface CartItem {
