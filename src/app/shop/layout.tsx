@@ -1,19 +1,24 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CurrencyProvider } from '@/lib/shop-currency';
+import { getBrand } from '@/config/brand';
 import CurrencySwitcher from './_currency-switcher';
 
-export const metadata: Metadata = {
-  title: 'SZSPD Store — Quality Products, China to Ghana & Africa',
-  description:
-    'SZSPD (SZ) is a cross-border e-commerce platform serving Ghana, Africa and customers worldwide. Quality products sourced from China, one-click dropshipping, tracked delivery to your door.',
-};
+export function generateMetadata(): Metadata {
+  const brand = getBrand();
+  return {
+    title: brand.shopTitle,
+    description: brand.shopDescription,
+  };
+}
 
 export default function ShopLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const brand = getBrand();
+  const africa = brand.features.africaCorridor;
   return (
     <CurrencyProvider>
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -25,15 +30,15 @@ export default function ShopLayout({
               className="flex items-center gap-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
             >
               <span className="inline-flex h-6 items-center rounded bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 px-2 text-xs font-black tracking-widest text-white">
-                SZ
+                {brand.logoBadge}
               </span>
-              <span className="text-sm font-semibold">SZSPD</span>
+              <span className="text-sm font-semibold">{brand.shortName}</span>
             </Link>
             <h1 className="text-base font-semibold text-zinc-900 dark:text-white">
-              SZSPD Store <span className="hidden sm:inline text-xs font-normal text-zinc-500">· Serving Ghana · Africa · Worldwide</span>
+              {brand.siteName} <span className="hidden sm:inline text-xs font-normal text-zinc-500">{brand.headerTagline}</span>
             </h1>
             <div className="flex items-center gap-3">
-              <CurrencySwitcher />
+              <CurrencySwitcher showGhs={africa} />
               <Link
                 href="/shop/orders"
                 className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white transition-colors"
@@ -55,14 +60,15 @@ export default function ShopLayout({
         <div className="mx-auto max-w-7xl px-4 py-8 grid gap-8 md:grid-cols-3 text-sm">
           <div>
             <div className="mb-2 font-bold text-zinc-900 dark:text-white">
-              <span className="inline-flex h-5 items-center rounded bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 px-1.5 text-[10px] font-black tracking-widest text-white">SZ</span>{' '}
-              SZSPD — About Us
+              <span className="inline-flex h-5 items-center rounded bg-gradient-to-r from-red-600 via-yellow-500 to-green-600 px-1.5 text-[10px] font-black tracking-widest text-white">{brand.logoBadge}</span>{' '}
+              {brand.shortName} — About Us
             </div>
             <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              SZSPD sources quality products from China and delivers them to Ghana, Africa and customers worldwide — with one-click dropshipping, secure payment and tracked shipping.
+              {brand.footerAbout}
             </p>
-            <p className="mt-2 text-zinc-500 dark:text-zinc-500">🇬🇭 Proudly serving Ghana &amp; Africa · 🌍 Shipping worldwide</p>
+            <p className="mt-2 text-zinc-500 dark:text-zinc-500">{brand.footerServingLine}</p>
           </div>
+          {africa && (
           <div>
             <div className="mb-2 font-bold text-zinc-900 dark:text-white">Contact — Ghana 🇬🇭</div>
             <p className="text-zinc-600 dark:text-zinc-400">Phone / WhatsApp / WeChat: <a className="text-blue-600 hover:underline" href="tel:+233248009090">+233 24 800 9090</a></p>
@@ -74,6 +80,7 @@ export default function ShopLayout({
               Ashanti Region (Kumasi), AD-021-7690, Ghana
             </p>
           </div>
+          )}
           <div>
             <div className="mb-2 font-bold text-zinc-900 dark:text-white">Contact — China 🇨🇳</div>
             <p className="text-zinc-600 dark:text-zinc-400">Phone / WhatsApp / WeChat: <a className="text-blue-600 hover:underline" href="tel:+8613319551131">+86 133 1955 1131</a></p>
@@ -87,7 +94,7 @@ export default function ShopLayout({
           </div>
         </div>
         <div className="border-t border-zinc-100 py-4 text-center text-xs text-zinc-400 dark:border-zinc-800">
-          © {new Date().getFullYear()} SZSPD · SZ. All rights reserved. · Quality products from China, delivered across Ghana, Africa &amp; the world.
+          © {new Date().getFullYear()} {brand.footerCopyright}
         </div>
       </footer>
     </div>

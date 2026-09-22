@@ -3,22 +3,25 @@ import localFont from 'next/font/local'
 import { Providers } from '@/components/Providers'
 import { ClientAnalytics } from '@/components/ClientAnalytics'
 import Image from 'next/image'
+import { getBrand } from '@/config/brand'
 import './globals.css'
 
 const geistSans = localFont({ src: './fonts/Geist-Regular.woff2', variable: '--font-geist-sans', display: 'swap' })
 
 const geistMono = localFont({ src: './fonts/GeistMono-Regular.woff2', variable: '--font-geist-mono', display: 'swap' })
 
-const baseUrl = 'https://szspd.cn'
+const brand = getBrand()
+const baseUrl = brand.baseUrl
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'SZSPD - Cross-border E-commerce Serving Ghana, Africa & the World',
-    template: '%s | SZSPD Store',
+    default: brand.id === '7zi'
+      ? '7zi Shop — Quality Products from China, Delivered Worldwide'
+      : 'SZSPD - Cross-border E-commerce Serving Ghana, Africa & the World',
+    template: `%s | ${brand.siteName}`,
   },
-  description:
-    'SZSPD (SZ) sources quality products from China and delivers them to Ghana, Africa & customers worldwide. One-click dropshipping, secure payment, tracked shipping.',
+  description: brand.shopDescription,
   keywords: [
     'AI',
     '数字工作室',
@@ -30,9 +33,9 @@ export const metadata: Metadata = {
     'AI 代理',
     '数字化解决方案',
   ],
-  authors: [{ name: 'SZSPD', url: baseUrl }],
-  creator: 'SZSPD',
-  publisher: 'SZSPD',
+  authors: [{ name: brand.shortName, url: baseUrl }],
+  creator: brand.shortName,
+  publisher: brand.shortName,
   robots: {
     index: true,
     follow: true,
@@ -48,8 +51,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'zh_CN',
     url: baseUrl,
-    siteName: 'SZSPD Store',
-    title: 'SZSPD - Quality Products, China to Ghana & Africa',
+    siteName: brand.siteName,
+    title: brand.shopTitle,
     description:
       '由 11 位 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务',
     images: [
@@ -57,13 +60,13 @@ export const metadata: Metadata = {
         url: `${baseUrl}/og-image.svg`,
         width: 1200,
         height: 630,
-        alt: 'SZSPD - Quality Products, China to Ghana & Africa',
+        alt: brand.shopTitle,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SZSPD - Quality Products, China to Ghana & Africa',
+    title: brand.shopTitle,
     description:
       '由 11 位 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务',
     images: [`${baseUrl}/og-image.svg`],
@@ -79,7 +82,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'SZSPD',
+    title: brand.shortName,
   },
   formatDetection: {
     email: false,
@@ -152,7 +155,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'Organization',
-              name: 'SZSPD',
+              name: brand.shortName,
               url: baseUrl,
               logo: `${baseUrl}/logo.png`,
               description:
@@ -167,13 +170,13 @@ export default function RootLayout({
               contactPoint: {
                 '@type': 'ContactPoint',
                 contactType: 'customer service',
-                telephone: '+233248009090',
-                email: 'support@szspd.cn',
+                telephone: brand.contactPhoneHref.replace('tel:', ''),
+                email: brand.contactEmail,
                 availableLanguage: ['Chinese', 'English'],
               },
               sameAs: [
-                'https://szspd.cn',
-                'https://wa.me/233248009090',
+                baseUrl,
+                ...(brand.features.africaCorridor ? ['https://wa.me/233248009090'] : []),
                 'https://wa.me/8613319551131',
               ],
             }),

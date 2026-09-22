@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getBrand } from "@/config/brand";
 import AddToCartButton from "./_add-to-cart-client";
 import {
   loadCatalog,
@@ -207,7 +208,7 @@ export default async function ShopPage({
       {/* Hero + 搜索 */}
       <div className="rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-600 p-8 mb-6 text-white">
         <h1 className="text-3xl font-bold mb-2">
-          Welcome to SZSPD Store — China&apos;s best, delivered to Ghana &amp; Africa
+          {getBrand().heroTitle}
         </h1>
         <p className="text-indigo-100 mb-5">
           {liveCount.toLocaleString()} products in stock · one-click dropshipping · shipped from China

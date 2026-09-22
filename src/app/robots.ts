@@ -4,9 +4,10 @@
  */
 
 import { MetadataRoute } from 'next'
+import { getBrand } from '@/config/brand'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || getBrand().baseUrl
 
   return {
     rules: [

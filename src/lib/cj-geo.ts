@@ -13,6 +13,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { cjCall } from "./cj-channel";
+import { getBrand } from "@/config/brand";
 
 const DATA_DIR = join(process.cwd(), "data");
 const VID_CACHE_FILE = join(DATA_DIR, "cj-vid-cache.json");
@@ -37,11 +38,10 @@ export interface Country {
   en: string;
 }
 
-/** 首页/结算页置顶的常用目的地（加纳、西非、欧美等） */
-export const HOT_COUNTRY_CODES = [
-  "GH", "NG", "KE", "ZA", "TZ", "UG", "CI", "SN", "CM", "EG",
-  "US", "GB", "CA", "AU", "DE", "FR", "AE", "IN",
-];
+/** 首页/结算页置顶的常用目的地（按品牌档案：szspd 加纳/西非优先，7zi 全球主流优先） */
+export function hotCountryCodes(): string[] {
+  return getBrand().hotCountryCodes;
+}
 
 /** 格式：二字码|中文名|英文名 */
 const RAW_COUNTRIES = `AD|安道尔|Andorra
@@ -308,9 +308,10 @@ export function countryByCode(code: string): Country | undefined {
 
 /** 结算页用：常用国家置顶 + 全量按英文名排序 */
 export function countriesForSelect(): { hot: Country[]; all: Country[] } {
-  const hotSet = new Set(HOT_COUNTRY_CODES);
+  const hotList = hotCountryCodes();
+  const hotSet = new Set(hotList);
   return {
-    hot: HOT_COUNTRY_CODES.map((c) => COUNTRY_BY_CODE.get(c)).filter(Boolean) as Country[],
+    hot: hotList.map((c) => COUNTRY_BY_CODE.get(c)).filter(Boolean) as Country[],
     all: COUNTRIES.filter((c) => !hotSet.has(c.code)).slice().sort((a, b) => a.en.localeCompare(b.en)),
   };
 }

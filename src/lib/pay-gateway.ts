@@ -26,6 +26,7 @@
  *           环境变量仍作兜底。改配置即时生效，不需要重启进程。
  */
 import { createHmac, timingSafeEqual } from "crypto";
+import { getBrand } from "@/config/brand";
 import {
   loadPayConfig,
   resolveProvider,
@@ -114,12 +115,21 @@ export function providerStatus() {
 }
 
 function manualInstructions(orderNo: string, amountUsd: number): PayInstructions {
+  const brand = getBrand();
+  const ghanaLines = brand.features.ghanaPayment
+    ? [
+        "1) Mobile Money (Ghana): MTN MoMo / Telecel Cash / AT Money",
+        "2) Bank transfer (Ghana / China) or PayPal / WeChat Pay",
+      ]
+    : [
+        "1) International card / PayPal / Wise",
+        "2) Bank transfer (China) or WeChat Pay",
+      ];
   return {
     title: "Manual payment (Mobile Money / Bank / PayPal)",
     lines: [
       `Order ${orderNo} · Total USD ${amountUsd.toFixed(2)}`,
-      "1) Mobile Money (Ghana): MTN MoMo / Telecel Cash / AT Money",
-      "2) Bank transfer (Ghana / China) or PayPal / WeChat Pay",
+      ...ghanaLines,
       `Send us the order number ${orderNo} together with your payment receipt — we will confirm and ship within 24h.`,
       "Contact us on WhatsApp or WeChat to get the payment details.",
     ],

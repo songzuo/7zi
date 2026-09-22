@@ -48,6 +48,7 @@ interface PayResult {
 const WHATSAPP = 'https://wa.me/233248009090';
 
 export default function CheckoutPage() {
+  const africaCorridor = getBrand().features.africaCorridor;
   const [cart, setCart] = useState<CartItem[]>([]);
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -444,7 +445,7 @@ export default function CheckoutPage() {
               <div>
                 <label className="block text-sm text-gray-600 mb-1">Country / Region *</label>
                 <input value={countryQuery} onChange={(e) => setCountryQuery(e.target.value)}
-                  placeholder="Search country… (e.g. Ghana, Nigeria, Kenya)"
+                  placeholder={africaCorridor ? "Search country… (e.g. Ghana, Nigeria, Kenya)" : "Search country… (e.g. United States, United Kingdom, Germany)"}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
                 <select
                   value={form.countryCode}

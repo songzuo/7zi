@@ -1,7 +1,8 @@
 import { MetadataRoute } from "next"
+import { getBrand } from "@/config/brand"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://7zi.com"
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || getBrand().baseUrl
 
   const mainPages = [
     { route: "", priority: 1 },

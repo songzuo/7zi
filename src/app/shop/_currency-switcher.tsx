@@ -4,7 +4,7 @@
 import { useCurrency } from '@/lib/shop-currency';
 import { CURRENCY_SYMBOL } from '@/lib/currency';
 
-export default function CurrencySwitcher() {
+export default function CurrencySwitcher({ showGhs = true }: { showGhs?: boolean }) {
   const { currency, setCurrency, currencies, rates, ready } = useCurrency();
 
   const label = (code: string) => {
@@ -37,7 +37,7 @@ export default function CurrencySwitcher() {
         : (
             <>
               <option value="USD">$ USD · US Dollar</option>
-              <option value="GHS">₵ GHS · Ghana Cedi</option>
+              {showGhs && <option value="GHS">₵ GHS · Ghana Cedi</option>}
             </>
           )}
     </select>
