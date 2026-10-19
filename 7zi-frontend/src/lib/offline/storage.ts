@@ -4,6 +4,10 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+import { JsonRecord, JsonValue } from './conflict-resolver';
+
+// Re-export for use by other modules
+export type { JsonRecord, JsonValue };
 
 // Database configuration
 const DB_NAME = '7zi-offline-db';
@@ -34,13 +38,13 @@ export interface CacheEntry {
 export interface DataEntry {
   id: string;
   collection: string;
-  data: any;
+  data: JsonRecord;
   localVersion: number;
   serverVersion?: number;
   createdAt: number;
   updatedAt: number;
   isDirty: boolean;
-  conflictData?: any;
+  conflictData?: JsonRecord;
 }
 
 export interface SyncQueueItem {
@@ -48,7 +52,7 @@ export interface SyncQueueItem {
   collection: string;
   operation: 'create' | 'update' | 'delete';
   dataId: string;
-  data: any;
+  data: JsonRecord;
   timestamp: number;
   retryCount: number;
   lastError?: string;
@@ -57,7 +61,7 @@ export interface SyncQueueItem {
 
 export interface MetaEntry {
   key: string;
-  value: any;
+  value: JsonValue;
   updatedAt: number;
 }
 
@@ -280,7 +284,7 @@ export class OfflineStorage {
    */
   async storeData(
     collection: string,
-    data: any,
+    data: JsonRecord,
     options: { id?: string; isDirty?: boolean; serverVersion?: number } = {}
   ): Promise<string> {
     await this.init();
@@ -325,7 +329,7 @@ export class OfflineStorage {
   /**
    * Get data by ID
    */
-  async getData(collection: string, id: string): Promise<any | null> {
+  async getData(collection: string, id: string): Promise<JsonRecord | null> {
     await this.init();
 
     return new Promise((resolve, reject) => {
@@ -348,7 +352,7 @@ export class OfflineStorage {
   /**
    * Get all data in a collection
    */
-  async getCollectionData(collection: string): Promise<any[]> {
+  async getCollectionData(collection: string): Promise<JsonRecord[]> {
     await this.init();
 
     return new Promise((resolve, reject) => {
@@ -416,7 +420,7 @@ export class OfflineStorage {
   /**
    * Store conflict data
    */
-  async storeConflict(id: string, serverData: any): Promise<void> {
+  async storeConflict(id: string, serverData: JsonRecord): Promise<void> {
     await this.init();
 
     return new Promise((resolve, reject) => {
@@ -462,7 +466,7 @@ export class OfflineStorage {
     collection: string,
     operation: 'create' | 'update' | 'delete',
     dataId: string,
-    data: any,
+    data: JsonRecord,
     priority: number = 0
   ): Promise<string> {
     await this.init();
@@ -574,7 +578,7 @@ export class OfflineStorage {
   /**
    * Set metadata
    */
-  async setMeta(key: string, value: any): Promise<void> {
+  async setMeta(key: string, value: JsonValue): Promise<void> {
     await this.init();
 
     const entry: MetaEntry = {
@@ -596,7 +600,7 @@ export class OfflineStorage {
   /**
    * Get metadata
    */
-  async getMeta<T>(key: string): Promise<T | null> {
+  async getMeta(key: string): Promise<JsonValue | null> {
     await this.init();
 
     return new Promise((resolve, reject) => {

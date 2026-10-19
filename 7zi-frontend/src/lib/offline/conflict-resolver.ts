@@ -5,6 +5,14 @@
 
 import { DataEntry } from './storage';
 
+/**
+ * Represents any JSON-serializable data value
+ * Used for typed data handling instead of `any`
+ */
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+export type JsonRecord = Record<string, JsonValue>;
+
 // Conflict detection result
 export interface ConflictDetection {
   hasConflict: boolean;
@@ -15,8 +23,8 @@ export interface ConflictDetection {
 
 export interface FieldConflict {
   field: string;
-  localValue: any;
-  serverValue: any;
+  localValue: JsonValue;
+  serverValue: JsonValue;
   localTimestamp: number;
   serverTimestamp: number;
 }
@@ -27,7 +35,7 @@ export type ResolutionStrategy = 'lww' | 'field-merge' | 'manual' | 'local-wins'
 // Conflict resolution result
 export interface ResolutionResult {
   resolved: boolean;
-  data: any;
+  data: JsonRecord;
   strategy: ResolutionStrategy;
   conflicts: FieldConflict[];
   manualFields?: string[]; // Fields that need manual resolution
@@ -37,18 +45,18 @@ export interface ResolutionResult {
 export interface ManualResolutionRequest {
   entryId: string;
   field: string;
-  localValue: any;
-  serverValue: any;
+  localValue: JsonValue;
+  serverValue: JsonValue;
   chosenValue: 'local' | 'server' | 'custom';
-  customValue?: any;
+  customValue?: JsonValue;
 }
 
 // Conflict metadata
 export interface ConflictMeta {
   entryId: string;
   collection: string;
-  localData: any;
-  serverData: any;
+  localData: JsonRecord;
+  serverData: JsonRecord;
   localTimestamp: number;
   serverTimestamp: number;
   detectedAt: number;
@@ -67,22 +75,23 @@ export class ConflictResolver {
   /**
    * Detect conflicts between local and server data
    */
-  detectConflicts(localEntry: DataEntry, serverData: any): ConflictDetection {
+  detectConflicts(localEntry: DataEntry, serverData: JsonRecord): ConflictDetection {
     const conflicts: FieldConflict[] = [];
     
     // Check if versions exist
-    if (!localEntry.serverVersion && serverData._version) {
+    const serverVersionVal = serverData._version as number | undefined;
+    if (!localEntry.serverVersion && serverVersionVal) {
       // First sync - no conflict
       return {
         hasConflict: false,
         conflicts: [],
         localVersion: localEntry.localVersion,
-        serverVersion: serverData._version,
+        serverVersion: serverVersionVal,
       };
     }
 
     // Compare versions
-    const serverVersion = serverData._version || 0;
+    const serverVersion = serverVersionVal || 0;
     if (localEntry.serverVersion === serverVersion) {
       // Same version - no conflict
       return {
@@ -110,7 +119,7 @@ export class ConflictResolver {
           localValue,
           serverValue,
           localTimestamp: localEntry.updatedAt,
-          serverTimestamp: serverData._updatedAt || Date.now(),
+          serverTimestamp: (serverData._updatedAt as number) || Date.now(),
         });
       }
     }
@@ -126,8 +135,8 @@ export class ConflictResolver {
   /**
    * Extract meaningful fields from data (excluding metadata)
    */
-  private extractFields(data: any): Record<string, any> {
-    const fields: Record<string, any> = {};
+  private extractFields(data: JsonRecord): JsonRecord {
+    const fields: JsonRecord = {};
     for (const [key, value] of Object.entries(data)) {
       if (!key.startsWith('_')) {
         fields[key] = value;
@@ -139,7 +148,7 @@ export class ConflictResolver {
   /**
    * Check if two values differ
    */
-  private valuesDiffer(a: any, b: any): boolean {
+  private valuesDiffer(a: JsonValue, b: JsonValue): boolean {
     if (a === b) return false;
     if (a === null || b === null) return a !== b;
     if (typeof a !== typeof b) return true;
@@ -154,7 +163,7 @@ export class ConflictResolver {
    */
   resolveConflict(
     localEntry: DataEntry,
-    serverData: any,
+    serverData: JsonRecord,
     strategy: ResolutionStrategy,
     manualResolutions?: ManualResolutionRequest[]
   ): ResolutionResult {
@@ -192,11 +201,11 @@ export class ConflictResolver {
    */
   private resolveLWW(
     localEntry: DataEntry,
-    serverData: any,
+    serverData: JsonRecord,
     detection: ConflictDetection
   ): ResolutionResult {
     const localTimestamp = localEntry.updatedAt;
-    const serverTimestamp = serverData._updatedAt || Date.now();
+    const serverTimestamp = (serverData._updatedAt as number) || Date.now();
 
     // Determine which is newer
     const useServer = serverTimestamp > localTimestamp;
@@ -215,7 +224,7 @@ export class ConflictResolver {
    */
   private resolveFieldMerge(
     localEntry: DataEntry,
-    serverData: any,
+    serverData: JsonRecord,
     detection: ConflictDetection
   ): ResolutionResult {
     const merged = { ...localEntry.data, ...serverData };
@@ -243,7 +252,7 @@ export class ConflictResolver {
    */
   private resolveManual(
     localEntry: DataEntry,
-    serverData: any,
+    serverData: JsonRecord,
     detection: ConflictDetection,
     manualResolutions: ManualResolutionRequest[]
   ): ResolutionResult {
@@ -291,7 +300,7 @@ export class ConflictResolver {
    */
   private resolveLocalWins(
     localEntry: DataEntry,
-    serverData: any,
+    serverData: JsonRecord,
     detection: ConflictDetection
   ): ResolutionResult {
     return {
@@ -308,7 +317,7 @@ export class ConflictResolver {
    */
   private resolveServerWins(
     localEntry: DataEntry,
-    serverData: any,
+    serverData: JsonRecord,
     detection: ConflictDetection
   ): ResolutionResult {
     return {
@@ -416,8 +425,8 @@ export class ConflictResolver {
   createConflictMeta(
     entryId: string,
     collection: string,
-    localData: any,
-    serverData: any,
+    localData: JsonRecord,
+    serverData: JsonRecord,
     localTimestamp: number,
     serverTimestamp: number
   ): ConflictMeta {
