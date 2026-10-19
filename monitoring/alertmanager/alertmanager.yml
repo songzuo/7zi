@@ -1,14 +1,66 @@
 global:
   resolve_timeout: 5m
+  # SMTP 配置（占位，等主人填真实凭据）
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_from: 'alertmanager@szspd.cn'
+  smtp_auth_username: 'alertmanager@szspd.cn'
+  smtp_auth_password: 'REPLACE_ME'
+  smtp_require_tls: true
 
 route:
   group_by: ['alertname', 'severity', 'service']
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 4h
-  receiver: 'default-receiver'
+  receiver: 'email-default'
+  routes:
+    # 严重告警立即发，不分组等待
+    - match:
+        severity: critical
+      receiver: 'email-critical'
+      group_wait: 10s
+      repeat_interval: 1h
 
 receivers:
-  - name: 'default-receiver'
+  - name: 'email-default'
+    email_configs:
+      - to: 'admin@szspd.cn'
+        send_resolved: true
+        # 邮件标题模板
+        headers:
+          Subject: '[{{ .GroupLabels.alertname }}] {{ .CommonAnnotations.summary }}'
+        # 邮件正文模板
+        html: |
+          <h2>{{ .GroupLabels.alertname }} ({{ .CommonLabels.severity }})</h2>
+          <p><strong>主机:</strong> {{ .CommonLabels.instance }}</p>
+          <p><strong>开始时间:</strong> {{ .CommonAnnotations.startsAt }}</p>
+          <p><strong>描述:</strong> {{ .CommonAnnotations.description }}</p>
+          <hr>
+          <h3>详情</h3>
+          {{ range .Alerts }}
+          <div style="border-left: 4px solid {{ if eq .Status "firing" }}red{{ else }}green{{ end }}; padding: 8px; margin: 8px 0;">
+            <strong>{{ .Labels.alertname }}</strong> — {{ .Status }}<br>
+            {{ .Annotations.description }}
+          </div>
+          {{ end }}
+          <hr>
+          <p><small>来自 bot6 monitoring (szspd.cn)</small></p>
 
-inhibit_rules: []
+  - name: 'email-critical'
+    email_configs:
+      - to: 'admin@szspd.cn,oncall@szspd.cn'
+        send_resolved: true
+        headers:
+          Subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }} on {{ .CommonLabels.instance }}'
+        html: |
+          <h1 style="color:red;">🚨 {{ .GroupLabels.alertname }} (CRITICAL)</h1>
+          <p><strong>主机:</strong> {{ .CommonLabels.instance }}</p>
+          <p>{{ .CommonAnnotations.description }}</p>
+
+inhibit_rules:
+  # critical 抑制同名 warning（避免重复通知）
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']

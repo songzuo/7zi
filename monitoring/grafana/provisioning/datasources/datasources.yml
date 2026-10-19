@@ -1,5 +1,5 @@
-# Grafana Datasources Configuration for 7zi Platform v1.9.1
-# Updated: 2026-04-03
+# Grafana Datasources Configuration for 7zi Platform v1.9.1 (Loki 已停)
+# Updated: 2026-09-21
 
 apiVersion: 1
 
@@ -19,26 +19,5 @@ datasources:
       prometheusVersion: "2.48.0"
     version: 1
 
-  # Loki 数据源
-  - name: Loki
-    type: loki
-    access: proxy
-    url: http://loki:3100
-    editable: false
-    jsonData:
-      maxLines: 1000
-      derivedFields:
-        - name: 'TraceID'
-          matcherRegex: '"traceId":"(\w+)"'
-          url: '$${__value.raw}'
-    version: 1
-
-  # AlertManager 数据源
-  - name: AlertManager
-    type: alertmanager
-    access: proxy
-    url: http://alertmanager:9093
-    editable: false
-    jsonData:
-      implementation: prometheus
-    version: 1
+  # Loki 数据源已移除（2026-09-21 7zi-loki 已停）
+  # 如需恢复：原 datasources.yml.bak 已在 /root/b6_backup/nginx-20260921/
