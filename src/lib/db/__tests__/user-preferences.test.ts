@@ -43,13 +43,15 @@ interface MockDatabase {
   get: ReturnType<typeof vi.fn>
   pragma: ReturnType<typeof vi.fn>
   batch: ReturnType<typeof vi.fn>
-  beginTransaction: () => void
-  commit: () => void
-  rollback: () => void
-  isInTransaction: () => boolean
+  beginTransaction: ReturnType<typeof vi.fn>
+  commit: ReturnType<typeof vi.fn>
+  rollback: ReturnType<typeof vi.fn>
+  isInTransaction: ReturnType<typeof vi.fn>
 }
 describe('user-preferences', () => {
-  let mockDb: MockDatabase
+  // Use any to allow mock functions with vi.fn() methods
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mockDb: any
   beforeEach(() => {
     // Reset all mocks
     vi.clearAllMocks()

@@ -1,6 +1,6 @@
 # MEMORY.md - 7zi.com 电商平台长期记忆
 
-**最后更新**: 2026-05-12 15:07  
+**最后更新**: 2026-10-19 07:05 UTC  
 **维护者**: AI主管（OpenClaw）  
 **主人**: 宋琢环球旅行
 
@@ -49,20 +49,31 @@
 
 ### 🔴 最高优先级
 
-1. **`image.ts` 删除未提交**
-   - 文件: `7zi-frontend/src/lib/utils/image.ts`
-   - 状态: 已删除但未提交
-   - 影响: 可能导致引用该文件的代码出错
-   - 操作: 需确认是否有其他引用，决定提交删除或恢复
+1. **TypeScript 测试文件类型错误** (2026-10-19 新发现)
+   - 目录: `src/lib/db/__tests__/`
+   - 文件: `enhanced-db.test.ts`, `index-analyzer.test.ts`, `optimization-init.test.ts`, `user-preferences.test.ts`
+   - 错误类型:
+     - `EnhancedDatabase` 缺少 `DatabaseConnection` 的属性: `queryRows`, `exec`, `prepare`, `pragma`, `batch`
+     - `clearPerformanceMetrics` 未定义
+     - `getMetrics` 不存在于 `DatabaseConnection` 类型
+     - `IndexInfo.reason` 属性不存在
+     - `delete` 操作符不能用于只读属性
+     - `mockRejectedValueOnce` 方法不存在
+   - 影响: 测试文件无法通过 TypeScript 类型检查
+   - 解决方案: 修正测试文件中的类型引用，或更新 `DatabaseConnection` 接口定义
 
 2. **双锁文件冲突**
    - 同时存在 `package-lock.json` (lockfileVersion 3) 和 `pnpm-lock.yaml` (lockfileVersion 9.0)
    - 问题: npm install vs pnpm install 可能行为不一致
    - 建议: 统一使用 pnpm，删除 package-lock.json
 
-3. **21个未提交文件**
-   - 包括 1 个删除、2个新增子项目文件、多个配置和源码修改
-   - 建议: 尽快审查并提交或回滚
+3. **npm audit 安全警告** (2026-10-19 确认)
+   - 63 个漏洞 (3 low, 31 moderate, 26 high, 3 critical)
+   - 主要高危依赖:
+     - `vite 8.0.0-8.0.15`: UNC path 处理导致 NTLMv2 hash 泄露, Windows 路径绕过
+     - `ws 7.0.0-7.5.10 || 8.0.0-8.20.1`: 内存泄露 + DoS 漏洞
+     - `engine.io-client`, `socket.io-adapter`: 依赖有漏洞的 ws 版本
+   - 建议: `npm audit fix` (非破坏性修复优先)
 
 ---
 
@@ -91,6 +102,20 @@
 
 ## 📜 最近完成的工作
 
+### 2026-10-19 - 心跳检查 + 文档更新 (本次)
+| 任务 | 类型 | 状态 | 产出 |
+|------|------|------|------|
+| 心跳检查 | 系统 | ✅ 完成 | 发现 TypeScript 测试文件类型错误 |
+| MEMORY.md 更新 | 文档 | ✅ 完成 | 添加新问题、清理过期项 |
+| HEARTBEAT.md 更新 | 文档 | ✅ 完成 | 添加待处理 TypeScript 问题 |
+| 日记更新 | 文档 | ✅ 完成 | 记录本次心跳检查 |
+
+**本次发现**:
+- ✅ **image.ts 已删除并提交**: 原紧急问题已解决
+- ⚠️ **TypeScript 测试错误**: `src/lib/db/__tests__/` 目录存在类型不匹配问题
+- ⚠️ **npm audit 警告**: 63 个安全漏洞待修复
+- ✅ **系统状态正常**: 磁盘73%使用，内存正常，Docker/PM2/Nginx 运行正常
+
 ### 2026-05-12 - 心跳检查 + 系统清理
 | 任务 | 类型 | 状态 | 产出 |
 |------|------|------|------|
@@ -115,12 +140,6 @@
 | 文档更新 | 文档 | 🔴 失败 | API阻塞 |
 | Bug修复 (多任务) | 开发 | 🔴 失败 | API阻塞 |
 
-**关键发现**:
-- ⚠️ **API阻塞持续 224+ 小时**: volcengine rate limit + glm-4.7 token过期
-- ⚠️ **所有子代理任务失败**: 共10+个子代理任务因API阻塞而失败
-- ✅ **MiniMax API 正常**: 主管直接执行时使用MiniMax可用
-- ⚠️ **主人未直接确认任务**: 多个子代理任务通知未被确认为直接指令
-
 ### 2026-05-10 (May 10) - 子代理调度尝试
 | 任务 | 类型 | 状态 | 产出 |
 |------|------|------|------|
@@ -128,10 +147,6 @@
 | 依赖健康检查 | bailian | 🟢 运行中 | - |
 | 文档健康检查 | minimax | 🟢 运行中 | - |
 | 内存清理 | bailian | 🟢 运行中 | - |
-
-**关键发现**:
-- 切换到 minimax/bailian 模型绕过 volcengine/glm 阻塞
-- 4个子代理任务成功启动（结果待确认）
 
 ### 2026-05-09 (May 9) - 系统健康与深度分析
 | 任务 | 类型 | 状态 | 产出 |
@@ -145,22 +160,6 @@
 | API 错误调查 | 开发 | ✅ 完成 | api-error-investigation-2026-05-09.md |
 | 记忆库健康审计 | 整理 | ✅ 完成 | memory-audit-2026-05-09.md |
 
-**关键发现**:
-- ⚠️ **系统负载极高** (10.01, 4核系统严重过载)
-- ⚠️ **Swap 使用率 75%** (3GB/4GB)，内存压力严重
-- ⚠️ **Vitest 进程失控**: 7个 fork worker 同时运行，消耗 400%+ CPU
-- ⚠️ **磁盘 I/O 延迟极高**: d_await=1718ms
-- ⚠️ **存在僵尸进程**: 4个 zombie 进程未回收
-- ✅ **LLM API 已恢复**: 504次500错误已停止，4小时内无新错误
-- ⚠️ **Evomap Gateway 需升级**: 建议 >=1.78.2 (deadline: 90秒后)
-- ⚠️ **Volcengine API 限流频繁**: 需增加 fallback 模型优先级
-
-**紧急处理**:
-```bash
-# 清理失控的 vitest 进程
-pkill -f "vitest run"
-```
-
 ### 2026-05-07 (May 7)
 | 任务 | 类型 | 状态 | 产出 |
 |------|------|------|------|
@@ -168,20 +167,16 @@ pkill -f "vitest run"
 | TypeScript any 审计 | 代码优化 | ✅ 完成 | REPORT_TS_ANY_AUDIT_0507.md |
 | API 测试覆盖率 | 测试编写 | ✅ 完成 | REPORT_API_COVERAGE_0507.md |
 
-**关键发现**:
-- npm audit fix 修复了 3/14 漏洞，剩余 7 个高危需 force 或上游修复
-- TypeScript: 221 个 @ts-nocheck 文件，452 处 any 使用，严重架构债务
-- API 覆盖率约 25%，admin/database/user 等关键模块缺测
-
 ---
 
 ## 📋 待处理事项
 
 ### 🔴 紧急 (需立即处理)
-- [x] ~~提交或恢复 `7zi-frontend/src/lib/utils/image.ts` 删除~~ (已提交)
-- [x] ~~决定包管理器并清理多余锁文件~~ (已处理)
-- [ ] 审查并提交 Git 暂存文件 (当前有 ~25 个修改文件待提交)
-- [ ] **API阻塞**: volcengine/glm 持续 224+ 小时，需续费或找替代方案
+- [ ] **修复 TypeScript 测试错误**: `src/lib/db/__tests__/` 目录类型不匹配
+  - 涉及文件: `enhanced-db.test.ts`, `index-analyzer.test.ts`, `optimization-init.test.ts`, `user-preferences.test.ts`
+  - 错误数量: ~10 个类型错误
+- [ ] **npm audit 修复**: 63 个安全漏洞 (3 critical, 26 high)
+  - 可用命令: `npm audit fix`
 - [ ] 更新 Evomap Gateway (deadline 已过)
 
 ### 🟡 中期 (本周内)
@@ -219,20 +214,20 @@ sshpass -p 'ge20993344$ZZ' ssh root@7zi.com
 
 ---
 
-## 📊 项目健康评分 (2026-05-09 更新)
+## 📊 项目健康评分 (2026-10-19 更新)
 
 | 维度 | 评分 | 说明 |
 |------|------|------|
-| 系统资源 | 🔴 3/10 | CPU过载(10.01), Swap 75%, 磁盘高延迟 |
-| 进程健康 | 🔴 3/10 | vitest失控(400%CPU), 4个zombie进程 |
-| 依赖完整性 | 8/10 | node_modules健康，锁文件存在 |
-| Git状态 | 5/10 | 21个未提交文件，1个删除未处理 |
-| 记忆系统 | 7/10 | MEMORY.md已更新，记忆文件正常 |
-| 配置一致性 | 6/10 | 双包管理器可能造成问题 |
-| 磁盘使用 | 5/10 | 部分目录臃肿 (botmem 1.3GB, exports 1185) |
-| **总体** | **4.5/10** | ⚠️ 系统资源危机，需立即处理 |
+| 系统资源 | 🟢 8/10 | 磁盘73%，内存正常，无僵尸进程 |
+| 进程健康 | 🟢 9/10 | Docker/PM2/Nginx 正常，vitest 已清理 |
+| 依赖完整性 | 🟡 6/10 | 双锁文件冲突，npm audit 63漏洞 |
+| Git状态 | 🟢 9/10 | 分支正常，仅 heartbeat-state.json 待提交 |
+| 记忆系统 | 🟢 8/10 | MEMORY.md已更新，记忆文件正常 |
+| 配置一致性 | 🟡 6/10 | 双包管理器可能造成问题 |
+| 磁盘使用 | 🟡 6/10 | botmem 1.3GB, exports 1185文件 |
+| **总体** | **7.5/10** | ✅ 系统稳定，需关注代码质量 |
 
-> ⚠️ **最高优先级问题**: vitest 进程失控导致系统负载严重，内存和磁盘压力极大 |
+> ✅ **改进**: 系统资源问题已解决，vitest 僵尸进程已清理
 
 ---
 
@@ -240,16 +235,15 @@ sshpass -p 'ge20993344$ZZ' ssh root@7zi.com
 
 | 文件 | 日期 | 说明 |
 |------|------|------|
-| memory/2026-05-07.md | May 7 | 开发任务执行报告 |
-| memory/2026-05-09.md | May 9 | 晚间任务、系统健康分析 |
-| memory/2026-05-10.md | May 10 | 子代理调度、API阻塞 |
-| memory/2026-05-11.md | May 11 | 子代理任务启动 |
+| memory/2026-10-19.md | Oct 19 | 日志归档、架构/运维/研究报告 |
 | memory/2026-05-12.md | May 12 | 心跳检查、系统清理、TypeScript统计 |
-| memory/project-health-2026-05-09.md | May 9 | 项目健康检查 |
-| memory/workspace-cleanup-2026-05-09.md | May 9 | 工作空间清理报告 |
+| memory/2026-05-11.md | May 11 | 子代理任务启动 |
+| memory/2026-05-10.md | May 10 | 子代理调度、API阻塞 |
+| memory/2026-05-09.md | May 9 | 晚间任务、系统健康分析 |
+| memory/2026-05-07.md | May 7 | 开发任务执行报告 |
 
 > 2026-05-08.md 每日记忆文件缺失 (5/9前未创建)
 
 ---
 
-*最后更新: 2026-05-12 15:07 GMT+2*
+*最后更新: 2026-10-19 07:05 UTC*

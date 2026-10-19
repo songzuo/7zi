@@ -27,6 +27,7 @@ describe('Database Optimization Initialization', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Reset environment
+    // @ts-expect-error - NODE_ENV can be deleted in tests
     delete process.env.NODE_ENV
   })
   afterEach(() => {
@@ -91,6 +92,7 @@ describe('Database Optimization Initialization', () => {
     })
     it('should handle initialization errors', async () => {
       const { warmupCache } = await import('../cache')
+      // @ts-expect-error - mockRejectedValueOnce exists on vitest mock
       warmupCache.mockRejectedValueOnce(new Error('Cache warmup failed'))
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       await expect(initializeDatabaseOptimization()).rejects.toThrow()
@@ -102,6 +104,7 @@ describe('Database Optimization Initialization', () => {
     })
     it('should throw error when database connection fails', async () => {
       const { getDatabaseAsync } = await import('@/lib/db')
+      // @ts-expect-error - mockRejectedValueOnce exists on vitest mock
       getDatabaseAsync.mockRejectedValueOnce(new Error('DB connection failed'))
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       await expect(initializeDatabaseOptimization()).rejects.toThrow('DB connection failed')
@@ -109,6 +112,7 @@ describe('Database Optimization Initialization', () => {
     })
     it('should throw error when cache warmup fails', async () => {
       const { warmupCache } = await import('../cache')
+      // @ts-expect-error - mockRejectedValueOnce exists on vitest mock
       warmupCache.mockRejectedValueOnce(new Error('Warmup failed'))
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       await expect(initializeDatabaseOptimization()).rejects.toThrow('Warmup failed')

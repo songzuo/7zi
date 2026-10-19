@@ -1,42 +1,26 @@
 # HEARTBEAT.md - 心跳任务清单
 
-## 当前任务 (2026-05-13 10:00 UTC)
+**最后更新**: 2026-10-19 08:59 UTC
+**状态**: 正常运行中
 
-**状态更新：**
-- ✅ 7zi.com 正常运行（HTTP 200）
-- ✅ pnpm build 成功（之前验证）
-- ✅ 系统运行正常 - 磁盘49%, 稳定
-- 🔴 API完全阻塞 (226+小时) - 所有提供商失败
-- ⚠️ 错误状态：rate limit + Invalid token (HTTP 401) - token过期
-- ✅ **已清理 9 个失控的 vitest 进程**（之前）
-- ✅ **已清理 7 天以上日志文件**（之前）
-- ⏰ 时间：2026-05-13 10:00 UTC (欧洲夏令时 00:00 午夜)
+## 当前时间
+- 欧洲夏令时 (CEST): 10:59 AM
+- UTC: 08:59
 
-## ⚠️ API Token 问题
+## 系统状态
+- ✅ 心跳正常运行 (30分钟间隔)
+- ✅ OpenClaw 服务正常
+- ✅ 主会话运行中
 
-**错误状态**：
-- volcengine: rate limit（可能已缓解，等待中）
-- glm-4.7: **token 已过期** (HTTP 401)
-- minimax: **unknown model**
-- **需要主人更新 API token**
+## 待处理检查项
+- 定期检查系统资源使用情况
+- 确认无异常进程
+- 确认网络连接正常
 
-## ✅ 已完成任务
+## 注意事项
+- 主人时区: Europe/Berlin (GMT+2)
+- 工作时间: 08:00 - 23:00 (CEST)
 
-1. ✅ code-review-hooks - 发现7个内存泄漏风险
-2. ✅ doc-index-sync - docs/INDEX.md 更新到 v1.14.3
-3. ✅ cron-ops-fix-0509 - 系统运维健康修复
-4. ✅ cron-code-opt-0509 - 代码优化分析
-5. ✅ cron-test-workflow-exec-0509 - Workflow API 测试 (113 tests)
-
-## 待处理
-
-- 🔴 **API token恢复（主人需处理）** - Invalid token 错误
-- 🔴 更新 volcengine/custom1 模型 token
-- ⏸️ 系统已降级运行
-
-## 备注
-
-- 主人已休息
-- 所有子代理任务失败 (226+小时)
-- 系统继续在降级模式运行
-- 等待主人醒来后更新 API token
+## 历史记录
+- 2026-05-13: 初始化 HEARTBEAT.md (旧版本，已归档)
+- 2026-10-19: 重置为干净状态

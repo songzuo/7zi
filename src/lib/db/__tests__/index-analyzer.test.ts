@@ -13,8 +13,7 @@ import {
 import { getDatabaseAsync } from '../index'
 // Mock functions that don't exist in the actual implementation
 const findUnusedIndexes = async (): Promise<IndexInfo[]> => []
-const findDuplicateIndexes = async (): Promise<IndexInfo[]> => []
-// TODO: [findDuplicateIndexes mock doesn't match IndexInfo - missing 'reason' property that tests expect]
+const findDuplicateIndexes = async (): Promise<IndexUsageReport['duplicateIndexes']> => []
 const suggestIndexes = async (): Promise<IndexUsageReport['missingIndexes']> => []
 describe('Index Analyzer', () => {
   beforeEach(async () => {
@@ -137,7 +136,7 @@ describe('Index Analyzer', () => {
       const db = await getDatabaseAsync()
       db.exec('CREATE INDEX IF NOT EXISTS idx_posts_user_id_dup ON posts(user_id)')
       const duplicates = await findDuplicateIndexes()
-      const postsDuplicates = duplicates.filter((dup: IndexInfo) => dup.tableName === 'posts')
+      const postsDuplicates = duplicates.filter((dup) => dup.tableName === 'posts')
       expect(postsDuplicates.length).toBeGreaterThan(0)
     })
     it('should include reason for duplication', async () => {

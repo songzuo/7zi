@@ -4,13 +4,25 @@
 
 **下一代智能前端应用框架**
 
-[![Version](https://img.shields.io/badge/version-1.14.1-blue.svg)](https://github.com/7zi/7zi-frontend)
-[![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black.svg)](https://nextjs.org/)
+[![Version](https://img.shields.io/badge/version-1.14.2-blue.svg)](https://github.com/7zi/7zi-frontend)
+[![Next.js](https://img.shields.io/badge/Next.js-16.3.8-black.svg)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2.5-blue.svg)](https://react.dev/)
 [![Test Coverage](https://img.shields.io/badge/coverage-98%25-green.svg)](#测试)
 
 </div>
+
+---
+
+## 🕐 最近更新
+
+| 日期 | 更新内容 |
+|------|----------|
+| **2026-10-19** | 版本更新至 v1.14.2，Next.js 升级至 16.3.8 |
+
+---
+
+
 
 ---
 
