@@ -7,6 +7,32 @@
 
 ---
 
+## [1.14.4] - 2026-10-19
+
+### 🐛 Bug修复
+
+- **Server Action 部署不匹配错误**
+  - 清除 `.next/cache` 目录解决 Server Action ID 不匹配问题
+  - 添加 `server-actions.test.ts` 测试文件验证 Server Action 部署
+
+### 📦 依赖更新
+
+- **vite** 从 `8.0.12` 更新到 `8.3.4`
+  - 修复 UNC path 处理导致 NTLMv2 hash 泄露漏洞
+  - 修复 Windows 路径绕过问题
+  - 漏洞数从 63 个减少到 26 个
+
+### 🧪 测试
+
+- 新增 `rooms.route.test.ts` API 路由测试
+- 新增 `server-actions.test.ts` Server Action 部署测试
+
+### 🔧 维护
+
+- 更新 `ws` 依赖版本（`engine.io-client` 和 `socket.io-adapter` 现使用 `ws@8.21.3`）
+
+---
+
 ## [1.14.3] - 2026-05-10
 
 ### 🔍 代码质量分析

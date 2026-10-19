@@ -20,12 +20,14 @@ interface EnhancedDatabaseConfig {
 }
 
 // Mock functions
-const initializeEnhancedDatabase = async (config?: EnhancedDatabaseConfig) => {}
-const shutdownEnhancedDatabase = async () => {}
+// Track shutdown state for mock
+let isShutdown = false
+const initializeEnhancedDatabase = async (config?: EnhancedDatabaseConfig) => { isShutdown = false }
+const shutdownEnhancedDatabase = async () => { isShutdown = true }
 const getDatabaseHealth = async () => ({
   pool: {},
   performance: {},
-  initialized: true,
+  initialized: !isShutdown,
 })
 
 // Mock functions for performance monitoring (not part of EnhancedDatabase interface)
@@ -37,6 +39,7 @@ describe('Enhanced Database', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    isShutdown = false
   })
 
   afterEach(async () => {
