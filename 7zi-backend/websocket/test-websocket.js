@@ -1,0 +1,1 @@
+/root/.openclaw/workspace/server/test-websocket.js
