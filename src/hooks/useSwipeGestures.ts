@@ -4,7 +4,7 @@
 
 import { RefObject, useState, useRef, useCallback, useEffect } from 'react'
 
-interface UseSwipeGesturesOptions {
+export interface UseSwipeGesturesOptions {
   threshold?: number
   restraint?: number
   allowedTime?: number
@@ -14,7 +14,7 @@ interface UseSwipeGesturesOptions {
   onSwipeDown?: () => void
 }
 
-interface SwipeState {
+export interface SwipeState {
   isDragging: boolean
   startX: number
   startY: number

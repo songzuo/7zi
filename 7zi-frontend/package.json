@@ -2,6 +2,9 @@
   "name": "7zi-frontend",
   "version": "1.14.1",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "sideEffects": [
     "**/*.css",
     "**/*.scss",
@@ -184,7 +187,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint-plugin-storybook": "^10.3.5",
     "fake-indexeddb": "^6.2.5",
-    "jscpd": "^4.3.0",
+    "jscpd": "^5.4.1",
     "jsdom": "^24.1.3",
     "msw": "^2.13.2",
     "playwright": "^1.59.1",

@@ -80,7 +80,7 @@ function calculateDelay(attempt: number, config: Required<RetryConfig>): number 
  * @returns True if the error should be retried
  */
 function isRetryable(error: Error, config: Required<RetryConfig>, attempt: number): boolean {
-  // Check custom retry condition first
+  // Check custom retry condition first - if it says don't retry, respect that
   if (!config.shouldRetry(error, attempt)) {
     return false
   }

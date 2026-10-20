@@ -10,7 +10,6 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState, useMemo } from 'react'
 import { TaskBoardSearch } from '@/components/TaskBoardSearch'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Card } from '@/components/shared'
 import { TaskCardMobile } from '@/components/mobile/TaskCardMobile'
 import {

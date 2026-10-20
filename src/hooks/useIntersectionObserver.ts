@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 
-interface UseIntersectionObserverOptions {
+export interface UseIntersectionObserverOptions {
   threshold?: number | number[]
   rootMargin?: string
   triggerOnce?: boolean

@@ -1,7 +1,16 @@
+// LocalStorage Hooks
 export { useLocalStorage, useSessionStorage } from './useLocalStorage'
+
+// Fetch Hooks
 export { useFetch, useGitHub } from './useFetch'
+export type { UseFetchOptions } from './useFetch'
+
+// GitHub Data Hooks
 export { useGitHubData, getMockCommits, getMockStats, getMockIssues } from './useGitHubData'
+
+// Intersection Observer Hooks
 export { useIntersectionObserver, useAnimateOnView, useCountUp } from './useIntersectionObserver'
+export type { UseIntersectionObserverOptions } from './useIntersectionObserver'
 
 // 性能优化 Hooks
 export {
@@ -23,7 +32,6 @@ export {
   useMediaQuery,
   useSwipeGesture,
   useTouchTarget,
-  useLongPress,
   usePrefersReducedMotion,
   useBreakpoint,
   useResponsiveValue,
@@ -32,9 +40,37 @@ export {
 
 export type { Breakpoint, ScreenSize, SwipeGestureState, TouchTargetConfig } from './useResponsive'
 
-// Global Loading - 已迁移到 uiStore
-// 使用方法: import { useGlobalLoading, setGlobalLoading } from '@/stores/uiStore';
-// 注意: useGlobalLoading 现在从 uiStore 导出，不再需要 Provider
+// Batch Selection Hook
+export { useBatchSelection } from './useBatchSelection'
+export type { UseBatchSelectionOptions, UseBatchSelectionReturn } from './useBatchSelection'
+
+// Dashboard Data Hook
+export { useDashboardData } from './useDashboardData'
+export type { GitHubIssue, GitHubCommit, ActivityItem } from './useDashboardData'
+
+// Long Press Hooks
+export { useLongPress } from './useLongPress'
+export type { UseLongPressOptions } from './useLongPress'
+
+// Notifications Hook
+export { useNotifications } from './useNotifications'
+export type { NotificationInput, UseNotificationsOptions } from './useNotifications'
+
+// Swipe Gestures Hook
+export { useSwipeGestures } from './useSwipeGestures'
+export type { SwipeState } from './useSwipeGestures'
+
+// Theme Enhanced Hook
+export { useThemeEnhanced, useThemeSimple } from './useThemeEnhanced'
+
+// WebRTC Meeting Hook
+export { useWebRTCMeeting } from './useWebRTCMeeting'
+export type {
+  PeerConnection,
+  MeetingParticipant,
+  UseWebRTCMeetingOptions,
+  UseWebRTCMeetingReturn,
+} from './useWebRTCMeeting'
 
 // WebSocket Hooks
 export { useWebSocket, useTaskStatusUpdates } from './useWebSocket'
@@ -45,3 +81,7 @@ export type {
   WebSocketState,
   UseWebSocketReturn,
 } from './useWebSocket'
+
+// Workflow Draft Hook
+export { useWorkflowDraft } from './useWorkflowDraft'
+export type { UseWorkflowDraftOptions, UseWorkflowDraftReturn } from './useWorkflowDraft'

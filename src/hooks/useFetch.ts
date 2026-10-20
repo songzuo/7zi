@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
-interface UseFetchOptions<T = unknown> {
+export interface UseFetchOptions<T = unknown> {
   revalidateOnFocus?: boolean
   revalidateInterval?: number
   initialData?: T

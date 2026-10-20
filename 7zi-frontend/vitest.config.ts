@@ -25,9 +25,9 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
     fileParallelism: true,
 
-    // 🚀 测试超时
-    testTimeout: 60000,
-    hookTimeout: 30000,
+    // 🚀 测试超时 (优化: 60s → 12s)
+    testTimeout: 12000,
+    hookTimeout: 10000,
 
     // 重试失败的测试 (flaky test 保护)
     retry: 1,

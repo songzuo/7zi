@@ -15,7 +15,7 @@ import type {
 
 const STORAGE_KEY = '7zi_notifications'
 
-interface UseNotificationsOptions {
+export interface UseNotificationsOptions {
   maxNotifications?: number
   persist?: boolean
 }

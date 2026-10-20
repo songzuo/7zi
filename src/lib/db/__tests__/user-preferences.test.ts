@@ -1,4 +1,3 @@
-//  - Test file with complex type issues
 /**
  * User Preferences Database Module Tests
  */
@@ -24,30 +23,6 @@ vi.mock('../logger', () => ({
     error: vi.fn(),
   },
 }))
-/**
- * Mock statement interface
- */
-interface MockStatement {
-  run: ReturnType<typeof vi.fn>
-  get: ReturnType<typeof vi.fn>
-  all: ReturnType<typeof vi.fn>
-}
-/**
- * Mock database interface
- */
-interface MockDatabase {
-  exec: ReturnType<typeof vi.fn>
-  query: ReturnType<typeof vi.fn>
-  prepare: ReturnType<typeof vi.fn>
-  queryRows: ReturnType<typeof vi.fn>
-  get: ReturnType<typeof vi.fn>
-  pragma: ReturnType<typeof vi.fn>
-  batch: ReturnType<typeof vi.fn>
-  beginTransaction: ReturnType<typeof vi.fn>
-  commit: ReturnType<typeof vi.fn>
-  rollback: ReturnType<typeof vi.fn>
-  isInTransaction: ReturnType<typeof vi.fn>
-}
 describe('user-preferences', () => {
   // Use any to allow mock functions with vi.fn() methods
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

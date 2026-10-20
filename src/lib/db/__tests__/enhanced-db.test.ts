@@ -1,11 +1,7 @@
-//  - Test file uses API that doesn't match actual implementation
 /**
  * Enhanced Database Tests
  * 
- * Note: This test file was written for a different API than what EnhancedDatabase provides.
- * The actual EnhancedDatabase only has: query, run, close
- * Tests that rely on exec, prepare, batch, paginate, getSlowQueries, getMetrics are type-annotated
- * with @ts-expect-error since they test functionality not in the actual implementation.
+ * Tests the actual EnhancedDatabase API which provides: query, run, close
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { getEnhancedDatabase, type EnhancedDatabase } from '../enhanced-db'

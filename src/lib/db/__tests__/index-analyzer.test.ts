@@ -1,4 +1,3 @@
-//  - Test file uses API that doesn't match actual implementation
 /**
  * Index Analyzer Tests
  */
@@ -11,10 +10,6 @@ import {
   type IndexUsageReport,
 } from '../index-analyzer'
 import { getDatabaseAsync } from '../index'
-// Mock functions that don't exist in the actual implementation
-const findUnusedIndexes = async (): Promise<IndexInfo[]> => []
-const findDuplicateIndexes = async (): Promise<IndexUsageReport['duplicateIndexes']> => []
-const suggestIndexes = async (): Promise<IndexUsageReport['missingIndexes']> => []
 describe('Index Analyzer', () => {
   beforeEach(async () => {
     // Use in-memory database for tests
@@ -113,81 +108,6 @@ describe('Index Analyzer', () => {
       expect(Array.isArray(report.missingIndexes)).toBe(true)
     })
   })
-  describe('findUnusedIndexes', () => {
-    it('should find potentially unused indexes', async () => {
-      const unusedIndexes = await findUnusedIndexes()
-      expect(Array.isArray(unusedIndexes)).toBe(true)
-    })
-    it('should return IndexInfo objects', async () => {
-      const unusedIndexes = await findUnusedIndexes()
-      if (unusedIndexes.length > 0) {
-        expect(unusedIndexes[0]).toHaveProperty('tableName')
-        expect(unusedIndexes[0]).toHaveProperty('indexName')
-      }
-    })
-    it('should not include primary key indexes', async () => {
-      const unusedIndexes = await findUnusedIndexes()
-      const primaryIndexes = unusedIndexes.filter((idx: IndexInfo) => idx.isPrimary)
-      expect(primaryIndexes.length).toBe(0)
-    })
-  })
-  describe('findDuplicateIndexes', () => {
-    it('should find duplicate indexes on same column', async () => {
-      const db = await getDatabaseAsync()
-      db.exec('CREATE INDEX IF NOT EXISTS idx_posts_user_id_dup ON posts(user_id)')
-      const duplicates = await findDuplicateIndexes()
-      const postsDuplicates = duplicates.filter((dup) => dup.tableName === 'posts')
-      expect(postsDuplicates.length).toBeGreaterThan(0)
-    })
-    it('should include reason for duplication', async () => {
-      const db = await getDatabaseAsync()
-      db.exec('CREATE INDEX IF NOT EXISTS idx_posts_user_id_dup ON posts(user_id)')
-      const duplicates = await findDuplicateIndexes()
-      if (duplicates.length > 0) {
-        expect(duplicates[0]).toHaveProperty('reason')
-        expect(duplicates[0].reason.length).toBeGreaterThan(0)
-      }
-    })
-    it('should return empty array when no duplicates', async () => {
-      // Use a fresh database without duplicate indexes
-      const duplicates = await findDuplicateIndexes()
-      expect(Array.isArray(duplicates)).toBe(true)
-    })
-  })
-  describe('suggestIndexes', () => {
-    it('should suggest indexes for foreign keys', async () => {
-      const suggestions = await suggestIndexes()
-      expect(Array.isArray(suggestions)).toBe(true)
-    })
-    it('should include create SQL', async () => {
-      const suggestions = await suggestIndexes()
-      if (suggestions.length > 0) {
-        expect(suggestions[0]).toHaveProperty('createSql')
-        expect(suggestions[0].createSql).toContain('CREATE INDEX')
-      }
-    })
-    it('should include table name', async () => {
-      const suggestions = await suggestIndexes()
-      if (suggestions.length > 0) {
-        expect(suggestions[0]).toHaveProperty('tableName')
-        expect(typeof suggestions[0].tableName).toBe('string')
-      }
-    })
-    it('should include column names', async () => {
-      const suggestions = await suggestIndexes()
-      if (suggestions.length > 0) {
-        expect(suggestions[0]).toHaveProperty('columns')
-        expect(Array.isArray(suggestions[0].columns)).toBe(true)
-      }
-    })
-    it('should include reason', async () => {
-      const suggestions = await suggestIndexes()
-      if (suggestions.length > 0) {
-        expect(suggestions[0]).toHaveProperty('reason')
-        expect(suggestions[0].reason.length).toBeGreaterThan(0)
-      }
-    })
-  })
   describe('IndexInfo interface', () => {
     it('should have required properties', () => {
       const indexInfo: IndexInfo = {
@@ -256,8 +176,8 @@ describe('Index Analyzer', () => {
       expect(Array.isArray(report.duplicateIndexes)).toBe(true)
     })
     it('should suggest indexes and provide create SQL', async () => {
-      const suggestions = await suggestIndexes()
-      suggestions.forEach((suggestion: IndexUsageReport['missingIndexes'][number]) => {
+      const report = await analyzeIndexUsage()
+      report.missingIndexes.forEach((suggestion) => {
         expect(suggestion.tableName).toBeDefined()
         expect(suggestion.columns.length).toBeGreaterThan(0)
         expect(suggestion.reason.length).toBeGreaterThan(0)

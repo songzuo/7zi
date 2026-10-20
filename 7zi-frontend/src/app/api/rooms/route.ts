@@ -129,11 +129,17 @@ export const POST = withCSRF(async (request: NextRequest) => {
       return createBadRequestError('Room name is required')
     }
 
+    // Validate name is not empty after trimming (rejects whitespace-only strings)
+    const trimmedName = body.name.trim()
+    if (trimmedName.length === 0) {
+      return createBadRequestError('Room name cannot be empty')
+    }
+
     // Create room
     const room = roomStore.createRoom({
       ownerId: user.id,
       ownerName: user.name,
-      name: body.name.trim(),
+      name: trimmedName,
       description: body.description?.trim(),
       password: body.password,
       isPrivate: body.isPrivate,

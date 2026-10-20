@@ -4,7 +4,7 @@
 
 import { RefObject, useCallback, useRef, useState, useEffect } from 'react'
 
-interface UseLongPressOptions {
+export interface UseLongPressOptions {
   delay?: number
   threshold?: number // Max movement allowed (pixels)
   onLongPress?: (e: React.TouchEvent | React.MouseEvent) => void

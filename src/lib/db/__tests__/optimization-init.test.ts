@@ -27,8 +27,7 @@ describe('Database Optimization Initialization', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Reset environment
-    // @ts-expect-error - NODE_ENV can be deleted in tests
-    delete process.env.NODE_ENV
+    Reflect.deleteProperty(process.env, 'NODE_ENV')
   })
   afterEach(() => {
     // Clean up after tests

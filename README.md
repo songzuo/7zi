@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.14.1-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-1.14.4-blue.svg)](https://github.com/songzuo/7zi)
 [![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
 [![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?logo=next.js)](https://nextjs.org/)
@@ -60,7 +60,49 @@ pnpm dev
 
 ---
 
-## 🔥 最新进展 (v1.14.2 - Released 2026-05-07 | v1.14.1 - Released 2026-04-25 | v1.14.0 - Released 2026-04-11 | v1.13.2 - Released 2026-04-11)
+## 🔥 最新进展 (v1.14.4 - Released 2026-10-19 | v1.14.3 - Released 2026-05-10 | v1.14.2 - Released 2026-05-07 | v1.14.1 - Released 2026-04-25)
+
+### 🚀 v1.14.4 核心亮点 (2026-10-19) 🔒 安全修复 & 依赖更新
+
+| 功能模块                         | 完成度 | 状态      |
+| -------------------------------- | ------ | --------- |
+| **Server Action 部署修复**       | 100%   | ✅ 已完成 |
+| **vite 依赖更新**                | 100%   | ✅ 已完成 |
+| **ws 依赖版本更新**              | 100%   | ✅ 已完成 |
+| **新增 API 路由测试**             | 100%   | ✅ 已完成 |
+
+**核心改进**:
+
+- ✅ **Server Action 部署修复** - 清除 `.next/cache` 目录解决 Server Action ID 不匹配问题
+- ✅ **vite 更新** (8.0.12 → 8.3.4) - 修复 UNC path 处理导致 NTLMv2 hash 泄露漏洞，修复 Windows 路径绕过问题，漏洞数从 63 个减少到 26 个
+- ✅ **ws 依赖更新** - `engine.io-client` 和 `socket.io-adapter` 现使用 `ws@8.21.3`
+- ✅ **新增测试** - `rooms.route.test.ts` 和 `server-actions.test.ts`
+
+---
+
+### 🚀 v1.14.3 核心亮点 (2026-05-10) 📊 代码质量与性能分析
+
+| 功能模块                         | 完成度 | 状态      |
+| -------------------------------- | ------ | --------- |
+| **540 个 TypeScript 错误分析**   | 100%   | ✅ 已完成 |
+| **性能与安全分析**               | 100%   | ✅ 已完成 |
+| **测试覆盖率评估**               | 100%   | ✅ 已完成 |
+| **技术债务追踪**                 | 100%   | ✅ 已完成 |
+
+**核心改进**:
+
+- ✅ **深度代码质量审查** - 完成 REPORT_CODE_QUALITY_DEEP_0509.md，发现 540 个 TypeScript 错误
+- ✅ **安全漏洞修复** - `serialize-javascript` RCE 漏洞已修复，`xlsx` ReDoS + Prototype Pollution 漏洞已修复
+- ✅ **测试策略文档更新** - 新增 `data-converter.test.ts` (70 测试用例) 和 `helpers.test.ts` (40 测试用例)
+- ✅ **TypeScript 问题追踪** - 创建 docs/TYPE_SCRIPT_ISSUES.md 和 docs/TEST_STRATEGY.md
+
+**已知技术债务**:
+
+- `lib/db/index.ts` 与 `index-unified.ts` 重复待合并
+- `filterStore.ts` 跨 Store 直接调用需重构
+- 50+ TODO/FIXME 遗留待处理
+
+---
 
 ### 🚀 v1.14.0 核心亮点 (2026-04-11) 🚀 Next.js 16 & React 19
 
@@ -820,6 +862,11 @@ EMAIL_ALERTING_ENABLED=true
 
 | 版本       | 日期       | 主要更新                                                                                                                                                                |
 | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **v1.14.4** | 2026-10-19 | 🔒 Server Action 部署修复、vite 依赖更新 (8.0.12→8.3.4 修复安全漏洞)、ws 依赖更新、新增 API 路由测试                                                            |
+| **v1.14.3** | 2026-05-10 | 📊 代码质量深度审查 (540 TypeScript 错误分析)、安全漏洞修复 (serialize-javascript RCE, xlsx ReDoS)、测试策略文档更新                                                    |
+| **v1.14.2** | 2026-05-07 | 🔧 TypeScript P0 错误修复、Turbopack 生产构建配置启用、auth 路由重复文件清理、README v1.14.0 版本同步                                                                    |
+| **v1.14.1** | 2026-04-17 | 🔒 serialize-javascript RCE 漏洞修复、xlsx ReDoS + Prototype Pollution 漏洞修复、Next.js 15 async params 迁移、Jest→Vitest 迁移完成                                      |
+| **v1.14.0** | 2026-04-11 | 🚀 Next.js 16.2 升级、React 19.2 优化、React Compiler 配置、PWA 离线能力增强、Dark Mode 完善、API 安全仪表盘、Cursor Sync 实时协作、SEO 优化                                |
 | **v1.13.0** | 2027-04-15 | 🚀 音频处理能力 (STT/会议摘要)、📱 移动端深度优化 (60fps/离线能力)、🤖 AI 对话系统增强 (多轮对话/意图理解/情感分析)、📚 知识库 RAG 系统、📊 企业级报表系统 |
 | **v1.12.2** | 2026-04-04 | 🤖 Workspace 自动化工作流系统、🔍 Advanced Search 高级搜索、🤝 Realtime Collaboration Sync 优化、📜 Workflow Versioning 实现、📊 Audit Logging 增强、🚦 Rate Limit Middleware 完善、💾 Draft Storage 修复、🔌 Webhook Event System、🧹 TypeScript 类型安全提升 |
 | **v1.12.1** | 2026-04-04 | 🐛 Post-v1.12.0 Bug Fixes & UX Enhancements - WebSocket bundle 优化、ErrorBoundary 修复、Workflow Editor UX 增强、监控聚合器、告警通道增强 (SMS/Webhook) |

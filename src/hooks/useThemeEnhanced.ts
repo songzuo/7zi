@@ -17,7 +17,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Theme } from '@/stores/preferencesStore'
 import { useTheme as useThemeFromStore } from '@/stores/preferencesStore'
 
-interface UseThemeEnhancedReturn {
+export interface UseThemeEnhancedReturn {
   /** Current theme value */
   theme: Theme
   /** Whether dark mode is currently active */

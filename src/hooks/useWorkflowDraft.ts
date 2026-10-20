@@ -22,7 +22,7 @@ import {
 /**
  * Hook 配置
  */
-interface UseWorkflowDraftOptions {
+export interface UseWorkflowDraftOptions {
   /** 自动保存间隔（毫秒），默认 30000 (30秒) */
   autoSaveInterval?: number
   /** 是否启用自动保存，默认 true */
@@ -38,7 +38,7 @@ interface UseWorkflowDraftOptions {
 /**
  * Hook 返回值
  */
-interface UseWorkflowDraftReturn {
+export interface UseWorkflowDraftReturn {
   /** 当前草稿 */
   currentDraft: WorkflowDraft | null
   /** 所有草稿元数据 */
