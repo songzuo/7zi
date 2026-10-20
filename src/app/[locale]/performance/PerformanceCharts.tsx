@@ -66,7 +66,7 @@ function PerformanceChartsComponent({
           />
           <YAxis stroke="currentColor" className="fill-gray-600 text-xs dark:fill-gray-400" />
           <Tooltip
-            labelFormatter={value => new Date(value).toLocaleString()}
+            labelFormatter={value => new Date(value as string | number).toLocaleString()}
             formatter={value => {
               const numValue =
                 typeof value === 'number'

@@ -6,9 +6,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { withRetry, RetryPresets, getRetryInfo, type RetryConfig } from '@/lib/api/retry-decorator'
 
-// Set test timeout
-const TEST_TIMEOUT = 15000
-
 // Mock logger
 vi.mock('@/lib/logger', () => ({
   logger: {

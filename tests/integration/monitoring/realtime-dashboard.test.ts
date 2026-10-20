@@ -75,8 +75,6 @@ function createClientSocket(port: number, timeoutMs = 5000): Promise<ClientSocke
 // when tests run in parallel. The realTimeDashboard/enhancedMetricsCollector/alertManager
 // singletons are not properly isolated between tests. Run with: -t "test name" to test individually.
 describe.skip('Real-Time Performance Dashboard', () => {
-  // Set test timeout to prevent hanging
-  const TEST_TIMEOUT = 10000
 
   beforeEach(async () => {
     // Clean up any existing state first

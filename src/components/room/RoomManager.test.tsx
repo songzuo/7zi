@@ -106,11 +106,9 @@ vi.mock('./RoomSettings', () => ({
 // ============================================================================
 
 describe('RoomManager', () => {
-  // Set test timeout to prevent hanging tests
-  const TEST_TIMEOUT = 10000
-
   beforeEach(() => {
     vi.clearAllMocks()
+    // Use fake timers WITHOUT shouldAdvanceTime to prevent infinite loops
     vi.useFakeTimers()
 
     // Reset store state - clear all state and mocks

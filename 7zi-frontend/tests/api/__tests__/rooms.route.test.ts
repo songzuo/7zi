@@ -308,10 +308,8 @@ describe('Rooms API Route', () => {
       expect(data.success).toBe(false)
     })
 
-    it('should handle room creation with whitespace-only name (trims to empty)', async () => {
-      // Note: The current implementation trims the name after validation,
-      // so whitespace-only names pass validation but create rooms with empty names.
-      // This test documents current behavior; ideally validation should reject whitespace.
+    it('should reject room creation with whitespace-only name', async () => {
+      // Implementation correctly trims whitespace and validates name is not empty
       const { POST } = await import('@/app/api/rooms/route')
       
       const request = new NextRequest('http://localhost/api/rooms', {
@@ -327,9 +325,11 @@ describe('Rooms API Route', () => {
       })
 
       const response = await POST(request)
-      // Current behavior: passes validation, creates room with empty trimmed name
-      // Expected fix: validation should trim first and reject empty names
-      expect(response.status).toBe(201)
+      const data = await response.json()
+
+      // Validation correctly rejects whitespace-only names
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
     })
   })
 

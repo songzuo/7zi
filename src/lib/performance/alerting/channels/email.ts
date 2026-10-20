@@ -3,7 +3,7 @@
  * Sends performance alerts via email
  */
 
-import nodemailer, { Transporter } from 'nodemailer'
+import nodemailer, { Transporter, type SendMailOptions } from 'nodemailer'
 import {
   formatEmailAlert,
   formatTimestamp,
@@ -127,7 +127,7 @@ export class EmailChannel {
     )
 
     // Build email options
-    const mailOptions: nodemailer.SendMailOptions = {
+    const mailOptions: SendMailOptions = {
       from: this.defaultConfig.from,
       to: recipients.join(', '),
       cc: cc.length > 0 ? cc.join(', ') : undefined,
