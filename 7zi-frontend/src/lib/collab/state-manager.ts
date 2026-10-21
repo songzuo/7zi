@@ -11,7 +11,7 @@
  * @version 1.12.3
  */
 
-import type { CollabUser } from '@/features/collab/types'
+import type { CollabUser, CursorPosition } from '@/features/collab/types'
 import { logger } from '@/lib/logger'
 import { generateSecureId } from '@/lib/utils'
 

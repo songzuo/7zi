@@ -20,7 +20,7 @@
  */
 
 import { getEvomapGateway, type EvomapGateway } from './gateway'
-import { ErrorMonitor } from './error-monitor'
+import { ErrorMonitor, createGlobalErrorMonitor } from './error-monitor'
 import type { PublishResult } from './types'
 
 export interface EvomapErrorHandlingConfig {

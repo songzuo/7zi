@@ -18,6 +18,7 @@ import {
   isAndroid,
   isOnline,
   listenNetworkStatus,
+  type SWMessage,
 } from '@/lib/pwa/utils'
 
 export interface PWAState {

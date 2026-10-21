@@ -5,7 +5,7 @@
  * 支持语法高亮的表达式编辑器
  */
 
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 
 interface ExpressionEditorProps {
   value: string

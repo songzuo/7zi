@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {
   enhancedNotificationService,
+  UserNotificationPreferences,
   NotificationPriority,
 } from '@/lib/services/notification-enhanced'
 import {

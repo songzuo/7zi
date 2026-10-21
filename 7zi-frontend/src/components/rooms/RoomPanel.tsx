@@ -14,7 +14,7 @@
 
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useRoomStore } from '@/stores/room-store'
@@ -125,7 +125,7 @@ export function RoomPanel({
     e.preventDefault()
 
     try {
-      // B/C 类 (暂缓): 待后端 PATCH /api/rooms/:id 实现后接入。
+      // TODO: Replace with actual API call
       const response = await fetch(`/api/rooms/${room.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -144,7 +144,7 @@ export function RoomPanel({
   // Change member role handler
   const handleChangeRole = async (memberId: string, newRole: RoomMemberRole) => {
     try {
-      // B/C 类 (暂缓): 待后端 PATCH /api/rooms/:id/members/:memberId/role 实现后接入。
+      // TODO: Replace with actual API call
       const response = await fetch(`/api/rooms/${room.id}/members/${memberId}/role`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -166,7 +166,7 @@ export function RoomPanel({
     if (!confirm(t('kickConfirm'))) return
 
     try {
-      // B/C 类 (暂缓): 待后端 DELETE /api/rooms/:id/members/:memberId 实现后接入。
+      // TODO: Replace with actual API call
       const response = await fetch(`/api/rooms/${room.id}/members/${memberId}`, {
         method: 'DELETE',
       })

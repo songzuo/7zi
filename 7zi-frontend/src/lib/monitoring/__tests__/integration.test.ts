@@ -14,18 +14,13 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-/**
- * P0-3 安全修复：nodemailer 已迁移到服务端路由 `/api/email`，
- * 客户端不再 import nodemailer，因此这里 mock 的是 global fetch。
- */
-const jsonResponse = (body: unknown, status = 200): Response =>
-  ({
-    ok: status >= 200 && status < 300,
-    status,
-    json: async () => body,
-  }) as unknown as Response
-
-let fetchMock: ReturnType<typeof vi.fn>
+// Mock nodemailer before importing
+vi.mock('nodemailer', () => ({
+  createTransport: vi.fn(() => ({
+    sendMail: vi.fn().mockResolvedValue({ messageId: 'test-id' }),
+    verify: vi.fn().mockResolvedValue(true),
+  })),
+}))
 
 import {
   AlertEngine,
@@ -133,15 +128,6 @@ describe('Alerting System Integration Tests', () => {
   let slackChannel: SlackAlertChannel
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    fetchMock = vi.fn().mockResolvedValue(
-      jsonResponse({
-        success: true,
-        data: { messageId: 'test-id', accepted: [], rejected: [] },
-      })
-    )
-    vi.stubGlobal('fetch', fetchMock)
-
     // Create fresh engine
     engine = new AlertEngine({
       enabled: true,
@@ -206,8 +192,6 @@ describe('Alerting System Integration Tests', () => {
     mockSlack.clear()
     mockEmail.clear()
     vi.clearAllTimers()
-    vi.unstubAllGlobals()
-    vi.restoreAllMocks()
   })
 
   // ========================================================================

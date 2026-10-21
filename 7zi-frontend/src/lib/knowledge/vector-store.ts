@@ -34,7 +34,7 @@ export interface IVectorStore {
   search(
     queryEmbedding: number[],
     topK: number,
-    filters?: Record<string, unknown>
+    filters?: Record<string, any>
   ): Promise<VectorSearchResult[]>;
 
   /**
@@ -43,7 +43,7 @@ export interface IVectorStore {
   batchSearch(
     queryEmbeddings: number[][],
     topK: number,
-    filters?: Record<string, unknown>
+    filters?: Record<string, any>
   ): Promise<VectorSearchResult[][]>;
 
   /**
@@ -65,52 +65,10 @@ export interface IVectorStore {
 /**
  * Weaviate 向量存储实现
  */
-/**
- * Weaviate 过滤器操作符
- */
-type FilterOperator = 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains' | 'in';
-
-/**
- * 复合过滤条件
- */
-interface FilterCondition {
-  op: FilterOperator;
-  value: string | number;
-}
-
-/**
- * Weaviate where 过滤片段
- */
-interface WeaviateWhereFilter {
-  path?: string[];
-  operator: string;
-  valueNumber?: number;
-  valueString?: string;
-  operands?: WeaviateWhereFilter[];
-}
-
-function isFilterOperator(value: unknown): value is FilterCondition {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'op' in value &&
-    'value' in value
-  );
-}
-
-/**
- * Weaviate 客户端（第三方 SDK 无官方类型，定义最小必要接口）
- */
-interface WeaviateClient {
-  collections?: { get: (name: string) => unknown };
-  schema?: { classCreator?: unknown };
-  [key: string]: unknown;
-}
-
 export class WeaviateVectorStore implements IVectorStore {
   private config: VectorStoreConfig;
   private initialized: boolean = false;
-  private client: WeaviateClient | null = null;
+  private client: any = null;
 
   constructor(config: VectorStoreConfig) {
     this.config = {
@@ -205,7 +163,7 @@ export class WeaviateVectorStore implements IVectorStore {
   async search(
     queryEmbedding: number[],
     topK: number,
-    filters?: Record<string, unknown>
+    filters?: Record<string, any>
   ): Promise<VectorSearchResult[]> {
     if (!this.initialized) await this.initialize();
 
@@ -249,7 +207,7 @@ export class WeaviateVectorStore implements IVectorStore {
   async batchSearch(
     queryEmbeddings: number[][],
     topK: number,
-    filters?: Record<string, unknown>
+    filters?: Record<string, any>
   ): Promise<VectorSearchResult[][]> {
     const results: VectorSearchResult[][] = [];
 
@@ -337,7 +295,7 @@ export class WeaviateVectorStore implements IVectorStore {
     }
   }
 
-  private buildWhereFilter(filters: Record<string, unknown>): WeaviateWhereFilter {
+  private buildWhereFilter(filters: Record<string, any>): any {
     const operators: Record<string, string> = {
       eq: 'Equal',
       ne: 'NotEqual',
@@ -350,10 +308,10 @@ export class WeaviateVectorStore implements IVectorStore {
     };
 
     // 简单的过滤器构建
-    const conditions: WeaviateWhereFilter[] = [];
+    const conditions: any[] = [];
 
     for (const [key, value] of Object.entries(filters)) {
-      if (isFilterOperator(value)) {
+      if (typeof value === 'object' && value.op && value.value) {
         conditions.push({
           path: [key],
           operator: operators[value.op] || 'Equal',
@@ -407,7 +365,7 @@ export class LocalVectorStore implements IVectorStore {
   async search(
     queryEmbedding: number[],
     topK: number,
-    filters?: Record<string, unknown>
+    filters?: Record<string, any>
   ): Promise<VectorSearchResult[]> {
     const results: VectorSearchResult[] = [];
 
@@ -445,7 +403,7 @@ export class LocalVectorStore implements IVectorStore {
   async batchSearch(
     queryEmbeddings: number[][],
     topK: number,
-    filters?: Record<string, unknown>
+    filters?: Record<string, any>
   ): Promise<VectorSearchResult[][]> {
     const results: VectorSearchResult[][] = [];
 

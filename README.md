@@ -22,6 +22,9 @@
 | **[docs/INDEX.md](./docs/INDEX.md)** | 完整文档索引 |
 | **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | 部署指南 |
 | **[docs/DEVELOPER_GUIDE.md](./docs/DEVELOPER_GUIDE.md)** | 开发指南 |
+| **[docs/BACKEND_TESTING_GUIDE.md](./docs/BACKEND_TESTING_GUIDE.md)** | 后端 Jest 测试指南（websocket / workflow-engine） |
+| **[docs/TYPE_ERROR_REMEDIATION_PLAYBOOK.md](./docs/TYPE_ERROR_REMEDIATION_PLAYBOOK.md)** | TypeScript 错误治理手册（错误分类法 / 标准修法 / 硬门槛工作流） |
+| **[API_EMAIL_ROUTE.md](./API_EMAIL_ROUTE.md)** | 邮件 API 路由契约（`/api/email`） |
 | **[CHANGELOG.md](./CHANGELOG.md)** | 版本变更日志 |
 
 ---
@@ -862,6 +865,7 @@ EMAIL_ALERTING_ENABLED=true
 
 | 版本       | 日期       | 主要更新                                                                                                                                                                |
 | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **未发布** | 2026-10-21 | 🔒 P0-3 nodemailer 服务端化（`/api/email`）、🏗️ 后端目录整合（`7zi-backend/`）+ websocket/workflow 服务独立化、🧪 后端 Jest 测试 111 用例全绿（WS 行覆盖率 95.2%）、🔍 依赖/TODO 审计、🔧 前端 TS 错误治理 |
 | **v1.14.4** | 2026-10-19 | 🔒 Server Action 部署修复、vite 依赖更新 (8.0.12→8.3.4 修复安全漏洞)、ws 依赖更新、新增 API 路由测试                                                            |
 | **v1.14.3** | 2026-05-10 | 📊 代码质量深度审查 (540 TypeScript 错误分析)、安全漏洞修复 (serialize-javascript RCE, xlsx ReDoS)、测试策略文档更新                                                    |
 | **v1.14.2** | 2026-05-07 | 🔧 TypeScript P0 错误修复、Turbopack 生产构建配置启用、auth 路由重复文件清理、README v1.14.0 版本同步                                                                    |
@@ -1400,7 +1404,7 @@ pnpm type-check
 - **测试场景**: 正常流程、错误处理、边界条件、安全测试
 - **E2E 测试**: 关键流程自动化测试
 
-### 运行测试
+### 运行测试（前端 / Vitest）
 
 ```bash
 # 运行所有测试 (监视模式)
@@ -1415,6 +1419,114 @@ npm run test:coverage
 # E2E 测试
 npm run test:e2e
 ```
+
+### 运行测试（后端 / Jest）
+
+后端服务位于 `7zi-backend/`，使用 Jest 独立于前端的 Vitest：
+
+```bash
+# 进入后端目录
+cd 7zi-backend
+
+# 运行全部后端测试（websocket + workflow-engine）
+npm run test
+
+# 等价写法（直接调用 Jest）
+npx jest
+
+# 仅 WebSocket 服务（110 个用例，行覆盖率 95.2%）
+npm run test:websocket
+
+# 仅工作流引擎
+npm run test:workflow
+
+# 覆盖率报告（输出到 7zi-backend/coverage/）
+npx jest websocket/ --coverage
+```
+
+> 覆盖率阈值：**lines ≥ 60%**（`coverageThreshold.global.lines`）。
+> 详见 [`docs/BACKEND_TESTING_GUIDE.md`](./docs/BACKEND_TESTING_GUIDE.md)。
+
+---
+
+## 🖥️ 后端服务
+
+后端已整合为独立 monorepo `7zi-backend/`，与前端 `7zi-frontend/` 并列。
+
+### 目录结构
+
+```
+7zi-backend/
+├── package.json           # 统一依赖管理 + npm scripts
+├── bin/                   # 启动脚本
+│   ├── start-websocket.sh
+│   ├── start-workflow.sh
+│   └── start-all.sh
+├── websocket/             # WebSocket 服务 (Socket.IO, 端口 3010)
+│   ├── websocket-server.js  # 组合根 / 进程入口
+│   ├── lib/                 # 可测的纯逻辑模块
+│   │   ├── config.js
+│   │   ├── jwt-secret.js
+│   │   ├── room-manager.js
+│   │   ├── auth.js
+│   │   ├── handlers.js
+│   │   └── server.js
+│   └── __tests__/           # Jest 测试（10 个文件 / 111 用例）
+├── websocket-service/     # WebSocket 独立服务（Docker，提交 c95d8af04）
+│   ├── package.json       # 独立依赖
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── src/
+│   │   ├── index.js       # 服务入口
+│   │   └── lib/jwt-secret.js  # JWT secret 校验（生产缺失即致命退出）
+│   └── test/              # unit / integration / jwt-secret 测试
+├── workflow-engine/       # 工作流引擎 (Express, 端口 3011)
+│   ├── server.js
+│   ├── src/
+│   ├── jest.config.js
+│   └── __tests__/
+└── workflow-service/      # 工作流独立服务（Docker，提交 c95d8af04）
+    ├── package.json       # 独立依赖
+    ├── Dockerfile
+    ├── README.md
+    ├── bin/start-workflow-service.sh
+    ├── src/
+    │   ├── index.js
+    │   └── engine/        # WorkflowEngine + executors
+    └── test/              # engine / http 测试
+```
+
+> `websocket-service/` 与 `workflow-service/` 为可独立构建、独立 Docker 部署的服务目录
+> （提交 `c95d8af04`），与上层的 `websocket/` / `workflow-engine/` 库代码分离。
+
+### 启动服务
+
+```bash
+cd 7zi-backend
+
+# 同时启动两个服务（生产）
+npm start          # 等价于 ./bin/start-all.sh
+
+# 仅 WebSocket 服务（WS_PORT，默认 3010）
+npm run start:websocket
+
+# 仅工作流引擎（WF_PORT，默认 3011）
+npm run start:workflow
+
+# 开发模式（nodemon 热重载）
+npm run dev
+```
+
+### 端口分配
+
+| 服务 | 默认端口 | 环境变量 |
+|------|---------|---------|
+| WebSocket | 3010 | `WS_PORT` |
+| Workflow Engine | 3011 | `WF_PORT` |
+| 7zi-frontend | 3000 | — |
+
+> 整合前两个后端服务均默认 `3001`，端口冲突已解决。
+> 迁移映射表见 [`ARCH_BACKEND_CONSOLIDATION_20261021.md`](./ARCH_BACKEND_CONSOLIDATION_20261021.md)。
 
 ---
 
@@ -1483,7 +1595,7 @@ vercel --prod
 - **📡 API 文档** - 完整 API 参考、端点列表、REST 规范
 - **🏗️ 部署指南** - Docker、Vercel、CI/CD 配置
 - **🔐 配置文档** - 环境变量、GCP/GitHub/Gmail 集成
-- **🧪 测试文档** - 测试指南、覆盖率报告
+- **🧪 测试文档** - 测试指南、覆盖率报告、[后端测试指南](./docs/BACKEND_TESTING_GUIDE.md)
 - **📊 监控性能** - 监控系统、性能优化、Web Vitals
 - **🔒 安全文档** - 错误处理、权限系统、安全审计
 

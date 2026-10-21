@@ -10,7 +10,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNotifications } from '@/hooks/useNotifications'
 import NotificationCenter from '@/components/notifications/NotificationCenter'
 import { NotificationType, NotificationPriority } from '@/lib/services/notification'

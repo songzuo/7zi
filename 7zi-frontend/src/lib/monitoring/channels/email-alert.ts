@@ -397,7 +397,7 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
       logger.error(`[EmailAlert] Connection test failed: ${result.error || 'unknown error'}`)
       return false
     } catch (error) {
-      logger.error('[EmailAlert] Connection test failed:', error)
+      logger.error('[EmailAlert] Connection test failed:', error instanceof Error ? error : new Error(String(error)))
       return false
     }
   }

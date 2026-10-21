@@ -8,7 +8,7 @@
  * 使用新的模板系统，提供可视化的模板选择界面
  */
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useWorkflowTemplate } from '../../hooks/useWorkflowTemplate'
 import type { Template, TemplateCategory } from '../../lib/workflow/template-system'
 
@@ -272,6 +272,7 @@ export function WorkflowTemplateSelector({
     filteredTemplates,
     loading,
     error,
+    selectedCategory,
     searchQuery,
     selectCategory,
     searchTemplates,

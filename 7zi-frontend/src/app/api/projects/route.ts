@@ -13,6 +13,7 @@ import {
   ResourceType,
   ActionType,
   PermissionDeniedError,
+  Permissions,
   PermissionContext,
   canAccessResource,
 } from '@/lib/permissions'
@@ -23,6 +24,7 @@ import {
   createForbiddenError,
   createNotFoundError,
   createErrorResponse,
+  ErrorType,
 } from '@/lib/api/error-handler'
 import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
 import { withCSRF } from '@/lib/middleware/csrf'
@@ -243,8 +245,6 @@ class ProjectController {
    * 更新项目 - 需要 project:update 权限，并且必须是项目所有者或管理员
    */
   async updateProject(ctx: ApiContext, projectId: string, updates: unknown): Promise<NextResponse> {
-    const { user } = ctx
-
     const project = projects[projectId]
     if (!project) {
       return createNotFoundError('Project not found')
@@ -303,8 +303,6 @@ class ProjectController {
    * 删除项目 - 需要 project:delete 权限，并且必须是项目所有者或管理员
    */
   async deleteProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    const { user } = ctx
-
     const project = projects[projectId]
     if (!project) {
       return createNotFoundError('Project not found')
@@ -356,8 +354,6 @@ class ProjectController {
    */
   @RequireRoleLevel(60)
   async manageProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    
-
     const project = projects[projectId]
     if (!project) {
       return createNotFoundError('Project not found')
@@ -374,8 +370,6 @@ class ProjectController {
    */
   @RequirePermission(ResourceType.DATA, ActionType.EXPORT)
   async exportProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    
-
     const project = projects[projectId]
     if (!project) {
       return createNotFoundError('Project not found')
@@ -388,8 +382,6 @@ class ProjectController {
    * 获取单个项目 - 需要 project:read 权限
    */
   async getProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    const { user } = ctx
-
     const project = projects[projectId]
     if (!project) {
       return createNotFoundError('Project not found')

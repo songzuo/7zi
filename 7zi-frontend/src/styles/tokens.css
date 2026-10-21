@@ -157,81 +157,81 @@
   --color-code-text: #1f2937;
 }
 
-/* 暗色主题 - v1.14.2+ 20261021: 对齐 DARK_MODE_DESIGN_20261021.md 设计文档 */
+/* 暗色主题 - v1.14.2: 修复主色调倒置问题，对齐设计文档 */
 .dark {
-  /* 主色调 - 与设计文档一致 */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  /* 主色调 - 调整为更适合暗色背景的颜色（从浅到深） */
+  --color-primary-50: #eff6ff;   /* 最浅：浅蓝背景 */
+  --color-primary-100: #dbeafe;  /* 次浅：边框/标签背景 */
+  --color-primary-200: #bfdbfe;  /* 禁用状态 */
+  --color-primary-300: #93c5fd;  /* 链接悬浮 */
+  --color-primary-400: #60a5fa;  /* 主悬浮色 */
+  --color-primary-500: #3b82f6;  /* 标准主色 */
+  --color-primary-600: #2563eb;  /* 按下状态 */
+  --color-primary-700: #1d4ed8;  /* 激活状态 */
+  --color-primary-800: #1e40af;  /* 深色强调 */
+  --color-primary-900: #1e3a8a;  /* 最深强调 */
 
-  /* 灰色系 - 暗色背景下的文本层级 */
-  --color-gray-50: #0a0e1a;   /* 主背景 - 深邃蓝黑 */
-  --color-gray-100: #111827;   /* 次级背景 - slate-900 */
-  --color-gray-200: #1e293b;   /* 三级背景 - 卡片/面板 */
-  --color-gray-300: #334155;   /* 边框色 */
-  --color-gray-400: #475569;   /* 辅助文本 */
-  --color-gray-500: #64748b;   /* 次要文本 */
-  --color-gray-600: #94a3b8;   /* 主要文本 */
-  --color-gray-700: #cbd5e1;   /* 重要文本 */
-  --color-gray-800: #e2e8f0;   /* 高亮文本 */
-  --color-gray-900: #f8fafc;   /* 最亮文本 */
+  /* 灰色系 - 反转，使暗色模式下文本更清晰 */
+  --color-gray-50: #0f172a; /* 最深背景 */
+  --color-gray-100: #1e293b; /* 次深背景 */
+  --color-gray-200: #334155; /* 边框/分割线 */
+  --color-gray-300: #475569; /* 辅助文本 */
+  --color-gray-400: #64748b; /* 次要文本 */
+  --color-gray-500: #94a3b8; /* 占位符文本 */
+  --color-gray-600: #cbd5e1; /* 一般文本 */
+  --color-gray-700: #e2e8f0; /* 重要文本 */
+  --color-gray-800: #f1f5f9; /* 高亮文本 */
+  --color-gray-900: #f8fafc; /* 最亮文本 */
 
-  /* 成功色 */
+  /* 成功色 - 保持一致 */
   --color-success-50: #0c2d15;
   --color-success-500: #22c55e;
   --color-success-600: #16a34a;
   --color-success-700: #15803d;
 
-  /* 警告色 */
+  /* 警告色 - 保持一致 */
   --color-warning-50: #2a1b00;
   --color-warning-500: #f59e0b;
   --color-warning-600: #d97706;
   --color-warning-700: #b45309;
 
-  /* 错误色 */
+  /* 错误色 - 保持一致 */
   --color-error-50: #2a0a0a;
   --color-error-500: #ef4444;
   --color-error-600: #dc2626;
   --color-error-700: #b91c1c;
 
-  /* 信息色 */
+  /* 信息色 - 保持一致 */
   --color-info-50: #0f172a;
   --color-info-500: #3b82f6;
   --color-info-600: #2563eb;
   --color-info-700: #1d4ed8;
 
-  /* 暗色模式阴影 - 加深以匹配暗色背景 */
-  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  /* 暗色模式下的阴影调整 */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.6);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.7);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.6);
 
-  /* ===== 语义化颜色别名 - 暗色模式 (WCAG AA+) ===== */
-  --color-background: #0a0e1a;
-  --color-surface: #111827;
-  --color-surface-hover: #1a2234;
-  --color-surface-active: #243044;
-  --color-text-primary: #f8fafc;   /* 对比度 15.8:1 */
-  --color-text-secondary: #cbd5e1; /* 对比度 8.6:1 */
-  --color-text-muted: #94a3b8;     /* 对比度 5.9:1 */
-  --color-text-placeholder: #64748b; /* 对比度 4.6:1 (AA级) */
+  /* ===== 语义化颜色别名 (v1.14.2) - 暗色模式 ===== */
+  /* 语义别名 - 暗色模式 */
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+  --color-surface-active: #475569;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #64748b;
   --color-text-inverse: #0f172a;
-  --color-primary: #3b82f6;
-  --color-primary-hover: #60a5fa;
+  --color-primary: #60a5fa;
+  --color-primary-hover: #3b82f6;
   --color-primary-active: #2563eb;
-  --color-primary-light: #dbeafe;
-  --color-border: #3d4a5c;          /* 边框默认 - 提升至 2.5:1 */
+  --color-primary-light: #1e3a8a;
+  --color-border: #334155;
   --color-border-hover: #475569;
-  --color-border-focus: #3b82f6;
-  --color-code-background: #1a2234;
+  --color-border-focus: #60a5fa;
+  --color-code-background: #1e293b;
   --color-code-text: #e2e8f0;
 }

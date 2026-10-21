@@ -81,8 +81,8 @@ export async function GET(request: NextRequest) {
       return createSuccessResponse(cachedResult)
     }
 
-    // B/C 类 (暂缓): 搜索功能使用模拟数据，待 Elasticsearch/Algolia 集成后再替换。
-    // 以下为模拟实现:
+    // TODO: 执行搜索
+    // 1. 根据类型搜索不同资源
     // 2. 使用全文搜索引擎 (如 Elasticsearch)
     // 3. 返回结果
     // 4. 记录搜索日志
@@ -164,7 +164,7 @@ export async function SUGGESTIONS(request: NextRequest) {
     .trim()
     .substring(0, 50)
 
-  // B/C 类 (暂缓): 搜索建议依赖搜索历史和热门词表，暂用模拟数据。
+  // TODO: 获取搜索建议
   // 1. 基于历史搜索记录
   // 2. 基于热门搜索
   // 3. 基于内容索引

@@ -5,7 +5,7 @@
  * 新增: 流动动画效果、选中高亮、渐变边
  */
 
-import { memo, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import { EdgeLabelRenderer, getBezierPath, type EdgeProps } from 'reactflow'
 import type { WorkflowEdgeData } from '../types'
 
@@ -16,6 +16,7 @@ import type { WorkflowEdgeData } from '../types'
 export const conditionalEdgeType = memo((props: EdgeProps<WorkflowEdgeData>) => {
   const {
     id,
+    source,
     target,
     sourceX,
     sourceY,

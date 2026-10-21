@@ -11,6 +11,7 @@
 import type {
   WorkflowDefinition,
   WorkflowNodeData,
+  WorkflowEdgeData,
   WorkflowInstance,
   WorkflowVariable,
   NodeStatus,

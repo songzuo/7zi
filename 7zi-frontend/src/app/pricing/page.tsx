@@ -287,7 +287,7 @@ export default function PricingPage() {
     if (!email) return
 
     try {
-      // B/C 类 (暂缓): 定价页邮件收集 API 待接入，当前仅做 UX 演示。
+      // TODO: Integrate with backend API
       console.log('Email submitted:', email)
       setSubmitStatus('success')
       setEmail('')

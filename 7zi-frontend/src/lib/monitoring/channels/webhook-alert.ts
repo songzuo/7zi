@@ -185,7 +185,7 @@ export class WebhookAlertChannel extends BaseAlertChannel implements AlertChanne
       logger.warn(`[WebhookAlert] Test failed: ${response.status}`)
       return false
     } catch (error) {
-      logger.error('[WebhookAlert] Connection test failed:', error)
+      logger.error('[WebhookAlert] Connection test failed:', error instanceof Error ? error : new Error(String(error)))
       return false
     }
   }

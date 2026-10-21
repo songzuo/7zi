@@ -6,7 +6,7 @@
 
 import { notificationService as baseService } from './notification'
 import { NotificationPriority, NotificationType } from './notification-types'
-import type { Notification } from './notification-types'
+import type { Notification, NotificationFilter } from './notification-types'
 import { emailService, EmailRecipient } from './email'
 import { notificationStorage } from './notification-storage'
 import { logger } from '@/lib/logger'

@@ -34,7 +34,7 @@ import type {
   NodeChange,
   EdgeChange,
 } from 'reactflow'
-import { BackgroundVariant } from 'reactflow'
+import { BackgroundVariant, Position } from 'reactflow'
 
 import 'reactflow/dist/style.css'
 
@@ -135,6 +135,7 @@ function WorkflowEditorInner({
 
   // 草稿管理 hook - 自动保存和恢复
   const {
+    draft,
     isLoading: isDraftLoading,
     isSaving: isDraftSaving,
     hasUnsavedChanges,

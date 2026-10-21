@@ -247,6 +247,7 @@ export function MiniTrendChart({
   data,
   chartType = 'line',
   height = 100,
+  className
 }: {
   data: TrendData[]
   chartType?: 'line' | 'bar'

@@ -4,7 +4,7 @@
  * POST /api/rooms/[id]/join - 加入房间
  */
 
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { roomStore } from '@/lib/api/rooms/store'
 import { withErrorHandling, createSuccessResponse, createNotFoundError, createBadRequestError, createUnauthorizedError } from '@/lib/api/error-handler'
 import { logger } from '@/lib/logger'

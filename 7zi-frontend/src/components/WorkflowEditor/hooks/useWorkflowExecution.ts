@@ -4,7 +4,7 @@
  * 集成 EnhancedWorkflowExecutor 进行工作流执行
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { Edge, Node } from 'reactflow'
 import type { WorkflowInstance, ExecutionLog } from '../types'
 import type { ExecutionState } from '../types'
@@ -81,7 +81,7 @@ export function useWorkflowExecution({ workflowId, nodes, edges }: UseWorkflowEx
         })),
       }
 
-      // B/C 类 (暂缓): EnhancedWorkflowExecutor 依赖后端执行引擎稳定后接入。
+      // TODO: 集成真实的 EnhancedWorkflowExecutor
       // 当前为模拟实现
       const instance = await mockExecuteWorkflow(workflowDefinition)
 
@@ -124,7 +124,7 @@ export function useWorkflowExecution({ workflowId, nodes, edges }: UseWorkflowEx
 
 /**
  * 模拟工作流执行
- * B/C 类 (暂缓): 待后端 EnhancedWorkflowExecutor 实现后替换为真实调用。
+ * TODO: 替换为真实的 EnhancedWorkflowExecutor 调用
  */
 async function mockExecuteWorkflow(
   workflowDefinition: WorkflowDefinitionForExecution

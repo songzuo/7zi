@@ -9,6 +9,7 @@
 
 import type {
   ExecutionHistory,
+  NodeExecution,
   ExecutionHistoryQuery,
 } from './execution-history-store'
 import { executionHistoryStore } from './execution-history-store'

@@ -3,20 +3,14 @@
  * v1.12.3
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   fuzzyMatch,
   fuzzyMatchItems,
   fuzzyMatchAll,
   fuzzyMatchAny,
+  type FuzzySearchOptions
 } from '../fuzzy-search';
-
-// 泛型约束为 `T extends { text?: string }`，因此显式声明可选 text 字段
-interface TestItem {
-  id: number;
-  name: string;
-  text?: string;
-}
 
 describe('fuzzyMatch', () => {
   describe('基础匹配', () => {
@@ -130,11 +124,11 @@ describe('fuzzyMatch', () => {
 });
 
 describe('fuzzyMatchItems', () => {
-  const items: TestItem[] = [
-    { id: 1, name: 'hello world' },
-    { id: 2, name: 'hello there' },
-    { id: 3, name: 'goodbye' },
-    { id: 4, name: 'hello' }
+  const items = [
+    { id: 1, name: 'hello world', text: 'hello world' },
+    { id: 2, name: 'hello there', text: 'hello there' },
+    { id: 3, name: 'goodbye', text: 'goodbye' },
+    { id: 4, name: 'hello', text: 'hello' }
   ];
 
   it('应该匹配多个项目', () => {
@@ -238,9 +232,10 @@ describe('性能测试', () => {
   });
 
   it('应该高效处理大量项目', () => {
-    const items: TestItem[] = Array.from({ length: 1000 }, (_, i) => ({
+    const items = Array.from({ length: 1000 }, (_, i) => ({
       id: i,
-      name: `item ${i}`
+      name: `item ${i}`,
+      text: `item ${i}`
     }));
 
     const start = performance.now();

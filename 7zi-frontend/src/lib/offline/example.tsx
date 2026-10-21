@@ -20,7 +20,7 @@ export function OfflineManager() {
 
   useEffect(() => {
     // Initialize offline modules
-    initOfflineModules().then(({ syncManager }) => {
+    initOfflineModules().then(({ storage, syncManager }) => {
       console.log('Offline modules initialized');
 
       // Listen to sync state changes

@@ -123,6 +123,7 @@ function ToastProvider({
   position = 'top-right',
   maxToasts = 5,
   zIndex = 9999,
+  showProgress = true,
 }: ToastProviderProps) {
   const [toasts, setToasts] = React.useState<ToastItem[]>([])
 

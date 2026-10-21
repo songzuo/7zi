@@ -11,8 +11,9 @@ import type {
   CoherenceScore,
   CoherenceAnalysis,
   DialogueEnhancementConfig,
+  DialogueEnhancementError,
 } from './types'
-import { DEFAULT_CONFIG } from './types'
+import { DEFAULT_CONFIG, ERROR_CODES } from './types'
 
 export class MultiTurnDialogueManager {
   private contexts: Map<string, DialogueContext>

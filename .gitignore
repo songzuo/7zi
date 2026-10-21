@@ -124,3 +124,6 @@ fix-*.sh
 src/lib/agents.backup/
 7zi/
 7zi-frontend/public/sw.js
+
+# TypeScript build info
+*.tsbuildinfo

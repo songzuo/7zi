@@ -8,6 +8,7 @@ import type {
   ValidationRule,
   ValidationContext,
   ValidationResult,
+  FieldError,
   FormValidationResult,
   FieldConfig,
   FormConfig,
@@ -18,7 +19,7 @@ import type {
   FormValidationRule,
   Translator,
 } from './types'
-
+import { required } from './validators'
 
 // ============================================================================
 // Form Validator Class

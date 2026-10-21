@@ -135,8 +135,7 @@ export class ErrorReportingService {
     // 资源加载错误
     window.addEventListener('error', (event) => {
       if (event.target !== window && event.target instanceof HTMLElement) {
-        // 资源加载失败时 target 是 HTMLElement，可能带有 src/href
-        const target = event.target as HTMLElement & { src?: string; href?: string }
+        const target = event.target as any
         this.reportError(
           'ResourceLoadError',
           `Failed to load: ${target.src || target.href}`,

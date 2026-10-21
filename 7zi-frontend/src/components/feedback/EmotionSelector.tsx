@@ -279,6 +279,7 @@ interface FeedbackSatisfactionModalProps {
 
 export function FeedbackSatisfactionModal({
   isOpen,
+  feedbackId,
   onSubmit,
   onClose,
 }: FeedbackSatisfactionModalProps) {

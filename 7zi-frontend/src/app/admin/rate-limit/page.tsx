@@ -16,6 +16,7 @@ import {
   Globe,
   FileText,
   RefreshCw,
+  Settings,
   AlertTriangle,
   CheckCircle,
   XCircle

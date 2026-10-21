@@ -11,6 +11,7 @@ import type {
   AIMessage,
   AISuggestion,
   SuggestionRequest,
+  ConversationContext,
   ChatStatus,
   StreamStats,
 } from './types'

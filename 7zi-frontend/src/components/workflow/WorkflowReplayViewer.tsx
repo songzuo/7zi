@@ -17,9 +17,13 @@ import { ReactFlow, Background, Controls } from '../WorkflowEditor/reactflow-imp
 
 // Hooks 直接从 reactflow 导入 (Next.js 会正确代码分割)
 import { useNodesState, useEdgesState } from 'reactflow'
-import type { Node, Edge } from 'reactflow'
+import type { Node, Edge, NodeChange, EdgeChange } from 'reactflow'
+
+/** React Flow 的变更回调签名（reactflow 未导出 OnChange 类型，此处按其定义复刻） */
+type OnChange<ChangesType> = (changes: ChangesType[]) => void
 import type { ReplayStep, ReplayEvent } from '@/lib/workflow/replay-engine'
 import { WorkflowReplayEngine } from '@/lib/workflow/replay-engine'
+import type { ExecutionHistory, NodeExecutionStatus } from '@/lib/workflow/execution-history-store'
 import { WorkflowExecutionTimeline } from './WorkflowExecutionTimeline'
 import { cn } from '@/lib/utils'
 
@@ -144,7 +148,9 @@ const WorkflowGraph: React.FC<{
   edges: Edge[]
   currentNodeId: string | null
   nodeStatus: Record<string, string>
-}> = ({ nodes, edges, currentNodeId, nodeStatus }) => {
+  onNodesChange?: OnChange<NodeChange>
+  onEdgesChange?: OnChange<EdgeChange>
+}> = ({ nodes, edges, currentNodeId, nodeStatus, onNodesChange, onEdgesChange }) => {
   // 为节点添加高亮样式
   const styledNodes = nodes.map(node => ({
     ...node,
@@ -170,6 +176,8 @@ const WorkflowGraph: React.FC<{
     <ReactFlow
       nodes={styledNodes}
       edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
       fitView
       nodesDraggable={false}
       nodesConnectable={false}
@@ -210,6 +218,9 @@ export const WorkflowReplayViewer: React.FC<WorkflowReplayViewerProps> = ({
     return engine
   })
 
+  // 执行总时长（历史快照中 duration 为可选字段）
+  const duration = history.duration ?? 0
+
   const [currentStep, setCurrentStep] = useState<ReplayStep | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [speed, setSpeed] = useState(initialSpeed)
@@ -217,7 +228,7 @@ export const WorkflowReplayViewer: React.FC<WorkflowReplayViewerProps> = ({
 
   // 更新节点状态映射
   const nodeStatus = useCallback(() => {
-    const status: Record<string, string> = 'pending'
+    const status: Record<string, string> = {}
 
     if (!currentStep) {
       return status
@@ -227,10 +238,13 @@ export const WorkflowReplayViewer: React.FC<WorkflowReplayViewerProps> = ({
     status[currentStep.nodeId] = 'running'
 
     // 设置已完成的节点
+    // 说明：历史数据中可能出现 'success' 状态（不在 NodeExecutionStatus 联合类型内），
+    // 这里按“已完成”处理，保持与原有运行时行为一致。
     for (const [nodeId, execution] of Object.entries(history.nodeExecutions)) {
-      if (execution.status === 'completed' || execution.status === 'success') {
+      const execStatus = execution.status as NodeExecutionStatus | 'success'
+      if (execStatus === 'completed' || execStatus === 'success') {
         status[nodeId] = 'completed'
-      } else if (execution.status === 'failed') {
+      } else if (execStatus === 'failed') {
         status[nodeId] = 'failed'
       }
     }
@@ -248,7 +262,7 @@ export const WorkflowReplayViewer: React.FC<WorkflowReplayViewerProps> = ({
 
           // 更新时间轴位置
           if (event.step) {
-            const newPosition = (event.step.relativeTime / history.duration) * 100
+            const newPosition = duration > 0 ? (event.step.relativeTime / duration) * 100 : 0
             setTimelinePosition(newPosition)
           }
           break
@@ -295,7 +309,7 @@ export const WorkflowReplayViewer: React.FC<WorkflowReplayViewerProps> = ({
       replayEngine.removeEventListener(handleEvent)
       replayEngine.stop()
     }
-  }, [replayEngine, autoPlay, history.duration, onStepChange, onStateChange, onComplete])
+  }, [replayEngine, autoPlay, duration, onStepChange, onStateChange, onComplete])
 
   // 播放控制处理
   const handlePlay = useCallback(() => {
@@ -321,10 +335,10 @@ export const WorkflowReplayViewer: React.FC<WorkflowReplayViewerProps> = ({
   const handleSeek = useCallback(
     (position: number) => {
       setTimelinePosition(position)
-      const relativeTime = (history.duration * position) / 100
+      const relativeTime = (duration * position) / 100
       replayEngine.seekToTime(relativeTime)
     },
-    [replayEngine, history.duration]
+    [replayEngine, duration]
   )
 
   const handleSpeedChange = useCallback(

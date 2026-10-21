@@ -14,6 +14,14 @@ import { logger } from '@/lib/logger'
 import type { WebVitalsMetrics, CustomMetrics } from '@/lib/performance'
 
 /**
+ * `CustomMetricsTracker` 的可选扩展能力视图。
+ *
+ * `recordResponseTime` / `recordError` 并非追踪器的公开 API，
+ * 这里用交叉类型声明它们是可选方法，调用时统一使用可选链。
+ */
+type CustomMetricsTracker = typeof import('@/lib/performance/custom-metrics').customMetricsTracker
+
+/**
  * 性能监控配置
  */
 export interface UsePerformanceMonitoringOptions {
@@ -88,7 +96,10 @@ export function usePerformanceMonitoring(
 
         setState(prev => ({ ...prev, isInitialized: true }))
       } catch (error) {
-        logger.error('[PerformanceMonitoring] Initialization failed:', error)
+        logger.error(
+          '[PerformanceMonitoring] Initialization failed:',
+          error instanceof Error ? error : new Error(String(error))
+        )
 
         // 上报初始化错误
         await monitor.trackError(
@@ -150,10 +161,17 @@ export function useCustomMetrics() {
         responseTime
       )
 
-      customMetricsTracker.recordResponseTime(responseTime, { endpoint, statusCode })
+      // `recordResponseTime` / `recordError` 是自定义指标追踪器的可选扩展能力，
+      // 并非 `CustomMetricsTracker` 的公开 API，这里通过结构化类型安全地调用。
+      const tracker = customMetricsTracker as CustomMetricsTracker & {
+        recordResponseTime?(responseTime: number, context: Record<string, unknown>): void
+        recordError?(endpoint: string, statusCode: number): void
+      }
+
+      tracker.recordResponseTime?.(responseTime, { endpoint, statusCode })
 
       if (statusCode >= 400) {
-        customMetricsTracker.recordError(endpoint, statusCode)
+        tracker.recordError?.(endpoint, statusCode)
       }
     },
     []

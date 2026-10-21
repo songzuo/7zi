@@ -15,6 +15,7 @@ import type {
   TranscriptionWithSpeaker,
   WhisperConfig,
   StreamTranscriptionConfig,
+  AudioEventListener,
   TranscriptionEvent,
   SupportedLanguage,
 } from './types'

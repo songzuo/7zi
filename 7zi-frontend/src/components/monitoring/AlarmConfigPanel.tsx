@@ -27,7 +27,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import { monitor } from '@/lib/monitoring'
-import type { AlarmEvent, MonitoringConfig } from '@/lib/monitoring/types'
+import type { AlarmThreshold, AlarmEvent, MonitoringConfig } from '@/lib/monitoring/types'
 
 export interface AlarmRule {
   id: string

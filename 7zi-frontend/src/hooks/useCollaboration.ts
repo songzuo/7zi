@@ -13,11 +13,11 @@
 
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import type { CursorPosition, CursorState, CollabUser } from '@/features/collab/types'
-import { CollaborationCursorSync } from '@/lib/collab/cursor-sync'
+import { CollaborationCursorSync, type CursorSyncState } from '@/lib/collab/cursor-sync'
 import { CollaborationStateManager, type CollabSessionState, type Change } from '@/lib/collab/state-manager'
-import { ConflictResolver } from '@/lib/collab/conflict-resolver'
+import { ConflictResolver, type ResolutionResult } from '@/lib/collab/conflict-resolver'
 import { CollabClient } from '@/lib/collab/CollabClient'
 
 /**

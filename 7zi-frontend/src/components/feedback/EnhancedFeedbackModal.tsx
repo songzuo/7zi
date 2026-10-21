@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import {
   X,
+  Star,
   Upload,
   Camera,
   Send,

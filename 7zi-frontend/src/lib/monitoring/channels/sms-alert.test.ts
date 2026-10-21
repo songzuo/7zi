@@ -41,7 +41,6 @@ describe('SMSAlertChannel', () => {
   let channel: SMSAlertChannel
 
   const defaultConfig = {
-    enabled: true,
     recipients: {
       P0: ['+1234567890'],
       P1: ['+1234567891'],
@@ -367,17 +366,18 @@ describe('SMSAlertChannel', () => {
 
       const alert = createMockAlert()
 
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
 
       await channel.send(alert)
 
-      expect(consoleSpy).toHaveBeenCalledWith(
+      // logger.debug 走 console.debug，且带时间戳/级别前缀
+      expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining(
           '[SMSAlert] Would send SMS to +1234567891: [P1E] CPU Usage High: CPU usage exceeded threshold cpu_usage=90'
         )
       )
 
-      consoleSpy.mockRestore()
+      debugSpy.mockRestore()
     })
   })
 

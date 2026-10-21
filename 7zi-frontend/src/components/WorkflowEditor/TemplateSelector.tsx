@@ -11,6 +11,7 @@ import React, { useState, useMemo } from 'react'
 import {
   listTemplates,
   listTemplatesByCategory,
+  listTemplatesByDifficulty,
   searchTemplatesByTag,
   type WorkflowTemplate,
 } from './templates'

@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { ArrowRight, Zap, Shield, Users, BarChart3, ChevronDown, Star, CheckCircle2 } from 'lucide-react'
-import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher'
 
 // Animation hook for fade-in on scroll
 function useIntersectionObserver(options = {}) {
@@ -176,7 +175,6 @@ export default function LandingPage() {
             <span className="text-xl font-bold text-gray-900 dark:text-white">7zi</span>
           </div>
           <div className="flex items-center gap-4">
-            <ThemeSwitcher size="sm" />
             <Link
               href="/demo"
               className="hidden text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white sm:block"

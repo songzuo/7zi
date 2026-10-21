@@ -39,7 +39,7 @@ async function initSentry(): Promise<boolean> {
       const hasSentry = 'Sentry' in window
       if (hasSentry) {
         const Sentry = (window as unknown as { Sentry: { captureMessage: (msg: string, ctx?: Record<string, unknown>) => void } }).Sentry
-        if (Sentry?.captureMessage) {
+        if (typeof Sentry?.captureMessage === 'function') {
           sentryAvailable = true
           return true
         }
@@ -117,7 +117,7 @@ function report(data: import('./types').PerformanceEventData): void {
 
   // 调试模式输出
   if (config.debug) {
-    logger.debug('[Performance]', data)
+    logger.debug('[Performance]', { ...data })
   }
 }
 
@@ -245,7 +245,7 @@ function initAPIMonitoring(): void {
   const originalFetch = window.fetch
   window.fetch = async function (...args) {
     const startTime = performance.now()
-    const url = typeof args[0] === 'string' ? args[0] : args[0]?.url
+    const url = typeof args[0] === 'string' ? args[0] : args[0] instanceof URL ? args[0].toString() : args[0].url
     const method = args[1]?.method || 'GET'
 
     try {

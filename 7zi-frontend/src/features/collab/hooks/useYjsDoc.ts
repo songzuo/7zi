@@ -101,6 +101,7 @@ export function useYjsDoc(options: UseYjsDocOptions): UseYjsDocReturn {
   const {
     docId,
     connectionInfo,
+    awarenessThrottle = DEFAULT_OPTIONS.awarenessThrottle,
     persist = DEFAULT_OPTIONS.persist,
   } = options
 

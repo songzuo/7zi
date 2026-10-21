@@ -25,19 +25,11 @@ import {
 /**
  * SMS 渠道配置
  *
- * `enabled` 在此显式声明为可选（默认视为启用），保证：
+ * `enabled` 继承自 `BaseChannelConfig` 且为可选（默认视为启用），保证：
  * - 旧调用点（未传 enabled）在类型层面继续兼容
  * - `enabled: false` 时渠道静默跳过发送
- *
- * 使用 `Omit<..., 'enabled'>` 是为了不依赖 `BaseChannelConfig` 中
- * `enabled` 是必填还是可选，避免继承关系上的类型冲突。
  */
-export interface SMSChannelConfig extends Omit<BaseChannelConfig, 'enabled'> {
-  /**
-   * 是否启用该渠道。未显式配置时默认为 `true`。
-   */
-  enabled?: boolean
-
+export interface SMSChannelConfig extends BaseChannelConfig {
   // SMS Gateway Configuration
   gatewayUrl?: string
   apiKey?: string

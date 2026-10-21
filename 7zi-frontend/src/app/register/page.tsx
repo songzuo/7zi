@@ -173,7 +173,7 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      // B/C 类 (暂缓): 注册 API 待后端实现，当前模拟调用以保持 UX 流程完整。
+      // TODO: Integrate with backend API
       console.log('Register submitted:', { email, username, password, plan })
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))

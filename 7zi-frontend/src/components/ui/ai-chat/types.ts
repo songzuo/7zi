@@ -3,7 +3,7 @@
  * v1.12.x
  */
 
-
+import type { User } from '@/stores'
 
 // ============================================
 // Message Types

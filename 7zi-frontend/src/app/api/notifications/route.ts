@@ -18,7 +18,7 @@ import {
   createErrorResponse,
   createUnauthorizedError,
 } from '@/lib/api/error-handler'
-import { authenticateJWT } from '@/lib/auth/api-auth'
+import { authenticateJWT, AuthResult } from '@/lib/auth/api-auth'
 import { withCSRF } from '@/lib/middleware/csrf'
 import { createHotDataCache, CachePresets } from '@/lib/cache'
 

@@ -3,7 +3,7 @@
 import { useState, createContext, useContext, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, MessageCircle, User, X, Globe, Settings } from 'lucide-react'
+import { Home, Compass, MessageCircle, User, Menu, X, Globe, Settings } from 'lucide-react'
 import { HamburgerMenu } from './HamburgerMenu'
 import { BottomNav } from './BottomNav'
 

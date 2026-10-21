@@ -18,20 +18,6 @@ export interface RAGQAConfig {
   maxSourceChunks?: number;
 }
 
-/**
- * LLM Chat Completion 响应结构
- */
-interface LlmChatResponse {
-  choices?: Array<{
-    message?: { content?: string };
-  }>;
-  usage?: {
-    promptTokens: number;
-    completionTokens: number;
-    totalTokens: number;
-  };
-}
-
 export class RAGQA {
   private retriever: SmartRetriever;
   private config: Required<RAGQAConfig>;
@@ -190,7 +176,7 @@ ${question}
         throw new Error(`LLM API error: ${error}`);
       }
 
-      const data = (await response.json()) as LlmChatResponse;
+      const data: any = await response.json();
       const choice = data.choices?.[0];
 
       return {

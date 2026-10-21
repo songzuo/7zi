@@ -49,7 +49,6 @@ describe('WebhookAlertChannel', () => {
   let channel: WebhookAlertChannel
 
   const defaultConfig = {
-    enabled: true,
     url: 'https://webhook.example.com/alerts',
     method: 'POST' as const,
     headers: {

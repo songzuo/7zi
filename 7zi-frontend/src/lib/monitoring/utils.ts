@@ -159,7 +159,7 @@ export function initBrowserTracking(): void {
   }
 
   // Track route changes (for Next.js)
-  if (typeof window !== 'undefined' && window.next) {
+  if (typeof window !== 'undefined' && (window as unknown as { next?: unknown }).next) {
     // Next.js router events
   }
 }

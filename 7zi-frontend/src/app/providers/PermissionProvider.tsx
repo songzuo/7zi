@@ -6,6 +6,7 @@
 
 import {
   PermissionProvider as BasePermissionProvider,
+  createUserFromPayload,
 } from '@/contexts/PermissionContext'
 import { useEffect, useState } from 'react'
 

@@ -1,6 +1,7 @@
 import type {
   AgentId,
   AgentLearningStats,
+  CapabilityScore,
   TaskFeatures,
   TaskHistoryRecord,
   TaskType,

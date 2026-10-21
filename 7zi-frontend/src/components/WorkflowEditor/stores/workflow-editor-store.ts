@@ -404,8 +404,12 @@ const useWorkflowHistoryStore = create<HistoryStoreState>()((set, get) => ({
 
     const next = futureStates[futureStates.length - 1]
     const current = readCurrentSnapshot()
+    const nextPast = [...pastStates, current]
     set({
-      pastStates: [...pastStates, current],
+      pastStates:
+        nextPast.length > HISTORY_LIMIT
+          ? nextPast.slice(nextPast.length - HISTORY_LIMIT)
+          : nextPast,
       futureStates: futureStates.slice(0, futureStates.length - 1),
     })
     return next
@@ -456,9 +460,15 @@ function applySnapshot(snapshot: HistoryState): void {
 let isRestoring = false
 
 /**
- * 上一次已记录的快照
+ * 上一次已记录的快照（历史基准）。
+ *
+ * 重要：persist 默认使用 localStorage（同步存储），水合（rehydrate）在 create()
+ * 内部就同步完成了，此时 store 里可能已经存在持久化的 nodes / edges。
+ * 若把基准硬编码成「空图」，用户打开一个已保存的工作流后做的第一个操作
+ * 会把「空图」压进历史栈，导致第一次撤销直接把整个工作流清空。
+ * 因此基准必须取 store 的真实当前状态。
  */
-let lastSnapshot: HistoryState = { nodes: [], edges: [] }
+let lastSnapshot: HistoryState = readCurrentSnapshot()
 
 /**
  * 订阅主 store：nodes / edges 变化时记录历史
@@ -476,12 +486,24 @@ useWorkflowEditorStore.subscribe((state: WorkflowEditorState) => {
 /**
  * persist 重新水合（rehydrate）会一次性写入 nodes / edges，
  * 这不属于用户操作，不应产生历史记录——水合完成后重置基准快照并清空历史。
+ *
+ * localStorage 是同步存储，hydrate() 在 create() 期间就已同步跑完，
+ * 此时再注册 onFinishHydration 永远不会触发（监听器集合当时还是空的），
+ * 所以必须先用 hasHydrated() 判断同步/异步两种情况。
  */
-if (typeof window !== 'undefined' && useWorkflowEditorStore.persist) {
-  useWorkflowEditorStore.persist.onFinishHydration(() => {
+const persistApi = useWorkflowEditorStore.persist
+if (typeof window !== 'undefined' && persistApi) {
+  const syncBaseline = () => {
     lastSnapshot = readCurrentSnapshot()
     useWorkflowHistoryStore.getState().clear()
-  })
+  }
+  if (persistApi.hasHydrated()) {
+    // 同步存储：水合已完成，直接对齐基准并清空历史
+    syncBaseline()
+  } else {
+    // 异步存储：等水合结束再对齐基准
+    persistApi.onFinishHydration(syncBaseline)
+  }
 }
 
 /**

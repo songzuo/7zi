@@ -21,6 +21,22 @@
     "workflow",
     "automation"
   ],
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "websocket/lib/**/*.js"
+    ],
+    "coverageDirectory": "<rootDir>/coverage",
+    "coverageThreshold": {
+      "global": {
+        "lines": 60
+      }
+    },
+    "testTimeout": 20000
+  },
   "author": "7zi Team",
   "license": "MIT",
   "dependencies": {

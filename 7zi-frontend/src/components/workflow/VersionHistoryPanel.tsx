@@ -15,12 +15,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import {
-  WorkflowVersion,
-  WorkflowDiff,
-  VersionBranch,
-  SnapshotPolicy,
-} from '@/types/workflow-version'
+import type { WorkflowVersion } from '@/types/workflow-version'
 import {
   WorkflowDiffEngine,
   getBranchManager,
@@ -28,6 +23,12 @@ import {
   getExportImportManager,
   getCompressionManager,
   VersionCompressionManager,
+} from '@/lib/workflow/versioning'
+import type {
+  WorkflowDiff,
+  VersionBranch,
+  SnapshotPolicy,
+  CompressionRule,
 } from '@/lib/workflow/versioning'
 import {
   getWorkflowVersionHistory,

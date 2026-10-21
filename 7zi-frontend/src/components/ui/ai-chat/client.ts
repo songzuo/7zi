@@ -5,6 +5,7 @@
  */
 
 import {
+  type AIMessage,
   type AIConversation,
   type SendMessageRequest,
   type SendMessageResponse,
@@ -14,7 +15,7 @@ import {
   type AIUsage,
   AIChatError,
 } from '@/components/ui/ai-chat/types'
-
+import { logger } from '@/lib/logger'
 
 // ============================================
 // API 配置

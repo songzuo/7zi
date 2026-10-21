@@ -19,6 +19,63 @@ import {
 import type { NotificationType, NotificationPriority } from './notification-types'
 
 /**
+ * 通知分组（本地收敛类型）
+ *
+ * 上游 `use-notifications.ts` 对 `NotificationGroup` / `NotificationStats` 的
+ * 导入来源在不同版本间不一致（`./notification-types` 未导出这两个类型），
+ * 会让相关值退化为 `any`/`unknown`，进而导致 `TYPE_ICONS[group.type]`
+ * 报 TS7053、`Object.entries(stats.byType)` 的计数被推断为 `unknown` 报 TS2322。
+ *
+ * 这里在调用侧用等价结构收敛出本地类型，使本组件不依赖上游的类型健康度。
+ * 结构与 `client-notification-manager.ts` 中的定义保持一致。
+ */
+interface LocalNotificationGroup {
+  id: string
+  type: NotificationType
+  priority: NotificationPriority
+  title: string
+  message: string
+  count: number
+  notifications: LocalNotification[]
+  createdAt: number
+  updatedAt: number
+  expiresAt?: number
+  userId?: string
+  teamId?: string
+  taskId?: string
+}
+
+/**
+ * 通知列表项（本地收敛类型）
+ */
+interface LocalNotification {
+  id: string
+  type: NotificationType
+  priority: NotificationPriority
+  title: string
+  message: string
+  read: boolean
+  createdAt: number
+  data?: Record<string, unknown>
+  userId?: string
+  teamId?: string
+  taskId?: string
+  expiresAt?: number
+}
+
+/**
+ * 通知统计（本地收敛类型）
+ */
+interface LocalNotificationStats {
+  total: number
+  unread: number
+  byType: Record<NotificationType, number>
+  byPriority: Record<NotificationPriority, number>
+  totalGroups: number
+  activeGroups: number
+}
+
+/**
  * 通知类型图标映射
  */
 const TYPE_ICONS: Record<NotificationType, string> = {

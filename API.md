@@ -4,10 +4,10 @@ Complete API documentation for the 7zi AI Team Management Platform.
 
 ---
 
-**Last Updated:** 2026-04-16
+**Last Updated:** 2026-10-21
 **Version:** v1.14.0
 **Reviewer:** AI Documentation Agent
-**Total Endpoints:** 72 REST endpoints + 30+ WebSocket message types
+**Total Endpoints:** 49 REST route files under `src/app/api/` + 30+ WebSocket message types
 
 > **注意**: 本文档已与代码同步验证。所有 API 端点均来自 `src/app/api/` 目录下的实际实现。
 
@@ -2892,9 +2892,13 @@ Get all alert rules with optional filtering.
 **Query Parameters:**
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `enabled` | boolean | No | - | Filter by enabled status |
+| `enabled` | boolean | No | - | Filter by enabled status（`true` / `false`） |
 | `severity` | string | No | - | Filter by severity: low, medium, high, critical |
-| `metric` | string | No | - | Filter by metric name |
+| `metricType` | string | No | - | Filter by metric type: CPU, Memory, ResponseTime, ErrorRate, Throughput |
+| `page` | number | No | 1 | 页码 |
+| `pageSize` | number | No | 10 | 每页条数 |
+
+> 规则按 `updatedAt` 倒序返回，响应包含 `rules` / `total` / `page` / `pageSize` 四个字段。
 
 **Response (200 OK):**
 
@@ -3003,15 +3007,18 @@ Delete an alert rule.
 
 **Endpoint:** `GET /api/alerts/history`
 
-Get alert history with optional filtering.
+Get alert history with optional filtering. 结果按 `triggeredAt` 倒序返回。
 
 **Query Parameters:**
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `ruleId` | string | No | - | Filter by rule ID |
 | `severity` | string | No | - | Filter by severity |
-| `acknowledged` | boolean | No | - | Filter by acknowledgment status |
-| `limit` | number | No | 50 | Maximum results |
+| `status` | string | No | - | Filter by status（如 `acknowledged`） |
+| `startDate` | string | No | - | 起始时间（含） |
+| `endDate` | string | No | - | 结束时间（含） |
+| `page` | number | No | 1 | 页码 |
+| `pageSize` | number | No | 10 | 每页条数 |
 
 **Response (200 OK):**
 
@@ -3029,64 +3036,59 @@ Get alert history with optional filtering.
         "threshold": 1000,
         "severity": "high",
         "message": "API latency exceeded threshold",
-        "acknowledged": false,
+        "status": "acknowledged",
+        "acknowledgedBy": "admin@example.com",
+        "acknowledgedAt": "2026-04-04T12:30:00.000Z",
         "triggeredAt": "2026-04-04T12:00:00.000Z"
       }
     ],
-    "total": 1
+    "total": 1,
+    "page": 1,
+    "pageSize": 10
   }
 }
 ```
 
 ---
 
-### Alert Channels (v1.12.1 New)
+**Endpoint:** `POST /api/alerts/history`
 
-**Endpoint:** `GET /api/alerts/channels`
+确认（acknowledge）一条告警。
 
-Get available alert notification channels.
-
-**Response (200 OK):**
+**Request Body:**
 
 ```json
 {
-  "success": true,
-  "data": {
-    "channels": [
-      {
-        "id": "email",
-        "name": "Email",
-        "type": "email",
-        "enabled": true,
-        "config": {
-          "recipients": ["admin@example.com"]
-        }
-      },
-      {
-        "id": "sms",
-        "name": "SMS",
-        "type": "sms",
-        "enabled": true,
-        "config": {
-          "provider": "twilio",
-          "recipients": ["+1234567890"]
-        }
-      },
-      {
-        "id": "webhook",
-        "name": "Webhook",
-        "type": "webhook",
-        "enabled": true,
-        "config": {
-          "url": "https://hooks.example.com/alerts",
-          "method": "POST"
-        }
-      }
-    ],
-    "total": 3
-  }
+  "alertId": "alert_001",
+  "acknowledgedBy": "admin@example.com"
 }
 ```
+
+- `alertId` 或 `acknowledgedBy` 缺失 → 400
+- 告警不存在 → 404
+- 成功后该条告警 `status` 置为 `acknowledged`，并写入 `acknowledgedBy` / `acknowledgedAt`
+
+---
+
+### Alert Rules (by ID)
+
+**Endpoint:** `GET /api/alerts/rules/[id]`
+
+获取单条告警规则。规则不存在返回 404。
+
+**Endpoint:** `PUT /api/alerts/rules/[id]`
+
+部分更新告警规则。请求体按字段校验（`name` 长度 ≤ 100、`metricType` / `severity` / `condition` / `notificationChannels` 枚举）。字段缺失表示不修改该字段。
+
+> `PUT` 与 `DELETE` 均受 CSRF 保护（`withCSRF`）。
+
+---
+
+### ⚠️ 已移除的告警端点
+
+> **已移除**：`GET /api/alerts/channels` 在当前实现中**不存在**。
+> 告警渠道（email / sms / webhook）的配置类型定义在 `src/types/alerts.ts` 的 `NotificationChannel` 枚举中，
+> 由 `GET /api/alerts/rules` 的 `notificationChannels` 字段引用；如需查询可用渠道，请读取该枚举而非请求 HTTP 端点。
 
 ---
 
@@ -3255,6 +3257,191 @@ data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"
 
 ---
 
+## 🔔 Notifications APIs
+
+> 所有端点均要求 JWT 认证（`authenticateJWT`）。非管理员只能读写**自己的**通知 / 偏好，
+> 管理员可跨用户访问。部分写操作额外受 CSRF 保护（`withCSRF`）。
+> 注意：`/api/notifications/[id]` 的 `params` 是 **Promise**（Next.js 15+ 异步 params），
+> 而 `/api/notifications/preferences/[userId]` 的 `params` 仍是同步对象。
+
+### List Notifications
+
+**Endpoint:** `GET /api/notifications`
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | string | No | 仅管理员可用；非管理员强制为自身 userId |
+| `type` | string | No | 按通知类型过滤（`NotificationType`） |
+| `priority` | string | No | 按优先级过滤（`NotificationPriority`） |
+| `teamId` | string | No | 按团队过滤 |
+| `taskId` | string | No | 按任务过滤 |
+| `read` | boolean | No | 按已读状态过滤 |
+| `limit` | number | No | 返回条数上限 |
+
+结果带短 TTL 缓存（`CachePresets.SHORT`），新建通知后按 userId 失效。
+
+### Create Notification
+
+**Endpoint:** `POST /api/notifications`
+
+**Request Body:**
+
+```json
+{
+  "title": "构建完成",
+  "message": "工作流 wf-1 执行完成",
+  "type": "info",
+  "priority": "medium",
+  "userId": "user-1",
+  "teamId": "team-1",
+  "taskId": "task-1",
+  "data": { "workflowId": "wf-1" }
+}
+```
+
+- `title` 与 `message` 必填，缺失返回 400
+- `type` 默认 `info`，`priority` 默认 `medium`
+- 成功返回 **201**，`{ id, message: "Notification created" }`
+
+### Get Notification
+
+**Endpoint:** `GET /api/notifications/[id]`
+
+- 通知不存在 → 404
+- 非管理员访问他人通知 → 403
+
+### Update Notification
+
+**Endpoint:** `PATCH /api/notifications/[id]`
+
+标记为已读等状态更新。受 CSRF 保护。
+
+### Delete Notification
+
+**Endpoint:** `DELETE /api/notifications/[id]`
+
+受 CSRF 保护。
+
+### Enhanced Notifications (List)
+
+**Endpoint:** `GET /api/notifications/enhanced`
+
+基于 `enhancedNotificationService` 的增强版列表查询。
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `userId` | string | No | 自身 | 仅管理员可指定他人 |
+| `teamId` | string | No | - | 按团队过滤 |
+| `taskId` | string | No | - | 按任务过滤 |
+| `type` | string | No | - | 按类型过滤 |
+| `priority` | string | No | - | 按优先级过滤 |
+| `read` | boolean | No | - | 按已读状态过滤（`true` / `false`） |
+| `since` | number | No | - | 仅返回该时间戳之后创建的通知 |
+| `limit` | number | No | 50 | 返回条数上限 |
+
+**Response (200 OK):** `{ notifications, meta: { count, unreadCount } }`
+
+### Enhanced Notifications (Create & Send)
+
+**Endpoint:** `POST /api/notifications/enhanced`
+
+创建并按全渠道投递通知（email / webhook / 推送等）。`title` 与 `message` 必填。
+
+### Notification Preferences
+
+**Endpoint:** `GET /api/notifications/preferences/[userId]`
+
+获取用户通知偏好。非管理员访问他人偏好 → 403。不存在时返回默认偏好。
+
+**Endpoint:** `PUT /api/notifications/preferences/[userId]`
+
+更新用户通知偏好。
+
+### Notification Stats
+
+**Endpoint:** `GET /api/notifications/stats`
+
+系统级通知统计，**要求 admin 角色**（非 admin → 403）。
+
+**Response (200 OK):** `{ total, unread, totalUsers, totalDeliveries, emailEnabled }`
+
+### Notification Socket Status
+
+**Endpoint:** `GET /api/notifications/socket`
+
+返回 Socket.IO 服务状态，**要求 admin 角色**（非 admin → 403）。
+
+**Response (200 OK):** `{ initialized: boolean, message: string }`
+
+### Initialize Notification Socket
+
+**Endpoint:** `POST /api/notifications/socket`
+
+初始化 Socket.IO 服务（通常在服务启动时调用）。要求 admin 角色。
+
+---
+
+## 📈 Analytics APIs
+
+> 所有端点均要求 JWT 认证（`authenticateJWT`），未认证返回 401。
+> 数据来源统一为 `analyticsService`（`src/lib/analytics/service`）。
+
+### Analytics Overview
+
+**Endpoint:** `GET /api/analytics/overview`
+
+总览指标：`analyticsService.getOverviewMetrics()`。
+
+### Analytics Nodes
+
+**Endpoint:** `GET /api/analytics/nodes`
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `workflowId` | string | No | 限定工作流范围 |
+
+返回节点性能数据 `getNodePerformance(workflowId)`。
+
+### Analytics Resources
+
+**Endpoint:** `GET /api/analytics/resources`
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `hours` | number | No | 24 | 统计时间窗口（小时） |
+
+返回资源使用数据 `getResourceUsage(hours)`。
+
+### Analytics Anomalies
+
+**Endpoint:** `GET /api/analytics/anomalies`
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `startDate` | string | No | 起始时间 |
+| `endDate` | string | No | 结束时间 |
+
+返回异常检测结果 `getAllMetrics({ startDate, endDate }).anomalies`。
+
+### Analytics Trends
+
+**Endpoint:** `GET /api/analytics/trends`
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `days` | number | No | 7 | 统计天数 |
+| `status` | string | No | all | 过滤：`success` / `failed` / `all` |
+
+返回工作流趋势数据 `getWorkflowTrends({ days, status })`。
+
+---
+
 ## 🧪 Testing APIs
 
 You can test APIs using curl or any HTTP client:
@@ -3283,10 +3470,12 @@ curl "http://localhost:3000/api/performance/report?detailed=true"
 - [Architecture](./docs/ARCHITECTURE.md)
 - [Testing Guide](./docs/TESTING.md)
 - [Deployment Guide](./DEPLOYMENT.md)
+- [后端测试指南](./docs/BACKEND_TESTING_GUIDE.md)
+- [TypeScript 错误治理手册](./docs/TYPE_ERROR_REMEDIATION_PLAYBOOK.md)
 
 ---
 
-_Last updated: 2026-03-29_
+_Last updated: 2026-10-21_
 
 ---
 
@@ -4897,7 +5086,7 @@ v1.12.2 引入了完整的工作流版本管理系统，支持版本快照、回
 
 ### Get Workflow Versions
 
-**Endpoint:** `GET /api/workflow/[id]/versions`
+**Endpoint:** `GET /api/workflows/[workflowId]/versions`
 
 Get all versions of a workflow.
 
@@ -4930,7 +5119,49 @@ Get all versions of a workflow.
 }
 ```
 
-### Create Workflow Version
+### ⚠️ 已移除的工作流版本端点
+
+> **已移除**：`POST /api/workflow/[id]/versions`、`GET /api/workflow/[id]/versions/[versionId]`、
+> `GET /api/workflow/[id]/versions/compare`、`GET|PUT /api/workflow/[id]/versions/settings`
+> 在当前实现中**不存在**。
+> 工作流版本管理的实际实现只有两个路由（见下方 § Workflow Versioning (actual routes)）。
+
+### Workflow Versioning (actual routes)
+
+> 实际路由位于 `src/app/api/workflows/[workflowId]/`，参数名是 `workflowId`（不是 `id`），
+> 且 `params` 为 **Promise**（Next.js 15+ 异步 params）。
+
+#### Get Workflow Versions
+
+**Endpoint:** `GET /api/workflows/[workflowId]/versions`
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `page` | number | No | 1 | 页码 |
+| `pageSize` | number | No | 10 | 每页条数 |
+| `changeType` | string | No | - | 按变更类型过滤（如 `rollback`） |
+| `startDate` | string | No | - | 起始时间（含） |
+| `endDate` | string | No | - | 结束时间（含） |
+
+#### Rollback Workflow
+
+**Endpoint:** `POST /api/workflows/[workflowId]/rollback`
+
+**Request Body:**
+
+```json
+{
+  "versionId": "v3",
+  "rollbackBy": "admin@example.com",
+  "rollbackReason": "regression on step 2"
+}
+```
+
+- `versionId` 缺失 → 400
+- `rollbackBy` 缺失 → 400
+
+### Create Workflow Version (removed)
 
 **Endpoint:** `POST /api/workflow/[id]/versions`
 
@@ -5030,9 +5261,11 @@ Compare two workflow versions.
 }
 ```
 
-### Rollback Version
+### ⚠️ Rollback Version (removed path)
 
 **Endpoint:** `POST /api/workflow/[id]/versions/[versionId]/rollback`
+
+> **已移除**：该路径不存在，请使用 `POST /api/workflows/[workflowId]/rollback`（见上）。
 
 Rollback workflow to a specific version.
 
@@ -5479,29 +5712,81 @@ const socket = io('ws://your-server:3001', {
 
 ### 🤖 A2A Registry APIs
 
+> 所有 A2A 端点均要求 JWT 认证（`authenticateJWT`），未认证返回 401。
+> 实际实现为**集合级路由**（`/api/a2a/registry`），单条资源通过 query 参数定位，不存在 `/[id]` 子路由。
+
 #### List Agents
 
 **Endpoint:** `GET /api/a2a/registry`
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | No | 返回指定 agent（未找到返回 404） |
+| `capability` | string | No | 按能力过滤（`getAgentsByCapability`） |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "agents": [],
+    "count": 0
+  }
+}
+```
 
 #### Register Agent
 
 **Endpoint:** `POST /api/a2a/registry`
 
-#### Get Agent
+**Request Body:** `RegisterAgentRequest`（必填 `name`、`type`；缺失返回 400 `VALIDATION`）
 
-**Endpoint:** `GET /api/a2a/registry/[id]`
+#### Update Agent Status
 
-#### Update Agent
+**Endpoint:** `PUT /api/a2a/registry`
 
-**Endpoint:** `PUT /api/a2a/registry/[id]`
+**Request Body:** `{ "agentId": string, "status": "idle" | "busy" | "offline" | "error" }`
 
-#### Agent Heartbeat
+- 缺少 `agentId` 或 `status` → 400 `VALIDATION`
+- `status` 不在合法枚举 → 400 `VALIDATION`
+- agent 不存在 → 404
 
-**Endpoint:** `POST /api/a2a/registry/[id]/heartbeat`
+#### Unregister Agent
+
+**Endpoint:** `DELETE /api/a2a/registry?id=<agentId>`
+
+- 缺少 `id` → 400 `VALIDATION`
+- agent 不存在 → 404
 
 #### A2A Queue
 
+**Endpoint:** `GET /api/a2a/queue`
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | No | 返回指定 task（未找到返回 404） |
+| `status` | string | No | 按任务状态过滤 |
+| `type` | string | No | 按任务类型过滤 |
+| `agentId` | string | No | 按执行 agent 过滤 |
+
+**Response (200 OK):** `{ tasks, stats, count }`
+
 **Endpoint:** `POST /api/a2a/queue`
+
+调度新任务。`type` 必填，`input` 必须是对象，否则 400 `VALIDATION`。成功返回 201。
+
+**Endpoint:** `PUT /api/a2a/queue`
+
+更新任务（`UpdateTaskRequest`，`taskId` 必填）。任务不存在返回 404。
+
+**Endpoint:** `DELETE /api/a2a/queue?id=<taskId>`
+
+取消任务。缺少 `id` 返回 400 `VALIDATION`，任务不存在返回 404。
+
+> ⚠️ 旧文档中的 `GET/PUT /api/a2a/registry/[id]` 与 `POST /api/a2a/registry/[id]/heartbeat` 在当前实现中**不存在**，已移除。
 
 ### 🎨 Workflow APIs
 
@@ -6102,6 +6387,102 @@ EMAIL_ALERTING_ENABLED=true
 **配置文件:** `src/config/email.ts`
 **服务实现:** `src/lib/alerting/EmailAlertService.ts`
 **告警模板:** `src/lib/alerting/templates/alert-template.ts`
+
+### 📧 Email API (Server-side)
+
+> **New in 未发布** — 安全修复：nodemailer 从客户端剥离，仅运行于服务端路由
+
+邮件发送通过 `POST /api/email` 服务端路由完成，SMTP 凭据对客户端不可见。
+完整契约见 [`API_EMAIL_ROUTE.md`](./API_EMAIL_ROUTE.md)（本文仅列核心 schema 与错误码）。
+
+**路由文件:** `src/app/api/email/route.ts`（`runtime = 'nodejs'`，`dynamic = 'force-dynamic'`）  
+**客户端 SDK:** `src/lib/email/api-client.ts`（`sendEmailViaApi` / `testSmtpViaApi` / `callEmailApi`）
+
+#### `POST /api/email` — 发送邮件或测试连接
+
+**请求体:**
+
+```json
+{
+  "action": "send",
+  "to": "user@example.com",
+  "subject": "Alert: Workflow Failed",
+  "text": "Your workflow has failed.",
+  "html": "<h1>Workflow Failed</h1>",
+  "from": "noreply@7zi.com",
+  "timeout": 10000
+}
+```
+
+| 字段 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| `action` | `'send' \| 'test'` | — | `'send'` | `'send'` 发送，`'test'` 仅验证 SMTP 连接 |
+| `to` | `string \| string[]` | 发送时 ✅ | — | 收件人（逗号分隔字符串或数组） |
+| `subject` | `string` | — | `'Notification'` | 邮件主题 |
+| `text` | `string` | — | `''` | 纯文本正文 |
+| `html` | `string` | — | — | HTML 正文（可选，与 `text` 二选一） |
+| `from` | `string` | — | `SMTP_FROM` | 覆盖默认发件人 |
+| `timeout` | `number` | — | `10000` | 超时（毫秒），> 0 才生效 |
+
+**响应 (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "messageId": "<abc123@smtp.example.com>",
+    "accepted": ["user@example.com"],
+    "rejected": [],
+    "response": "250 OK",
+    "verified": false
+  }
+}
+```
+
+> `action = 'test'` 时返回 `{ verified: true, host, port }`，无 `messageId` 等发送字段。
+
+**失败响应:** `{ "success": false, "error": "<原因>" }`
+
+**错误码:**
+
+| 状态码 | 含义 | 触发条件 |
+|--------|------|---------|
+| `200` | 成功 | 邮件已提交或连接验证通过 |
+| `400` | 请求参数非法 | JSON 解析失败 / `to` 为空（发送时） |
+| `500` | 发送失败 | nodemailer 加载失败 / 传输错误（底层错误信息保留在 `error`） |
+| `503` | 服务端未配置 SMTP | `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` 任一缺失 |
+
+> 底层 SMTP 错误（`ETIMEDOUT` / `ECONNREFUSED` / `ENOTFOUND` / `Invalid login` / 证书错误）以 `500` 原样透传，便于客户端归类。
+
+#### `GET /api/email` — 健康检查
+
+返回 SMTP 配置状态（不暴露凭据）。
+
+```json
+{
+  "success": true,
+  "data": {
+    "configured": true,
+    "missing": [],
+    "host": "smtp.example.com",
+    "port": 587
+  }
+}
+```
+
+`configured: false` 时 `missing` 数组列出缺失的环境变量名。
+
+**SMTP 环境变量（仅服务端可见）:**
+
+| 变量名 | 兼容旧名 | 必填 | 默认值 | 说明 |
+|--------|----------|------|--------|------|
+| `SMTP_HOST` | `EMAIL_SMTP_HOST` | ✅ | — | SMTP 服务器地址 |
+| `SMTP_PORT` | `EMAIL_SMTP_PORT` | — | `587` | SMTP 端口（TLS）；`465` 对应 SSL |
+| `SMTP_USER` | `EMAIL_SMTP_USER` | ✅ | — | 用户名 |
+| `SMTP_PASS` | `EMAIL_SMTP_PASS` | ✅ | — | 密码 |
+| `SMTP_FROM` | `EMAIL_FROM` | — | `SMTP_USER` | 默认发件人地址 |
+
+> `secure` 由端口自动推导：`465 → true`，其他 → `false`。
 
 ### 📥 Data Import/Export APIs
 

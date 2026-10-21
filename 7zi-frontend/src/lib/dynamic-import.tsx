@@ -108,7 +108,7 @@ export function lazyLoadWithLoading<T extends object>(
  * Preload a component in the background
  * Useful for components that will be needed soon
  */
-export function preloadComponent(importFn: () => Promise<unknown>) {
+export function preloadComponent(importFn: () => Promise<any>) {
   if (typeof window === 'undefined') return
 
   // Use requestIdleCallback to preload during idle time
@@ -131,6 +131,6 @@ export function preloadComponent(importFn: () => Promise<unknown>) {
 /**
  * Preload multiple components
  */
-export function preloadComponents(importFns: Array<() => Promise<unknown>>) {
+export function preloadComponents(importFns: Array<() => Promise<any>>) {
   importFns.forEach(importFn => preloadComponent(importFn))
 }

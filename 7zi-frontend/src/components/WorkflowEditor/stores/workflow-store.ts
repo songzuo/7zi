@@ -7,7 +7,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { Edge, Node } from 'reactflow'
+import type { Edge, Node, Connection } from 'reactflow'
 import type { WorkflowNodeData, WorkflowEdgeData, ValidationError, ExecutionState, WorkflowVariable } from '../types'
 import { executionStateStorage } from '@/lib/storage/execution-state-storage'
 import logger from '@/lib/logger'

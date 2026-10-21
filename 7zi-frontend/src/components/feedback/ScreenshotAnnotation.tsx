@@ -27,6 +27,7 @@ import {
   X,
   Plus,
   Minus,
+  RotateCw,
 } from 'lucide-react'
 
 type AnnotationType = 'rect' | 'pen' | 'text'

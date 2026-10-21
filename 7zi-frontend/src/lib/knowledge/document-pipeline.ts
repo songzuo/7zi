@@ -298,8 +298,8 @@ export class DocumentProcessor {
       throw new Error(`Embedding API error: ${error}`);
     }
 
-    const data = (await response.json()) as EmbeddingApiResponse;
-    return data.data.map(item => item.embedding);
+    const data: any = await response.json();
+    return data.data.map((item: any) => item.embedding);
   }
 
   private generateDocumentId(): string {
@@ -312,13 +312,6 @@ export class DocumentProcessor {
 }
 
 // 导出分块器类
-/**
- * Embedding API 响应结构
- */
-interface EmbeddingApiResponse {
-  data: Array<{ embedding: number[] }>;
-}
-
 export class DocumentChunker {
   private processor: DocumentProcessor;
 

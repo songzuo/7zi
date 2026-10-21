@@ -7,9 +7,9 @@
 
 'use client'
 
-import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react'
-import { useCollabWebSocket } from '../hooks/useCollabWebSocket'
-import { useCollabCursors } from '../hooks/useCollabCursors'
+import { createContext, useContext, useEffect, useMemo, useCallback, type ReactNode } from 'react'
+import { useCollabWebSocket, type UseCollabWebSocketReturn } from '../hooks/useCollabWebSocket'
+import { useCollabCursors, type UseCollabCursorsReturn } from '../hooks/useCollabCursors'
 import { useYjsDoc, type UseYjsDocReturn } from '../hooks/useYjsDoc'
 import { CursorOverlay } from './CursorOverlay'
 import type {
@@ -74,6 +74,7 @@ export function CollabProvider({
   roomId,
   userId,
   userName,
+  userAvatar,
   autoConnect = true,
   wsUrl = '/api/collab/ws',
 }: CollabProviderProps) {

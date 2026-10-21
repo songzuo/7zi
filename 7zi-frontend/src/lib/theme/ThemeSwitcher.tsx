@@ -182,7 +182,7 @@ export function ThemeSwitcher({
   showLabel = false,
   variant = 'dropdown',
 }: ThemeSwitcherProps) {
-  const { mode, timeBasedEnabled, setTimeBasedEnabled, resolvedTheme } = useTheme();
+  const { mode, timeBasedEnabled, setTimeBasedEnabled, isLoaded, resolvedTheme } = useTheme();
   const { setMode, toggle } = useThemeSwitch();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

@@ -4,8 +4,8 @@
  * Request and response types for rooms endpoints
  */
 
-import type { RoomParticipant } from '@/lib/api/rooms/types'
-
+import type { Room, RoomParticipant } from '@/lib/api/rooms/types'
+import type { PaginatedResponse } from '@/types/api'
 
 // ============================================
 // Request Types

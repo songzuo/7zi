@@ -3,7 +3,7 @@
  * v1.12.3
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getSuggestions,
   recordSearch,
@@ -13,7 +13,7 @@ import {
   getPopularSearches,
   updateMockData
 } from '../suggestions';
-
+import { type SearchSuggestion } from '../suggestions';
 
 describe('getSuggestions', () => {
   beforeEach(() => {

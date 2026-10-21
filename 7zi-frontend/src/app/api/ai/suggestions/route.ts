@@ -6,7 +6,7 @@
  */
 
 import { NextRequest } from 'next/server'
-import type { AISuggestion } from '@/components/ui/ai-chat/types'
+import type { AISuggestion, SuggestionCategory } from '@/components/ui/ai-chat/types'
 import { createSuccessResponse, createBadRequestError, createErrorResponse } from '@/lib/api/error-handler'
 
 // ============================================
@@ -170,7 +170,7 @@ const GENERAL_SUGGESTIONS: AISuggestion[] = [
 ]
 
 function getSuggestions(request: SuggestionRequest): AISuggestion[] {
-  const { userInput, contextType, limit = 8 } = request
+  const { userInput, conversationHistory, contextType, limit = 8 } = request
   const lowerInput = userInput.toLowerCase()
 
   // 根据上下文类型选择建议池

@@ -10,6 +10,7 @@ import type {
   AgentId,
   TaskType,
   CapabilityScore,
+  AgentLearningStats,
   TaskHistoryRecord,
 } from './types'
 

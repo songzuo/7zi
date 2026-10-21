@@ -7,6 +7,17 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { MemoryStorage, LocalStorageStorage } from '../storage'
 import type { PerformanceMetric, AlarmEvent } from '../types'
 
+/**
+ * 测试用内部视图：`LocalStorageStorage` 的部分读写辅助方法为 private，
+ * 这里通过结构化类型暴露它们，仅用于验证存储层的读写行为。
+ */
+interface StorageInternals {
+  setStoredMetrics(metrics: PerformanceMetric[]): void
+  getStoredMetrics(): PerformanceMetric[]
+  setStoredAlarms(alarms: AlarmEvent[]): void
+  getStoredAlarms(): AlarmEvent[]
+}
+
 describe('MemoryStorage - 持久化存储测试', () => {
   let storage: MemoryStorage
 
@@ -739,9 +750,9 @@ describe('LocalStorageStorage - 持久化存储测试', () => {
         },
       ]
 
-      storage.setStoredMetrics(metrics)
+      ;(storage as unknown as StorageInternals).setStoredMetrics(metrics)
 
-      const storedMetrics = storage.getStoredMetrics()
+      const storedMetrics = (storage as unknown as StorageInternals).getStoredMetrics()
       expect(storedMetrics.length).toBe(1)
       expect(storedMetrics[0].id).toBe('metric-1')
     })
@@ -759,9 +770,9 @@ describe('LocalStorageStorage - 持久化存储测试', () => {
         },
       ]
 
-      storage.setStoredAlarms(alarms)
+      ;(storage as unknown as StorageInternals).setStoredAlarms(alarms)
 
-      const storedAlarms = storage.getStoredAlarms()
+      const storedAlarms = (storage as unknown as StorageInternals).getStoredAlarms()
       expect(storedAlarms.length).toBe(1)
       expect(storedAlarms[0].id).toBe('alarm-1')
     })

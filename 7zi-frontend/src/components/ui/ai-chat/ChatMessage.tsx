@@ -8,7 +8,7 @@
 
 import React, { useCallback, useMemo } from 'react'
 import clsx from 'clsx'
-import type { ChatMessageProps, AISuggestion } from './types'
+import type { ChatMessageProps, AIMessage, AISuggestion } from './types'
 
 // ============================================
 // 代码块渲染
@@ -116,6 +116,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   onCopy,
   onRetry,
+  onSuggestionClick,
   showActions = true,
 }) => {
   const isUser = message.role === 'user'

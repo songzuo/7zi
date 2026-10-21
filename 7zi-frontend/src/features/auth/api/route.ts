@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   loginSchema,
   registerSchema,
+  passwordResetRequestSchema,
   passwordResetSchema,
   createValidationErrorResponse,
   validateAndSanitizeBody,
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { username } = validationResult.data
+    const { username, password } = validationResult.data
 
     // 🔒 SECURITY FIX (2026-04-23): 
     // Authentication not yet implemented - return 501
@@ -98,7 +99,7 @@ export async function PUT(request: NextRequest) {
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    
+    const { username, email, password } = validationResult.data
 
     // 🔒 SECURITY FIX (2026-04-23):
     // Registration not yet implemented
@@ -153,7 +154,7 @@ export async function PATCH(request: NextRequest) {
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    
+    const { token, password } = validationResult.data
 
     // 🔒 SECURITY FIX (2026-04-23):
     // Password reset not yet implemented

@@ -101,6 +101,7 @@ export function RichTextEditor({
   const {
     editor,
     EditorContent,
+    getHTML,
     toggleBold,
     toggleItalic,
     toggleUnderline,

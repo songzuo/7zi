@@ -27,7 +27,7 @@ export function StatCard({
   className = '',
 }: StatCardProps) {
   const categoryConfig = METRIC_CATEGORIES[category];
-  const { color } = categoryConfig;
+  const { icon: IconName, color } = categoryConfig;
 
   return (
     <div

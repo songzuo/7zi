@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
+  Cpu,
   Database,
   Globe,
   TrendingDown,

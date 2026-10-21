@@ -3,9 +3,9 @@
  * Implements intelligent background sync with multiple triggers and incremental updates
  */
 
-import { OfflineStorage, SyncQueueItem, DataEntry } from './storage';
+import { OfflineStorage, SyncQueueItem, DataEntry, STORES } from './storage';
 import { logger } from '@/lib/logger'
-import { ConflictResolver, ResolutionStrategy } from './conflict-resolver';
+import { ConflictResolver, ResolutionStrategy, ConflictMeta } from './conflict-resolver';
 
 // Sync state
 export type SyncState = 'idle' | 'syncing' | 'error' | 'paused';
@@ -407,7 +407,7 @@ export class SyncManager {
       timestamp: item.timestamp,
     };
 
-    // B/C 类 (暂缓): API endpoint 存在但返回 mock 数据，真实 endpoint 待后续 sprint 接入。
+    // TODO: Replace with actual API endpoint
     return await fetch(`/api/sync/${item.collection}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -14,7 +14,7 @@ import { generateSecureId } from '@/lib/utils'
 import type { Draft } from 'immer'
 import { devtools, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-// B/C 类 (暂缓): zundo v2.x 的 temporal store API 尚未稳定，等待官方 release 后再集成，当前使用手写 undo/redo。
+// TODO: Fix zundo v2.x integration - currently using manual undo/redo
 // import { undoMiddleware } from 'zundo'
 
 import type { Node, Edge } from 'reactflow'
@@ -490,10 +490,9 @@ const createWorkflowEditorStore = () =>
 
 export const useWorkflowEditorStore = createWorkflowEditorStore()
 
-// 撤销/重做 Hook
-// B/C 类 (暂缓): zundo v2.x temporal store 还未集成，手动实现作为临时方案。
+// 撤销/重做 Hook (TODO: Implement proper undo/redo with zundo v2.x)
 export const useUndoRedo = () => {
-  // TODO: 待 zundo v2.x 稳定后替换为: temporal(store, { partialize: ... })
+  // TODO: Implement with zundo v2.x temporal store
   // For now, return placeholder implementation
   return {
     undo: () => {

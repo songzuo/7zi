@@ -11,6 +11,7 @@ import {
   ComposedChart,
   Line,
   Area,
+  Bar,
   AreaChart,
   XAxis,
   YAxis,

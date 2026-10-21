@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {
   RateLimiter,
+  getClientIP,
   generateRateLimitKey,
   formatRateLimitHeaders,
 } from './lib/rate-limit/limiter'

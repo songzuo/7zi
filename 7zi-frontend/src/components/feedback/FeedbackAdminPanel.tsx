@@ -12,7 +12,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-
+import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import {
@@ -20,6 +20,7 @@ import {
   Clock,
   AlertCircle,
   CheckCircle2,
+  XCircle,
   Filter,
   Search,
   ChevronDown,

@@ -11,7 +11,7 @@ import type {
   DialogueContext,
   DialogueEnhancementConfig,
 } from './types'
-import { DEFAULT_CONFIG } from './types'
+import { DEFAULT_CONFIG, ERROR_CODES } from './types'
 
 /**
  * 意图模式匹配规则

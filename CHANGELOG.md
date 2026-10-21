@@ -7,6 +7,117 @@
 
 ---
 
+## [未发布] / 2026-10-21
+
+### 🔧 类型错误治理（TypeScript）
+
+- **前端 TypeScript 错误基线持续下降：556 → 425 → 本轮修复后**
+  - ⚠️ **基线口径修正**：`tsconfig.json` 开启 `incremental: true`，`npx tsc --noEmit` 会复用 `tsconfig.tsbuildinfo` 缓存导致错误数虚高（实测 425 vs 真实 334，偏差 91）。自本轮起**一律**以 `npx tsc --noEmit --incremental false` 为唯一权威口径；此前的 556 / 425 均为虚高值，实际进度优于记录
+  - 治理采用「目录隔离 + 硬门槛」工作流：每个子代理只允许改动任务书明确列出的文件，全局类型错误数不得恶化
+  - **workflow-editor-store.ts（46 errors）** — 移除对未安装依赖 `zundo` 的 `temporal` 中间件引用，改为手写 undo/redo 历史栈（沿用同目录 `workflow-editor-store-v110.ts` 的既有做法，不引入新依赖）；补齐 `initialState` 的显式类型断言，消除 `nodes` / `edges` / `panPosition` 等字段的隐式 `any`
+  - **notification-center.tsx** — 修正 `useNotifications` / `useUnreadCount` / `useNotificationActions` 三个 hook 的返回值解构（`count` 重命名为 `unreadCount`）；`<select>` 的读取状态筛选由 `boolean | 'all'` 改为 `'all' | 'unread' | 'read'` 字符串枚举，避免 `value` 只能接受 string 的类型冲突
+  - **notification-enhanced.ts** — 清理未使用的 `NotificationFilter` 导入
+  - **vector-store.ts** — `Record<string, any>` 收紧为 `Record<string, unknown>`；为 Weaviate 第三方 SDK 定义最小必要接口 `WeaviateClient`，替代 `private client: any`；新增 `FilterOperator` / `FilterCondition` / `WeaviateWhereFilter` 类型与 `isFilterOperator` 类型守卫
+  - **document-pipeline.ts / rag-qa.ts** — 用 `as EmbeddingApiResponse` / `as LlmChatResponse` 显式标注第三方 API 响应结构，替代 `const data: any`
+  - **knowledge/examples.ts** — 移除未使用的 `RAGQAConfig` 导入与未解构的 `retriever`
+  - 错误分类法、标准修法与反模式沉淀到 `docs/TYPE_ERROR_REMEDIATION_PLAYBOOK.md`
+
+### 🏗️ 架构
+
+- **websocket-service / workflow-service 独立化（提交 `c95d8af04`）**
+  - 新增 `7zi-backend/websocket-service/`：独立 `package.json` + `Dockerfile` + `README.md`，JWT secret 校验模块化（生产环境缺失即致命退出）+ 单元/集成测试
+  - 新增 `7zi-backend/workflow-service/`：工作流引擎独立服务，含 `src/engine/WorkflowEngine.js` 与 `src/engine/executors/index.js`，配套 HTTP 层 / 引擎层测试套件
+  - 修复 `feedback-storage` / `notification-storage` 构建期初始化导致的 better-sqlite3 崩溃
+  - `.env.example` 补充 `JWT_SECRET` 安全配置说明（根目录与 `7zi-backend/`、两个 service 目录各一份）
+
+### 🛡️ 安全修复
+
+- **P0-3 nodemailer 服务端化**
+  - 新增 `POST /api/email` 和 `GET /api/email` 服务端 API 路由
+  - nodemailer 从客户端 bundle 剥离，仅运行于 Next.js 服务端路由
+  - SMTP 凭据仅存于服务端环境变量（`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM`）
+  - 兼容旧变量名（`EMAIL_SMTP_*` / `EMAIL_FROM`）
+  - 客户端 SDK：`src/lib/email/api-client.ts`（`sendEmailViaApi` / `testSmtpViaApi`）
+  - 改造 `src/lib/monitoring/channels/email-alert.ts`（移除 transporter，改调 API）与 `src/lib/alerting/smtp-tester.ts`（移除静态 `import nodemailer`）
+  - 客户端传入的 SMTP 凭据仅用于本地校验，**不会上传到服务端**
+
+### 🎨 UI/UX
+
+- **暗色模式完善**（Next.js 16 + Tailwind）
+  - 完成设计规范 `DARK_MODE_DESIGN_20261021.md`
+  - 完成实现报告 `DARK_MODE_IMPLEMENTATION_20261021.md`
+  - 统一主题系统：`@/lib/theme`（ThemeProvider + useTheme）
+  - 更新 `tokens.css` 暗色主题对齐设计规范
+
+### 🏗️ 架构
+
+- **后端目录整合**
+  - 新建 `7zi-backend/` 统一后端 monorepo
+  - `server/` → `7zi-backend/websocket/`（WebSocket 服务，端口 3010）
+  - `workflow-engine/backend/` → `7zi-backend/workflow-engine/`（工作流引擎，端口 3011）
+  - 新增 `websocket-service/` / `workflow-service/` 微服务封装（Docker 支持）
+  - 消除原端口冲突（两服务原均默认 3001）
+  - `7zi-backend/package.json` 统一依赖管理 + npm scripts（`start` / `dev` / `test` / `lint`）
+
+- **WebSocket 服务逻辑抽取为纯模块（`server/lib/`）**
+  - `server/lib/config.js` — 配置解析（`PORT` / `ALLOWED_ORIGIN` / `LOG_LEVEL`），env 可注入
+  - `server/lib/jwt-secret.js` — `getJWTSecret()`，production 缺 secret 时 FATAL + `exit(1)`
+  - `server/lib/room-manager.js` — `RoomManager` 类（房间增删、用户进出、空房延迟清理）
+  - `server/lib/auth.js` — `createAuthenticator()` Socket.IO 认证中间件工厂
+  - `server/lib/handlers.js` — `setupSocketHandlers()` + 纯函数 `applyOperation()`
+  - `server/lib/server.js` — `createServer()` HTTP + Socket.IO 组装、心跳/清理定时器
+  - `server/websocket-server.js` 降级为组合根 / 进程入口：`require()` 不再自启动、不再占用生产端口
+  - 新增 `WS_STRICT_AUTH` 环境变量（默认 `false`，保持原有 demo 行为；`true` 时严格校验 JWT）
+  - 报告：`P1-7_WEBSOCKET_TESTS_20261021.md`
+
+### 🔌 WebSocket
+
+- **websocket-service 独立拆分**
+  - 从 `websocket/` 独立为 `websocket-service/` 微服务
+  - 独立 `package.json`、Dockerfile、README
+
+### 🧪 测试
+
+- **后端 Jest 测试体系落地（P1-7）**
+  - `7zi-backend/websocket/__tests__/` 新增 10 个测试文件（含 `helpers.js` 共享工具）
+  - 覆盖 `config` / `jwt-secret` / `auth` / `room-manager` / `handlers` / `server` / 入口 / 集成 / 生产守卫
+  - **110 个 WebSocket 用例全部通过**，行覆盖率 **95.2%**（阈值 lines ≥ 60%，超标）
+  - `7zi-backend/workflow-engine/__tests__/basic.test.js` + `workflow-engine/jest.config.js`
+  - `7zi-backend` 统一入口基线：**10 个 suite / 111 个用例全绿**
+  - `7zi-backend/package.json` 增加 jest 配置（`testEnvironment: node`、`testTimeout: 20000`、`coverageThreshold.global.lines = 60`）
+  - 新增 npm scripts：`test:websocket` / `test:workflow` / `test` / `lint`
+
+- **邮件 API 路由测试**
+  - `src/app/api/email/__tests__/` 覆盖 `resolveSmtpConfig()` 纯函数与路由行为
+  - `src/lib/monitoring/channels/email-alert.test.ts` 改为 mock fetch（移除 `vi.mock('nodemailer')`）
+  - `src/lib/alerting/__tests__/smtp-tester.test.ts` 重写为 mock fetch，新增「不上传 SMTP 凭据」断言
+
+### 🔍 审计
+
+- **依赖版本审计（P1-2 / P1-3，只读）**
+  - 确认 `next@16.3.8` 来自官方 npm registry，非私有 fork
+  - 确认 `nodemailer` 声明 `^8.0.11` 实际安装 `10.1.7`，由 `pnpm.overrides` 强制提升
+  - 报告：`P1-2_P1-3_DEPENDENCY_AUDIT_20261021.md`（本轮未升级任何依赖）
+
+- **TODO / FIXME 全面审计（P1-5）**
+  - `7zi-frontend/src/` 共 33 处 TODO/FIXME，清理 32 处、保留 1 处（有意保留）
+  - 分类处置：A 类当场修复 1 处、B/C 类暂缓并补充上下文说明 30 处、E 类已过时删除 1 处
+  - 报告：`P1-5_TODO_AUDIT_20261021.md`
+
+- **TypeScript `any` 阶段一清理（P1-1）**
+  - 清理 websocket core / manager / types 核心文件中的 `any`
+  - 配套脚本：`7zi-frontend/scripts/fix-any-types.cjs` / `cleanup-unused-imports.cjs` / `cleanup-unused-vars.cjs` / `apply-unused-fixes.cjs`
+
+### 📚 文档
+
+- 新增 `docs/BACKEND_TESTING_GUIDE.md` — 后端 Jest 测试运行、组织、覆盖率阈值与新增测试约定
+- 新增 `docs/TYPE_ERROR_REMEDIATION_PLAYBOOK.md` — TypeScript 错误治理方法论：错误分类法（TS2304 / TS7006 / TS7053 / TS2322 / TS2741）、每类标准修法与反模式、目录隔离 + 硬门槛工作流
+- 新增 `API_EMAIL_ROUTE.md` — `/api/email` 完整契约（请求/响应 schema、错误码、SMTP 环境变量）
+- 新增 `ARCH_BACKEND_CONSOLIDATION_20261021.md` — 后端目录整合方案与迁移映射表
+- 新增 `P0-3_EMAIL_API_ROUTE_20261021.md` — nodemailer 服务端化安全修复报告
+- `README.md` 补充后端服务目录结构与后端测试命令
+- `API.md` 补充 `/api/email` 章节（请求/响应 schema、状态码、SMTP 环境变量）
+
 ## [1.14.4] - 2026-10-19
 
 ### 🐛 Bug修复

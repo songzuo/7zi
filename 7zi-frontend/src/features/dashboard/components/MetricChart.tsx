@@ -15,7 +15,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { formatNumber } from '../utils/format';
+import { formatTimestamp, formatNumber } from '../utils/format';
 import { AggregatedMetricDataPoint, MetricDefinition, ChartConfig } from '../types/dashboard';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';

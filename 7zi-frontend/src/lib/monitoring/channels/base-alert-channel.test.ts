@@ -12,6 +12,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { BaseAlertChannel, DEFAULT_RETRY_CONFIG, DEFAULT_DEDUP_CONFIG, DEFAULT_RATE_LIMIT_CONFIG } from './base-alert-channel'
+import type { DedupConfig } from './base-alert-channel'
 import { Alert, AlertPriority, AlertSeverity } from '../alert-engine'
 
 // Mock alert for testing
@@ -624,16 +625,17 @@ describe('BaseAlertChannel', () => {
       channel.setShouldFail(true)
 
       const alert = createMockAlert({ id: 'alert-1' })
-      const sendPromise = channel.send(alert)
+      // 先挂上 rejection 断言，避免 unhandled rejection 逃逸
+      const sendPromise = expect(channel.send(alert)).rejects.toThrow()
 
       // Should use new delay (10ms) - run all timers
       await vi.runAllTimersAsync()
 
-      await expect(sendPromise).rejects.toThrow()
+      await sendPromise
     })
 
     it('should update dedup configuration', async () => {
-      const newDedupConfig = {
+      const newDedupConfig: DedupConfig = {
         enabled: false,
         windowMs: 30000,
         keys: ['ruleId', 'priority'],

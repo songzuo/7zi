@@ -17,19 +17,14 @@ import type { WorkflowNodeData } from '../types'
 // 类型定义
 // ============================================
 
-interface PasteResult {
-  nodes: Node<WorkflowNodeData>[]
-  edges: Edge[]
-}
+// 直接从 Hook 推导返回类型，避免与实现漂移
+type ClipboardHook = ReturnType<typeof useClipboard>
 
-interface CutResult {
-  clipboardData: {
-    nodes: Node<WorkflowNodeData>[]
-    edges: Edge[]
-  }
-  nodesToDelete: string[]
-  edgesToDelete: string[]
-}
+/** pasteNodes 返回值（可能为 null） */
+type PasteResult = ReturnType<ClipboardHook['pasteNodes']>
+
+/** cutNodes 返回值 */
+type CutResult = ReturnType<ClipboardHook['cutNodes']>
 
 // ============================================
 // 剪贴板测试
@@ -97,15 +92,17 @@ describe('useClipboard', () => {
       result.current.copyNodes(mockNodes, mockEdges, ['node-1'])
     })
 
-    let pastedResult: PasteResult
+    // 用容器持有结果，避免 act 回调内的赋值无法被 TS 控制流分析捕获
+    const pasted: { value: PasteResult } = { value: null }
     act(() => {
-      pastedResult = result.current.pasteNodes({ x: 50, y: 50 })
+      pasted.value = result.current.pasteNodes({ x: 50, y: 50 })
     })
 
+    const pastedResult = pasted.value
     expect(pastedResult).not.toBeNull()
-    expect(pastedResult.nodes).toHaveLength(1)
-    expect(pastedResult.nodes[0].id).not.toBe('node-1') // 新 ID
-    expect(pastedResult.nodes[0].data.label).toBe('Start (Copy)')
+    expect(pastedResult?.nodes).toHaveLength(1)
+    expect(pastedResult?.nodes[0].id).not.toBe('node-1') // 新 ID
+    expect(pastedResult?.nodes[0].data.label).toBe('Start (Copy)')
   })
 
   it('should paste nodes with default offset', () => {
@@ -115,26 +112,28 @@ describe('useClipboard', () => {
       result.current.copyNodes(mockNodes, mockEdges, ['node-1'])
     })
 
-    let pastedResult: PasteResult
+    const pasted: { value: PasteResult } = { value: null }
     act(() => {
-      pastedResult = result.current.pasteNodes()
+      pasted.value = result.current.pasteNodes()
     })
 
+    const pastedResult = pasted.value
     expect(pastedResult).not.toBeNull()
-    expect(pastedResult.nodes).toHaveLength(1)
+    expect(pastedResult?.nodes).toHaveLength(1)
   })
 
   it('should cut nodes', () => {
     const { result } = renderHook(() => useClipboard())
 
-    let cutResult: CutResult
+    const cut: { value?: CutResult } = {}
     act(() => {
-      cutResult = result.current.cutNodes(mockNodes, mockEdges, ['node-1'])
+      cut.value = result.current.cutNodes(mockNodes, mockEdges, ['node-1'])
     })
 
-    expect(cutResult.clipboardData.nodes).toHaveLength(1)
-    expect(cutResult.nodesToDelete).toContain('node-1')
-    expect(cutResult.edgesToDelete).toContain('edge-1')
+    const cutResult = cut.value
+    expect(cutResult?.clipboardData.nodes).toHaveLength(1)
+    expect(cutResult?.nodesToDelete).toContain('node-1')
+    expect(cutResult?.edgesToDelete).toContain('edge-1')
   })
 
   it('should check if clipboard has data', () => {
@@ -168,12 +167,12 @@ describe('useClipboard', () => {
   it('should return null when pasting empty clipboard', () => {
     const { result } = renderHook(() => useClipboard())
 
-    let pastedResult: PasteResult
+    const pasted: { value: PasteResult } = { value: null }
     act(() => {
-      pastedResult = result.current.pasteNodes({ x: 50, y: 50 })
+      pasted.value = result.current.pasteNodes({ x: 50, y: 50 })
     })
 
-    expect(pastedResult).toBeNull()
+    expect(pasted.value).toBeNull()
   })
 
   it('should copy multiple nodes', () => {

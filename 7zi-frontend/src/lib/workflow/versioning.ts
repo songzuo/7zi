@@ -16,6 +16,7 @@ import { generateSecureId } from '@/lib/utils'
 import type {
   WorkflowVersion,
   WorkflowDefinition,
+  CreateWorkflowVersionDTO,
 } from '@/types/workflow-version'
 
 // ============================================

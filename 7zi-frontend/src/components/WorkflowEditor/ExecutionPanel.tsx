@@ -17,7 +17,7 @@ interface ExecutionPanelProps {
 export function ExecutionPanel({ instance, logs, isExecuting, onStop }: ExecutionPanelProps) {
   const getProgressPercentage = () => {
     if (!instance) return 0
-    const { failed, progress } = instance.progress
+    const { completed, failed, progress } = instance.progress
     return progress || 0
   }
 
