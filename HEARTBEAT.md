@@ -71,10 +71,17 @@
    - 明文密码 → `${SSH_PASSWORD}` 引用，脚本内明文计数 0
    - 备份在 `/tmp/deploy.sh.bak`、`/tmp/health-check.sh.bak`
 
+### 🔐 本轮主管直修：凭据全面清除（19:00-19:20）
+- 主工作区 + botmem 两个仓库，**62 个跟踪文件**的明文密码 → `${SSH_PASSWORD}` 引用
+- 提交：`91f3e7c9d` / `7ef03c17b` / `f2f81e758` / botmem `4f5aaefaa0`
+- `git grep 'ge20993344'` 全仓命中 **0**
+- 顺带把 botmem `.git/config` 里明文 GitHub PAT 从 remote URL 移除（凭据已在 `~/.git-credentials`）
+
 ### 待关注
 1. ~~**`/etc/hosts` 固化**~~ ✅ 已解决（`etc-hosts-fix.service` + cloud-init 模板双路径）
-2. **Git 未提交**：本轮 25+ 改动文件（globals.css 修复、deploy.sh、health-check.sh、TS 修复系列）均未提交
-3. **git 历史仍含明文密码**（`34fead4a2` 等）— 是否重写历史需主人决策
+2. ~~**Git 未提交**~~ ✅ 本轮已全部提交
+3. **git 历史仍含明文密码**（`34fead4a2` 等 10+ commit）— 是否重写历史需主人决策
+   - 另：`~/.git-credentials` 与 botmem remote 曾内嵌 GitHub PAT，建议**轮换该 token**
 4. **`.env.secrets` 与历史脚本中的密码值不同**（短版 / 带 `$ZZ` 长版，两者实测均可登录）— 请确认唯一正确密码并统一
 5. **TypeScript 剩余 154 错误**（原 197，已由 round3 修复 -43），主要热点：
    - `useAnalytics.ts` — `AnalyticsService` 缺 `getWorkflowStats/getExecutionTrend/getExecutionDetails`（API 漂移）

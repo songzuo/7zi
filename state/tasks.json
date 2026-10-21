@@ -12811,8 +12811,100 @@
       "resume_info": "",
       "source": "bot6",
       "context": {}
+    },
+    {
+      "id": "system-monitoring-1792602902",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-10-21T19:15:02.167101",
+      "started_at": null,
+      "completed_at": "2026-10-21T19:15:10.721807",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:04.964391"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:06.079488"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:07.389817"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:08.529519"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:09.590153"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:10.680035"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
+    },
+    {
+      "id": "system-monitoring-1792602910",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-10-21T19:15:10.836583",
+      "started_at": null,
+      "completed_at": "2026-10-21T19:15:17.365159",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:11.988343"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:13.048783"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:14.107595"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:15.164153"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:16.254877"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-10-21T19:15:17.318366"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
     }
   ],
   "checkpoint": null,
-  "last_update": "2026-10-21T19:00:18.064627"
+  "last_update": "2026-10-21T19:15:17.365178"
 }
