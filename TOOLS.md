@@ -9,7 +9,7 @@
 
 | 服务器            | IP                              | 用户 | 密码                    | 用途          |
 | ----------------- | ------------------------------- | ---- | ----------------------- | ------------- |
-| **7zi.com**       | 172.67.184.212 / 104.21.59.229  | root | `{{SSH_PASSWORD}}`      | 主网站部署    |
+| **7zi.com**       | 198.44.179.155 (源站) / 104.21.59.229 (CF) | root | `{{SSH_PASSWORD}}`      | 主网站部署    |
 | **bot5.szspd.cn** | 182.43.36.134                   | root | `{{SSH_PASSWORD}}`      | 测试机器      |
 | **本机 (bot6)**   | -                               | root | -                       | OpenClaw 运行 |
 
@@ -40,8 +40,8 @@ xfreerdp /u:Administrator /p:"$WINDOWS_PASSWORD" /v:36.133.22.15
 source ~/.openclaw/workspace/.env.secrets
 sshpass -p "$SSH_PASSWORD" ssh root@7zi.com
 
-# ❌ 错误（$会被 shell 解析）
-sshpass -p "ge20993344$ZZ" ssh root@7zi.com
+# ❌ 错误（$会被 shell 解析 / 明文密码）
+sshpass -p "$SSH_PASSWORD" ssh root@7zi.com   # 密码必须从 .env.secrets 读取
 ```
 
 ### 部署目标

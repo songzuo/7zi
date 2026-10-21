@@ -10,7 +10,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVER_HOST="7zi.com"
 SERVER_USER="root"
-SERVER_PASS='ge20993344$ZZ'
+SERVER_PASS="${SSH_PASSWORD:-}"
 DEPLOY_PATH="/opt/7zi-frontend"
 
 # 颜色输出
@@ -40,7 +40,7 @@ quick_deploy() {
         --exclude '.next' \
         --exclude 'coverage' \
         --exclude '*.log' \
-        -e "sshpass -p '$SERVER_PASS' ssh -o StrictHostKeyChecking=no" \
+        -e "sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no" \
         "$SCRIPT_DIR/" "$SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/"
 
     # 重启服务

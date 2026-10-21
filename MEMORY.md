@@ -201,16 +201,18 @@
 
 | 服务器 | IP | 用户 | 密码 | 用途 |
 |--------|-----|------|------|------|
-| **7zi.com** | 172.67.184.212 / 104.21.59.229 | root | `ge20993344$ZZ` | 主网站部署 |
-| **bot5.szspd.cn** | 182.43.36.134 | root | `ge20993344$ZZ` | 测试机器 |
+| **7zi.com** | 198.44.179.155 (源站) / 104.21.59.229 (CF) | root | `${SSH_PASSWORD}` | 主网站部署 |
+| **bot5.szspd.cn** | 182.43.36.134 | root | `${SSH_PASSWORD}` | 测试机器 |
 | **bot6** (本机) | - | root | - | OpenClaw运行 |
-| **Windows测试机** | 36.133.22.15 | Administrator | `ge20993344$ZZ` | RDP:3389 |
+| **Windows测试机** | 36.133.22.15 | Administrator | `${WINDOWS_PASSWORD}` | RDP:3389 |
 
 ### SSH 认证注意
-密码含 `$`，连接时必须用单引号：
+密码统一存放在 `.env.secrets`（已 gitignore），使用前先加载：
 ```bash
-sshpass -p 'ge20993344$ZZ' ssh root@7zi.com
+source ~/.openclaw/workspace/.env.secrets
+sshpass -p "$SSH_PASSWORD" ssh root@7zi.com
 ```
+> 历史 commit 曾含明文密码，已在 HEAD 清除；如需彻底清理需重写 git 历史。
 
 ---
 
