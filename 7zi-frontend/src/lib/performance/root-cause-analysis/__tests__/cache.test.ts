@@ -97,14 +97,14 @@ describe('RootCauseCache', () => {
     })
 
     it('should generate different keys for different contexts', () => {
-      const context1 = {
+      const context1: PerformanceContext = {
         timestamp: Date.now(),
         page: '/page1',
         network: { type: 'wifi' as const, rtt: 50, downlink: 10 },
         slowQueries: [],
         slowApis: [],
       }
-      const context2 = {
+      const context2: PerformanceContext = {
         timestamp: Date.now(),
         page: '/page2',
         network: { type: 'wifi' as const, rtt: 50, downlink: 10 },
@@ -242,8 +242,8 @@ describe('RootCauseCache', () => {
 
   describe('Context Hashing', () => {
     it('should generate consistent hash for same context', () => {
-      const context1 = { ...mockContext }
-      const context2 = { ...mockContext }
+      const context1: PerformanceContext = { ...mockContext }
+      const context2: PerformanceContext = { ...mockContext }
 
       cache.set('LCP', 4000, context1, mockRootCause)
       const result = cache.get('LCP', 4000, context2)
@@ -255,14 +255,14 @@ describe('RootCauseCache', () => {
       const localCache1 = new RootCauseCache(10, 1000)
       const localCache2 = new RootCauseCache(10, 1000)
 
-      const context1 = {
+      const context1: PerformanceContext = {
         timestamp: Date.now(),
         page: '/test',
         network: { type: 'wifi' as const, rtt: 50, downlink: 10 },
         slowQueries: [],
         slowApis: [],
       }
-      const context2 = {
+      const context2: PerformanceContext = {
         timestamp: Date.now(),
         page: '/test',
         network: { type: '4g' as const, rtt: 100, downlink: 3 },
@@ -286,14 +286,14 @@ describe('RootCauseCache', () => {
       const localCache1 = new RootCauseCache(10, 1000)
       const localCache2 = new RootCauseCache(10, 1000)
 
-      const context1 = {
+      const context1: PerformanceContext = {
         timestamp: Date.now(),
         page: '/test',
         network: { type: 'wifi' as const, rtt: 50, downlink: 10 },
         slowQueries: [{ query: 'SELECT 1', duration: 100, rowCount: 1, timestamp: Date.now(), type: 'SELECT' }],
         slowApis: [],
       }
-      const context2 = {
+      const context2: PerformanceContext = {
         timestamp: Date.now(),
         page: '/test',
         network: { type: 'wifi' as const, rtt: 50, downlink: 10 },

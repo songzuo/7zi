@@ -154,11 +154,11 @@
 
 ```bash
 # 在 SERVERS 数组中添加新服务器
-["web-02"]="<IP>|7zi-web-02|web|root|'ge20993344\$ZZ'"
-["gw-01"]="<IP>|7zi-gw-01|gateway|root|'ge20993344\$ZZ'"
-["gw-02"]="<IP>|7zi-gw-02|gateway|root|'ge20993344\$ZZ'"
-["db-01"]="<IP>|7zi-db-01|database|root|'ge20993344\$ZZ'"
-["db-02"]="<IP>|7zi-db-02|database|root|'ge20993344\$ZZ'"
+["web-02"]="<IP>|7zi-web-02|web|root|'${SSH_PASSWORD}'"
+["gw-01"]="<IP>|7zi-gw-01|gateway|root|'${SSH_PASSWORD}'"
+["gw-02"]="<IP>|7zi-gw-02|gateway|root|'${SSH_PASSWORD}'"
+["db-01"]="<IP>|7zi-db-01|database|root|'${SSH_PASSWORD}'"
+["db-02"]="<IP>|7zi-db-02|database|root|'${SSH_PASSWORD}'"
 ```
 
 ### 第二步：测试连接

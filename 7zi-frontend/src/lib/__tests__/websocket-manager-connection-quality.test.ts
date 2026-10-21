@@ -60,12 +60,15 @@ describe('WebSocketManager - Connection Quality', () => {
     eventHandlers = new Map()
 
     // Create mock socket with proper event handling
+    const on = vi.fn()
+    on.mockImplementation((event: string, handler: Function) => {
+      eventHandlers.set(event, handler)
+      return mockSocket as Socket
+    })
     mockSocket = {
       connected: false,
       emit: vi.fn(),
-      on: vi.fn((event: string, handler: Function) => {
-        eventHandlers.set(event, handler)
-      }),
+      on,
       disconnect: vi.fn(),
     }
     ;(io as Mock).mockReturnValue(mockSocket as Socket)

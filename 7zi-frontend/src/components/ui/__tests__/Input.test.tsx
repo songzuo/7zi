@@ -7,7 +7,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { Input, Textarea } from './Input'
+import { Input, Textarea } from '../Input'
 
 describe('Input Component', () => {
   describe('基本渲染', () => {

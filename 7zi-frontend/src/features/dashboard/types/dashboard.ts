@@ -277,7 +277,7 @@ export interface StatCardData {
   value: number;
   unit: string;
   change?: number;
-  changeType?: 'increase' | 'decrease';
+  changeType?: 'increase' | 'decrease' | 'neutral';
   trend?: MetricDataPoint[];
   category: MetricCategory;
 }

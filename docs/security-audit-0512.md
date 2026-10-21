@@ -86,7 +86,7 @@
 ```
 | 服务器 | IP | 用户 | 密码 |
 |--------|----|----|------|
-| 7zi.com | 172.67.184.212 | root | `ge20993344$ZZ` |
+| 7zi.com | 172.67.184.212 | root | `${SSH_PASSWORD}` |
 ```
 
 **风险:** 
@@ -127,11 +127,11 @@
 
 **文件:** `TOOLS.md`, `docs/SERVERS.md`, `docs/SSH-SETUP.md`
 
-**问题:** 密码 `ge20993344$ZZ` 在多处文档中出现：
+**问题:** 密码 `${SSH_PASSWORD}` 在多处文档中出现：
 
 ```bash
 # TOOLS.md
-| 7zi.com | 172.67.184.212 | root | `ge20993344$ZZ` |
+| 7zi.com | 172.67.184.212 | root | `${SSH_PASSWORD}` |
 
 # 多个服务器均使用相同密码
 - 7zi.com (主网站)

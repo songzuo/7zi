@@ -55,15 +55,21 @@ describe('WebSocketManager - Enhanced Tests', () => {
     onAnyHandler = null
 
     // Create mock socket with proper event handling
+    const on = vi.fn()
+    on.mockImplementation((event: string, handler: Function) => {
+      eventHandlers.set(event, handler)
+      return mockSocket as Socket
+    })
+    const onAny = vi.fn()
+    onAny.mockImplementation((handler: (event: string, ...args: unknown[]) => void) => {
+      onAnyHandler = handler
+      return mockSocket as Socket
+    })
     mockSocket = {
       connected: false,
       emit: vi.fn(),
-      on: vi.fn((event: string, handler: Function) => {
-        eventHandlers.set(event, handler)
-      }),
-      onAny: vi.fn((handler: (event: string, ...args: unknown[]) => void) => {
-        onAnyHandler = handler
-      }),
+      on,
+      onAny,
       disconnect: vi.fn(() => {
         mockSocket.connected = false
       }),

@@ -16,7 +16,7 @@ import {
   createValidationErrorResponse,
   validateAndSanitizeBody,
 } from '../../../lib/validation-schemas'
-import { AuditLogger } from '@/features/audit/lib/types'
+import { AuditLogger } from '@/features/audit/lib/logger'
 import { getClientIP } from '../../../lib/rate-limit/limiter'
 import { AuditEventType } from '@/features/audit/lib/types'
 

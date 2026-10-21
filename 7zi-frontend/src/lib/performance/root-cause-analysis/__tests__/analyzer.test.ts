@@ -162,7 +162,9 @@ describe('RootCauseAnalyzer', () => {
 
       const result = analyzer.analyze('LCP', 4000, context)
 
-      expect(result.primaryCause?.details.errorRate).toBeCloseTo(0.333, 2)
+      const details = result.primaryCause?.details
+      const errorRate = details && 'errorRate' in details ? details.errorRate : undefined
+      expect(errorRate).toBeCloseTo(0.333, 2)
     })
   })
 

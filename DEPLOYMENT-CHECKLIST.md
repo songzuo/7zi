@@ -9,8 +9,8 @@
 
 | 服务器            | IP            | 用户 | 密码            | 用途     |
 | ----------------- | ------------- | ---- | --------------- | -------- |
-| **7zi.com**       | 165.99.43.61  | root | `ge20993344$ZZ` | 主网站   |
-| **bot5.szspd.cn** | 182.43.36.134 | root | `ge20993344$ZZ` | 测试机器 |
+| **7zi.com**       | 165.99.43.61  | root | `${SSH_PASSWORD}` | 主网站   |
+| **bot5.szspd.cn** | 182.43.36.134 | root | `${SSH_PASSWORD}` | 测试机器 |
 
 ---
 
@@ -229,7 +229,7 @@ cd /root/.openclaw/workspace
 
 ```bash
 # 1. SSH 到服务器
-sshpass -p 'ge20993344$ZZ' ssh root@7zi.com
+sshpass -p "${SSH_PASSWORD}" ssh root@7zi.com
 
 # 2. 克隆代码（如果不存在）
 cd /opt

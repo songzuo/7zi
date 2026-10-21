@@ -66,7 +66,7 @@
 | 项目 | 配置 |
 |------|------|
 | 用户 | `root` |
-| SSH 认证 | 密码 `ge20993344$ZZ` (secrets.SSH_PRIVATE_KEY) |
+| SSH 认证 | 密码 `${SSH_PASSWORD}` (secrets.SSH_PRIVATE_KEY) |
 | 生产环境变量文件 | `/root/.env.production` |
 | SSH 连接方式 | GitHub Actions: `webfactory/ssh-agent` + secrets |
 

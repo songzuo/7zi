@@ -134,7 +134,7 @@ export function Dashboard() {
     const category = metricDef.category;
     let value = 0;
     let change: number | undefined;
-    let changeType: 'increase' | 'decrease' | undefined;
+    let changeType: 'increase' | 'decrease' | 'neutral' | undefined;
     let trend: MetricDataPoint[] | undefined;
 
     switch (metricName) {

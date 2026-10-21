@@ -188,7 +188,7 @@ const ALLOWED_MCP_ORIGINS = new Set(
 **文件**: `/root/.openclaw/workspace/TOOLS.md`
 
 包含以下明文敏感信息:
-- 服务器 IP 和密码 (`ge20993344$ZZ`)
+- 服务器 IP 和密码 (`${SSH_PASSWORD}`)
 - SSH 私钥信息
 - Windows RDP 密码
 

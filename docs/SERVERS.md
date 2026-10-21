@@ -29,5 +29,5 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKUyv7pPHVE5WJ9G7aWgUuXTivNZmJHm7uV9PSgcUpxM
 **重要**: 密码含 `$` 必须用单引号！
 
 ```bash
-sshpass -p 'ge20993344$ZZ' ssh root@server
+sshpass -p "${SSH_PASSWORD}" ssh root@server
 ```

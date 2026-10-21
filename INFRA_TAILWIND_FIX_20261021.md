@@ -77,25 +77,25 @@ node -e "import('postcss').then(async p=>{const fs=await import('fs');const tw=(
 ```bash
 deploy.sh:
   SERVER_IP="165.99.43.61"  →  SERVER_IP="198.44.179.155"
-  SERVER_PASS='ge20993344$ZZ'  →  SERVER_PASS="${SSH_PASSWORD:-}"
+  SERVER_PASS='<明文密码>'  →  SERVER_PASS="${SSH_PASSWORD:-}"
   sshpass -p '$SERVER_PASS'  →  sshpass -p "$SERVER_PASS"   (2 处)
 
 scripts/health-check.sh:
   SERVER_IP="165.99.43.61"  →  SERVER_IP="198.44.179.155"
-  16 处 sshpass -p 'ge20993344$ZZ'  →  sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}"
+  16 处 sshpass -p '<明文密码>'  →  sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}"
 ```
 备份：`/tmp/deploy.sh.bak`、`/tmp/health-check.sh.bak`
 
 ### 验证
 - `bash -n` 语法检查通过（两个脚本）
 - 实测 `sshpass -p "$SSH_PASSWORD" ssh root@198.44.179.155` → `SSH_OK / mxwbkh1ni` ✅
-- `grep -c ge20993344` 两个脚本均为 **0**（明文已清除）
+- `grep -c "<明文密码>"` 两个脚本均为 **0**（明文已清除）
 
 ### 仍需主人决策
 1. **git 历史中的密码**：当前 HEAD 已清除，但历史 commit 仍含明文。是否需要
    `git filter-repo`/BFG 重写历史？（会改变所有 commit hash，影响协作）
-2. **.env.secrets 与脚本密码不一致**：`.env.secrets` 里 `SSH_PASSWORD=ge20993344`（无 `$ZZ`），
-   而历史脚本写的是 `ge20993344$ZZ`。实测两个都能登录成功 → 疑似源站允许多密码。
+2. **.env.secrets 与脚本密码不一致**：`.env.secrets` 里是短版密码，
+   而历史脚本写的是带 `$ZZ` 后缀的长版。实测两个都能登录成功 → 疑似源站允许多密码。
    建议主人确认**唯一正确密码**并统一 `.env.secrets`。
 3. **SPF 记录**仍含 `ip4:165.99.43.61`（邮件配置，不影响 HTTP，本轮按约束未动）。
 4. **散落的旧 IP**：`docs/cloudflare-setup.md`、`docs/cicd-pipeline.md` 等文档仍写 `165.99.43.61`，

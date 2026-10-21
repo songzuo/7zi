@@ -270,7 +270,6 @@ describe('PerformanceAlerter', () => {
       metric: 'responseTime',
       value: 3000,
       threshold: 2000,
-      source: 'threshold',
     })
 
     expect(alert.id).toBeDefined()
@@ -286,7 +285,6 @@ describe('PerformanceAlerter', () => {
       metric: 'test',
       value: 100,
       threshold: 50,
-      source: 'manual',
     })
 
     const acknowledged = alerter.acknowledgeAlert(alert.id, 'user1')
@@ -304,7 +302,6 @@ describe('PerformanceAlerter', () => {
       metric: 'test',
       value: 100,
       threshold: 50,
-      source: 'manual',
     })
 
     const resolved = alerter.resolveAlert(alert.id)
@@ -322,7 +319,6 @@ describe('PerformanceAlerter', () => {
       metric: 'metric1',
       value: 100,
       threshold: 50,
-      source: 'manual',
     })
 
     await alerter.createAlert({
@@ -332,7 +328,6 @@ describe('PerformanceAlerter', () => {
       metric: 'metric2',
       value: 100,
       threshold: 50,
-      source: 'manual',
     })
 
     const stats = alerter.getStats()

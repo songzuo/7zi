@@ -51,16 +51,20 @@ describe('WebSocketManager', () => {
     onAnyHandler = null
 
     // Create mock socket with proper event handling
+    const on = vi.fn()
+    on.mockImplementation((event: string, handler: Function) => {
+      eventHandlers.set(event, handler)
+    })
+    const onAny = vi.fn()
+    onAny.mockImplementation((handler: (event: string, ...args: unknown[]) => void) => {
+      onAnyHandler = handler
+    })
     mockSocket = {
       connected: false,
       emit: vi.fn(),
-      on: vi.fn((event: string, handler: Function) => {
-        eventHandlers.set(event, handler)
-      }),
+      on,
       disconnect: vi.fn(),
-      onAny: vi.fn((handler: (event: string, ...args: unknown[]) => void) => {
-        onAnyHandler = handler
-      }),
+      onAny,
     }
     ;(io as Mock).mockReturnValue(mockSocket as Socket)
   })
@@ -95,9 +99,8 @@ describe('WebSocketManager', () => {
 
       // Simulate connection success
       const connectHandler = eventHandlers.get('connect')
-      if (connectHandler) {
-        connectHandler()
-      }
+      expect(connectHandler).toBeDefined()
+      connectHandler?.()
 
       expect(wsManager.getState()).toBe(ConnectionState.CONNECTED)
     })
@@ -112,9 +115,8 @@ describe('WebSocketManager', () => {
 
       // Simulate connection
       const connectHandler = eventHandlers.get('connect')
-      if (connectHandler) {
-        connectHandler()
-      }
+      expect(connectHandler).toBeDefined()
+      connectHandler?.()
 
       // Disconnect
       wsManager.disconnect()
@@ -154,9 +156,8 @@ describe('WebSocketManager', () => {
 
       // Simulate connection
       const connectHandler = eventHandlers.get('connect')
-      if (connectHandler) {
-        connectHandler()
-      }
+      expect(connectHandler).toBeDefined()
+      connectHandler?.()
 
       // After connection, heartbeat should be running
       // The startHeartbeat method sets up an interval
@@ -177,9 +178,8 @@ describe('WebSocketManager', () => {
 
       // Simulate connection
       const connectHandler = eventHandlers.get('connect')
-      if (connectHandler) {
-        connectHandler()
-      }
+      expect(connectHandler).toBeDefined()
+      connectHandler?.()
 
       // Simulate pong
       const pongHandler = eventHandlers.get('pong')
@@ -205,14 +205,13 @@ describe('WebSocketManager', () => {
 
       // Simulate connection
       const connectHandler = eventHandlers.get('connect')
-      if (connectHandler) {
-        connectHandler()
-      }
+      expect(connectHandler).toBeDefined()
+      connectHandler?.()
 
       // Simulate disconnection
       const disconnectHandler = eventHandlers.get('disconnect')
       if (disconnectHandler) {
-        disconnectHandler('transport close')
+        disconnectHandler?.('transport close')
       }
 
       // Verify state changed to reconnecting
@@ -234,22 +233,21 @@ describe('WebSocketManager', () => {
 
       // Simulate connection
       const connectHandler = eventHandlers.get('connect')
-      if (connectHandler) {
-        connectHandler()
-      }
+      expect(connectHandler).toBeDefined()
+      connectHandler?.()
 
       // Simulate multiple disconnections and reconnections
       const disconnectHandler = eventHandlers.get('disconnect')
 
-      disconnectHandler('transport close')
+      disconnectHandler?.('transport close')
       expect(wsManager.getState()).toBe(ConnectionState.RECONNECTING)
 
       // Simulate reconnected
-      connectHandler()
+      connectHandler?.()
       expect(wsManager.getState()).toBe(ConnectionState.CONNECTED)
 
       // Disconnect again
-      disconnectHandler('transport close')
+      disconnectHandler?.('transport close')
       expect(wsManager.getState()).toBe(ConnectionState.RECONNECTING)
     })
   })
@@ -282,9 +280,8 @@ describe('WebSocketManager', () => {
 
       // Simulate connection
       const connectHandler = eventHandlers.get('connect')
-      if (connectHandler) {
-        connectHandler()
-      }
+      expect(connectHandler).toBeDefined()
+      connectHandler?.()
 
       // Queued message should be sent
       expect(mockSocket.emit).toHaveBeenCalledWith('test_event', { data: 'test' })
@@ -391,9 +388,8 @@ describe('WebSocketManager', () => {
 
       // Simulate the connect event
       const connectHandler = eventHandlers.get('connect')
-      if (connectHandler) {
-        connectHandler()
-      }
+      expect(connectHandler).toBeDefined()
+      connectHandler?.()
 
       expect(wsManager.isConnected()).toBe(true)
     })

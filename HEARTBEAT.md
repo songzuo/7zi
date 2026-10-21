@@ -75,7 +75,7 @@
 1. ~~**`/etc/hosts` 固化**~~ ✅ 已解决（`etc-hosts-fix.service` + cloud-init 模板双路径）
 2. **Git 未提交**：本轮 25+ 改动文件（globals.css 修复、deploy.sh、health-check.sh、TS 修复系列）均未提交
 3. **git 历史仍含明文密码**（`34fead4a2` 等）— 是否重写历史需主人决策
-4. **`.env.secrets` 密码与历史脚本不一致**（`ge20993344` vs `ge20993344$ZZ`，两者实测均可登录）— 请确认唯一正确密码
+4. **`.env.secrets` 与历史脚本中的密码值不同**（短版 / 带 `$ZZ` 长版，两者实测均可登录）— 请确认唯一正确密码并统一
 5. **TypeScript 剩余 154 错误**（原 197，已由 round3 修复 -43），主要热点：
    - `useAnalytics.ts` — `AnalyticsService` 缺 `getWorkflowStats/getExecutionTrend/getExecutionDetails`（API 漂移）
    - `client-notification-manager.ts` — 导入不存在的 `websocketManager` 单例（重构后未补导出）+ 3 个类型与 DOM 全局冲突

@@ -154,7 +154,7 @@ SENTRY_PROJECT=<需要配置>
 | Docker         | ✅ 已安装 | v29.1.1                  |
 | Docker Compose | ⚠️ 未安装 | 部署脚本会自动安装       |
 | 系统           | ✅ Ubuntu | Linux 5.15.0-171-generic |
-| 用户           | ✅ root   | 密码: `ge20993344$ZZ`    |
+| 用户           | ✅ root   | 密码: `${SSH_PASSWORD}`    |
 
 **部署路径**: `/opt/7zi-frontend`
 
@@ -172,7 +172,7 @@ SENTRY_PROJECT=<需要配置>
 | SSH 连接 | ⚠️ 待测试 | 需验证                |
 | Docker   | ⚠️ 待检查 | 部署脚本会自动安装    |
 | 系统     | ⚠️ 待确认 | 需要检查              |
-| 用户     | ✅ root   | 密码: `ge20993344$ZZ` |
+| 用户     | ✅ root   | 密码: `${SSH_PASSWORD}` |
 
 **用途**: 测试环境
 
@@ -218,7 +218,7 @@ cd /root/.openclaw/workspace
 
 ```bash
 # 1. SSH 到服务器
-sshpass -p 'ge20993344$ZZ' ssh root@7zi.com
+sshpass -p "${SSH_PASSWORD}" ssh root@7zi.com
 
 # 2. 创建部署目录
 mkdir -p /opt/7zi-frontend
@@ -415,7 +415,7 @@ ssh root@7zi.com 'docker logs 7zi-frontend -f'
 ./quick-deploy.sh stop
 
 # SSH 到服务器
-sshpass -p 'ge20993344$ZZ' ssh root@7zi.com
+sshpass -p "${SSH_PASSWORD}" ssh root@7zi.com
 ```
 
 ---

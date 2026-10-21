@@ -163,11 +163,18 @@ export function usePerformanceMonitor({
 /**
  * Simplified hook for just metrics (no charts)
  */
+export interface UsePerformanceMetricsOptions {
+  autoRefresh?: boolean
+  refreshInterval?: number // in milliseconds
+  /** 统计时间窗口（毫秒），默认 30 分钟 */
+  timeRange?: number
+}
+
 export function usePerformanceMetrics({
   autoRefresh = true,
   refreshInterval = 30000,
   timeRange = 30 * 60 * 1000,
-}: UsePerformanceMonitorOptions = {}) {
+}: UsePerformanceMetricsOptions = {}) {
   const {
     aggregatedData,
     isRefreshing,

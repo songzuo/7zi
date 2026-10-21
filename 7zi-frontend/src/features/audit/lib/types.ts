@@ -15,6 +15,7 @@ export enum AuditEventType {
   REGISTER = 'register',
   PASSWORD_RESET_REQUEST = 'password.reset.request',
   PASSWORD_RESET_SUCCESS = 'password.reset.success',
+  PASSWORD_RESET_FAILED = 'password.reset.failed',
   PASSWORD_CHANGE = 'password.change',
 
   // 权限事件

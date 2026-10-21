@@ -95,7 +95,10 @@ export class AuditLogger {
    * 记录密码重置事件
    */
   static async logPasswordReset(
-    eventType: AuditEventType.PASSWORD_RESET_REQUEST | AuditEventType.PASSWORD_RESET_SUCCESS,
+    eventType:
+      | AuditEventType.PASSWORD_RESET_REQUEST
+      | AuditEventType.PASSWORD_RESET_SUCCESS
+      | AuditEventType.PASSWORD_RESET_FAILED,
     data: {
       userId?: string
       username?: string
@@ -463,13 +466,18 @@ export class AuditLogger {
    * 生成密码重置消息
    */
   private static getPasswordResetMessage(
-    eventType: AuditEventType.PASSWORD_RESET_REQUEST | AuditEventType.PASSWORD_RESET_SUCCESS,
+    eventType:
+      | AuditEventType.PASSWORD_RESET_REQUEST
+      | AuditEventType.PASSWORD_RESET_SUCCESS
+      | AuditEventType.PASSWORD_RESET_FAILED,
     success: boolean
   ): string {
     const action =
       eventType === AuditEventType.PASSWORD_RESET_REQUEST
         ? 'Password reset requested'
-        : 'Password reset completed'
+        : eventType === AuditEventType.PASSWORD_RESET_FAILED
+          ? 'Password reset failed'
+          : 'Password reset completed'
     return `${action} - ${success ? 'Success' : 'Failed'}`
   }
 }

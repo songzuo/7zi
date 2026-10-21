@@ -8,10 +8,12 @@ interface StatCardProps {
   value: number;
   unit?: string;
   change?: number;
-  changeType?: 'increase' | 'decrease';
+  changeType?: 'increase' | 'decrease' | 'neutral';
   trend?: Array<{ timestamp: number; value: number }>;
   category: MetricCategory;
   loading?: boolean;
+  /** 是否显示迷你趋势图（默认显示） */
+  showTrend?: boolean;
   className?: string;
 }
 
@@ -24,6 +26,7 @@ export function StatCard({
   trend,
   category,
   loading = false,
+  showTrend = true,
   className = '',
 }: StatCardProps) {
   const categoryConfig = METRIC_CATEGORIES[category];
@@ -127,7 +130,9 @@ export function StatCard({
             className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
               changeType === 'increase'
                 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                : changeType === 'decrease'
+                  ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700/30 dark:text-gray-400'
             }`}
           >
             {changeType === 'increase' ? (
@@ -148,7 +153,7 @@ export function StatCard({
       )}
 
       {/* Mini trend chart */}
-      {trend && trend.length > 0 && !loading && (
+      {showTrend && trend && trend.length > 0 && !loading && (
         <div className="mt-4">
           <svg
             className="w-full h-12"

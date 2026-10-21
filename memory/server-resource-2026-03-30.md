@@ -164,10 +164,10 @@ journalctl --vacuum-size=100M
 
 ```bash
 # 7zi.com
-sshpass -p 'ge20993344$ZZ' ssh root@165.99.43.61
+sshpass -p "${SSH_PASSWORD}" ssh root@165.99.43.61
 
 # bot5.szspd.cn
-sshpass -p 'ge20993344$ZZ' ssh root@182.43.36.134
+sshpass -p "${SSH_PASSWORD}" ssh root@182.43.36.134
 ```
 
 ---

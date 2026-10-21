@@ -19,7 +19,7 @@
 2. ✅ SSH 端口 22 开放
 3. ✅ sshpass 已安装
 4. ✅ expect 已安装
-5. ❌ 密码 `ge20993344$ZZ` 被拒绝
+5. ❌ 密码 `${SSH_PASSWORD}` 被拒绝
 6. ❌ authorized_keys 为空 (0 字节)
 
 ## 解决方案

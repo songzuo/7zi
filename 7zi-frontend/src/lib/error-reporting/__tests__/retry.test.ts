@@ -3,7 +3,7 @@
  * 重试工具测试
  */
 
-import { withRetry, withRetrySync, createRetryableFunction, retry, isRetryableError, DEFAULT_RETRYABLE_ERRORS } from './retry'
+import { withRetry, withRetrySync, createRetryableFunction, retry, isRetryableError, DEFAULT_RETRYABLE_ERRORS } from '../retry'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 // Mock logger

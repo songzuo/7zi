@@ -262,7 +262,7 @@ GitHub Actions CI/CD
 | 问题 | 位置 | 描述 |
 |------|------|------|
 | 无 K8s 生产配置 | - | 仅有 `k8s-auth-deployment.yaml` 示例 |
-| deploy.sh 硬编码密码 | deploy.sh | `SERVER_PASS='ge20993344$ZZ'` 应使用密钥或 secrets |
+| deploy.sh 硬编码密码 | deploy.sh | `SERVER_PASS="${SSH_PASSWORD}"` 应使用密钥或 secrets |
 | 缺少 healthcheck 路径验证 | docker-compose.yml | 健康检查使用 `/` 而非 `/api/health` |
 
 ### 7.3 低优先级

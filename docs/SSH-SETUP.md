@@ -15,7 +15,7 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKUyv7pPHVE5WJ9G7aWgUuXTivNZmJHm7uV9PSgcUpxM
 ```bash
 # 1. 登录服务器（用密码）
 ssh root@7zi.com
-# 输入密码：ge20993344$ZZ
+# 输入密码：${SSH_PASSWORD}
 
 # 2. 创建 .ssh 目录
 mkdir -p ~/.ssh

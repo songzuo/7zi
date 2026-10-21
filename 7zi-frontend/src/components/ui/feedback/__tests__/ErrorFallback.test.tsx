@@ -11,10 +11,10 @@ import {
   FullErrorFallback,
   CardErrorFallback,
   ErrorFallback,
-} from './ErrorFallback'
+} from '../ErrorFallback'
 
 // Mock logger
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -24,12 +24,12 @@ jest.mock('@/lib/logger', () => ({
 }))
 
 // Mock addErrorLog
-jest.mock('@/lib/error-reporting/error-log-history', () => ({
+vi.mock('@/lib/error-reporting/error-log-history', () => ({
   addErrorLog: vi.fn().mockResolvedValue(undefined),
 }))
 
 // Mock withRetry
-jest.mock('@/lib/error-reporting/retry', () => ({
+vi.mock('@/lib/error-reporting/retry', () => ({
   withRetry: vi.fn(),
 }))
 

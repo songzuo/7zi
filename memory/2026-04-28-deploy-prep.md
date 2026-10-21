@@ -63,7 +63,7 @@
 cd /root/.openclaw/workspace/7zi-frontend
 
 # 清理旧部署目录 (可选)
-# sshpass -p 'ge20993344$ZZ' ssh root@bot5.szspd.cn "rm -rf /opt/7zi-frontend"
+# sshpass -p "${SSH_PASSWORD}" ssh root@bot5.szspd.cn "rm -rf /opt/7zi-frontend"
 
 # 创建部署包
 tar -czvf /tmp/7zi-frontend-deploy.tar.gz \
@@ -76,13 +76,13 @@ tar -czvf /tmp/7zi-frontend-deploy.tar.gz \
 ### 第二步：传输到目标服务器
 
 ```bash
-sshpass -p 'ge20993344$ZZ' scp /tmp/7zi-frontend-deploy.tar.gz root@bot5.szspd.cn:/opt/
+sshpass -p "${SSH_PASSWORD}" scp /tmp/7zi-frontend-deploy.tar.gz root@bot5.szspd.cn:/opt/
 ```
 
 ### 第三步：在目标服务器解压
 
 ```bash
-sshpass -p 'ge20993344$ZZ' ssh root@bot5.szspd.cn "
+sshpass -p "${SSH_PASSWORD}" ssh root@bot5.szspd.cn "
   cd /opt
   tar -xzvf 7zi-frontend-deploy.tar.gz
   cd 7zi-frontend
@@ -93,7 +93,7 @@ sshpass -p 'ge20993344$ZZ' ssh root@bot5.szspd.cn "
 ### 第四步：配置环境变量 (如需要)
 
 ```bash
-sshpass -p 'ge20993344$ZZ' ssh root@bot5.szspd.cn "
+sshpass -p "${SSH_PASSWORD}" ssh root@bot5.szspd.cn "
   # 检查 .env.production 是否需要修改
   cat /opt/7zi-frontend/.env.production
 "
@@ -102,7 +102,7 @@ sshpass -p 'ge20993344$ZZ' ssh root@bot5.szspd.cn "
 ### 第五步：启动服务
 
 ```bash
-sshpass -p 'ge20993344$ZZ' ssh root@bot5.szspd.cn "
+sshpass -p "${SSH_PASSWORD}" ssh root@bot5.szspd.cn "
   cd /opt/7zi-frontend
   PORT=3000 node server.js
 "
@@ -133,7 +133,7 @@ set -e
 
 HOST="bot5.szspd.cn"
 USER="root"
-PASS="ge20993344\$ZZ"
+PASS="${SSH_PASSWORD}"
 PORT=3000
 
 cd /root/.openclaw/workspace/7zi-frontend

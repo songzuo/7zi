@@ -9,7 +9,7 @@ set -e
 DEPLOY_HOST="165.99.43.61"
 DEPLOY_USER="root"
 DEPLOY_PORT="22"
-DEPLOY_PASSWORD='ge20993344$ZZ'
+DEPLOY_PASSWORD="${SSH_PASSWORD}"
 APP_NAME="7zi-frontend"
 APP_DIR="/var/www/7zi/7zi-frontend"
 BACKUP_DIR="/var/backups/7zi"

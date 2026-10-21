@@ -126,7 +126,10 @@ export function MetricChart({
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
               }}
               labelStyle={{ color: '#f9fafb', marginBottom: '8px' }}
-              formatter={(value: number) => [formatNumber(value), metricDefinition.displayName]}
+              formatter={(value, name) => [
+                formatNumber(Number(value)),
+                String(name ?? metricDefinition.displayName),
+              ]}
             />
             {data.length > 1 && (
               <Legend

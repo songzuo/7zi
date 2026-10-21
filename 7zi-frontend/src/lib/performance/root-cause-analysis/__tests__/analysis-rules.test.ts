@@ -388,7 +388,7 @@ describe('AnalysisRuleEngine', () => {
           severity: 'critical' as const,
           confidence: 0.9,
           description: 'Critical database issue',
-          details: {},
+          details: { query: 'SELECT * FROM users', executionTime: 1200, table: 'users' },
           suggestedActions: ['Add indexes', 'Optimize query'],
         },
         {
@@ -396,12 +396,12 @@ describe('AnalysisRuleEngine', () => {
           severity: 'low' as const,
           confidence: 0.5,
           description: 'Minor API issue',
-          details: {},
+          details: { endpoint: '/api/users', method: 'GET', responseTime: 800, statusCode: 200 },
           suggestedActions: ['Check cache headers'],
         },
       ]
 
-      const result = engine.prioritizeSuggestions(candidates, {} as any)
+      const result = engine.prioritizeSuggestions(candidates, { timestamp: Date.now() })
 
       expect(result.highPriority).toContain('Add indexes')
       expect(result.highPriority).toContain('Optimize query')
@@ -409,7 +409,7 @@ describe('AnalysisRuleEngine', () => {
     })
 
     it('should return empty arrays for no candidates', () => {
-      const result = engine.prioritizeSuggestions([], {} as any)
+      const result = engine.prioritizeSuggestions([], { timestamp: Date.now() })
 
       expect(result.highPriority).toEqual([])
       expect(result.mediumPriority).toEqual([])
@@ -424,7 +424,7 @@ describe('AnalysisRuleEngine', () => {
         severity: 'critical' as const,
         confidence: 0.9,
         description: 'Critical database issue',
-        details: {},
+        details: { query: 'SELECT * FROM users', executionTime: 1200, table: 'users' },
         suggestedActions: [],
       }
 
@@ -441,7 +441,7 @@ describe('AnalysisRuleEngine', () => {
         severity: 'medium' as const,
         confidence: 0.7,
         description: 'Medium API issue',
-        details: {},
+        details: { endpoint: '/api/users', method: 'GET', responseTime: 800, statusCode: 200 },
         suggestedActions: [],
       }
 
@@ -458,7 +458,7 @@ describe('AnalysisRuleEngine', () => {
         severity: 'critical' as const,
         confidence: 0.95,
         description: 'Critical rendering issue',
-        details: {},
+        details: { component: 'Dashboard', renderTime: 350 },
         suggestedActions: [],
       }
 
@@ -475,7 +475,7 @@ describe('AnalysisRuleEngine', () => {
         severity: 'medium' as const,
         confidence: 0.6,
         description: 'Resource optimization needed',
-        details: {},
+        details: { totalSize: 1048576, slowResourcesCount: 2, resourcesByType: {} },
         suggestedActions: [],
       }
 

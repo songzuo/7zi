@@ -49,15 +49,16 @@ export function useDeviceType(): UseDeviceTypeResult {
 
       // Check for low-end device
       // Based on hardware concurrency and memory
-      const isLowEnd =
+      const isLowEnd = Boolean(
         (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
-        (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
-        // Check for mobile devices which are typically lower-end
-        isMobile ||
-        // Check connection type if available
-        (navigator.connection &&
-          (navigator.connection.effectiveType === 'slow-2g' ||
-            navigator.connection.effectiveType === '2g'))
+          (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+          // Check for mobile devices which are typically lower-end
+          isMobile ||
+          // Check connection type if available
+          (navigator.connection &&
+            (navigator.connection.effectiveType === 'slow-2g' ||
+              navigator.connection.effectiveType === '2g'))
+      )
 
       // Check for reduced motion preference
       const prefersReducedMotion = window.matchMedia(

@@ -73,7 +73,7 @@ $ grep ".env.secrets" .gitignore
 
 **当前 .env.secrets 内容暴露** (仅用于审计，不外泄):
 ```bash
-SSH_PASSWORD=ge20993344$ZZ
+SSH_PASSWORD=${SSH_PASSWORD}
 WINDOWS_PASSWORD={{WINDOWS_PASSWORD}}
 ```
 
