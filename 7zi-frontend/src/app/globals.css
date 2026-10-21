@@ -3,6 +3,13 @@
  * 引入设计系统变量和全局样式
  */
 
+/* Tailwind v4：必须显式 @import 才会生成工具类（无 @tailwind base 指令） */
+@import 'tailwindcss';
+/* 复用 v3 风格配置：content 扫描路径 + 主题扩展 */
+@config '../../tailwind.config.js';
+/* v4 中 darkMode: 'class' 需用 @custom-variant 声明 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @import '../styles/tokens.css';
 @import '../lib/theme/theme.css';
 
