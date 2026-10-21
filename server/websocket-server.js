@@ -32,7 +32,24 @@ const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:300
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info'
 
 // JWT Secret (should match the one in Next.js app)
-const JWT_SECRET = process.env.JWT_SECRET || 'demo-secret-key'
+// Security: Must be set in production; only has dev fallback for non-production environments
+function getJWTSecret() {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[FATAL] JWT_SECRET environment variable is required in production.')
+      console.error('[FATAL] Generate a secure key: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"')
+      process.exit(1)
+    }
+    console.warn('[WARN] JWT_SECRET not set. Using insecure development key. DO NOT use in production!')
+    return 'dev-only-insecure-key-do-not-use-in-production-xxxxx'
+  }
+  if (secret.length < 64) {
+    console.warn(`[WARN] JWT_SECRET is too short (${secret.length} chars). Minimum 64 recommended for HS256.`)
+  }
+  return secret
+}
+const JWT_SECRET = getJWTSecret()
 
 // ============================================================================
 // Logger

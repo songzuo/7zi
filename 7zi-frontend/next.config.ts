@@ -410,26 +410,37 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
           },
-          // Content Security Policy - removed 'unsafe-eval'
+          // Content Security Policy
+          // - 'self': Next.js internal resources, API calls to 7zi.com
+          // - 'unsafe-inline': Tailwind CSS (required by Next.js + Tailwind integration)
+          // - https://www.googletagmanager.com, https://www.google-analytics.com: GA4
+          // - https://sentry.io: Sentry error monitoring
+          // - https://api.openai.com: AI embeddings/chat endpoints
+          // - https://fonts.googleapis.com, https://fonts.gstatic.com: Google Fonts
+          // - data: blob: inline images (base64, avatars)
+          // - wss: ws: WebSocket connections (local dev + production)
           {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self'",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https: blob:",
-              "font-src 'self' data:",
-              "connect-src 'self' https://sentry.io wss: https://",
-              "frame-src 'none'",
+              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' data: blob: https://7zi.com https://www.google-analytics.com https://www.googletagmanager.com",
+              "font-src 'self' data: https://fonts.gstatic.com",
+              "connect-src 'self' https://7zi.com https://sentry.io https://api.openai.com https://www.google-analytics.com wss: ws:",
+              "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
+              "frame-ancestors 'self'",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
+              "worker-src 'self' blob:",
+              "manifest-src 'self'",
             ].join('; '),
           },
         ],
       },
       {
-        source: '/:path*.{png,jpg,jpeg,webp,avif,svg,ico}',
+        source: '/:path*.{png,jpg,jpeg,webp,avif,svg,ico,woff,woff2,ttf,otf,eot}',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
       {

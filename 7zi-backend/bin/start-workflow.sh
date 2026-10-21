@@ -13,8 +13,8 @@ if [ -f "$BACKEND_DIR/.env" ]; then
     export $(cat "$BACKEND_DIR/.env" | grep -v '^#' | xargs)
 fi
 
-# 默认端口
-export PORT="${WORKFLOW_PORT:-3002}"
+# Workflow 端口
+export PORT="${WF_PORT:-3011}"
 
 echo "🚀 Starting Workflow Engine on port $PORT..."
 

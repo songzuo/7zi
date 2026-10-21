@@ -16,16 +16,31 @@ import { logger } from '@/lib/logger'
 export class NotificationStorage {
   private db: Database.Database | null = null
   private dbPath: string
+  private _initialized = false
 
   constructor(dbPath?: string) {
     this.dbPath = dbPath || join(process.cwd(), 'data', 'notifications.db')
   }
 
   /**
+   * Check if database is initialized
+   */
+  isInitialized(): boolean {
+    return this._initialized
+  }
+
+  /**
    * Initialize database connection and create tables
+   * Uses lazy initialization to avoid build-time evaluation
    */
   initialize(): void {
+    // Skip if already initialized
+    if (this._initialized || this.db) {
+      return
+    }
+
     try {
+      this._initialized = true
       // Ensure data directory exists
       const fs = require('fs')
       const dir = require('path').dirname(this.dbPath)

@@ -69,15 +69,15 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     }
 
     const classes = clsx(
-      'bg-white rounded-lg',
+      'bg-[var(--color-surface)] rounded-lg',
       // 移动端响应式宽度
       fullWidthMobile ? 'w-full' : 'w-full sm:w-auto',
       // 移动端内边距
       mobilePaddingStyles[mobilePadding] || mobilePaddingStyles.md,
       // 边框样式
       bordered
-        ? 'border-2 border-gray-200 hover:border-blue-400 dark:border-gray-700 dark:hover:border-blue-500'
-        : 'border border-gray-200 dark:border-gray-700',
+        ? 'border-2 border-[var(--color-border)] hover:border-[var(--color-primary)]'
+        : 'border border-[var(--color-border)]',
       // 阴影样式
       shadowStyles[shadow],
       // 悬停效果（移动端禁用以提升性能）
@@ -125,7 +125,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ children, className, bor
     <div
       className={clsx(
         'px-6 py-4',
-        bordered && 'border-b border-gray-200 dark:border-gray-700',
+        bordered && 'border-b border-[var(--color-border)]',
         className
       )}
     >
@@ -176,15 +176,15 @@ export interface CardFooterProps {
 
 export const CardFooter: React.FC<CardFooterProps> = ({ children, className, bg = 'gray' }) => {
   const bgStyles = {
-    gray: 'bg-gray-50 dark:bg-gray-900/50',
-    white: 'bg-white dark:bg-gray-800',
+    gray: 'bg-[var(--color-surface)]',
+    white: 'bg-[var(--color-background)]',
     blue: 'bg-blue-50 dark:bg-blue-900/20',
   }
 
   return (
     <div
       className={clsx(
-        'border-t border-gray-200 px-6 py-4 dark:border-gray-700',
+        'border-t border-[var(--color-border)] px-6 py-4',
         bgStyles[bg],
         className
       )}
@@ -266,7 +266,7 @@ export const CardTitle: React.FC<CardTitleProps> = ({ children, className, size 
   return (
     <h3
       className={clsx(
-        'font-semibold text-gray-900 dark:text-gray-100',
+        'font-semibold text-[var(--color-text-primary)]',
         sizeStyles[size],
         className
       )}
@@ -289,9 +289,9 @@ export interface CardTextProps {
 
 export const CardText: React.FC<CardTextProps> = ({ children, className, color = 'secondary' }) => {
   const colorStyles = {
-    primary: 'text-gray-900 dark:text-gray-100',
-    secondary: 'text-gray-600 dark:text-gray-400',
-    muted: 'text-gray-500 dark:text-gray-500',
+    primary: 'text-[var(--color-text-primary)]',
+    secondary: 'text-[var(--color-text-secondary)]',
+    muted: 'text-[var(--color-text-muted)]',
   }
 
   return <p className={clsx(colorStyles[color], 'mt-2', className)}>{children}</p>

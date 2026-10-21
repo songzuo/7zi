@@ -13,8 +13,8 @@ if [ -f "$BACKEND_DIR/.env" ]; then
     export $(cat "$BACKEND_DIR/.env" | grep -v '^#' | xargs)
 fi
 
-# 默认端口
-export PORT="${PORT:-3002}"
+# WebSocket 端口
+export PORT="${WS_PORT:-3010}"
 
 echo "🚀 Starting WebSocket server on port $PORT..."
 

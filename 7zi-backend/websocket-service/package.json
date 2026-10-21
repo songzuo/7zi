@@ -1,0 +1,27 @@
+{
+  "name": "websocket-service",
+  "version": "1.0.0",
+  "description": "Standalone WebSocket Service for 7zi real-time collaboration",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node test/run.js",
+    "lint": "eslint src/",
+    "docker:build": "docker build -t 7zi/websocket-service .",
+    "docker:run": "docker run -d -p 3002:3002 --name websocket-service 7zi/websocket-service"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.4",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.7.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "7zi Team",
+  "license": "MIT"
+}

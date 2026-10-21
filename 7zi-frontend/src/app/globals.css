@@ -29,16 +29,10 @@ body {
   font-family: var(--font-family-sans);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
-  color: var(--color-gray-900);
-  background-color: var(--color-gray-50);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* 暗色模式下的全局样式 */
-.dark body {
-  color: var(--color-gray-100);
-  background-color: var(--color-gray-900);
 }
 
 /* ===== Focus Visible 样式 ===== */
@@ -56,29 +50,29 @@ body {
 
 /* 文本颜色 */
 .text-primary {
-  color: var(--color-primary-600);
+  color: var(--color-primary);
 }
 
 .text-secondary {
-  color: var(--color-gray-600);
+  color: var(--color-text-secondary);
 }
 
 /* 背景颜色 */
 .bg-primary {
-  background-color: var(--color-primary-600);
+  background-color: var(--color-primary);
 }
 
 .bg-secondary {
-  background-color: var(--color-gray-600);
+  background-color: var(--color-text-secondary);
 }
 
 /* 边框颜色 */
 .border-primary {
-  border-color: var(--color-primary-600);
+  border-color: var(--color-primary);
 }
 
 .border-secondary {
-  border-color: var(--color-gray-600);
+  border-color: var(--color-text-secondary);
 }
 
 /* 按钮样式 */
@@ -94,26 +88,21 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--color-primary-600);
+  background-color: var(--color-primary);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: var(--color-primary-700);
+  background-color: var(--color-primary-hover);
 }
 
 /* 卡片样式 */
 .card {
-  background-color: var(--color-gray-50);
-  border: 1px solid var(--color-gray-200);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--spacing-6);
   box-shadow: var(--shadow-sm);
-}
-
-.dark .card {
-  background-color: var(--color-gray-100);
-  border-color: var(--color-gray-200);
 }
 
 /* 输入框样式 */
@@ -121,9 +110,10 @@ body {
   width: 100%;
   padding: var(--spacing-2) var(--spacing-3);
   font-size: var(--font-size-sm);
-  border: 1px solid var(--color-gray-300);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background-color: var(--color-gray-50);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
   transition: all var(--transition-base);
 }
 
@@ -131,12 +121,6 @@ body {
   outline: none;
   border-color: var(--color-primary-500);
   box-shadow: 0 0 0 3px var(--color-primary-100);
-}
-
-.dark .input {
-  background-color: var(--color-gray-100);
-  border-color: var(--color-gray-300);
-  color: var(--color-gray-900);
 }
 
 /* 链接样式 */
@@ -155,7 +139,8 @@ a:hover {
 code,
 pre {
   font-family: var(--font-family-mono);
-  background-color: var(--color-gray-100);
+  background-color: var(--color-code-background);
+  color: var(--color-code-text);
   border-radius: var(--radius-md);
 }
 
@@ -166,11 +151,6 @@ code {
 pre {
   padding: var(--spacing-4);
   overflow-x: auto;
-}
-
-.dark code,
-.dark pre {
-  background-color: var(--color-gray-200);
 }
 
 /* 滚动条样式 */

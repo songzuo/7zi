@@ -39,6 +39,13 @@ function getJWTSecret(): Uint8Array {
 
   // 验证密钥长度（至少 64 字符）
   if (secret.length < 64) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        `[JWT] FATAL: JWT_SECRET is too short (${secret.length} chars). ` +
+          'Minimum 64 characters required for HS256 algorithm. ' +
+          "Generate: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\""
+      )
+    }
     logger.warn(
       `[JWT] WARNING: JWT_SECRET is too short (${secret.length} chars). ` +
         'Recommended minimum length is 64 characters for HS256 algorithm.'

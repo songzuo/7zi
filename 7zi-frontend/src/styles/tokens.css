@@ -135,21 +135,41 @@
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
+
+  /* ===== 语义化颜色别名 (v1.14.2) ===== */
+  /* 亮色主题语义别名 */
+  --color-background: #ffffff;
+  --color-surface: #f9fafb;
+  --color-surface-hover: #f3f4f6;
+  --color-surface-active: #e5e7eb;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4b5563;
+  --color-text-muted: #9ca3af;
+  --color-text-inverse: #ffffff;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-active: #1d4ed8;
+  --color-primary-light: #dbeafe;
+  --color-border: #e5e7eb;
+  --color-border-hover: #d1d5db;
+  --color-border-focus: #3b82f6;
+  --color-code-background: #f3f4f6;
+  --color-code-text: #1f2937;
 }
 
-/* 暗色主题 */
+/* 暗色主题 - v1.14.2: 修复主色调倒置问题，对齐设计文档 */
 .dark {
-  /* 主色调 - 调整为更适合暗色背景的颜色 */
-  --color-primary-50: #0f172a;
-  --color-primary-100: #1e3a8a;
-  --color-primary-200: #1e40af;
-  --color-primary-300: #2563eb;
-  --color-primary-400: #3b82f6;
-  --color-primary-500: #60a5fa;
-  --color-primary-600: #93c5fd;
-  --color-primary-700: #bfdbfe;
-  --color-primary-800: #dbeafe;
-  --color-primary-900: #eff6ff;
+  /* 主色调 - 调整为更适合暗色背景的颜色（从浅到深） */
+  --color-primary-50: #eff6ff;   /* 最浅：浅蓝背景 */
+  --color-primary-100: #dbeafe;  /* 次浅：边框/标签背景 */
+  --color-primary-200: #bfdbfe;  /* 禁用状态 */
+  --color-primary-300: #93c5fd;  /* 链接悬浮 */
+  --color-primary-400: #60a5fa;  /* 主悬浮色 */
+  --color-primary-500: #3b82f6;  /* 标准主色 */
+  --color-primary-600: #2563eb;  /* 按下状态 */
+  --color-primary-700: #1d4ed8;  /* 激活状态 */
+  --color-primary-800: #1e40af;  /* 深色强调 */
+  --color-primary-900: #1e3a8a;  /* 最深强调 */
 
   /* 灰色系 - 反转，使暗色模式下文本更清晰 */
   --color-gray-50: #0f172a; /* 最深背景 */
@@ -194,4 +214,24 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.6);
+
+  /* ===== 语义化颜色别名 (v1.14.2) - 暗色模式 ===== */
+  /* 语义别名 - 暗色模式 */
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+  --color-surface-active: #475569;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #64748b;
+  --color-text-inverse: #0f172a;
+  --color-primary: #60a5fa;
+  --color-primary-hover: #3b82f6;
+  --color-primary-active: #2563eb;
+  --color-primary-light: #1e3a8a;
+  --color-border: #334155;
+  --color-border-hover: #475569;
+  --color-border-focus: #60a5fa;
+  --color-code-background: #1e293b;
+  --color-code-text: #e2e8f0;
 }

@@ -18,8 +18,8 @@ echo "🚀 Starting all backend services..."
 # 使用 concurrently 并行启动
 if command -v npx &> /dev/null; then
     npx concurrently \
-        "node websocket/websocket-server.js" \
-        "node workflow-engine/server.js"
+        "WS_PORT=${WS_PORT:-3010} node websocket/websocket-server.js" \
+        "WF_PORT=${WF_PORT:-3011} node workflow-engine/server.js"
 else
     echo "Error: npx not found. Please install Node.js and npm."
     exit 1

@@ -120,7 +120,7 @@ export const Modal: React.FC<ModalProps> = ({
           <div
             ref={modalRef}
             className={clsx(
-              'relative w-full rounded-lg bg-white shadow-2xl',
+              'relative w-full rounded-lg bg-[var(--color-surface)] shadow-2xl dark:bg-[var(--color-surface)]',
               'transform transition-all duration-300',
               isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0',
               sizeStyles[size],
@@ -131,12 +131,12 @@ export const Modal: React.FC<ModalProps> = ({
           >
             {/* 头部 */}
             {(title || showCloseButton) && (
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                {title && <h2 className="text-xl font-semibold text-gray-900">{title}</h2>}
+              <div className="flex items-center justify-between border-b border-[var(--color-border)] px-6 py-4">
+                {title && <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">{title}</h2>}
                 {showCloseButton && (
                   <button
                     onClick={onClose}
-                    className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                    className="rounded-lg p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]"
                     aria-label="关闭"
                   >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -157,7 +157,7 @@ export const Modal: React.FC<ModalProps> = ({
 
             {/* 页脚 */}
             {footer && (
-              <div className="flex items-center justify-end gap-3 rounded-b-lg border-t border-gray-200 bg-gray-50 px-6 py-4">
+              <div className="flex items-center justify-end gap-3 rounded-b-lg border-t border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4">
                 {footer}
               </div>
             )}

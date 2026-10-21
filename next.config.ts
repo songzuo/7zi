@@ -114,7 +114,8 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     dangerouslyAllowSVG: false,
-    unoptimized: false,
+    // v1.15.0: 禁用图片优化以提升构建速度，生产环境可考虑启用 next/image 优化
+    unoptimized: true,
     // v1.8.0: 启用图片压缩, v1.14.3: 缓存时间从60秒提升到1年
     minimumCacheTTL: 31536000,
   },
@@ -135,6 +136,8 @@ const nextConfig: NextConfig = {
 
   // 编译器选项
   compiler: {
+    // v1.15.0: 启用 SWC 压缩替代 Terser，提升构建速度
+    swcMinify: true,
     removeConsole:
       process.env.NODE_ENV === 'production'
         ? {

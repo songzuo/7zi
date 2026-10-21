@@ -144,9 +144,6 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^2.27.2
         version: 2.27.2
-      '@vitest/browser':
-        specifier: 5.0.5
-        version: 5.0.5(msw@2.13.2(@types/node@20.19.39)(typescript@5.9.3))(vite@8.3.4(@types/node@20.19.39)(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2))(vitest@5.0.5)
       '@xenova/transformers':
         specifier: ^2.17.2
         version: 2.17.2(@types/node@20.19.39)
@@ -234,15 +231,9 @@ importers:
       web-vitals:
         specifier: ^5.2.0
         version: 5.2.0
-      workbox-window:
-        specifier: ^7.4.0
-        version: 7.4.0
       zod:
         specifier: ^3.25.76
         version: 3.25.76
-      zundo:
-        specifier: ^2.3.0
-        version: 2.3.0(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))
       zustand:
         specifier: ^5.0.12
         version: 5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
@@ -307,6 +298,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@8.3.4(@types/node@20.19.39)(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2))
+      '@vitest/browser':
+        specifier: 5.0.5
+        version: 5.0.5(msw@2.13.2(@types/node@20.19.39)(typescript@5.9.3))(vite@8.3.4(@types/node@20.19.39)(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2))(vitest@5.0.5)
       '@vitest/browser-playwright':
         specifier: ^4.1.12
         version: 4.1.12(msw@2.13.2(@types/node@20.19.39)(typescript@5.9.3))(playwright@1.59.1)(vite@8.3.4(@types/node@20.19.39)(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2))(vitest@5.0.5)
@@ -5764,9 +5758,6 @@ packages:
   workbox-core@7.1.0:
     resolution: {integrity: sha512-5KB4KOY8rtL31nEF7BfvU7FMzKT4B5TkbYa2tzkS+Peqj0gayMT9SytSFtNzlrvMaWgv6y/yvP9C0IbpFjV30Q==}
 
-  workbox-core@7.4.0:
-    resolution: {integrity: sha512-6BMfd8tYEnN4baG4emG9U0hdXM4gGuDU3ectXuVHnj71vwxTFI7WOpQJC4siTOlVtGqCUtj0ZQNsrvi6kZZTAQ==}
-
   workbox-expiration@7.1.0:
     resolution: {integrity: sha512-m5DcMY+A63rJlPTbbBNtpJ20i3enkyOtSgYfv/l8h+D6YbbNiA0zKEkCUaMsdDlxggla1oOfRkyqTvl5Ni5KQQ==}
 
@@ -5805,9 +5796,6 @@ packages:
 
   workbox-window@7.1.0:
     resolution: {integrity: sha512-ZHeROyqR+AS5UPzholQRDttLFqGMwP0Np8MKWAdyxsDETxq3qOAyXvqessc3GniohG6e0mAqSQyKOHmT8zPF7g==}
-
-  workbox-window@7.4.0:
-    resolution: {integrity: sha512-/bIYdBLAVsNR3v7gYGaV4pQW3M3kEPx5E8vDxGvxo6khTrGtSSCS7QiFKv9ogzBgZiy0OXLP9zO28U/1nF1mfw==}
 
   wrap-ansi@6.2.0:
     resolution: {integrity: sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==}
@@ -5899,11 +5887,6 @@ packages:
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
-  zundo@2.3.0:
-    resolution: {integrity: sha512-4GXYxXA17SIKYhVbWHdSEU04P697IMyVGXrC2TnzoyohEAWytFNOKqOp5gTGvaW93F/PM5Y0evbGtOPF0PWQwQ==}
-    peerDependencies:
-      zustand: ^4.3.0 || ^5.0.0
 
   zustand@4.5.7:
     resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
@@ -11753,8 +11736,6 @@ snapshots:
 
   workbox-core@7.1.0: {}
 
-  workbox-core@7.4.0: {}
-
   workbox-expiration@7.1.0:
     dependencies:
       idb: 7.1.1
@@ -11821,11 +11802,6 @@ snapshots:
     dependencies:
       '@types/trusted-types': 2.0.7
       workbox-core: 7.1.0
-
-  workbox-window@7.4.0:
-    dependencies:
-      '@types/trusted-types': 2.0.7
-      workbox-core: 7.4.0
 
   wrap-ansi@6.2.0:
     dependencies:
@@ -11903,10 +11879,6 @@ snapshots:
       readable-stream: 3.6.2
 
   zod@3.25.76: {}
-
-  zundo@2.3.0(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))):
-    dependencies:
-      zustand: 5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
 
   zustand@4.5.7(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5):
     dependencies:

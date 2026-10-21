@@ -118,41 +118,39 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
       'transform-gpu'
     )
 
-    // 变体样式 - 增强 hover 效果
+    // 变体样式 - 使用 CSS 变量实现暗色模式自适应
     const variantStyles = {
       primary: clsx(
-        'bg-blue-600 text-white',
-        'hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/25',
-        'focus:ring-blue-500',
+        'bg-[var(--color-primary)] text-white',
+        'hover:bg-[var(--color-primary-hover)]',
+        'focus:ring-[var(--color-primary)]',
         'shadow-sm'
       ),
       secondary: clsx(
-        'bg-gray-600 text-white',
-        'hover:bg-gray-700 hover:shadow-lg hover:shadow-gray-500/25',
+        'bg-[var(--color-text-secondary)] text-white',
+        'hover:opacity-90',
         'focus:ring-gray-500',
         'shadow-sm'
       ),
       outline: clsx(
-        'border-2 border-blue-600 text-blue-600',
-        'hover:bg-blue-50 hover:border-blue-700 hover:shadow-md',
-        'focus:ring-blue-500',
-        'dark:hover:bg-blue-900/20'
+        'border-2 border-[var(--color-primary)] text-[var(--color-primary)]',
+        'hover:bg-[var(--color-primary-light)]',
+        'focus:ring-[var(--color-primary)]'
       ),
       ghost: clsx(
-        'text-gray-700',
-        'hover:bg-gray-100 hover:shadow-sm',
-        'focus:ring-gray-500',
-        'dark:text-gray-300 dark:hover:bg-gray-800'
+        'text-[var(--color-text-primary)]',
+        'hover:bg-[var(--color-surface-hover)]',
+        'focus:ring-gray-500'
       ),
       danger: clsx(
-        'bg-red-600 text-white',
-        'hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/25',
+        'bg-[var(--color-error-500)] text-white',
+        'hover:bg-[var(--color-error-600)]',
         'focus:ring-red-500',
         'shadow-sm'
       ),
       success: clsx(
-        'bg-green-600 text-white',
-        'hover:bg-green-700 hover:shadow-lg hover:shadow-green-500/25',
+        'bg-[var(--color-success-500)] text-white',
+        'hover:bg-[var(--color-success-600)]',
         'focus:ring-green-500',
         'shadow-sm'
       ),
