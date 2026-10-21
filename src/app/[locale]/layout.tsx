@@ -236,23 +236,23 @@ export default async function RootLayout({
         <StructuredData locale={locale as 'zh' | 'en'} schemas={['website', 'organization']} />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiassed`}>
-        {/* Performance Optimization - Initialize Web Vitals monitoring & optimizations */}
-        <PerformanceOptimizer
-          debug={process.env.NODE_ENV === 'development'}
-          preloadCritical={true}
-          sampleRate={1.0}
-        />
-
-        <Navigation />
-        <Analytics />
         <NextIntlClientProvider messages={messages}>
+          {/* Performance Optimization - Initialize Web Vitals monitoring & optimizations */}
+          <PerformanceOptimizer
+            debug={process.env.NODE_ENV === 'development'}
+            preloadCritical={true}
+            sampleRate={1.0}
+          />
+
+          <Navigation />
+          <Analytics />
           <Providers>
             {children}
             <ServiceWorkerRegistration />
             <PWAInstallPrompt />
           </Providers>
+          <Footer />
         </NextIntlClientProvider>
-        <Footer />
       </body>
     </html>
   )

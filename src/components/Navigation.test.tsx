@@ -59,13 +59,16 @@ vi.mock('./SettingsButton', () => ({
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => {
     const translations: Record<string, string> = {
-      home: '首页',
-      dashboard: '实时看板',
+      'nav.home': '首页',
+      'nav.dashboard': '控制台',
       subagents: '子代理',
       tasks: '任务',
       memory: '记忆',
       'mobileMenu.open': '打开菜单',
       'mobileMenu.close': '关闭菜单',
+      'mobileMenu.language': '语言',
+      'mobileMenu.theme': '主题',
+      'common.siteNameShort': '7ziStudio',
     }
     return translations[key] || key
   },
@@ -81,7 +84,7 @@ describe('Navigation', () => {
     it('应该渲染 Logo', () => {
       render(<Navigation />)
       // 使用 getAllByText 因为 AI 团队 出现多次（桌面和移动端）
-      const logoElements = screen.getAllByText('AI 团队')
+      const logoElements = screen.getAllByText('7ziStudio')
       expect(logoElements.length).toBeGreaterThan(0)
     })
 
@@ -89,7 +92,7 @@ describe('Navigation', () => {
       render(<Navigation />)
       // 使用 getAllByText 因为元素在桌面和移动端都有
       expect(screen.getAllByText('首页').length).toBeGreaterThan(0)
-      expect(screen.getAllByText('实时看板').length).toBeGreaterThan(0)
+      expect(screen.getAllByText('控制台').length).toBeGreaterThan(0)
       expect(screen.getAllByText('子代理').length).toBeGreaterThan(0)
       expect(screen.getAllByText('任务').length).toBeGreaterThan(0)
       expect(screen.getAllByText('记忆').length).toBeGreaterThan(0)
@@ -128,7 +131,7 @@ describe('Navigation', () => {
       mockUsePathname.mockReturnValue('/dashboard')
       render(<Navigation />)
 
-      const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ })
+      const dashboardLinks = screen.getAllByRole('link', { name: /控制台/ })
       const hasActiveLink = dashboardLinks.some(link => link.className.includes('bg-cyan-50'))
       expect(hasActiveLink).toBe(true)
     })
@@ -137,7 +140,7 @@ describe('Navigation', () => {
       mockUsePathname.mockReturnValue('/')
       render(<Navigation />)
 
-      const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ })
+      const dashboardLinks = screen.getAllByRole('link', { name: /控制台/ })
       const hasDefaultStyle = dashboardLinks.some(
         link => link.className.includes('text-zinc-600') || link.className.includes('text-zinc-600')
       )
@@ -192,7 +195,7 @@ describe('Navigation', () => {
       const homeLinks = screen.getAllByRole('link', { name: /首页/ })
       expect(homeLinks.some(link => link.getAttribute('href') === '/')).toBe(true)
 
-      const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ })
+      const dashboardLinks = screen.getAllByRole('link', { name: /控制台/ })
       expect(dashboardLinks.some(link => link.getAttribute('href') === '/dashboard')).toBe(true)
 
       const subagentsLinks = screen.getAllByRole('link', { name: /子代理/ })
@@ -208,7 +211,7 @@ describe('Navigation', () => {
     it('Logo 链接应该指向首页', () => {
       render(<Navigation />)
 
-      const logoLinks = screen.getAllByRole('link', { name: /AI 团队/ })
+      const logoLinks = screen.getAllByRole('link', { name: /7ziStudio/ })
       expect(logoLinks.some(link => link.getAttribute('href') === '/')).toBe(true)
     })
   })
