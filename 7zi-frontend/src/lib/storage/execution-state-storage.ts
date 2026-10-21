@@ -8,7 +8,7 @@
  * @version 1.12.2
  */
 
-import type { ExecutionState, WorkflowInstance, NodeStatus, NodeExecutionResult } from '@/components/WorkflowEditor/types'
+import type { WorkflowInstance, NodeStatus, NodeExecutionResult } from '@/components/WorkflowEditor/types'
 import { logger } from '@/lib/logger'
 
 /**

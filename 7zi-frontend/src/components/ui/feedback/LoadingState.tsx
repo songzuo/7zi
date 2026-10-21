@@ -12,7 +12,7 @@
 'use client'
 
 import React, { memo } from 'react'
-import { Loader2, RefreshCw } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 export type LoadingVariant = 'spinner' | 'dots' | 'bar' | 'pulse'
 export type LoadingSize = 'sm' | 'md' | 'lg' | 'xl'

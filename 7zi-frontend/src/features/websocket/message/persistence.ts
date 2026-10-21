@@ -3,7 +3,7 @@
  * 使用内存存储实现消息历史、搜索、离线同步
  */
 
-import { Message, MessageContent, MessageType, MessageSearchOptions } from './message-model'
+import { Message, MessageContent, MessageSearchOptions } from './message-model'
 import { logger } from '@/lib/logger'
 
 export class MessagePersistence {

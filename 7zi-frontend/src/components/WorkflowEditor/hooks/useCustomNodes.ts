@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback, useMemo } from 'react'
-import type { CustomNodeRegistration, NodeType } from '../types'
+import type { CustomNodeRegistration } from '../types'
 
 interface UseCustomNodesOptions {
   initialNodes?: CustomNodeRegistration[]

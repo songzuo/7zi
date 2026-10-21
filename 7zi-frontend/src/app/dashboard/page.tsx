@@ -28,11 +28,11 @@ export default function DashboardPage() {
     // Handle onboarding data here (e.g., API call to create room)
     if (data?.roomName) {
       console.log('Creating room with name:', data.roomName);
-      // TODO: Call API to create room
+      // B/C 类 (暂缓): 房间创建 API 待后端实现，当前仅记录日志。
     }
     if (data?.inviteEmails?.length) {
       console.log('Inviting emails:', data.inviteEmails);
-      // TODO: Call API to send invitations
+      // B/C 类 (暂缓): 邀请发送 API 待接入。
     }
   };
 

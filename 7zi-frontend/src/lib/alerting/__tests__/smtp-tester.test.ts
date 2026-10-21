@@ -1,6 +1,9 @@
 /**
  * SMTP Tester Unit Tests
  * SMTP 测试模块单元测试
+ *
+ * P0-3 安全修复：nodemailer 已迁移到服务端路由 `/api/email`，
+ * 因此这里 mock 的是 global fetch，而不是 nodemailer。
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -13,18 +16,16 @@ import {
   type TestResult,
 } from '../smtp-tester'
 
-// 模拟 nodemailer
-vi.mock('nodemailer', () => ({
-  default: {
-    createTransport: vi.fn(() => ({
-      verify: vi.fn(),
-      sendMail: vi.fn(),
-    })),
-  },
-}))
-
-// 导入 nodemailer 以获取模拟版本
-import nodemailer from 'nodemailer'
+/**
+ * 构造一个模拟的 fetch Response
+ */
+function jsonResponse(body: unknown, status = 200): Response {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => body,
+  } as unknown as Response
+}
 
 describe('SMTP Tester Module', () => {
   const mockCredentials: SMTPCredentials = {
@@ -43,11 +44,16 @@ describe('SMTP Tester Module', () => {
     text: 'This is a test email',
   }
 
+  let fetchMock: ReturnType<typeof vi.fn>
+
   beforeEach(() => {
     vi.clearAllMocks()
+    fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
   })
 
   afterEach(() => {
+    vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })
 
@@ -121,7 +127,7 @@ describe('SMTP Tester Module', () => {
       expect(config.port).toBe(587)
     })
 
-    it('should return undefined for unknown provider', () => {
+    it('should return empty object for unknown provider', () => {
       const config = getDefaultSMTPConfig('unknown')
       expect(config).toEqual({})
     })
@@ -137,18 +143,18 @@ describe('SMTP Tester Module', () => {
   })
 
   describe('testSMTPConnection', () => {
-    it('should successfully connect and send email', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockResolvedValue(true),
-        sendMail: vi.fn().mockResolvedValue({
-          response: '250 OK',
-          messageId: '<test@example.com>',
-          accepted: ['recipient@example.com'],
-          rejected: [],
-        }),
-      }
-
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+    it('should call the server API and return success details', async () => {
+      fetchMock.mockResolvedValue(
+        jsonResponse({
+          success: true,
+          data: {
+            messageId: '<test@example.com>',
+            accepted: ['recipient@example.com'],
+            rejected: [],
+            response: '250 OK',
+          },
+        })
+      )
 
       const result = await testSMTPConnection(mockCredentials, mockTestOptions)
 
@@ -159,12 +165,36 @@ describe('SMTP Tester Module', () => {
       expect(result.details?.acceptedRecipients).toContain('recipient@example.com')
     })
 
-    it('should handle connection timeout', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockRejectedValue(new Error('ETIMEDOUT')),
-      }
+    it('should POST to /api/email with action send', async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ success: true, data: {} }))
 
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      await testSMTPConnection(mockCredentials, mockTestOptions)
+
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      const [url, init] = fetchMock.mock.calls[0]
+      expect(url).toBe('/api/email')
+      expect(init.method).toBe('POST')
+      const body = JSON.parse(init.body)
+      expect(body.action).toBe('send')
+      expect(body.to).toBe('recipient@example.com')
+      expect(body.subject).toBe('Test Email')
+    })
+
+    it('should not send SMTP credentials to the server', async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ success: true, data: {} }))
+
+      await testSMTPConnection(mockCredentials, mockTestOptions)
+
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+      expect(body.auth).toBeUndefined()
+      expect(body.pass).toBeUndefined()
+      expect(JSON.stringify(body)).not.toContain('password123')
+    })
+
+    it('should handle connection timeout', async () => {
+      fetchMock.mockResolvedValue(
+        jsonResponse({ success: false, error: 'ETIMEDOUT connection failed' }, 500)
+      )
 
       const result = await testSMTPConnection(mockCredentials, mockTestOptions)
 
@@ -173,11 +203,9 @@ describe('SMTP Tester Module', () => {
     })
 
     it('should handle connection refused', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockRejectedValue(new Error('ECONNREFUSED')),
-      }
-
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      fetchMock.mockResolvedValue(
+        jsonResponse({ success: false, error: 'ECONNREFUSED connect failed' }, 500)
+      )
 
       const result = await testSMTPConnection(mockCredentials, mockTestOptions)
 
@@ -186,11 +214,9 @@ describe('SMTP Tester Module', () => {
     })
 
     it('should handle host not found', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockRejectedValue(new Error('ENOTFOUND')),
-      }
-
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      fetchMock.mockResolvedValue(
+        jsonResponse({ success: false, error: 'ENOTFOUND getaddrinfo failed' }, 500)
+      )
 
       const result = await testSMTPConnection(mockCredentials, mockTestOptions)
 
@@ -199,11 +225,9 @@ describe('SMTP Tester Module', () => {
     })
 
     it('should handle authentication failure', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockRejectedValue(new Error('Invalid login')),
-      }
-
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      fetchMock.mockResolvedValue(
+        jsonResponse({ success: false, error: 'Invalid login credentials' }, 500)
+      )
 
       const result = await testSMTPConnection(mockCredentials, mockTestOptions)
 
@@ -212,11 +236,9 @@ describe('SMTP Tester Module', () => {
     })
 
     it('should handle SSL certificate error', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockRejectedValue(new Error('certificate')),
-      }
-
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      fetchMock.mockResolvedValue(
+        jsonResponse({ success: false, error: 'unable to verify the first certificate' }, 500)
+      )
 
       const result = await testSMTPConnection(mockCredentials, mockTestOptions)
 
@@ -224,67 +246,86 @@ describe('SMTP Tester Module', () => {
       expect(result.error).toContain('SSL/TLS certificate error')
     })
 
-    it('should use default options when not provided', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockResolvedValue(true),
-        sendMail: vi.fn().mockResolvedValue({
-          response: '250 OK',
-          messageId: '<test@example.com>',
-          accepted: ['recipient@example.com'],
-          rejected: [],
-        }),
-      }
+    it('should surface 503 when SMTP is not configured on the server', async () => {
+      fetchMock.mockResolvedValue(
+        jsonResponse(
+          { success: false, error: 'SMTP is not configured on the server. Missing: SMTP_HOST' },
+          503
+        )
+      )
 
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      const result = await testSMTPConnection(mockCredentials, mockTestOptions)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('SMTP is not configured')
+    })
+
+    it('should use default options when not provided', async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ success: true, data: {} }))
 
       const result = await testSMTPConnection(mockCredentials, {
         to: 'recipient@example.com',
       })
 
       expect(result.success).toBe(true)
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+      expect(body.subject).toBe('SMTP Test Email')
     })
 
     it('should include response time in result', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockResolvedValue(true),
-        sendMail: vi.fn().mockResolvedValue({
-          response: '250 OK',
-          messageId: '<test@example.com>',
-          accepted: ['recipient@example.com'],
-          rejected: [],
-        }),
-      }
-
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      fetchMock.mockResolvedValue(jsonResponse({ success: true, data: {} }))
 
       const result = await testSMTPConnection(mockCredentials, mockTestOptions)
 
       expect(typeof result.responseTime).toBe('number')
       expect(result.responseTime).toBeGreaterThanOrEqual(0)
     })
+
+    it('should handle network errors', async () => {
+      fetchMock.mockRejectedValue(new Error('network down'))
+
+      const result = await testSMTPConnection(mockCredentials, mockTestOptions)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('network down')
+    })
+
+    it('should not call the API when credentials are invalid', async () => {
+      const result = await testSMTPConnection(
+        { ...mockCredentials, host: '' } as unknown as SMTPCredentials,
+        mockTestOptions
+      )
+
+      expect(result.success).toBe(false)
+      expect(fetchMock).not.toHaveBeenCalled()
+    })
   })
 
   describe('testSMTPConnectionOnly', () => {
     it('should successfully verify connection', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockResolvedValue(true),
-      }
-
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      fetchMock.mockResolvedValue(
+        jsonResponse({ success: true, data: { verified: true, host: 'smtp.example.com' } })
+      )
 
       const result = await testSMTPConnectionOnly(mockCredentials)
 
       expect(result.success).toBe(true)
       expect(result.responseTime).toBeGreaterThanOrEqual(0)
-      expect(mockTransporter.verify).toHaveBeenCalled()
+    })
+
+    it('should call the server API with action test', async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ success: true, data: { verified: true } }))
+
+      await testSMTPConnectionOnly(mockCredentials)
+
+      const [url, init] = fetchMock.mock.calls[0]
+      expect(url).toBe('/api/email')
+      const body = JSON.parse(init.body)
+      expect(body.action).toBe('test')
     })
 
     it('should handle connection failure', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockRejectedValue(new Error('Connection failed')),
-      }
-
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      fetchMock.mockResolvedValue(jsonResponse({ success: false, error: 'Connection failed' }, 500))
 
       const result = await testSMTPConnectionOnly(mockCredentials)
 
@@ -293,21 +334,21 @@ describe('SMTP Tester Module', () => {
     })
 
     it('should respect custom timeout', async () => {
-      const mockTransporter = {
-        verify: vi.fn().mockResolvedValue(true),
-      }
-
-      vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter as any)
+      fetchMock.mockResolvedValue(jsonResponse({ success: true, data: { verified: true } }))
 
       await testSMTPConnectionOnly(mockCredentials, 5000)
 
-      expect(nodemailer.createTransport).toHaveBeenCalledWith(
-        expect.objectContaining({
-          connectionTimeout: 5000,
-          greetingTimeout: 5000,
-          socketTimeout: 5000,
-        })
-      )
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+      expect(body.timeout).toBe(5000)
+    })
+
+    it('should return a TestResult shape', async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ success: true, data: { verified: true } }))
+
+      const result: TestResult = await testSMTPConnectionOnly(mockCredentials)
+
+      expect(typeof result.success).toBe('boolean')
+      expect(typeof result.responseTime).toBe('number')
     })
   })
 })

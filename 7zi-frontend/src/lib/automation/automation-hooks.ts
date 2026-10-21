@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import type { AutomationRule, ExecutionResult, TriggerType, RuleStatus, EventType } from './automation-engine'
+import type { AutomationRule, ExecutionResult, RuleStatus, EventType } from './automation-engine'
 import { automationEngine } from './automation-engine'
 import { DEFAULT_RULE_TEMPLATES, createRuleFromTemplate } from './default-templates'
 
@@ -189,7 +189,7 @@ export function useRuleExecutionHistory(ruleId: string) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // TODO: 从存储加载执行历史
+    // B/C 类 (暂缓): 执行历史存储方案待定(IndexedDB vs API)，暂用空数组避免无效请求。
     setLoading(false)
   }, [ruleId])
 

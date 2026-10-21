@@ -19,7 +19,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { shallow } from 'zustand/shallow'
+
 import { encryptedStorage } from '@/lib/auth/encrypted-storage'
 import { clearUser } from '@/lib/analytics/ga4'
 

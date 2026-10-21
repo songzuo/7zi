@@ -18,7 +18,7 @@ import { useState } from 'react'
 
 export default function ImageOptimizationExamplePage() {
   // 预加载关键图片
-  const { isLoaded: heroLoaded } = usePreloadImage('/images/hero.jpg', { priority: true })
+  
   const { elementRef: lazyRef, isIntersecting: lazyVisible } = useLazyImage()
 
   const [selectedPreset, setSelectedPreset] = useState<ImagePreset>('card')

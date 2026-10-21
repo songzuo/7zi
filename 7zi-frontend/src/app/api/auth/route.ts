@@ -8,7 +8,6 @@ import { NextRequest } from 'next/server'
 import {
   loginSchema,
   registerSchema,
-  passwordResetRequestSchema,
   passwordResetSchema,
   createValidationErrorResponse,
   validateAndSanitizeBody,
@@ -17,7 +16,7 @@ import { AuditLogger } from '@/lib/audit/logger'
 import { AuditEventType } from '@/lib/audit/types'
 import { getClientIP } from '@/lib/rate-limit/limiter'
 import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
-import { createSuccessResponse, createUnauthorizedError, createErrorResponse, createBadRequestError } from '@/lib/api/error-handler'
+import { createUnauthorizedError, createErrorResponse, createBadRequestError } from '@/lib/api/error-handler'
 import { withCSRF } from '@/lib/middleware/csrf'
 
 /**
@@ -41,7 +40,7 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.strict, async (request: Nex
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { username, password } = validationResult.data
+    const { username } = validationResult.data
 
     // 🔒 SECURITY FIX (2026-04-23): 
     // Authentication not yet implemented - return 501 to prevent bypass
@@ -98,7 +97,7 @@ export const PUT = withRateLimit(RATE_LIMIT_PRESETS.strict, withCSRF(async (requ
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { username, email, password } = validationResult.data
+    
 
     // 🔒 SECURITY FIX (2026-04-23):
     // Registration not yet implemented - return 501
@@ -146,7 +145,7 @@ export const PATCH = withRateLimit(RATE_LIMIT_PRESETS.strict, async (request: Ne
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { token, password } = validationResult.data
+    
 
     // 🔒 SECURITY FIX (2026-04-23):
     // Password reset not yet implemented - return 501

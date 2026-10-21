@@ -7,7 +7,7 @@
 
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -27,7 +27,6 @@ import {
   Clock,
   Cpu,
   Database,
-  Globe,
   TrendingDown,
   TrendingUp,
   Zap,
@@ -42,7 +41,7 @@ import {
 } from 'lucide-react'
 import { ResourceUsageChart } from '@/components/analytics/charts/ResourceUsageChart'
 import { PerformanceChart } from './PerformanceChart'
-import { AlarmConfigPanel, AlarmRule } from './AlarmConfigPanel'
+import { AlarmConfigPanel } from './AlarmConfigPanel'
 import { monitor } from '@/lib/monitoring'
 import type { AggregatedMetrics, AlarmEvent } from '@/lib/monitoring/types'
 import type { ResourceUsageData } from '@/lib/analytics/types'
@@ -90,7 +89,6 @@ function PerformanceMetricCard({
   trend,
   icon,
   description,
-  thresholds,
 }: PerformanceMetricCardData): React.ReactElement {
   const statusColors = {
     good: 'text-green-600 dark:text-green-400',

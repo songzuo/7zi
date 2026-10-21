@@ -6,7 +6,6 @@
 
 import type {
   DialogueTemplate,
-  TemplateVariable,
   TemplateCategory,
   TemplateCondition,
   DialogueContext,

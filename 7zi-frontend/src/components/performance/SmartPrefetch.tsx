@@ -365,7 +365,6 @@ export function HoverPrefetch({
 
 export function SmartPrefetch({
   configs,
-  enableHoverPrefetch = true,
   hoverThreshold = 100,
   enableViewportPrefetch = true,
   viewportDistance = 200,
@@ -373,7 +372,7 @@ export function SmartPrefetch({
   onPrefetch,
   children,
 }: SmartPrefetchProps) {
-  const { behavior } = useUserBehavior()
+  
   const executorRef = useRef(new PrefetchExecutor(maxConcurrent))
 
   // 根据优先级和用户行为预测预加载

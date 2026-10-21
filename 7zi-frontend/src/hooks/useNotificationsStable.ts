@@ -15,7 +15,6 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { logger } from '@/lib/logger'
 import type {
   Notification,
-  NotificationType,
   NotificationPriority,
   NotificationFilter,
 } from '@/lib/services/notification'

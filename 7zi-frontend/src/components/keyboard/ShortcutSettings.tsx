@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+
 import { shortcutRegistry, ShortcutCategory, Shortcut } from '@/lib/keyboard/shortcut-registry';
 import { getCategories, getDefaultShortcuts, getPlatformKey } from '@/lib/keyboard/defaults';
 

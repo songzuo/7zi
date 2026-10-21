@@ -8,7 +8,7 @@
 import { NextRequest } from 'next/server'
 import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
 import { NotificationType, NotificationPriority } from '@/lib/services/notification-types'
-import type { Notification } from '@/lib/services/notification-types'
+
 import { EmailRecipient } from '@/lib/services/email'
 import {
   createSuccessResponse,

@@ -192,7 +192,7 @@ export default function FeedbackModal({
       return
     }
 
-    // TODO: Upload to server
+    // E 类: FileReader local preview 为 UX 所需，附件上传 API 完成后接入。
     // For now, just simulate upload
     const reader = new FileReader()
     reader.onload = event => {

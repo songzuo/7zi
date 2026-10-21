@@ -3,7 +3,7 @@
  * 基于搜索历史、热门搜索、模糊匹配
  */
 
-import { fuzzyMatch, fuzzyMatchItems, FuzzySearchOptions } from './fuzzy-search';
+import { fuzzyMatchItems, FuzzySearchOptions } from './fuzzy-search';
 
 export interface SearchSuggestion {
   /** 建议文本 */
@@ -13,7 +13,7 @@ export interface SearchSuggestion {
   /** 匹配分数 */
   score: number;
   /** 额外数据 */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface SuggestionOptions extends FuzzySearchOptions {
@@ -28,7 +28,28 @@ export interface SuggestionOptions extends FuzzySearchOptions {
 /**
  * 模拟工作流数据（实际应从 API 获取）
  */
-const MOCK_WORKFLOWS = [
+interface MockWorkflow {
+  id: string;
+  name: string;
+  description?: string;
+  text?: string;
+}
+
+interface MockTask {
+  id: string;
+  name: string;
+  status?: string;
+  text?: string;
+}
+
+interface MockNode {
+  id: string;
+  name: string;
+  type?: string;
+  text?: string;
+}
+
+const MOCK_WORKFLOWS: MockWorkflow[] = [
   { id: '1', name: '数据采集工作流', description: '从多个数据源采集数据' },
   { id: '2', name: '数据清洗工作流', description: '清洗和转换数据' },
   { id: '3', name: '数据分析工作流', description: '分析和可视化数据' },
@@ -39,7 +60,7 @@ const MOCK_WORKFLOWS = [
 /**
  * 模拟任务数据（实际应从 API 获取）
  */
-const MOCK_TASKS = [
+const MOCK_TASKS: MockTask[] = [
   { id: '1', name: '数据导入任务', status: 'pending' },
   { id: '2', name: '数据导出任务', status: 'running' },
   { id: '3', name: '模型训练任务', status: 'completed' },
@@ -50,7 +71,7 @@ const MOCK_TASKS = [
 /**
  * 模拟节点数据（实际应从 API 获取）
  */
-const MOCK_NODES = [
+const MOCK_NODES: MockNode[] = [
   { id: '1', name: '输入节点', type: 'input' },
   { id: '2', name: '处理节点', type: 'process' },
   { id: '3', name: '输出节点', type: 'output' },
@@ -402,13 +423,13 @@ export function updateMockData({
   tasks,
   nodes
 }: {
-  workflows?: any[];
-  tasks?: any[];
-  nodes?: any[];
+  workflows?: MockWorkflow[];
+  tasks?: MockTask[];
+  nodes?: MockNode[];
 }): void {
   // 在实际应用中，这些数据应该从 API 获取
   // 这里只是为了演示方便
-  if (workflows) (MOCK_WORKFLOWS as any) = workflows;
-  if (tasks) (MOCK_TASKS as any) = tasks;
-  if (nodes) (MOCK_NODES as any) = nodes;
+  if (workflows) MOCK_WORKFLOWS.splice(0, MOCK_WORKFLOWS.length, ...workflows);
+  if (tasks) MOCK_TASKS.splice(0, MOCK_TASKS.length, ...tasks);
+  if (nodes) MOCK_NODES.splice(0, MOCK_NODES.length, ...nodes);
 }

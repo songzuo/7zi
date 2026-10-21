@@ -13,7 +13,6 @@ import {
   AlertHistory as AlertHistoryType,
   Severity,
   MetricType,
-  Condition
 } from '@/types/alerts'
 import { Card, CardBody } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'

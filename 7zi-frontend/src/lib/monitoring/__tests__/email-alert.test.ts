@@ -5,25 +5,18 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-// Mock nodemailer before importing - use synchronous mock for require() compatibility
-vi.mock('nodemailer', () => {
-  const mockSendMail = vi.fn().mockResolvedValue({ messageId: 'test-id' })
-  const mockVerify = vi.fn().mockResolvedValue(true)
-  
-  return {
-    __esModule: true,
-    default: {
-      createTransport: vi.fn(() => ({
-        sendMail: mockSendMail,
-        verify: mockVerify,
-      })),
-    },
-    createTransport: vi.fn(() => ({
-      sendMail: mockSendMail,
-      verify: mockVerify,
-    })),
-  }
-})
+/**
+ * P0-3 安全修复：nodemailer 已迁移到服务端路由 `/api/email`，
+ * 客户端不再 import nodemailer，因此这里 mock 的是 global fetch。
+ */
+let fetchMock: ReturnType<typeof vi.fn>
+
+const jsonResponse = (body: unknown, status = 200): Response =>
+  ({
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => body,
+  }) as unknown as Response
 
 import { EmailAlertChannel, createEmailChannelFromEnv } from '../channels/email-alert'
 import { Alert } from '../alert-engine'
@@ -52,6 +45,14 @@ describe('EmailAlertChannel', () => {
   let channel: EmailAlertChannel
 
   beforeEach(() => {
+    vi.clearAllMocks()
+    fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        success: true,
+        data: { messageId: 'test-id', accepted: [], rejected: [] },
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
     channel = new EmailAlertChannel({
       host: 'smtp.example.com',
       port: 587,
@@ -68,6 +69,11 @@ describe('EmailAlertChannel', () => {
         P3: ['dev@example.com'],
       },
     })
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   })
 
   describe('send', () => {
@@ -187,7 +193,7 @@ describe('EmailAlertChannel', () => {
       })
 
       const alert = createTestAlert()
-      // Should succeed (logs only without nodemailer)
+      // Should succeed (console fallback when SMTP unavailable)
       await expect(channelWithRetry.send(alert)).resolves.not.toThrow()
     })
   })

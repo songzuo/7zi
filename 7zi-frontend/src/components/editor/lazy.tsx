@@ -14,7 +14,7 @@
  */
 
 import dynamic from 'next/dynamic'
-import { ComponentProps, Suspense } from 'react'
+
 import { cn } from '@/lib/utils'
 
 // ============================================

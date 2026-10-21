@@ -22,7 +22,6 @@ import {
   Undo,
   Redo,
   Link2Off as LinkOff,
-  AlignLeft,
   AlignCenter,
   AlignRight,
 } from 'lucide-react'

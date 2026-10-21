@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { Search, X, MapPin, ArrowRight, ArrowLeft, ArrowUp, ArrowDown } from 'lucide-react'
+import { Search, X, MapPin, ArrowLeft, ArrowUp, ArrowDown } from 'lucide-react'
 import type { Node } from 'reactflow'
 import type { WorkflowNodeData, NodeType } from './types'
 

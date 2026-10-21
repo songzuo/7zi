@@ -7,7 +7,6 @@
 import type {
   WebhookDelivery,
   CreateDeliveryInput,
-  DeliveryStatus,
 } from './types';
 
 // ==================== 配置常量 ====================

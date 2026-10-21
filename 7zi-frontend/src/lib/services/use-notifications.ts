@@ -12,13 +12,13 @@ import type {
   Notification,
   NotificationType,
   NotificationPriority,
-  NotificationGroup,
-  NotificationStats,
 } from './notification-types'
 import {
   clientNotificationManager,
   type NotificationEvent,
   type NotificationEventListener,
+  type NotificationGroup,
+  type NotificationStats,
 } from './client-notification-manager'
 
 /**
@@ -190,14 +190,18 @@ export function useUnreadCount(userId?: string) {
 export function useNotificationStats() {
   const [stats, setStats] = useState<NotificationStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   const loadStats = useCallback(async () => {
     try {
       setLoading(true)
+      setError(null)
       const result = await clientNotificationManager.getStats()
       setStats(result)
     } catch (err) {
-      console.error('Failed to load notification stats:', err)
+      const normalized = err instanceof Error ? err : new Error('Failed to load notification stats')
+      setError(normalized)
+      console.error('Failed to load notification stats:', normalized)
     } finally {
       setLoading(false)
     }
@@ -223,6 +227,7 @@ export function useNotificationStats() {
   return {
     stats,
     loading,
+    error,
     refresh: loadStats,
   }
 }

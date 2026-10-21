@@ -11,7 +11,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {
   AlertRule,
-  UpdateAlertRuleDTO,
   MetricType,
   Condition,
   Severity,

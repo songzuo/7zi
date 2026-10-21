@@ -5,7 +5,7 @@
  * DELETE /api/rooms/[id] - 删除房间（仅创建者）
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { roomStore } from '@/lib/api/rooms/store'
 import { createSuccessResponse, createNotFoundError, createForbiddenError, createErrorResponse } from '@/lib/api/error-handler'
 import { createHotDataCache, CachePresets } from '@/lib/cache'

@@ -14,6 +14,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { WebhookAlertChannel } from './webhook-alert'
 import { Alert } from '../alert-engine'
+import type { DedupConfig } from './base-alert-channel'
 
 // Mock fetch
 global.fetch = vi.fn()
@@ -48,6 +49,7 @@ describe('WebhookAlertChannel', () => {
   let channel: WebhookAlertChannel
 
   const defaultConfig = {
+    enabled: true,
     url: 'https://webhook.example.com/alerts',
     method: 'POST' as const,
     headers: {
@@ -566,7 +568,7 @@ describe('WebhookAlertChannel', () => {
     })
 
     it('should update dedup configuration', () => {
-      const newDedupConfig = {
+      const newDedupConfig: DedupConfig = {
         enabled: false,
         windowMs: 30000,
         keys: ['ruleId', 'priority'],

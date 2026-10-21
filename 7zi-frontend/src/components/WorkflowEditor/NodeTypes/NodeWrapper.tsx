@@ -6,7 +6,7 @@
  */
 
 import React, { memo, ReactNode } from 'react'
-import { Handle, Position, type NodeProps } from 'reactflow'
+import { Handle, Position } from 'reactflow'
 import type { WorkflowNodeData } from '../types'
 
 interface NodeWrapperProps {
@@ -24,7 +24,7 @@ interface NodeWrapperProps {
 /**
  * 节点包装组件 - 提供统一的选中高亮效果
  */
-export const NodeWrapper = memo(({ children, data, selected, type, colors }: NodeWrapperProps) => {
+export const NodeWrapper = memo(({ children, data, selected, colors }: NodeWrapperProps) => {
   // 节点类型对应的颜色
   const nodeColors = colors || {
     light: selected ? '#6366F1' : '#CBD5E1',

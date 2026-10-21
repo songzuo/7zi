@@ -5,7 +5,6 @@
  */
 
 import {
-  DraftType,
   Draft,
   DraftStorageManager,
   getDraftStorageManager,

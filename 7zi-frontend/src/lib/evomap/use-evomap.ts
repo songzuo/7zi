@@ -10,7 +10,6 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { EvomapGateway } from './gateway'
 import type {
   AssetBundle,
-  Gene,
   Capsule,
   EvolutionEvent,
   NodeStatus,

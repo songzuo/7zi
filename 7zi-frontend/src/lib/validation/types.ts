@@ -4,7 +4,7 @@
  * Core type definitions for the form validation system
  */
 
-import type { ZodSchema, ZodError } from 'zod'
+import type { ZodSchema } from 'zod'
 
 // ============================================================================
 // Validation Rule Types

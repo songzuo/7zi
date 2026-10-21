@@ -30,7 +30,6 @@ import type {
   Feedback,
   FeedbackFilter,
   FeedbackSort,
-  PaginatedFeedbacks,
   FeedbackStats,
 } from './feedback-types'
 

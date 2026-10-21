@@ -23,7 +23,7 @@
 
 import { NextRequest } from 'next/server'
 import { analyticsService } from '@/lib/analytics/service'
-import type { OverviewMetrics } from '@/lib/analytics/types'
+
 import { createSuccessResponse, createErrorResponse, createUnauthorizedError } from '@/lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
 

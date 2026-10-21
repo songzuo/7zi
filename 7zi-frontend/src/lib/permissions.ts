@@ -8,7 +8,7 @@
  * - 资源级别的访问控制
  */
 
-import { User, UserRole } from './auth'
+import { User } from './auth'
 
 /**
  * ==================== RBAC 模型定义 ====================
@@ -128,7 +128,7 @@ export interface PermissionContext {
  */
 
 // System permissions used internally
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const SYSTEM_PERMISSIONS: PermissionDefinition[] = [
   { id: 'user:read', name: '查看用户', description: '查看用户信息', resourceType: ResourceType.USER, actionType: ActionType.READ, isSystem: true },
   { id: 'user:create', name: '创建用户', description: '创建新用户', resourceType: ResourceType.USER, actionType: ActionType.CREATE, isSystem: true },
@@ -558,7 +558,7 @@ export interface PermissionMiddlewareOptions {
 export function createPermissionMiddleware(options: PermissionMiddlewareOptions) {
   return async (ctx: ApiContext, next: () => Promise<unknown>) => {
     const { user } = ctx
-    const { resourceType, action, checkOwnership = false, allowPublic = false } = options
+    const { resourceType, action, allowPublic = false } = options
 
     // 如果允许公开访问，直接放行
     if (allowPublic) {

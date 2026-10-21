@@ -3,12 +3,12 @@
  * Includes React.memo, useMemo, useCallback patterns and animation utilities
  */
 
-import { useEffect, useRef, useCallback, useMemo, useState, DependencyList } from 'react';
+import React, { useEffect, useRef, useCallback, useMemo, useState, DependencyList } from 'react';
 
 /**
  * Memoize component with deep comparison support
  */
-export function memoDeepCompare<T extends Record<string, any>>(
+export function memoDeepCompare<T extends Record<string, unknown>>(
   Component: React.ComponentType<T>,
   areEqual?: (prevProps: T, nextProps: T) => boolean
 ) {
@@ -18,7 +18,10 @@ export function memoDeepCompare<T extends Record<string, any>>(
 /**
  * Default deep comparison function
  */
-function defaultDeepCompare<T>(prevProps: T, nextProps: T): boolean {
+function defaultDeepCompare<T extends Record<string, unknown>>(
+  prevProps: T,
+  nextProps: T
+): boolean {
   const prevKeys = Object.keys(prevProps);
   const nextKeys = Object.keys(nextProps);
 
@@ -60,13 +63,15 @@ function defaultDeepCompare<T>(prevProps: T, nextProps: T): boolean {
   return true;
 }
 
-function arraysEqual<T>(a: T[], b: T[]): boolean {
+function arraysEqual(a: unknown[], b: unknown[]): boolean {
   if (a.length !== b.length) return false;
 
   for (let i = 0; i < a.length; i++) {
     if (a[i] !== b[i]) {
       if (isObject(a[i]) && isObject(b[i])) {
-        if (!objectsEqual(a[i], b[i])) return false;
+        if (!objectsEqual(a[i] as Record<string, unknown>, b[i] as Record<string, unknown>)) {
+          return false;
+        }
       } else {
         return false;
       }
@@ -76,11 +81,11 @@ function arraysEqual<T>(a: T[], b: T[]): boolean {
   return true;
 }
 
-function objectsEqual<T extends Record<string, any>>(a: T, b: T): boolean {
+function objectsEqual(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
   return defaultDeepCompare(a, b);
 }
 
-function isObject(value: any): value is Record<string, any> {
+function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
@@ -121,7 +126,7 @@ function deepArrayEquals(a: DependencyList, b: DependencyList): boolean {
 /**
  * Debounce hook
  */
-export function useDebounce<T extends (...args: any[]) => any>(
+export function useDebounce<T extends (...args: never[]) => unknown>(
   callback: T,
   delay: number
 ): T {
@@ -159,7 +164,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
 /**
  * Throttle hook
  */
-export function useThrottle<T extends (...args: any[]) => any>(
+export function useThrottle<T extends (...args: never[]) => unknown>(
   callback: T,
   delay: number
 ): T {
@@ -532,16 +537,14 @@ export function measureLayout(element: HTMLElement): {
  */
 export function batchDOMUpdates(reads: (() => void)[], writes: (() => void)[]): void {
   // Perform all reads first
-  const readResults = reads.map(read => read());
+  reads.forEach(read => read());
 
   // Then perform all writes
   requestAnimationFrame(() => {
-    writes.forEach((write, index) => {
+    writes.forEach(write => {
       write();
     });
   });
-
-  return readResults as any;
 }
 
 /**

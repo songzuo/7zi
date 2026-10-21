@@ -3,9 +3,13 @@
  * SMTP 邮件发送测试模块
  *
  * 用于测试 SMTP 服务器连接和邮件发送功能
+ *
+ * P0-3 安全修复：nodemailer 只在服务端路由 `src/app/api/email/route.ts`
+ * 中加载，本模块通过 `POST /api/email` 完成连接测试与邮件发送，
+ * 因此不会把 nodemailer / SMTP 凭据带进客户端 bundle。
  */
 
-import nodemailer from 'nodemailer'
+import { callEmailApi } from '@/lib/email/api-client'
 
 /**
  * SMTP 凭证接口
@@ -53,9 +57,32 @@ export interface TestEmailOptions {
 const DEFAULT_TIMEOUT = 10000
 
 /**
+ * 归一化底层错误信息（与服务端透传的原始错误保持一致）
+ */
+function normalizeErrorMessage(rawMessage: string): string {
+  let errorMessage = rawMessage || 'Unknown error'
+
+  if (errorMessage.includes('ETIMEDOUT') || errorMessage.includes('timeout')) {
+    errorMessage = `Connection timeout: ${errorMessage}`
+  } else if (errorMessage.includes('ECONNREFUSED')) {
+    errorMessage = `Connection refused: ${errorMessage}`
+  } else if (errorMessage.includes('ENOTFOUND')) {
+    errorMessage = `Host not found: ${errorMessage}`
+  } else if (errorMessage.includes('auth') || errorMessage.includes('Invalid login')) {
+    errorMessage = `Authentication failed: ${errorMessage}`
+  } else if (errorMessage.includes('certificate')) {
+    errorMessage = `SSL/TLS certificate error: ${errorMessage}`
+  }
+
+  return errorMessage
+}
+
+/**
  * 测试 SMTP 连接并发送测试邮件
  *
- * @param credentials - SMTP 凭证
+ * 通过服务端 `/api/email` 路由执行（服务端负责 nodemailer 交互）。
+ *
+ * @param credentials - SMTP 凭证（保留参数以兼容既有调用签名，不会上传到服务端）
  * @param options - 测试邮件选项
  * @returns 测试结果
  */
@@ -65,34 +92,20 @@ export async function testSMTPConnection(
 ): Promise<TestResult> {
   const startTime = Date.now()
 
-  try {
-    // 创建传输器
-    const transporter = nodemailer.createTransport({
-      host: credentials.host,
-      port: credentials.port,
-      secure: credentials.secure,
-      auth: {
-        user: credentials.auth.user,
-        pass: credentials.auth.pass,
-      },
-      // 设置超时
-      connectionTimeout: options.timeout || DEFAULT_TIMEOUT,
-      greetingTimeout: options.timeout || DEFAULT_TIMEOUT,
-      socketTimeout: options.timeout || DEFAULT_TIMEOUT,
-    })
+  // 客户端不再直接连接 SMTP：由服务端依据自身环境变量配置发信。
+  // 这里保留 credentials 的使用（仅用于校验与错误提示），不发送凭据到服务端。
+  const validation = validateSMTPCredentials(credentials)
+  if (!validation.valid) {
+    return {
+      success: false,
+      error: validation.errors.join(', '),
+      responseTime: Date.now() - startTime,
+    }
+  }
 
-    // 验证连接
-    await transporter.verify()
-
-    // 准备测试邮件
-    const mailOptions = {
-      from: options.from || credentials.auth.user,
-      to: options.to,
-      subject: options.subject || 'SMTP Test Email',
-      text: options.text || 'This is a test email sent from the SMTP tester module.',
-      html:
-        options.html ||
-        `
+  const html =
+    options.html ||
+    `
         <html>
           <body>
             <h2>SMTP Test Email</h2>
@@ -102,59 +115,45 @@ export async function testSMTPConnection(
             <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
           </body>
         </html>
-      `,
-    }
+      `
 
-    // 发送测试邮件
-    const info = await transporter.sendMail(mailOptions)
+  const result = await callEmailApi({
+    action: 'send',
+    to: options.to,
+    subject: options.subject || 'SMTP Test Email',
+    text: options.text || 'This is a test email sent from the SMTP tester module.',
+    html,
+    timeout: options.timeout || DEFAULT_TIMEOUT,
+  })
 
-    const responseTime = Date.now() - startTime
+  const responseTime = Date.now() - startTime
 
-    return {
-      success: true,
-      responseTime,
-      details: {
-        serverResponse: info.response,
-        messageId: info.messageId,
-        acceptedRecipients: info.accepted.map(r => typeof r === 'string' ? r : r.address),
-        rejectedRecipients: info.rejected.map(r => typeof r === 'string' ? r : r.address),
-      },
-    }
-  } catch (error) {
-    const responseTime = Date.now() - startTime
-
-    // 处理不同类型的错误
-    let errorMessage = 'Unknown error'
-
-    if (error instanceof Error) {
-      errorMessage = error.message
-
-      // 特定错误处理
-      if (error.message.includes('ETIMEDOUT') || error.message.includes('timeout')) {
-        errorMessage = `Connection timeout: ${error.message}`
-      } else if (error.message.includes('ECONNREFUSED')) {
-        errorMessage = `Connection refused: ${error.message}`
-      } else if (error.message.includes('ENOTFOUND')) {
-        errorMessage = `Host not found: ${error.message}`
-      } else if (error.message.includes('auth') || error.message.includes('Invalid login')) {
-        errorMessage = `Authentication failed: ${error.message}`
-      } else if (error.message.includes('certificate')) {
-        errorMessage = `SSL/TLS certificate error: ${error.message}`
-      }
-    }
-
+  if (!result.success) {
     return {
       success: false,
-      error: errorMessage,
+      error: normalizeErrorMessage(result.error || ''),
       responseTime,
     }
+  }
+
+  return {
+    success: true,
+    responseTime,
+    details: {
+      serverResponse: result.data?.response,
+      messageId: result.data?.messageId,
+      acceptedRecipients: result.data?.accepted,
+      rejectedRecipients: result.data?.rejected,
+    },
   }
 }
 
 /**
  * 仅测试 SMTP 连接（不发送邮件）
  *
- * @param credentials - SMTP 凭证
+ * 通过服务端 `/api/email` 路由的 `action: 'test'` 完成。
+ *
+ * @param credentials - SMTP 凭证（保留参数以兼容既有调用签名）
  * @param timeout - 超时时间（毫秒）
  * @returns 测试结果
  */
@@ -164,55 +163,33 @@ export async function testSMTPConnectionOnly(
 ): Promise<TestResult> {
   const startTime = Date.now()
 
-  try {
-    const transporter = nodemailer.createTransport({
-      host: credentials.host,
-      port: credentials.port,
-      secure: credentials.secure,
-      auth: {
-        user: credentials.auth.user,
-        pass: credentials.auth.pass,
-      },
-      connectionTimeout: timeout,
-      greetingTimeout: timeout,
-      socketTimeout: timeout,
-    })
-
-    // 仅验证连接
-    await transporter.verify()
-
-    const responseTime = Date.now() - startTime
-
-    return {
-      success: true,
-      responseTime,
-    }
-  } catch (error) {
-    const responseTime = Date.now() - startTime
-
-    let errorMessage = 'Unknown error'
-
-    if (error instanceof Error) {
-      errorMessage = error.message
-
-      if (error.message.includes('ETIMEDOUT') || error.message.includes('timeout')) {
-        errorMessage = `Connection timeout: ${error.message}`
-      } else if (error.message.includes('ECONNREFUSED')) {
-        errorMessage = `Connection refused: ${error.message}`
-      } else if (error.message.includes('ENOTFOUND')) {
-        errorMessage = `Host not found: ${error.message}`
-      } else if (error.message.includes('auth') || error.message.includes('Invalid login')) {
-        errorMessage = `Authentication failed: ${error.message}`
-      } else if (error.message.includes('certificate')) {
-        errorMessage = `SSL/TLS certificate error: ${error.message}`
-      }
-    }
-
+  const validation = validateSMTPCredentials(credentials)
+  if (!validation.valid) {
     return {
       success: false,
-      error: errorMessage,
+      error: validation.errors.join(', '),
+      responseTime: Date.now() - startTime,
+    }
+  }
+
+  const result = await callEmailApi({
+    action: 'test',
+    timeout,
+  })
+
+  const responseTime = Date.now() - startTime
+
+  if (!result.success) {
+    return {
+      success: false,
+      error: normalizeErrorMessage(result.error || ''),
       responseTime,
     }
+  }
+
+  return {
+    success: true,
+    responseTime,
   }
 }
 

@@ -12,7 +12,6 @@ import {
   useWorkflowExport,
   useUndoRedo,
   type WorkflowDefinition,
-  type CustomNodeRegistration,
   type WorkflowNodeData,
   type WorkflowExport,
   type NodeType,

@@ -15,7 +15,6 @@ import {
   ResourceType,
   ActionType,
   PermissionDeniedError,
-  Permissions,
 } from '@/lib/permissions'
 import { UserRole } from '@/lib/auth'
 import {
@@ -150,7 +149,7 @@ class UserController {
    */
   @RequirePermission(ResourceType.USER, ActionType.LIST)
   async listUsers(ctx: ApiContext): Promise<NextResponse> {
-    const { user } = ctx
+    
 
     // 实际业务逻辑
     const userList = Object.values(users).map(u => ({
@@ -168,7 +167,7 @@ class UserController {
    */
   @RequirePermission(ResourceType.USER, ActionType.CREATE)
   async createUser(ctx: ApiContext, userData: unknown): Promise<NextResponse> {
-    const { user } = ctx
+    
 
     const data = userData as UserCreateData
 
@@ -191,7 +190,7 @@ class UserController {
     { resourceType: ResourceType.USER, action: ActionType.DELETE },
   ])
   async updateUser(ctx: ApiContext, userId: string, updates: unknown): Promise<NextResponse> {
-    const { user } = ctx
+    
 
     // Actual business logic
     const updateData = updates as Record<string, unknown>
@@ -206,7 +205,7 @@ class UserController {
     { resourceType: ResourceType.USER, action: ActionType.UPDATE },
   ])
   async deleteUser(ctx: ApiContext, userId: string): Promise<NextResponse> {
-    const { user } = ctx
+    
 
     // 实际业务逻辑
     return createSuccessResponse({
@@ -219,7 +218,7 @@ class UserController {
    */
   @RequireRoleLevel(80)
   async manageUser(ctx: ApiContext): Promise<NextResponse> {
-    const { user } = ctx
+    
 
     return createSuccessResponse({
       message: 'User management operations',
@@ -231,7 +230,7 @@ class UserController {
    */
   @RequirePermission(ResourceType.DATA, ActionType.EXPORT)
   async exportUsers(ctx: ApiContext): Promise<NextResponse> {
-    const { user } = ctx
+    
 
     // 实际业务逻辑
     const userData = Object.values(users).map(u => ({

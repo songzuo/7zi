@@ -11,7 +11,6 @@ import type {
   StreamTranscriptionConfig,
   TranscriptionEvent,
   TranscriptionWithSpeaker,
-  SupportedLanguage,
   AudioEventListener,
 } from './types'
 import { logger } from '@/lib/logger'

@@ -4,7 +4,7 @@
  * 滑动窗口速率限制器实现
  */
 
-import { IRateLimitStorage, RateLimitEntry } from './storage'
+import { IRateLimitStorage } from './storage'
 import { RateLimitConfig } from './config'
 
 /**

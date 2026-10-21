@@ -10,7 +10,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useNotificationCenter } from './use-notifications'
+import {
+  useNotificationCenter,
+  useNotifications,
+  useUnreadCount,
+  useNotificationActions,
+} from './use-notifications'
 import type { NotificationType, NotificationPriority } from './notification-types'
 
 /**
@@ -55,19 +60,20 @@ export function NotificationCenter({ userId }: { userId?: string }) {
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    deleteNotifications,
     cleanupExpired,
     savePreferences,
   } = useNotificationCenter(userId)
 
   const [view, setView] = useState<'list' | 'groups'>('list')
   const [filterType, setFilterType] = useState<NotificationType | 'all'>('all')
-  const [filterRead, setFilterRead] = useState<boolean | 'all'>('all')
+  // 读取状态筛选：使用字符串枚举，避免 <select> 的 value 只接受 string
+  const [filterRead, setFilterRead] = useState<'all' | 'unread' | 'read'>('all')
 
   // 过滤通知
   const filteredNotifications = notifications.filter(n => {
     if (filterType !== 'all' && n.type !== filterType) return false
-    if (filterRead !== 'all' && n.read !== filterRead) return false
+    if (filterRead === 'unread' && n.read) return false
+    if (filterRead === 'read' && !n.read) return false
     return true
   })
 
@@ -130,11 +136,15 @@ export function NotificationCenter({ userId }: { userId?: string }) {
 
           <select
             value={filterRead}
-            onChange={(e) => setFilterRead(e.target.value as boolean | 'all')}
+            onChange={(e) => {
+              const raw = e.target.value
+              // value 必须是 string，这里把 'unread' / 'read' 映射回状态枚举
+              setFilterRead(raw === 'unread' ? 'unread' : raw === 'read' ? 'read' : 'all')
+            }}
           >
             <option value="all">全部状态</option>
-            <option value={false}>未读</option>
-            <option value={true}>已读</option>
+            <option value="unread">未读</option>
+            <option value="read">已读</option>
           </select>
         </div>
 
@@ -456,7 +466,8 @@ export function NotificationCenter({ userId }: { userId?: string }) {
  * 通知徽章组件（用于导航栏等）
  */
 export function NotificationBadge({ userId }: { userId?: string }) {
-  const { unreadCount, loading } = useUnreadCount(userId)
+  // useUnreadCount 返回 { count, loading, refresh }，这里重命名为 unreadCount
+  const { count: unreadCount, loading } = useUnreadCount(userId)
 
   return (
     <div className="notification-badge">
@@ -472,11 +483,15 @@ export function NotificationBadge({ userId }: { userId?: string }) {
  * 通知弹窗组件
  */
 export function NotificationPopup({ userId }: { userId?: string }) {
-  const { notifications, unreadCount, markAsRead, deleteNotification } = useNotifications({
+  // useNotifications 只提供列表/加载状态；操作与未读数分别来自
+  // useNotificationActions 与 useUnreadCount
+  const { notifications } = useNotifications({
     userId,
     read: false,
     limit: 5,
   })
+  const { count: unreadCount } = useUnreadCount(userId)
+  const { markAsRead, deleteNotification } = useNotificationActions()
 
   const [isOpen, setIsOpen] = useState(false)
 

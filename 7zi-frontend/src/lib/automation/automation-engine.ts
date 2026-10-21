@@ -980,7 +980,7 @@ export class AutomationEngine {
       return { success: false, error: '工作流配置缺失' }
     }
 
-    // TODO: 集成到工作流执行系统
+    // B/C 类 (暂缓): 真实的工作流执行系统集成需要等待执行引擎 API 稳定后再接入，避免硬依赖。
     logger.debug(`执行工作流: ${workflowConfig.workflowId}`, {
       input: { ...workflowConfig.input, triggerData: context.triggerData },
       executionContext: context,
@@ -1008,7 +1008,7 @@ export class AutomationEngine {
       priority: notificationConfig.priority,
     })
 
-    // TODO: 集成到通知系统
+    // B/C 类 (暂缓): 通知系统集成依赖通知渠道优先级和模板配置，需在通知服务完成后接入。
     return {
       success: true,
       data: { channels: notificationConfig.channels, sentAt: new Date().toISOString() },
@@ -1097,7 +1097,7 @@ export class AutomationEngine {
       return { success: false, error: '自定义配置缺失' }
     }
 
-    // TODO: 集成到自定义处理器注册表
+    // B/C 类 (暂缓): 自定义处理器注册表需要定义标准化的处理器接口，先保持模拟返回。
     logger.debug(`执行自定义动作: ${customConfig.handler}`, {
       params: customConfig.params,
       context,

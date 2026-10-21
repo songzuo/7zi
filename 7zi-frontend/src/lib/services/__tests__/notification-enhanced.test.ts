@@ -76,18 +76,17 @@ describe('EnhancedNotificationService', () => {
     vi.clearAllMocks()
 
     // Default mock implementations
-    vi.mocked(notificationStorage.initialize).mockReturnValue(undefined)
-    vi.mocked(notificationStorage.insertNotification).mockReturnValue(undefined)
-    vi.mocked(notificationStorage.markEmailSent).mockReturnValue(undefined)
-    vi.mocked(notificationStorage.logDelivery).mockReturnValue(undefined)
+    vi.mocked(notificationStorage.initialize).mockReturnValue(undefined as never)
+    vi.mocked(notificationStorage.insertNotification).mockReturnValue(undefined as never)
+    vi.mocked(notificationStorage.markEmailSent).mockReturnValue(undefined as never)
+    vi.mocked(notificationStorage.logDelivery).mockReturnValue(undefined as never)
     vi.mocked(notificationStorage.getNotifications).mockReturnValue([])
     vi.mocked(notificationStorage.getUnreadCount).mockReturnValue(0)
-    vi.mocked(notificationStorage.markAsRead).mockReturnValue(undefined)
-    vi.mocked(notificationStorage.markAllAsRead).mockReturnValue(undefined)
-    vi.mocked(notificationStorage.deleteNotification).mockReturnValue(undefined)
+    vi.mocked(notificationStorage.markAsRead).mockReturnValue(undefined as never)
+    vi.mocked(notificationStorage.markAllAsRead).mockReturnValue(undefined as never)
+    vi.mocked(notificationStorage.deleteNotification).mockReturnValue(undefined as never)
     // Default mock: return preferences with email enabled for all priorities
     vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-      userId: 'default-user',
       emailEnabled: true,
       emailThreshold: 'low',
       pushEnabled: true,
@@ -98,7 +97,7 @@ describe('EnhancedNotificationService', () => {
       quietHoursEnd: null,
       timezone: 'UTC',
     })
-    vi.mocked(notificationStorage.setUserPreferences).mockReturnValue(undefined)
+    vi.mocked(notificationStorage.setUserPreferences).mockReturnValue(undefined as never)
     vi.mocked(notificationStorage.getStats).mockReturnValue({
       totalNotifications: 0,
       unreadNotifications: 0,
@@ -107,15 +106,15 @@ describe('EnhancedNotificationService', () => {
     })
     vi.mocked(notificationStorage.cleanupExpired).mockReturnValue(0)
 
-    vi.mocked(baseService.notify).mockResolvedValue(undefined)
-    vi.mocked(baseService.getNotifications).mockReturnValue([])
-    vi.mocked(baseService.getUnreadCount).mockReturnValue(0)
-    vi.mocked(baseService.markAsRead).mockReturnValue(undefined)
-    vi.mocked(baseService.markAllAsRead).mockReturnValue(undefined)
-    vi.mocked(baseService.deleteNotification).mockReturnValue(undefined)
-    vi.mocked(baseService.cleanupExpired).mockReturnValue(0)
+    vi.mocked(baseService.notify).mockReturnValue({} as unknown as Notification)
+    vi.mocked(baseService.getNotifications).mockReturnValue([] as never)
+    vi.mocked(baseService.getUnreadCount).mockReturnValue(0 as never)
+    vi.mocked(baseService.markAsRead).mockReturnValue(undefined as never)
+    vi.mocked(baseService.markAllAsRead).mockReturnValue(undefined as never)
+    vi.mocked(baseService.deleteNotification).mockReturnValue(undefined as never)
+    vi.mocked(baseService.cleanupExpired).mockReturnValue(0 as never)
 
-    vi.mocked(emailService.initialize).mockReturnValue(undefined)
+    vi.mocked(emailService.initialize).mockReturnValue(undefined as never)
     vi.mocked(emailService.isEnabled).mockReturnValue(true)
     vi.mocked(emailService.sendNotificationEmail).mockResolvedValue({
       success: true,
@@ -189,6 +188,8 @@ describe('EnhancedNotificationService', () => {
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
+        quietHoursStart: null,
+        quietHoursEnd: null,
       })
 
       const notification = {
@@ -314,6 +315,8 @@ describe('EnhancedNotificationService', () => {
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
+        quietHoursStart: null,
+        quietHoursEnd: null,
       })
 
       const notification = {
@@ -341,6 +344,8 @@ describe('EnhancedNotificationService', () => {
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
+        quietHoursStart: null,
+        quietHoursEnd: null,
       })
 
       const notification = {
@@ -370,6 +375,8 @@ describe('EnhancedNotificationService', () => {
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
+        quietHoursStart: null,
+        quietHoursEnd: null,
       })
 
       const notification = {
@@ -457,6 +464,8 @@ describe('EnhancedNotificationService', () => {
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
+        quietHoursStart: null,
+        quietHoursEnd: null,
       })
 
       const notification = {
@@ -483,6 +492,8 @@ describe('EnhancedNotificationService', () => {
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
+        quietHoursStart: null,
+        quietHoursEnd: null,
       })
 
       const notification = {
@@ -509,6 +520,8 @@ describe('EnhancedNotificationService', () => {
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
+        quietHoursStart: null,
+        quietHoursEnd: null,
       })
 
       const notification = {
@@ -527,7 +540,7 @@ describe('EnhancedNotificationService', () => {
     })
 
     it('should send email for urgent priority by default when no preferences exist', async () => {
-      vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(undefined)
+      vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(null)
 
       const notification = {
         type: NotificationType.ERROR,
@@ -545,7 +558,7 @@ describe('EnhancedNotificationService', () => {
     })
 
     it('should send email for high priority by default when no preferences exist', async () => {
-      vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(undefined)
+      vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(null)
 
       const notification = {
         type: NotificationType.WARNING,
@@ -563,7 +576,7 @@ describe('EnhancedNotificationService', () => {
     })
 
     it('should not send email for medium/low priority by default when no preferences exist', async () => {
-      vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(undefined)
+      vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(null)
 
       const notification = {
         type: NotificationType.INFO,
@@ -589,6 +602,8 @@ describe('EnhancedNotificationService', () => {
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
+        quietHoursStart: null,
+        quietHoursEnd: null,
       })
 
       // Urgent should be sent
@@ -754,6 +769,8 @@ describe('EnhancedNotificationService', () => {
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
+        quietHoursStart: null,
+        quietHoursEnd: null,
       })
 
       const notification = {
@@ -861,7 +878,7 @@ describe('EnhancedNotificationService', () => {
     })
 
     it('should return null when preferences not found', () => {
-      vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(undefined)
+      vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(null)
 
       const preferences = service.getUserPreferences('user-123')
 
@@ -902,8 +919,13 @@ describe('EnhancedNotificationService', () => {
           title: 'Test',
           message: 'Test message',
           userId: 'user-123',
+          teamId: null,
+          taskId: null,
           read: 0,
+          emailSent: 0,
+          emailSentAt: null,
           createdAt: Date.now(),
+          expiresAt: null,
           data: null,
         },
       ])

@@ -12,7 +12,6 @@ import type { Socket } from 'socket.io-client'
 // Import from shared types
 import type {
   Notification,
-  NotificationType,
   NotificationPriority,
   NotificationFilter,
 } from '@/lib/services/notification'

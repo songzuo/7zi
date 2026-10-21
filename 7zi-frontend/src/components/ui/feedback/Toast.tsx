@@ -129,7 +129,6 @@ function Toast({
   showCloseButton = true,
   icon,
   className = '',
-  position,
   action,
 }: ToastProps) {
   const [isVisible, setIsVisible] = useState(false)

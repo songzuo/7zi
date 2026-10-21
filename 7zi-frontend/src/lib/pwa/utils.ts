@@ -7,12 +7,21 @@
  */
 
 /**
+ * 检查是否以 PWA 模式（已安装）运行
+ *
+ * `standalone` 是 iOS Safari 的非标准属性，用窄接口描述避免使用 `any`
+ */
+interface NavigatorWithStandalone extends Navigator {
+  standalone?: boolean;
+}
+
+/**
  * Check if running as PWA (installed)
  */
 export function isPWAInstalled(): boolean {
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    (window.navigator as any).standalone === true
+    (window.navigator as NavigatorWithStandalone).standalone === true
   )
 }
 

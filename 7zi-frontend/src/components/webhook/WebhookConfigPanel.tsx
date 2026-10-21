@@ -10,7 +10,6 @@ import {
   WebhookSubscription,
   CreateWebhookInput,
   WebhookEventType,
-  WEBHOOK_EVENT_TYPE_LABELS,
 } from '@/lib/webhook';
 import { useWebhooks, useWebhookEventTypes } from '@/hooks/useWebhooks';
 
@@ -36,7 +35,7 @@ export function WebhookConfigPanel({
   onSave,
   mode = 'create',
 }: WebhookConfigPanelProps) {
-  const { eventTypes, getEventLabel, getEventsByCategory } = useWebhookEventTypes();
+  const { getEventLabel, getEventsByCategory } = useWebhookEventTypes();
   const { createSubscription, updateSubscription, isLoading } = useWebhooks();
 
   // 表单状态

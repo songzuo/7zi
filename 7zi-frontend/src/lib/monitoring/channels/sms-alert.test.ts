@@ -14,6 +14,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { SMSAlertChannel } from './sms-alert'
 import { Alert } from '../alert-engine'
+import type { DedupConfig } from './base-alert-channel'
 
 // Mock fetch
 global.fetch = vi.fn()
@@ -40,6 +41,7 @@ describe('SMSAlertChannel', () => {
   let channel: SMSAlertChannel
 
   const defaultConfig = {
+    enabled: true,
     recipients: {
       P0: ['+1234567890'],
       P1: ['+1234567891'],
@@ -303,7 +305,7 @@ describe('SMSAlertChannel', () => {
       await channel.send(alert)
 
       const fetchCalls = (global.fetch as any).mock.calls
-      const recipients = fetchCalls.map(call => JSON.parse(call[1].body).to)
+      const recipients = fetchCalls.map((call: any[]) => JSON.parse(call[1].body).to)
 
       expect(recipients).toContain('+1234567891')
       expect(recipients).toContain('+1999999999')
@@ -365,12 +367,14 @@ describe('SMSAlertChannel', () => {
 
       const alert = createMockAlert()
 
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation()
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
 
       await channel.send(alert)
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        '[SMSAlert] Would send SMS to +1234567891: [P1E] CPU Usage High: CPU usage exceeded threshold cpu_usage=90'
+        expect.stringContaining(
+          '[SMSAlert] Would send SMS to +1234567891: [P1E] CPU Usage High: CPU usage exceeded threshold cpu_usage=90'
+        )
       )
 
       consoleSpy.mockRestore()
@@ -473,7 +477,7 @@ describe('SMSAlertChannel', () => {
     })
 
     it('should update dedup configuration', () => {
-      const newDedupConfig = {
+      const newDedupConfig: DedupConfig = {
         enabled: false,
         windowMs: 30000,
         keys: ['ruleId', 'priority'],

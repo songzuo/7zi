@@ -12,13 +12,13 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useAuthStore } from '@/stores/auth-store'
-import { shallow } from 'zustand/shallow'
+
 import { trackLogin, identifyUser } from '@/lib/analytics/ga4'
 
 export default function LoginPage() {
   const router = useRouter()
   // 使用细粒度选择器，避免不必要的重渲染
-  const { login, logout: clearError } = useAuthStore(state => ({
+  const { login } = useAuthStore(state => ({
     login: state.login,
     logout: state.logout,
   }))

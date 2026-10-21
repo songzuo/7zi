@@ -89,7 +89,7 @@ interface ErrorFallbackConfig {
 /**
  * Simple error fallback for minimal UI
  */
-export function SimpleErrorFallback({ error, resetError }: ErrorFallbackProps) {
+export function SimpleErrorFallback({ resetError }: ErrorFallbackProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
       <div className="text-center">
@@ -126,7 +126,6 @@ export function FullErrorFallback({
   const {
     title = 'Something went wrong',
     message = 'An unexpected error occurred. Please try again.',
-    showErrorDetails: showErrorDetailsProp,
     showRecoveryOptions = true,
     showSupportLink = true,
     supportContact = 'mailto:support@example.com',
@@ -405,7 +404,6 @@ ${errorInfo?.componentStack || 'N/A'}
  * Card-style error fallback for inline use
  */
 export function CardErrorFallback({
-  error,
   resetError,
   config = {},
 }: ErrorFallbackProps & {

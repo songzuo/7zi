@@ -10,7 +10,6 @@ import type {
   Agent,
   AgentStatus,
   Task,
-  TaskStatus,
   TaskPriority,
   QueueStats,
   ScheduleTaskRequest,

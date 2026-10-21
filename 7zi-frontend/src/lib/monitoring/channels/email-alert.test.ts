@@ -13,16 +13,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { EmailAlertChannel } from './email-alert'
 import { Alert } from '../alert-engine'
+import type { DedupConfig } from './base-alert-channel'
 
-// Mock nodemailer
-vi.mock('nodemailer', () => ({
-  default: {
-    createTransport: vi.fn(() => ({
-      sendMail: vi.fn().mockResolvedValue({ messageId: 'test-message-id' }),
-      verify: vi.fn().mockResolvedValue(true),
-    })),
-  },
-}))
+/**
+ * P0-3 安全修复：nodemailer 已迁移到服务端路由 `/api/email`，
+ * 因此这里 mock 的是 global fetch，而不是 nodemailer。
+ */
+let fetchMock: ReturnType<typeof vi.fn>
+
+const jsonResponse = (body: unknown, status = 200): Response =>
+  ({
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => body,
+  }) as unknown as Response
 
 // Mock alert for testing
 const createMockAlert = (overrides: Partial<Alert> = {}): Alert => ({
@@ -50,6 +54,7 @@ describe('EmailAlertChannel', () => {
   let channel: EmailAlertChannel
 
   const defaultConfig = {
+    enabled: true,
     host: 'smtp.example.com',
     port: 587,
     secure: false,
@@ -69,9 +74,17 @@ describe('EmailAlertChannel', () => {
   beforeEach(() => {
     channel = new EmailAlertChannel(defaultConfig)
     vi.clearAllMocks()
+    fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        success: true,
+        data: { messageId: 'test-message-id', accepted: [], rejected: [] },
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
   })
 
   afterEach(() => {
+    vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })
 
@@ -80,7 +93,7 @@ describe('EmailAlertChannel', () => {
       const alert = createMockAlert()
 
       // Mock sendInternal to capture the message
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -103,7 +116,7 @@ describe('EmailAlertChannel', () => {
         },
       })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -124,7 +137,7 @@ describe('EmailAlertChannel', () => {
         },
       })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -136,7 +149,7 @@ describe('EmailAlertChannel', () => {
     it('should select recipients based on P0 priority', async () => {
       const alert = createMockAlert({ priority: 'P0' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -146,7 +159,7 @@ describe('EmailAlertChannel', () => {
     it('should select recipients based on P1 priority', async () => {
       const alert = createMockAlert({ priority: 'P1' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -156,7 +169,7 @@ describe('EmailAlertChannel', () => {
     it('should select recipients based on P2 priority', async () => {
       const alert = createMockAlert({ priority: 'P2' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -166,7 +179,7 @@ describe('EmailAlertChannel', () => {
     it('should select recipients based on P3 priority', async () => {
       const alert = createMockAlert({ priority: 'P3' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -186,7 +199,7 @@ describe('EmailAlertChannel', () => {
 
       const alert = createMockAlert({ priority: 'P1' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -208,7 +221,7 @@ describe('EmailAlertChannel', () => {
 
       const alert = createMockAlert({ priority: 'P1' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -220,7 +233,7 @@ describe('EmailAlertChannel', () => {
     it('should generate HTML with severity color', async () => {
       const alert = createMockAlert({ severity: 'critical' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -230,7 +243,7 @@ describe('EmailAlertChannel', () => {
     it('should generate HTML with priority badge', async () => {
       const alert = createMockAlert({ priority: 'P0' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -240,7 +253,7 @@ describe('EmailAlertChannel', () => {
     it('should include metric value in HTML', async () => {
       const alert = createMockAlert({ value: 95.5 })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -252,7 +265,7 @@ describe('EmailAlertChannel', () => {
     it('should generate text with all alert details', async () => {
       const alert = createMockAlert()
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -270,7 +283,7 @@ describe('EmailAlertChannel', () => {
         },
       })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -282,7 +295,7 @@ describe('EmailAlertChannel', () => {
     it('should use correct emoji for critical severity', async () => {
       const alert = createMockAlert({ severity: 'critical' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -292,7 +305,7 @@ describe('EmailAlertChannel', () => {
     it('should use correct emoji for error severity', async () => {
       const alert = createMockAlert({ severity: 'error' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -302,7 +315,7 @@ describe('EmailAlertChannel', () => {
     it('should use correct emoji for warning severity', async () => {
       const alert = createMockAlert({ severity: 'warning' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -312,7 +325,7 @@ describe('EmailAlertChannel', () => {
     it('should use correct emoji for info severity', async () => {
       const alert = createMockAlert({ severity: 'info' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -322,7 +335,7 @@ describe('EmailAlertChannel', () => {
     it('should use correct color for P0 priority', async () => {
       const alert = createMockAlert({ priority: 'P0' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -332,7 +345,7 @@ describe('EmailAlertChannel', () => {
     it('should use correct color for P1 priority', async () => {
       const alert = createMockAlert({ priority: 'P1' })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -341,20 +354,79 @@ describe('EmailAlertChannel', () => {
   })
 
   describe('Connection Testing', () => {
-    it('should test connection successfully', async () => {
-      // The testConnection method uses dynamic import which doesn't work well with mocks
-      // This test verifies the method exists and returns a boolean
+    it('should test connection successfully via the server API', async () => {
+      fetchMock.mockResolvedValue(
+        jsonResponse({ success: true, data: { verified: true, host: 'smtp.example.com' } })
+      )
+
       const result = await channel.testConnection()
 
-      // Result will be false in test environment due to no actual SMTP server
-      expect(typeof result).toBe('boolean')
+      expect(result).toBe(true)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      const [url, init] = fetchMock.mock.calls[0]
+      expect(url).toBe('/api/email')
+      expect(JSON.parse(init.body).action).toBe('test')
     })
 
     it('should handle connection test failure', async () => {
-      // The testConnection will return false in test environment
+      fetchMock.mockResolvedValue(jsonResponse({ success: false, error: 'ECONNREFUSED' }, 500))
+
       const result = await channel.testConnection()
 
       expect(result).toBe(false)
+    })
+
+    it('should handle connection test network error', async () => {
+      fetchMock.mockRejectedValue(new Error('network down'))
+
+      const result = await channel.testConnection()
+
+      expect(result).toBe(false)
+    })
+  })
+
+  describe('Sending via server API', () => {
+    it('should send through POST /api/email without importing nodemailer', async () => {
+      const alert = createMockAlert()
+
+      await channel.send(alert)
+
+      expect(fetchMock).toHaveBeenCalled()
+      const [url, init] = fetchMock.mock.calls[0]
+      expect(url).toBe('/api/email')
+      expect(init.method).toBe('POST')
+      const body = JSON.parse(init.body)
+      expect(body.action).toBe('send')
+      expect(body.to).toBe('ops@example.com')
+      expect(body.subject).toContain('CPU Usage High')
+    })
+
+    it('should fall back to console logging when SMTP is not configured (503)', async () => {
+      fetchMock.mockResolvedValue(
+        jsonResponse({ success: false, error: 'SMTP is not configured on the server.' }, 503)
+      )
+
+      const alert = createMockAlert()
+
+      await expect(channel.send(alert)).resolves.not.toThrow()
+    })
+
+    it('should fall back to console logging when the API is unreachable', async () => {
+      fetchMock.mockRejectedValue(new Error('network down'))
+
+      const alert = createMockAlert()
+
+      await expect(channel.send(alert)).resolves.not.toThrow()
+    })
+
+    it('should throw when the server reports a real send failure', async () => {
+      fetchMock.mockResolvedValue(
+        jsonResponse({ success: false, error: 'Invalid login credentials' }, 500)
+      )
+
+      const alert = createMockAlert()
+
+      await expect(channel.send(alert)).rejects.toThrow('Invalid login credentials')
     })
   })
 
@@ -401,7 +473,7 @@ describe('EmailAlertChannel', () => {
     })
 
     it('should update dedup configuration', () => {
-      const newDedupConfig = {
+      const newDedupConfig: DedupConfig = {
         enabled: false,
         windowMs: 30000,
         keys: ['ruleId', 'priority'],
@@ -452,7 +524,7 @@ describe('EmailAlertChannel', () => {
         endedAt: Date.now(),
       })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 
@@ -469,7 +541,7 @@ describe('EmailAlertChannel', () => {
         },
       })
 
-      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue()
+      const sendInternalSpy = vi.spyOn(channel as any, 'sendInternal').mockResolvedValue(undefined)
 
       await channel.send(alert)
 

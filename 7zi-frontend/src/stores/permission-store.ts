@@ -21,14 +21,13 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { shallow } from 'zustand/shallow'
+
 import {
   Permission,
   ResourceType,
   ActionType,
   RoleDefinition,
   PermissionCheckResult,
-  SYSTEM_ROLES,
   permissionManager,
   hasPermission as libHasPermission,
   hasAnyPermission as libHasAnyPermission,

@@ -16,7 +16,6 @@ import {
   checkRole,
   checkIsAdmin,
   checkResourceAccess,
-  createUserFromPayload,
 } from './utils'
 
 /**

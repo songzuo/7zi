@@ -4,13 +4,15 @@
  */
 
 import React from 'react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import '@testing-library/jest-dom'
-import { PerformanceDashboard } from './PerformanceDashboard'
+import { PerformanceDashboard } from '../PerformanceDashboard'
 import { webVitalsMonitor, customMetricsTracker, budgetManager } from '@/lib/performance'
+import { calculateWebVitalsScore } from '@/lib/performance/web-vitals'
+import type { Mock } from 'vitest'
 
 // Mock performance modules
-jest.mock('@/lib/performance/web-vitals', () => ({
+vi.mock('@/lib/performance/web-vitals', () => ({
   webVitalsMonitor: {
     getMetrics: vi.fn(),
     isMetricGood: vi.fn(),
@@ -18,13 +20,13 @@ jest.mock('@/lib/performance/web-vitals', () => ({
   calculateWebVitalsScore: vi.fn(),
 }))
 
-jest.mock('@/lib/performance/custom-metrics', () => ({
+vi.mock('@/lib/performance/custom-metrics', () => ({
   customMetricsTracker: {
     getMetrics: vi.fn(),
   },
 }))
 
-jest.mock('@/lib/performance/budget-manager', () => ({
+vi.mock('@/lib/performance/budget-manager', () => ({
   budgetManager: {
     calculateBudgetReport: vi.fn(),
     getActiveNotifications: vi.fn(),
@@ -32,7 +34,7 @@ jest.mock('@/lib/performance/budget-manager', () => ({
 }))
 
 // Mock UI components
-jest.mock('@/components/ui/Card', () => ({
+vi.mock('@/components/ui/Card', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   CardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   CardDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -40,24 +42,24 @@ jest.mock('@/components/ui/Card', () => ({
   CardTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
-jest.mock('@/components/ui/Badge', () => ({
+vi.mock('@/components/ui/Badge', () => ({
   Badge: ({ children, variant }: { children: React.ReactNode; variant?: string }) => (
     <span data-variant={variant}>{children}</span>
   ),
 }))
 
-jest.mock('@/components/ui/Progress', () => ({
+vi.mock('@/components/ui/Progress', () => ({
   Progress: ({ value }: { value: number }) => <div data-value={value} />,
 }))
 
-jest.mock('@/components/ui/tabs', () => ({
+vi.mock('@/components/ui/Tabs', () => ({
   Tabs: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   TabsContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   TabsList: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   TabsTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
 }))
 
-jest.mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   Activity: () => <svg data-icon="activity" />,
   AlertTriangle: () => <svg data-icon="alert" />,
   CheckCircle: () => <svg data-icon="check" />,
@@ -77,9 +79,10 @@ describe('PerformanceDashboard', () => {
 
   describe('Rendering', () => {
     it('should render dashboard title', () => {
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue({})
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue({})
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue({})
+      ;(calculateWebVitalsScore as Mock).mockReturnValue(90)
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue({})
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 85,
         webVitalsScore: 90,
         customMetricsScore: 80,
@@ -88,7 +91,7 @@ describe('PerformanceDashboard', () => {
         violations: [],
         recommendations: [],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([])
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([])
 
       render(<PerformanceDashboard />)
 
@@ -99,9 +102,10 @@ describe('PerformanceDashboard', () => {
     })
 
     it('should render tabs', () => {
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue({})
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue({})
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue({})
+      ;(calculateWebVitalsScore as Mock).mockReturnValue(90)
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue({})
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 85,
         webVitalsScore: 90,
         customMetricsScore: 80,
@@ -110,13 +114,13 @@ describe('PerformanceDashboard', () => {
         violations: [],
         recommendations: [],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([])
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([])
 
       render(<PerformanceDashboard />)
 
-      expect(screen.getByText('Web Vitals')).toBeInTheDocument()
-      expect(screen.getByText('Custom Metrics')).toBeInTheDocument()
-      expect(screen.getByText('Performance Budget')).toBeInTheDocument()
+      expect(screen.getAllByText('Web Vitals').length).toBeGreaterThan(0)
+      expect(screen.getAllByText('Custom Metrics').length).toBeGreaterThan(0)
+      expect(screen.getAllByText('Performance Budget').length).toBeGreaterThan(0)
     })
   })
 
@@ -130,9 +134,9 @@ describe('PerformanceDashboard', () => {
         TTFB: 800,
       }
 
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue(mockMetrics)
-      ;(calculateWebVitalsScore as jest.Mock).mockReturnValue(90)
-      ;(webVitalsMonitor.isMetricGood as jest.Mock).mockReturnValue(true)
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue(mockMetrics)
+      ;(calculateWebVitalsScore as Mock).mockReturnValue(90)
+      ;(webVitalsMonitor.isMetricGood as Mock).mockReturnValue(true)
 
       render(<PerformanceDashboard />)
 
@@ -144,14 +148,14 @@ describe('PerformanceDashboard', () => {
     })
 
     it('should display overall score', () => {
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue({
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue({
         LCP: 2500,
         CLS: 0.1,
         INP: 200,
       })
-      ;(calculateWebVitalsScore as jest.Mock).mockReturnValue(90)
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue({})
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(calculateWebVitalsScore as Mock).mockReturnValue(90)
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue({})
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 90,
         webVitalsScore: 90,
         customMetricsScore: 85,
@@ -160,18 +164,18 @@ describe('PerformanceDashboard', () => {
         violations: [],
         recommendations: [],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([])
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([])
 
       render(<PerformanceDashboard />)
 
-      expect(screen.getByText(/90\/100/)).toBeInTheDocument()
+      expect(screen.getAllByText(/90\/100/).length).toBeGreaterThan(0)
     })
 
     it('should display Good badge for good score', () => {
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue({})
-      ;(calculateWebVitalsScore as jest.Mock).mockReturnValue(90)
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue({})
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue({})
+      ;(calculateWebVitalsScore as Mock).mockReturnValue(90)
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue({})
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 90,
         webVitalsScore: 90,
         customMetricsScore: 85,
@@ -180,7 +184,7 @@ describe('PerformanceDashboard', () => {
         violations: [],
         recommendations: [],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([])
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([])
 
       render(<PerformanceDashboard />)
 
@@ -199,9 +203,9 @@ describe('PerformanceDashboard', () => {
         wsLatency: 50,
       }
 
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue({})
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue(mockMetrics)
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue({})
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue(mockMetrics)
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 85,
         webVitalsScore: 85,
         customMetricsScore: 85,
@@ -210,7 +214,7 @@ describe('PerformanceDashboard', () => {
         violations: [],
         recommendations: [],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([])
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([])
 
       render(<PerformanceDashboard />)
 
@@ -223,9 +227,9 @@ describe('PerformanceDashboard', () => {
 
   describe('Performance Budget Dashboard', () => {
     it('should display performance budget report', () => {
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue({})
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue({})
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue({})
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue({})
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 85,
         webVitalsScore: 90,
         customMetricsScore: 80,
@@ -234,7 +238,7 @@ describe('PerformanceDashboard', () => {
         violations: [],
         recommendations: [],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([])
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([])
 
       render(<PerformanceDashboard />)
 
@@ -244,9 +248,9 @@ describe('PerformanceDashboard', () => {
     })
 
     it('should display budget violations', () => {
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue({})
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue({})
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue({})
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue({})
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 60,
         webVitalsScore: 50,
         customMetricsScore: 70,
@@ -263,18 +267,18 @@ describe('PerformanceDashboard', () => {
         ],
         recommendations: ['Optimize LCP'],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([])
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([])
 
       render(<PerformanceDashboard />)
 
       expect(screen.getByText('Budget Violations')).toBeInTheDocument()
-      expect(screen.getByText('LCP')).toBeInTheDocument()
+      expect(screen.getAllByText('LCP').length).toBeGreaterThan(0)
     })
 
     it('should display active alarms', () => {
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue({})
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue({})
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue({})
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue({})
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 85,
         webVitalsScore: 85,
         customMetricsScore: 85,
@@ -283,7 +287,7 @@ describe('PerformanceDashboard', () => {
         violations: [],
         recommendations: [],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([
         {
           id: 'alarm-1',
           ruleId: 'lcp-exceeded',
@@ -307,9 +311,9 @@ describe('PerformanceDashboard', () => {
     })
 
     it('should display recommendations', () => {
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockReturnValue({})
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue({})
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(webVitalsMonitor.getMetrics as Mock).mockReturnValue({})
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue({})
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 70,
         webVitalsScore: 70,
         customMetricsScore: 70,
@@ -322,7 +326,7 @@ describe('PerformanceDashboard', () => {
           'Improve API response time',
         ],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([])
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([])
 
       render(<PerformanceDashboard />)
 
@@ -335,12 +339,12 @@ describe('PerformanceDashboard', () => {
   describe('Auto-update', () => {
     it('should update metrics periodically', async () => {
       let callCount = 0
-      ;(webVitalsMonitor.getMetrics as jest.Mock).mockImplementation(() => {
+      ;(webVitalsMonitor.getMetrics as Mock).mockImplementation(() => {
         callCount++
         return {}
       })
-      ;(customMetricsTracker.getMetrics as jest.Mock).mockReturnValue({})
-      ;(budgetManager.calculateBudgetReport as jest.Mock).mockReturnValue({
+      ;(customMetricsTracker.getMetrics as Mock).mockReturnValue({})
+      ;(budgetManager.calculateBudgetReport as Mock).mockReturnValue({
         overallScore: 85,
         webVitalsScore: 85,
         customMetricsScore: 85,
@@ -349,7 +353,7 @@ describe('PerformanceDashboard', () => {
         violations: [],
         recommendations: [],
       })
-      ;(budgetManager.getActiveNotifications as jest.Mock).mockReturnValue([])
+      ;(budgetManager.getActiveNotifications as Mock).mockReturnValue([])
 
       render(<PerformanceDashboard />)
 

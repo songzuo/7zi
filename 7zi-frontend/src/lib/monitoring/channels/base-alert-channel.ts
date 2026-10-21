@@ -61,7 +61,13 @@ export interface RateLimitConfig {
  * Base channel config
  */
 export interface BaseChannelConfig {
-  enabled: boolean
+  /**
+   * 是否启用该渠道。
+   *
+   * 可选：未显式配置时默认为 `true`（见构造函数 `config.enabled ?? true`），
+   * 以便旧调用点（未传 enabled）在类型层面继续兼容。
+   */
+  enabled?: boolean
   retry?: RetryConfig
   dedup?: DedupConfig
   rateLimit?: RateLimitConfig
@@ -278,7 +284,12 @@ class RateLimiter {
  * Base class for alert channels with common functionality
  */
 export abstract class BaseAlertChannel implements AlertChannel {
-  protected config: BaseChannelConfig
+  /**
+   * 内部配置：`enabled` 在构造时已通过 `config.enabled ?? true` 归一化为必填布尔值，
+   * 因此此处使用 Required 变体，避免下游 `if (!this.config.enabled)` 出现
+   * `boolean | undefined` 类型问题。
+   */
+  protected config: BaseChannelConfig & { enabled: boolean }
   protected retryConfig: RetryConfig
   protected dedupConfig: DedupConfig
   protected rateLimitConfig: RateLimitConfig
@@ -515,7 +526,8 @@ export abstract class BaseAlertChannel implements AlertChannel {
    * Update configuration
    */
   updateConfig(config: Partial<BaseChannelConfig>): void {
-    this.config = { ...this.config, ...config }
+    // `enabled` 保持必填布尔值：未显式传入时沿用当前值
+    this.config = { ...this.config, ...config, enabled: config.enabled ?? this.config.enabled }
 
     if (config.retry) {
       this.retryConfig = { ...this.retryConfig, ...config.retry }

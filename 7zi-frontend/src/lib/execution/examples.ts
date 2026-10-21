@@ -7,7 +7,6 @@
 import type {
   ExecutionStateData,
   NodeState,
-  ExecutionProgress,
 } from './execution-storage'
 import {
   saveExecutionState,
@@ -18,7 +17,6 @@ import {
   failExecution,
   pauseExecution,
   resumeExecution,
-  cancelExecution,
   addExecutionLog,
   updateVariables,
   listExecutions,

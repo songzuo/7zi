@@ -9,7 +9,7 @@ import { PermissionManager } from '../room/permission-manager'
 import { MessagePersistence } from '../message/persistence'
 import { Room, RoomConfig, MemberRole, PermissionAction } from '../room/room-model'
 import { Message, MessageContent, MessageSearchOptions } from '../message/message-model'
-import { logger } from '@/lib/logger'
+
 
 export class WebSocketAdvancedService {
   private roomManager: RoomManager

@@ -8,7 +8,6 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import type {
-  FieldConfig,
   FormConfig,
   FieldState,
   ValidationTrigger,

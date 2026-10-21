@@ -20,7 +20,6 @@ import {
   WorkflowDiff,
   VersionBranch,
   SnapshotPolicy,
-  CompressionRule,
 } from '@/types/workflow-version'
 import {
   WorkflowDiffEngine,

@@ -13,7 +13,6 @@ import {
   ResourceType,
   ActionType,
   PermissionDeniedError,
-  Permissions,
   PermissionContext,
   canAccessResource,
 } from '@/lib/permissions'
@@ -24,7 +23,6 @@ import {
   createForbiddenError,
   createNotFoundError,
   createErrorResponse,
-  ErrorType,
 } from '@/lib/api/error-handler'
 import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
 import { withCSRF } from '@/lib/middleware/csrf'
@@ -358,7 +356,7 @@ class ProjectController {
    */
   @RequireRoleLevel(60)
   async manageProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    const { user } = ctx
+    
 
     const project = projects[projectId]
     if (!project) {
@@ -376,7 +374,7 @@ class ProjectController {
    */
   @RequirePermission(ResourceType.DATA, ActionType.EXPORT)
   async exportProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    const { user } = ctx
+    
 
     const project = projects[projectId]
     if (!project) {

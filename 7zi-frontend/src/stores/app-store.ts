@@ -14,7 +14,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { shallow } from 'zustand/shallow'
+
 
 /**
  * 应用设置接口

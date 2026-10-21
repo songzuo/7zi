@@ -9,7 +9,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type {
   WorkflowVersion,
-  WorkflowVersionHistoryQuery,
   WorkflowVersionHistoryResponse,
 } from '@/types/workflow-version'
 

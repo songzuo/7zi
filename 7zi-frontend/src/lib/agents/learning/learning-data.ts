@@ -6,10 +6,10 @@
  * @module learning-data
  */
 
-import type { AgentId, TaskType, TaskHistoryRecord, AgentLearningStats } from './types'
+import type { AgentId, TaskType, TaskHistoryRecord } from './types'
 import { generateSecureId } from '@/lib/utils'
 import { TaskTimePredictor } from './time-prediction'
-import { AgentCapabilityAssessor, CapabilityAssessmentResult } from './agent-capability'
+import { AgentCapabilityAssessor } from './agent-capability'
 import { logger } from '../../logger'
 
 /**

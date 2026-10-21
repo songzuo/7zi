@@ -15,7 +15,7 @@ import { ResourceUsageChart } from '../charts/ResourceUsageChart'
 import { AnomalyChart } from '../charts/AnomalyChart'
 import { RealTimeStream } from '../realtime/RealTimeStream'
 import { analyticsService } from '@/lib/analytics/service'
-import type { AnalyticsMetrics, OverviewMetrics, WorkflowTrendData, NodePerformanceData, ResourceUsageData, AnomalyData } from '@/lib/analytics/types'
+import type { AnalyticsMetrics, WorkflowTrendData, NodePerformanceData, ResourceUsageData, AnomalyData } from '@/lib/analytics/types'
 
 export interface AnalyticsDashboardProps {
   initialData?: AnalyticsMetrics

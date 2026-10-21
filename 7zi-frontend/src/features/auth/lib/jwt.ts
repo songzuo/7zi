@@ -4,7 +4,7 @@
  * 用于生成和验证 JWT 令牌
  */
 
-import { SignJWT, jwtVerify, type JWTPayload as JoseJWTPayload } from 'jose'
+import { SignJWT, jwtVerify } from 'jose'
 
 /**
  * 获取 JWT 密钥

@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyJWT, JWTPayload } from './jwt'
+import { verifyJWT } from './jwt'
 
 /**
  * API Key configuration

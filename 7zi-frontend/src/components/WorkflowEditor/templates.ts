@@ -11,7 +11,6 @@ import { generateSecureId } from '@/lib/utils'
 import type {
   WorkflowDefinition,
   WorkflowNodeData,
-  WorkflowEdgeData,
   NodeConfig,
 } from './types'
 

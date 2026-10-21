@@ -12,7 +12,7 @@ import { ChatMessage } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 import { SuggestionPanel } from './SuggestionPanel'
 import { useAIChatStore } from './store'
-import type { ChatWindowProps, AIMessage } from './types'
+import type { ChatWindowProps } from './types'
 
 // ============================================
 // Icons
@@ -61,7 +61,6 @@ const HistoryIcon = () => (
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   className,
-  showSidebar = false,
   showSuggestions = true,
   minimized: initialMinimized = false,
 }) => {
@@ -78,7 +77,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     sendMessageStream,
     stopGeneration,
     retryMessage,
-    copyMessage,
     executeSuggestion,
     fetchSuggestions,
     toggleSuggestions,

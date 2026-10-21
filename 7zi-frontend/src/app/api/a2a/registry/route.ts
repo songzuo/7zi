@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { generateSecureId } from '@/lib/utils'
 import { agentScheduler } from '@/lib/agents/scheduler/scheduler'
 import type { RegisterAgentRequest } from '@/lib/agents/scheduler/types'
-import { createSuccessResponse, createErrorResponse, ErrorType } from '@/lib/api/error-handler'
+import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
 
 // GET /api/a2a/registry - List all agents

@@ -14,13 +14,18 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-// Mock nodemailer before importing
-vi.mock('nodemailer', () => ({
-  createTransport: vi.fn(() => ({
-    sendMail: vi.fn().mockResolvedValue({ messageId: 'test-id' }),
-    verify: vi.fn().mockResolvedValue(true),
-  })),
-}))
+/**
+ * P0-3 安全修复：nodemailer 已迁移到服务端路由 `/api/email`，
+ * 客户端不再 import nodemailer，因此这里 mock 的是 global fetch。
+ */
+const jsonResponse = (body: unknown, status = 200): Response =>
+  ({
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => body,
+  }) as unknown as Response
+
+let fetchMock: ReturnType<typeof vi.fn>
 
 import {
   AlertEngine,
@@ -128,6 +133,15 @@ describe('Alerting System Integration Tests', () => {
   let slackChannel: SlackAlertChannel
 
   beforeEach(() => {
+    vi.clearAllMocks()
+    fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        success: true,
+        data: { messageId: 'test-id', accepted: [], rejected: [] },
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
     // Create fresh engine
     engine = new AlertEngine({
       enabled: true,
@@ -156,6 +170,7 @@ describe('Alerting System Integration Tests', () => {
 
     // Create real channel instances for channel-specific tests
     emailChannel = new EmailAlertChannel({
+      enabled: true,
       host: 'localhost',
       port: 587,
       secure: false,
@@ -170,6 +185,7 @@ describe('Alerting System Integration Tests', () => {
     })
 
     slackChannel = new SlackAlertChannel({
+      enabled: true,
       webhookUrl: 'https://hooks.slack.com/test/webhook',
       channels: {
         P0: '#critical',
@@ -190,6 +206,8 @@ describe('Alerting System Integration Tests', () => {
     mockSlack.clear()
     mockEmail.clear()
     vi.clearAllTimers()
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   })
 
   // ========================================================================
@@ -863,7 +881,7 @@ describe('Alerting System Integration Tests', () => {
 
       // Verify alert was processed
       expect(capturedAlert).toBeDefined()
-      expect(capturedAlert?.ruleName).toBe('Test Alert')
+      expect((capturedAlert as Alert | null)?.ruleName).toBe('Test Alert')
     })
 
     it('should route emails to priority-based recipients', async () => {
@@ -913,12 +931,12 @@ describe('Alerting System Integration Tests', () => {
 
       // Mock fetch for webhook
       const originalFetch = globalThis.fetch
-      globalThis.fetch = async (url: string, options: any) => {
+      globalThis.fetch = (async (url: string, options: any) => {
         if (url.includes('slack.com')) {
           capturedPayload = JSON.parse(options.body)
         }
         return { ok: true } as any
-      }
+      }) as unknown as typeof globalThis.fetch
 
       const testAlert: Alert = {
         id: 'test-slack-alert',
@@ -951,11 +969,11 @@ describe('Alerting System Integration Tests', () => {
       let lastChannel: string = ''
 
       const originalFetch = globalThis.fetch
-      globalThis.fetch = async (url: string, options: any) => {
+      globalThis.fetch = (async (url: string, options: any) => {
         const payload = JSON.parse(options.body)
         lastChannel = payload.channel || ''
         return { ok: true } as any
-      }
+      }) as unknown as typeof globalThis.fetch
 
       // Test P0 routing
       await slackChannel.send({
@@ -1060,6 +1078,7 @@ describe('Alerting System Integration Tests', () => {
       engine.addRule({
         id: 'p0-rule',
         name: 'P0 Alert',
+        description: 'Integration test rule',
         enabled: true,
         priority: 'P0',
         condition: { type: 'threshold', threshold: 0 },
@@ -1072,6 +1091,7 @@ describe('Alerting System Integration Tests', () => {
       engine.addRule({
         id: 'p1-rule',
         name: 'P1 Alert',
+        description: 'Integration test rule',
         enabled: true,
         priority: 'P1',
         condition: { type: 'threshold', threshold: 0 },
@@ -1084,6 +1104,7 @@ describe('Alerting System Integration Tests', () => {
       engine.addRule({
         id: 'p2-rule',
         name: 'P2 Alert',
+        description: 'Integration test rule',
         enabled: true,
         priority: 'P2',
         condition: { type: 'threshold', threshold: 0 },
@@ -1121,6 +1142,7 @@ describe('Alerting System Integration Tests', () => {
       engine.addRule({
         id: 'disabled-test',
         name: 'Should Not Fire',
+        description: 'Integration test rule',
         enabled: true,
         priority: 'P1',
         condition: { type: 'threshold', threshold: 0 },
@@ -1138,6 +1160,7 @@ describe('Alerting System Integration Tests', () => {
       engine.addRule({
         id: 'disabled-rule',
         name: 'Disabled Rule',
+        description: 'Integration test rule',
         enabled: false, // Disabled!
         priority: 'P1',
         condition: { type: 'threshold', threshold: 0 },
@@ -1155,6 +1178,7 @@ describe('Alerting System Integration Tests', () => {
       engine.addRule({
         id: 'missing-channel-test',
         name: 'Missing Channel Test',
+        description: 'Integration test rule',
         enabled: true,
         priority: 'P1',
         condition: { type: 'threshold', threshold: 0 },
@@ -1173,6 +1197,7 @@ describe('Alerting System Integration Tests', () => {
       engine.addRule({
         id: 'to-be-removed',
         name: 'Will Be Removed',
+        description: 'Integration test rule',
         enabled: true,
         priority: 'P1',
         condition: { type: 'threshold', threshold: 0 },
@@ -1193,6 +1218,7 @@ describe('Alerting System Integration Tests', () => {
       engine.addRule({
         id: 'unknown-condition',
         name: 'Unknown Condition',
+        description: 'Integration test rule',
         enabled: true,
         priority: 'P3',
         condition: {

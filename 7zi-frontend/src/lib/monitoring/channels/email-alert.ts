@@ -2,18 +2,23 @@
  * Email Alert Channel
  * 邮件告警渠道
  *
- * Sends alerts via email using nodemailer or similar service.
+ * Sends alerts via the server-side email API (`POST /api/email`).
+ *
+ * P0-3 安全修复：nodemailer 仅在服务端路由 `src/app/api/email/route.ts`
+ * 中加载，本模块不再 import nodemailer，SMTP 凭据不会进入客户端 bundle。
+ *
  * Features:
  * - Retry mechanism with exponential backoff
  * - Alert deduplication
  * - Rate limiting
  * - Severity-based filtering
  *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 import { Alert, AlertChannel, AlertSeverity, AlertPriority } from '../alert-engine'
 import { logger } from '@/lib/logger'
+import { sendEmailViaApi, testSmtpViaApi } from '@/lib/email/api-client'
 import {
   BaseAlertChannel,
   BaseChannelConfig,
@@ -58,18 +63,10 @@ interface EmailMessage {
 }
 
 /**
- * Minimal nodemailer transporter interface
- */
-interface NodemailerTransporter {
-  sendMail(options: EmailMessage): Promise<{ messageId: string }>
-}
-
-/**
  * Email Alert Channel
  */
 export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel {
   private emailConfig: EmailChannelConfig
-  private transporter?: NodemailerTransporter
 
   constructor(config: EmailChannelConfig) {
     const baseConfig: BaseChannelConfig = {
@@ -103,44 +100,38 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
   protected async sendInternal(alert: Alert): Promise<void> {
     const message = this.buildEmailMessage(alert)
 
-    // Try to send via nodemailer if available
-    if (!this.transporter) {
-      try {
-        const nodemailer = await import('nodemailer')
+    // 通过服务端邮件 API 发送（nodemailer 只存在于服务端路由中）
+    const result = await sendEmailViaApi({
+      to: message.to,
+      subject: message.subject,
+      text: message.text,
+      html: message.html,
+      from: this.emailConfig.from,
+    })
 
-        this.transporter = nodemailer.createTransport({
-          host: this.emailConfig.host,
-          port: this.emailConfig.port,
-          secure: this.emailConfig.secure,
-          auth: this.emailConfig.auth,
-        })
-      } catch {
-        // nodemailer not available, will use console fallback
-      }
+    if (result.success) {
+      logger.debug(`[EmailAlert] Sent: ${message.subject} to ${message.to}`)
+      return
     }
 
-    if (this.transporter) {
-      try {
-        await this.transporter.sendMail({
-          from: this.emailConfig.from,
-          to: message.to,
-          subject: message.subject,
-          text: message.text,
-          html: message.html,
-        })
-
-        logger.debug(`[EmailAlert] Sent: ${message.subject} to ${message.to}`)
-        return
-      } catch (error) {
-        logger.error(`[EmailAlert] Failed to send:`, error)
-        throw error
-      }
+    // SMTP 未配置（503）或 API 不可达（网络错误）-> 保留 console fallback 行为
+    if (result.status === 503 || result.status === 0) {
+      logger.warn(
+        `[EmailAlert] Email API unavailable (${result.status || 'network'}): ${result.error}. ` +
+          'Falling back to console log.'
+      )
+      logger.debug(`[EmailAlert] Would send: ${message.subject}`)
+      logger.debug(`[EmailAlert] To: ${message.to}`)
+      logger.debug(`[EmailAlert] Body:\n${message.text}`)
+      return
     }
 
-    // Fallback to console log if nodemailer not available
-    logger.debug(`[EmailAlert] Would send: ${message.subject}`)
-    logger.debug(`[EmailAlert] To: ${message.to}`)
-    logger.debug(`[EmailAlert] Body:\n${message.text}`)
+    // 真实发送失败 -> 抛出错误，交由上层重试机制处理
+    logger.error(
+      `[EmailAlert] Failed to send: ${result.error || 'unknown error'}`,
+      new Error(result.error || 'Failed to send email')
+    )
+    throw new Error(result.error || 'Failed to send email')
   }
 
   /**
@@ -396,18 +387,15 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
    */
   async testConnection(): Promise<boolean> {
     try {
-      const nodemailer = await import('nodemailer')
+      const result = await testSmtpViaApi()
 
-      const testTransport = nodemailer.createTransport({
-        host: this.emailConfig.host,
-        port: this.emailConfig.port,
-        secure: this.emailConfig.secure,
-        auth: this.emailConfig.auth,
-      })
+      if (result.success) {
+        logger.debug('[EmailAlert] Connection verified')
+        return true
+      }
 
-      await testTransport.verify()
-      logger.debug('[EmailAlert] Connection verified')
-      return true
+      logger.error(`[EmailAlert] Connection test failed: ${result.error || 'unknown error'}`)
+      return false
     } catch (error) {
       logger.error('[EmailAlert] Connection test failed:', error)
       return false
@@ -442,11 +430,12 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
  * Create email channel from environment variables
  */
 export function createEmailChannelFromEnv(): EmailAlertChannel | null {
-  const host = process.env.EMAIL_SMTP_HOST
-  const port = parseInt(process.env.EMAIL_SMTP_PORT || '587')
-  const user = process.env.EMAIL_SMTP_USER
-  const pass = process.env.EMAIL_SMTP_PASS
-  const from = process.env.EMAIL_FROM || 'alerts@7zi.com'
+  // 与服务端 /api/email 路由保持一致：优先 SMTP_*，回退到旧的 EMAIL_* 变量名
+  const host = process.env.SMTP_HOST || process.env.EMAIL_SMTP_HOST
+  const port = parseInt(process.env.SMTP_PORT || process.env.EMAIL_SMTP_PORT || '587')
+  const user = process.env.SMTP_USER || process.env.EMAIL_SMTP_USER
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_SMTP_PASS
+  const from = process.env.SMTP_FROM || process.env.EMAIL_FROM || 'alerts@7zi.com'
 
   if (!host || !user || !pass) {
     logger.warn('[EmailAlert] SMTP not configured, email alerts will be logged only')

@@ -14,7 +14,7 @@
 
 import { useToast as useToastContext } from './ToastProvider'
 import type { ToastOptions } from './ToastProvider'
-import type { ToastType } from './Toast'
+
 
 /**
  * useToast hook
@@ -48,7 +48,7 @@ export function useToast() {
  */
 export function useToastCreator() {
   const toast = useToastContext()
-  const { close: _, closeAll: __, ...rest } = toast
+  const { closeAll: __, ...rest } = toast
   return rest
 }
 

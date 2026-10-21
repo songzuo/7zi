@@ -13,10 +13,10 @@
 
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
-import type { Room, RoomMember, RoomSettings } from '@/types/rooms'
+import type { Room, RoomSettings } from '@/types/rooms'
 import { useRoomStore } from '@/stores/room-store'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -81,7 +81,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
     e.preventDefault()
 
     try {
-      // TODO: Replace with actual API call
+      // B/C 类 (暂缓): 待后端 PATCH /api/rooms/:id 实现后接入。
       const response = await fetch(`/api/rooms/${room.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -108,7 +108,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
     if (!confirm(t('transferConfirm', { name: transferToId }))) return
 
     try {
-      // TODO: Replace with actual API call
+      // B/C 类 (暂缓): 待后端 POST /api/rooms/:id/transfer 实现后接入。
       const response = await fetch(`/api/rooms/${room.id}/transfer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,7 +136,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
     if (!confirm(t('deleteConfirm'))) return
 
     try {
-      // TODO: Replace with actual API call
+      // B/C 类 (暂缓): 待后端 DELETE /api/rooms/:id 实现后接入。
       const response = await fetch(`/api/rooms/${room.id}`, {
         method: 'DELETE',
       })

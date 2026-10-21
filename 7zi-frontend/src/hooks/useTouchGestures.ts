@@ -144,7 +144,6 @@ export function useTouchGestures(
     doubleTapZoom = 2,
     swipeThreshold = 50,
     longPressDelay = 500,
-    animationDuration = 300,
   } = options
 
   const { onZoom, onDrag, onSwipe, onLongPress, onTap } = handlers

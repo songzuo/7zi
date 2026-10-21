@@ -22,7 +22,22 @@ import {
   RateLimitConfig,
 } from './base-alert-channel'
 
-export interface SMSChannelConfig extends BaseChannelConfig {
+/**
+ * SMS 渠道配置
+ *
+ * `enabled` 在此显式声明为可选（默认视为启用），保证：
+ * - 旧调用点（未传 enabled）在类型层面继续兼容
+ * - `enabled: false` 时渠道静默跳过发送
+ *
+ * 使用 `Omit<..., 'enabled'>` 是为了不依赖 `BaseChannelConfig` 中
+ * `enabled` 是必填还是可选，避免继承关系上的类型冲突。
+ */
+export interface SMSChannelConfig extends Omit<BaseChannelConfig, 'enabled'> {
+  /**
+   * 是否启用该渠道。未显式配置时默认为 `true`。
+   */
+  enabled?: boolean
+
   // SMS Gateway Configuration
   gatewayUrl?: string
   apiKey?: string
@@ -53,8 +68,11 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
   private smsConfig: SMSChannelConfig
 
   constructor(config: SMSChannelConfig) {
+    // `enabled` 未显式配置时默认视为启用（向后兼容）
+    const enabled = config.enabled ?? true
+
     const baseConfig: BaseChannelConfig = {
-      enabled: true,
+      enabled,
       retry: config.retry,
       dedup: config.dedup,
       rateLimit: config.rateLimit,
@@ -67,6 +85,7 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
     this.smsConfig = {
       maxLength: 160,
       ...config,
+      enabled,
     }
   }
 
@@ -116,7 +135,7 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
         logger.debug(`[SMSAlert] Sent SMS to ${to}`)
         return
       } catch (error) {
-        logger.error(`[SMSAlert] Failed to send SMS:`, error)
+        logger.error(`[SMSAlert] Failed to send SMS:`, error instanceof Error ? error : new Error(String(error)))
         throw error
       }
     }
@@ -187,7 +206,7 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
 
       return false
     } catch (error) {
-      logger.error('[SMSAlert] Connection test failed:', error)
+      logger.error('[SMSAlert] Connection test failed:', error instanceof Error ? error : new Error(String(error)))
       return false
     }
   }
@@ -199,6 +218,8 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
     this.smsConfig = { ...this.smsConfig, ...config }
 
     super.updateConfig({
+      // 透传 `enabled`，支持运行时开关渠道
+      enabled: config.enabled,
       retry: config.retry,
       dedup: config.dedup,
       rateLimit: config.rateLimit,

@@ -20,8 +20,8 @@ import {
   User,
   GitBranch,
 } from 'lucide-react'
+import { useAuthStore } from '@/stores/auth-store'
 import type {
-  WorkflowVersion,
   WorkflowVersionHistoryResponse,
 } from '@/types/workflow-version'
 
@@ -88,7 +88,7 @@ export function WorkflowVersionHistoryPage({
         },
         body: JSON.stringify({
           versionId,
-          rollbackBy: 'user@example.com', // TODO: Get from auth
+          rollbackBy: useAuthStore.getState().user?.email || 'anonymous', // A 类: 使用 auth store 获取用户邮箱，已安全修复
           rollbackReason: `Manual rollback to version ${version}`,
         }),
       })

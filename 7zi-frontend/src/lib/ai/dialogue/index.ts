@@ -112,7 +112,7 @@ export class AIDialogueEnhancementSystem {
     })
 
     // 5. 状态机处理
-    const { state, topic, references } = this.stateMachine.process(
+    const { topic, references } = this.stateMachine.process(
       dialogueId,
       content,
       context

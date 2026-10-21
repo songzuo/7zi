@@ -199,7 +199,8 @@ async function handlePOST(request: NextRequest, context: { user: AuthResult }) {
 }
 
 // Apply both authentication and rate limiting to POST, with CSRF protection
-// TODO: Fix middleware chain type compatibility - withAuth expects context but withRateLimit doesn't pass it
+// B/C 类 (暂缓): TypeScript middleware chain type incompatibility - withAuth expects context but withRateLimit doesn't pass it.
+// 'as any' suppresses the type error; proper fix requires redesigning middleware type signatures in a future sprint. - withAuth expects context but withRateLimit doesn't pass it
 export const POST = withAuth(
   withRateLimit(RATE_LIMIT_PRESETS.moderate, withCSRF(handlePOST)) as any
 )

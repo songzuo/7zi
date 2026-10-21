@@ -32,7 +32,7 @@ let mockFetch: ReturnType<typeof vi.fn>
 
 beforeEach(() => {
   mockFetch = vi.fn()
-  global.fetch = mockFetch
+  global.fetch = mockFetch as unknown as typeof global.fetch
 })
 
 afterEach(() => {
@@ -44,6 +44,7 @@ describe('SlackAlertChannel', () => {
 
   beforeEach(() => {
     channel = new SlackAlertChannel({
+      enabled: true,
       webhookUrl: 'https://hooks.slack.com/services/test/webhook',
       channels: {
         P0: '#alerts-critical',
@@ -223,6 +224,7 @@ describe('SlackAlertChannel', () => {
 
     it('should retry on transient errors', async () => {
       const channelWithRetry = new SlackAlertChannel({
+      enabled: true,
         webhookUrl: 'https://hooks.slack.com/services/test',
         channels: { default: '#alerts' },
         retry: {
@@ -241,8 +243,9 @@ describe('SlackAlertChannel', () => {
         callCount++
         if (callCount <= 2) {
           // Use a retryable error message (ECONNREFUSED)
-          const error = new Error('ECONNREFUSED: Connection refused')
-          error.code = 'ECONNREFUSED'
+          const error = Object.assign(new Error('ECONNREFUSED: Connection refused'), {
+            code: 'ECONNREFUSED',
+          })
           return Promise.reject(error)
         }
         return Promise.resolve({
@@ -259,6 +262,7 @@ describe('SlackAlertChannel', () => {
   describe('deduplication', () => {
     it('should deduplicate alerts within window', async () => {
       const channelWithDedup = new SlackAlertChannel({
+      enabled: true,
         webhookUrl: 'https://hooks.slack.com/services/test',
         channels: { default: '#alerts' },
         dedup: {
@@ -291,6 +295,7 @@ describe('SlackAlertChannel', () => {
   describe('severity filtering', () => {
     it('should filter alerts by severity', async () => {
       const filteredChannel = new SlackAlertChannel({
+      enabled: true,
         webhookUrl: 'https://hooks.slack.com/services/test',
         channels: { default: '#alerts' },
         severityFilter: ['critical'],
@@ -315,6 +320,7 @@ describe('SlackAlertChannel', () => {
   describe('rate limiting', () => {
     it('should respect rate limits', async () => {
       const limitedChannel = new SlackAlertChannel({
+      enabled: true,
         webhookUrl: 'https://hooks.slack.com/services/test',
         channels: { default: '#alerts' },
         rateLimit: {
@@ -455,6 +461,7 @@ describe('createSlackChannelFromEnv', () => {
 describe('SlackAlertChannel (Bot API)', () => {
   it('should work with bot token configuration', async () => {
     const channel = new SlackAlertChannel({
+      enabled: true,
       botToken: 'xoxb-test-token',
       channels: {
         default: '#general',
@@ -478,6 +485,7 @@ describe('SlackAlertChannel (Bot API)', () => {
 
   it('should handle bot API errors', async () => {
     const channel = new SlackAlertChannel({
+      enabled: true,
       botToken: 'xoxb-test-token',
       channels: {
         default: '#general',

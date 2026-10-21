@@ -14,12 +14,27 @@ SMTP 邮件发送测试模块，用于测试 SMTP 服务器连接和邮件发送
 - ✅ 凭证验证
 - ✅ 常用 SMTP 服务提供商预设配置
 
+## 架构说明（P0-3 安全修复）
+
+nodemailer **只存在于服务端**。本模块通过 `POST /api/email` 路由
+（`src/app/api/email/route.ts`）完成 SMTP 连接测试与邮件发送，
+因此 SMTP 凭据与邮件逻辑不会进入客户端 bundle。
+
+服务端 SMTP 配置来自环境变量（缺失时 `/api/email` 返回 503）：
+
+| 变量 | 说明 | 兼容旧变量名 |
+| --- | --- | --- |
+| `SMTP_HOST` | SMTP 服务器地址 | `EMAIL_SMTP_HOST` |
+| `SMTP_PORT` | 端口，默认 587 | `EMAIL_SMTP_PORT` |
+| `SMTP_USER` | 登录用户名 | `EMAIL_SMTP_USER` |
+| `SMTP_PASS` | 登录密码 / 授权码 | `EMAIL_SMTP_PASS` |
+| `SMTP_FROM` | 发件人地址 | `EMAIL_FROM` |
+
+> 客户端传入的 `credentials` 仅用于格式校验与错误提示，**不会**被上传到服务端。
+
 ## 安装依赖
 
-```bash
-npm install nodemailer
-npm install -D @types/nodemailer
-```
+服务端已内置 nodemailer 依赖，客户端无需额外安装。
 
 ## 使用示例
 

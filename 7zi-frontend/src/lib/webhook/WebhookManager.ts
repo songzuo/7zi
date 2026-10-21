@@ -9,7 +9,6 @@ import {
   CreateWebhookInput,
   UpdateWebhookInput,
   WebhookEvent,
-  WebhookEventType,
   WebhookDelivery,
   WebhookLog,
   WebhookLogLevel,

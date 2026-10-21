@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
       return createBadRequestError('导入数据不能为空')
     }
 
-    // TODO: 实际的数据导入逻辑
-    // 1. 根据格式解析数据 (JSON/CSV)
+    // B/C 类 (暂缓): 实际导入逻辑需要接入数据库写入和审计日志，先保留模拟返回值。
+    // 以下为模拟实现: (JSON/CSV)
     //    - xlsx 格式：使用 exceljs 库，不要使用 xlsx 包（存在安全漏洞）
     // 2. 验证数据结构
     // 3. 检查用户权限
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
     return createBadRequestError('分页参数无效')
   }
 
-  // TODO: 查询用户的导入历史
+  // B/C 类 (暂缓): 导入历史需要数据库查询支持，待数据层实现后接入。
 
   return createSuccessResponse({
     imports: [],

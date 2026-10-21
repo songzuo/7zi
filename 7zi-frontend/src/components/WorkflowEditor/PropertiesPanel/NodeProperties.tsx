@@ -21,7 +21,6 @@ import {
   AlertTriangle,
   Settings,
   Info,
-  X
 } from 'lucide-react'
 
 interface NodePropertiesProps {

@@ -10,7 +10,6 @@ import {
   RAGQA,
   type VectorStoreConfig,
   type RetrievalConfig,
-  type RAGQAConfig,
 } from './index';
 
 // ==================== 示例 1: 基本使用 ====================
@@ -27,7 +26,7 @@ async function basicExample() {
     // apiKey: 'your-api-key',
   };
 
-  const { vectorStore, retriever, qa, documentProcessor } = createRAGSystem(
+  const { vectorStore, qa, documentProcessor } = createRAGSystem(
     vectorStoreConfig,
     {
       topK: 5,
@@ -251,7 +250,7 @@ async function productionExample() {
     embeddingDimension: 1536,
   };
 
-  const { vectorStore, retriever, qa } = createRAGSystem(
+  const { vectorStore, qa } = createRAGSystem(
     vectorStoreConfig,
     {
       topK: 10,

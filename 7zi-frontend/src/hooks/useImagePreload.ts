@@ -97,7 +97,7 @@ export function usePreloadImages(
   const [loadedCount, setLoadedCount] = useState(0)
   const [errors, setErrors] = useState<string[]>([])
 
-  const { isLoaded: firstLoaded } = usePreloadImage(sources[0] || '', options)
+  
 
   useEffect(() => {
     if (!sources.length) return

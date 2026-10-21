@@ -13,13 +13,19 @@
 │   ├── start-workflow.sh
 │   └── start-all.sh
 ├── websocket/             # WebSocket 服务 (Socket.IO)
-│   ├── websocket-server.js
-│   ├── sentry-ws.js
-│   └── test-websocket.js
+│   ├── websocket-server.js  # 服务入口
+│   ├── lib/                # 纯逻辑模块 (可独立测试)
+│   │   ├── config.js       # 环境变量加载与默认值
+│   │   ├── server.js       # HTTP/WS 服务核心
+│   │   ├── auth.js         # 认证中间件
+│   │   ├── jwt-secret.js   # JWT 密钥校验
+│   │   ├── room-manager.js # 房间生命周期管理
+│   │   └── handlers.js     # 事件处理器
+│   └── __tests__/          # Jest 测试 (10 套件 / 111 用例)
 └── workflow-engine/       # 工作流引擎 (Express)
     ├── server.js
-    ├── src/
-    └── package.json
+    ├── __tests__/          # Jest 测试
+    └── jest.config.js
 ```
 
 ## 🚀 快速开始
@@ -63,16 +69,24 @@ pnpm start:workflow
 ### WebSocket 服务
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `PORT` | 3002 | WebSocket 服务端口 |
+| `PORT` | 3002 | WebSocket 服务端口（`bin/start-all.sh` 中为 `WS_PORT`，默认 3010） |
 | `NEXT_PUBLIC_SITE_URL` | http://localhost:3000 | CORS 允许的源 |
 | `LOG_LEVEL` | info | 日志级别 |
 
 ### 工作流引擎
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `PORT` | 3002 | 工作流服务端口 |
+| `PORT` | 3002 | 工作流服务端口（`bin/start-all.sh` 中为 `WF_PORT`，默认 3011） |
 | `DATABASE_URL` | - | 数据库连接字符串 |
 | `REDIS_URL` | redis://localhost:6379 | Redis 连接字符串 |
+
+### 端口速查
+
+| 服务 | 直接运行 | `bin/start-all.sh` |
+|------|---------|-------------------|
+| WebSocket | 3002 | 3010 |
+| 工作流引擎 | 3002 | 3011 |
+| 7zi-frontend | 3000 | - |
 
 ## 📡 API 端点
 
@@ -112,7 +126,12 @@ pnpm test:websocket
 
 # 仅测试工作流
 pnpm test:workflow
+
+# 覆盖率（WebSocket，lines 阈值 60%）
+npx jest websocket/ --coverage
 ```
+
+当前基线：10 个测试套件 / 111 个用例全绿，WebSocket lines 覆盖率 95.2%。
 
 ## 📝 迁移说明
 

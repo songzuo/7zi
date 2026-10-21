@@ -7,6 +7,33 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 export { useDebounce, useThrottle } from './optimization-utils';
 
 /**
+ * Network Information API (部分浏览器支持)，用窄接口避免 `any`
+ */
+interface NetworkInformationLike extends EventTarget {
+  effectiveType?: string;
+  downlink?: number;
+  rtt?: number;
+  saveData?: boolean;
+}
+
+interface NavigatorWithConnection extends Navigator {
+  connection?: NetworkInformationLike;
+  deviceMemory?: number;
+  performance: Performance;
+}
+
+/**
+ * Chrome 的 performance.memory 非标准扩展
+ */
+interface PerformanceWithMemory extends Performance {
+  memory?: {
+    usedJSHeapSize: number;
+    totalJSHeapSize: number;
+    jsHeapSizeLimit: number;
+  };
+}
+
+/**
  * useNetworkStatus - Monitor network connectivity status
  */
 export function useNetworkStatus() {
@@ -30,10 +57,10 @@ export function useNetworkStatus() {
     window.addEventListener('offline', handleOffline);
 
     // Get connection info if available
-    const nav = navigator as any;
-    if (nav.connection) {
+    const nav = navigator as NavigatorWithConnection;
+    const conn = nav.connection;
+    if (conn) {
       const updateConnection = () => {
-        const conn = nav.connection;
         setConnection({
           effectiveType: conn.effectiveType || 'unknown',
           downlink: conn.downlink || 0,
@@ -43,7 +70,7 @@ export function useNetworkStatus() {
       };
 
       updateConnection();
-      nav.connection.addEventListener('change', updateConnection);
+      conn.addEventListener('change', updateConnection);
     }
 
     return () => {
@@ -266,7 +293,7 @@ export function useDevicePerformance() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const nav = navigator as any;
+    const nav = navigator as NavigatorWithConnection;
 
     setPerformance({
       hardwareConcurrency: nav.hardwareConcurrency || 0,
@@ -314,18 +341,17 @@ export function useMemoryUsage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const nav = navigator as any;
+    const nav = navigator as NavigatorWithConnection;
 
     if (nav.deviceMemory) {
       const updateMemory = () => {
-        if ('memory' in nav.performance) {
-          const mem = (nav.performance as any).memory;
-          setMemory({
-            usedJSHeapSize: mem.usedJSHeapSize,
-            totalJSHeapSize: mem.totalJSHeapSize,
-            jsHeapSizeLimit: mem.jsHeapSizeLimit,
-          });
-        }
+        const mem = (nav.performance as PerformanceWithMemory).memory;
+        if (!mem) return;
+        setMemory({
+          usedJSHeapSize: mem.usedJSHeapSize,
+          totalJSHeapSize: mem.totalJSHeapSize,
+          jsHeapSizeLimit: mem.jsHeapSizeLimit,
+        });
       };
 
       updateMemory();

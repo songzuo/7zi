@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useCallback, useRef } from 'react';
-import { shortcutRegistry, Shortcut, ShortcutConfig } from '@/lib/keyboard/shortcut-registry';
+import { shortcutRegistry, Shortcut } from '@/lib/keyboard/shortcut-registry';
 
 export interface UseKeyboardShortcutsOptions {
   enabled?: boolean;

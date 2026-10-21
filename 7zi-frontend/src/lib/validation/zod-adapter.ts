@@ -8,7 +8,6 @@ import { z } from 'zod'
 import type {
   ValidationRule,
   ValidationContext,
-  ValidationResult,
   ZodFieldSchema,
   Translator,
 } from './types'

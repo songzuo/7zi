@@ -22,7 +22,6 @@ export type {
 
 import type {
   WorkflowVersion,
-  WorkflowDefinition,
   CreateWorkflowVersionDTO,
   RollbackWorkflowDTO,
 } from '@/types/workflow-version'

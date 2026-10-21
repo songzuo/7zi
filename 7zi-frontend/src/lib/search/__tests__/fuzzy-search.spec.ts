@@ -3,14 +3,20 @@
  * v1.12.3
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   fuzzyMatch,
   fuzzyMatchItems,
   fuzzyMatchAll,
   fuzzyMatchAny,
-  type FuzzySearchOptions
 } from '../fuzzy-search';
+
+// 泛型约束为 `T extends { text?: string }`，因此显式声明可选 text 字段
+interface TestItem {
+  id: number;
+  name: string;
+  text?: string;
+}
 
 describe('fuzzyMatch', () => {
   describe('基础匹配', () => {
@@ -124,7 +130,7 @@ describe('fuzzyMatch', () => {
 });
 
 describe('fuzzyMatchItems', () => {
-  const items = [
+  const items: TestItem[] = [
     { id: 1, name: 'hello world' },
     { id: 2, name: 'hello there' },
     { id: 3, name: 'goodbye' },
@@ -232,7 +238,7 @@ describe('性能测试', () => {
   });
 
   it('应该高效处理大量项目', () => {
-    const items = Array.from({ length: 1000 }, (_, i) => ({
+    const items: TestItem[] = Array.from({ length: 1000 }, (_, i) => ({
       id: i,
       name: `item ${i}`
     }));
