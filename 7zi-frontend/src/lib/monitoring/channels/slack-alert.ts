@@ -155,7 +155,7 @@ export class SlackAlertChannel extends BaseAlertChannel implements AlertChannel 
     } else {
       // Fallback to console log
       logger.debug('[SlackAlert] No webhook URL or bot token configured')
-      logger.debug('[SlackAlert] Would send:', JSON.stringify(payload, null, 2))
+      logger.debug(`[SlackAlert] Would send: ${JSON.stringify(payload, null, 2)}`)
     }
   }
 
@@ -513,7 +513,7 @@ export class SlackAlertChannel extends BaseAlertChannel implements AlertChannel 
         logger.error('[SlackAlert] Auth test failed:', result.error)
         return false
       } catch (error) {
-        logger.error('[SlackAlert] Connection test failed:', error)
+        logger.error('[SlackAlert] Connection test failed:', error instanceof Error ? error : new Error(String(error)))
         return false
       }
     }

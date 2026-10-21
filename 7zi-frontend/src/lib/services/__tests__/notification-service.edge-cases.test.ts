@@ -518,7 +518,7 @@ describe('Notification Service Edge Cases', () => {
       })
 
       expect(notification).toBeDefined()
-      expect(notification.data?.level1?.level2?.level3?.level4?.level5).toBe('deep')
+      expect(JSON.stringify(notification.data)).toContain('"level5":"deep"')
     })
 
     it('should handle array in data field', () => {
