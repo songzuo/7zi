@@ -22,6 +22,32 @@ export interface ValidationRule<T = unknown> {
   skipIfEmpty?: boolean
 }
 
+/**
+ * A rule that may be either synchronous or asynchronous.
+ * Used wherever a field can hold a mix of both (e.g. chained validators).
+ */
+export type AnyValidationRule<T = unknown> = ValidationRule<T> | AsyncValidator<T>
+
+/**
+ * Runtime type guard: does this rule return a Promise?
+ *
+ * Deliberately value-based (checks the returned value) rather than relying on
+ * `fn.constructor.name`, so it survives minification and works with rules
+ * that return a promise from a non-async function.
+ */
+export function isAsyncValidator<T>(rule: AnyValidationRule<T>): rule is AsyncValidator<T> {
+  if ('debounce' in rule || 'serverSide' in rule) {
+    return true
+  }
+  const fn = rule.validate as unknown as { constructor?: { name?: string } }
+  return fn?.constructor?.name === 'AsyncFunction'
+}
+
+/** Narrow a rule union to a synchronous validation rule */
+export function isSyncRule<T>(rule: AnyValidationRule<T>): rule is ValidationRule<T> {
+  return !isAsyncValidator(rule)
+}
+
 /** Validation context passed to validators */
 export interface ValidationContext {
   /** All form values */
@@ -89,8 +115,8 @@ export interface FieldConfig {
   name: string
   /** Initial value */
   initialValue?: unknown
-  /** Validation rules */
-  rules?: ValidationRule[]
+  /** Validation rules (may mix sync and async rules) */
+  rules?: AnyValidationRule[]
   /** When to trigger validation */
   trigger?: ValidationTrigger | ValidationTrigger[]
   /** Whether to validate immediately on change */

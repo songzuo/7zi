@@ -35,7 +35,7 @@ export type ScheduleType = 'interval' | 'cron' | 'once'
 /**
  * 事件类型
  */
-export type EventType =
+export type KnownEventType =
   | 'workflow_completed'
   | 'workflow_failed'
   | 'file_created'
@@ -45,6 +45,13 @@ export type EventType =
   | 'system_event'
   | 'data_changed'
   | 'custom'
+
+/**
+ * 事件类型
+ *
+ * 除了内置事件外，也支持业务自定义事件名（如 `custom_xxx`、`event_a`）。
+ */
+export type EventType = KnownEventType | (string & {})
 
 /**
  * 触发器配置

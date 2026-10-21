@@ -165,7 +165,7 @@ ${errorInfo?.componentStack || 'N/A'}
             'recovery',
             {
               attempt: retryAttempt + 1,
-              errorId: errorInfo?.digest || 'unknown',
+              errorId: (errorInfo as { digest?: string } | undefined)?.digest || 'unknown',
             }
           )
 

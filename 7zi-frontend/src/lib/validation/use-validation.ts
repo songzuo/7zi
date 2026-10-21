@@ -167,7 +167,7 @@ export function useValidation(config: FormConfig): UseValidationReturn {
 
   // Submit form
   const handleSubmit = useCallback(
-    async (onSubmit: (values: Record<string, unknown>) => void | Promise<void>) => {
+    (onSubmit: (values: Record<string, unknown>) => void | Promise<void>) => {
       return async (e?: React.FormEvent) => {
         e?.preventDefault()
 

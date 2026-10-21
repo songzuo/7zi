@@ -56,7 +56,7 @@ describe('getSuggestions', () => {
 
     expect(Array.isArray(suggestions)).toBe(true);
     expect(suggestions.length).toBeGreaterThan(0);
-    expect(suggestions.every((s) => s.matched !== undefined || s.score >= 0)).toBe(true);
+    expect(suggestions.every((s) => s.score >= 0)).toBe(true);
   });
 
   it('建议应该按分数降序排序', async () => {

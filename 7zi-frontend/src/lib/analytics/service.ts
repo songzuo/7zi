@@ -33,6 +33,17 @@ interface CacheEntry<T> {
 /**
  * Analytics Service
  */
+/**
+ * 时间范围 -> 天数映射
+ */
+const TIME_RANGE_TO_DAYS: Record<string, number> = {
+  '1h': 1,
+  '24h': 1,
+  '7d': 7,
+  '30d': 30,
+  '90d': 90,
+}
+
 class AnalyticsService {
   private cache: Map<string, CacheEntry<unknown>> = new Map()
   private readonly CACHE_TTL = 5 * 60 * 1000 // 5 minutes
@@ -120,6 +131,112 @@ class AnalyticsService {
       resourceUsage,
       anomalies,
     }
+  }
+
+  /**
+   * Get aggregated workflow statistics
+   *
+   * 基于趋势数据聚合出执行总数、成功率、平均耗时、失败数。
+   */
+  async getWorkflowStats(
+    workflowId?: string,
+    timeRange: TimeRange = '7d'
+  ): Promise<WorkflowStats> {
+    const days = TIME_RANGE_TO_DAYS[timeRange] ?? 7
+    const cacheKey = `workflow-stats-${workflowId || 'all'}-${timeRange}`
+    const cached = this.getFromCache<WorkflowStats>(cacheKey)
+
+    if (cached) return cached
+
+    const trends = await this.getWorkflowTrends({ days, workflowId })
+
+    const totalExecutions = trends.reduce((sum, t) => sum + t.total, 0)
+    const failedCount = trends.reduce((sum, t) => sum + t.failed, 0)
+    const successCount = trends.reduce((sum, t) => sum + t.success, 0)
+    const avgExecutionTime =
+      trends.length > 0
+        ? trends.reduce((sum, t) => sum + t.avgDuration, 0) / trends.length
+        : 0
+
+    const stats: WorkflowStats = {
+      totalExecutions,
+      successRate: totalExecutions > 0 ? (successCount / totalExecutions) * 100 : 0,
+      avgExecutionTime,
+      failedCount,
+    }
+
+    this.setCache(cacheKey, stats)
+    return stats
+  }
+
+  /**
+   * Get execution trend data shaped for the UI (timestamp/value)
+   */
+  async getExecutionTrend(workflowId?: string, days: number = 7): Promise<TrendData[]> {
+    const cacheKey = `execution-trend-${workflowId || 'all'}-${days}`
+    const cached = this.getFromCache<TrendData[]>(cacheKey)
+
+    if (cached) return cached
+
+    const trends = await this.getWorkflowTrends({ days, workflowId })
+
+    const data: TrendData[] = trends.map(t => ({
+      timestamp: t.date,
+      value: t.total,
+      label: t.date,
+    }))
+
+    this.setCache(cacheKey, data)
+    return data
+  }
+
+  /**
+   * Get recent execution details
+   */
+  async getExecutionDetails(
+    workflowId?: string,
+    timeRange: TimeRange = '7d',
+    limit: number = 50
+  ): Promise<ExecutionDetail[]> {
+    const days = TIME_RANGE_TO_DAYS[timeRange] ?? 7
+    const cacheKey = `execution-details-${workflowId || 'all'}-${timeRange}-${limit}`
+    const cached = this.getFromCache<ExecutionDetail[]>(cacheKey)
+
+    if (cached) return cached
+
+    const trends = await this.getWorkflowTrends({ days, workflowId })
+
+    const details: ExecutionDetail[] = trends.flatMap(t => {
+      const entries: ExecutionDetail[] = []
+
+      for (let i = 0; i < t.success; i++) {
+        entries.push({
+          id: `exec-${t.date}-s${i}`,
+          workflowId: workflowId || 'all',
+          status: 'success',
+          startTime: t.date,
+          endTime: t.date,
+          duration: t.avgDuration,
+        })
+      }
+
+      for (let i = 0; i < t.failed; i++) {
+        entries.push({
+          id: `exec-${t.date}-f${i}`,
+          workflowId: workflowId || 'all',
+          status: 'failed',
+          startTime: t.date,
+          endTime: t.date,
+          duration: t.avgDuration,
+        })
+      }
+
+      return entries
+    })
+
+    const limited = details.slice(0, limit)
+    this.setCache(cacheKey, limited)
+    return limited
   }
 
   /**

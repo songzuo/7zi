@@ -38,12 +38,14 @@ export {
 } from './suggestions';
 
 // 搜索历史
+// 注意：./suggestions 与 ./search-history 各自提供同名便捷函数（基于不同的历史实现），
+// 这里对 search-history 的版本做别名导出，避免模块顶层标识符重复。
 export {
   SearchHistory,
   defaultSearchHistory,
   addSearch,
-  getRecentSearches,
-  clearSearchHistory,
+  getRecentSearches as getRecentSearchesFromHistory,
+  clearSearchHistory as clearSearchHistoryFromHistory,
   removeSearch,
   getSearchHistoryStats,
   type SearchHistoryEntry,

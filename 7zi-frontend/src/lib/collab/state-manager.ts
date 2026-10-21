@@ -64,7 +64,7 @@ export interface StateManagerOptions {
   /** Enable conflict detection (default: true) */
   enableConflictDetection?: boolean
   /** Enable debug logging */
-  debug?: number
+  debug?: boolean
 }
 
 /**

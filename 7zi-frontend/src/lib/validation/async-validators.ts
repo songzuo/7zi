@@ -148,10 +148,9 @@ export function validCaptcha(
   // Override to not skip on empty - CAPTCHA requires a value
   return {
     ...validator,
-    validate: async (value: unknown, context?: ValidationContext) => {
+    validate: async (value: string, context?: ValidationContext): Promise<ValidationResult> => {
       try {
-        const isValid = await validator.validate(value, context)
-        return isValid
+        return await validator.validate(value, context)
       } catch (error) {
         console.error(`Async validation error [validCaptcha]:`, error)
         return { valid: false, message, rule: 'validCaptcha' }

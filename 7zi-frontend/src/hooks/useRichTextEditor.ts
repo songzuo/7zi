@@ -7,7 +7,9 @@
 
 import { useEditor, EditorContent } from '@tiptap/react'
 import { useEffect, useCallback, useRef } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { getPresetExtensions, type EditorPreset } from '@/lib/editor/tiptap-extension'
+import Placeholder from '@tiptap/extension-placeholder'
 
 export interface RichTextEditorOptions {
   /**
@@ -78,7 +80,7 @@ export interface RichTextEditorReturn {
   canRedo: () => boolean
   isEmpty: () => boolean
   // 快捷键
-  handleKeyDown: (event: KeyboardEvent | React.KeyboardEvent) => void
+  handleKeyDown: (event: ReactKeyboardEvent<Element>) => void
 }
 
 /**
@@ -165,13 +167,13 @@ export function useRichTextEditor(options: RichTextEditorOptions = {}): RichText
     if (editor && content !== editor.getHTML()) {
       // 避免在用户正在编辑时强制更新
       if (!editor.isFocused) {
-        editor.commands.setContent(content, false)
+        editor.commands.setContent(content, { emitUpdate: false })
       }
     }
   }, [content, editor])
 
   // 快捷键处理
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+  const handleKeyDown = useCallback((event: ReactKeyboardEvent<Element>) => {
     // Ctrl/Cmd + B: Bold
     if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
       event.preventDefault()
@@ -247,7 +249,7 @@ export function useRichTextEditor(options: RichTextEditorOptions = {}): RichText
   }, [editor])
 
   const setContent = useCallback((content: string) => {
-    editor?.commands.setContent(content, false)
+    editor?.commands.setContent(content, { emitUpdate: false })
   }, [editor])
 
   // 格式化工具
@@ -268,7 +270,7 @@ export function useRichTextEditor(options: RichTextEditorOptions = {}): RichText
   }, [editor])
 
   const toggleHeading = useCallback((level: number) => {
-    editor?.chain().focus().toggleHeading({ level }).run()
+    editor?.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run()
   }, [editor])
 
   const toggleBulletList = useCallback(() => {

@@ -45,10 +45,12 @@ class OfflineStorage {
   async initialize(): Promise<void> {
     if (this.db) return;
 
-    this.db = await openDB(this.config.dbName, this.config.version, {
+    const storageConfig = this.config
+
+    this.db = await openDB(storageConfig.dbName, storageConfig.version, {
       upgrade(db) {
         // Create object stores based on config
-        Object.entries(config.stores).forEach(([name, schema]) => {
+        Object.entries(storageConfig.stores).forEach(([name, schema]) => {
           if (!db.objectStoreNames.contains(name)) {
             const store = db.createObjectStore(name, {
               keyPath: schema.keyPath,

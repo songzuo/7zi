@@ -66,7 +66,7 @@ vi.mock('@/features/collab/types', () => ({
   CollabUser: {},
 }))
 
-const mockUser = { id: 'user-1', name: 'Test User', color: '#ff0000' }
+const mockUser = { id: 'user-1', name: 'Test User', color: '#ff0000', isOnline: true, lastActivity: Date.now() }
 
 describe('useCollaboration', () => {
   beforeEach(() => {

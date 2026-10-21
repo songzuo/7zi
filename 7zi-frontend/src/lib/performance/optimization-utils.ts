@@ -93,7 +93,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
  * Use memoized value with deep comparison
  */
 export function useDeepMemo<T>(factory: () => T, deps: DependencyList): T {
-  const ref = useRef<{ deps: DependencyList; value: T }>();
+  const ref = useRef<{ deps: DependencyList; value: T } | undefined>(undefined);
 
   if (!ref.current || !deepArrayEquals(ref.current.deps, deps)) {
     ref.current = { deps, value: factory() };
@@ -130,7 +130,7 @@ export function useDebounce<T extends (...args: never[]) => unknown>(
   callback: T,
   delay: number
 ): T {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const callbackRef = useRef(callback);
 
   useEffect(() => {
@@ -169,7 +169,7 @@ export function useThrottle<T extends (...args: never[]) => unknown>(
   delay: number
 ): T {
   const lastRunRef = useRef<number>(0);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const callbackRef = useRef(callback);
 
   useEffect(() => {

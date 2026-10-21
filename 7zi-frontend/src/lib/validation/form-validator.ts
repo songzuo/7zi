@@ -6,6 +6,7 @@
 
 import type {
   ValidationRule,
+  AnyValidationRule,
   ValidationContext,
   ValidationResult,
   FieldError,
@@ -19,6 +20,7 @@ import type {
   FormValidationRule,
   Translator,
 } from './types'
+import { isAsyncValidator, isSyncRule } from './types'
 import { required } from './validators'
 
 // ============================================================================
@@ -89,8 +91,12 @@ export class FormValidator {
     state.value = value
     state.validated = true
 
-    // Run validation rules
+    // Run validation rules (async rules are handled by validateFieldAsync)
     for (const rule of rules) {
+      if (!isSyncRule(rule)) {
+        continue
+      }
+
       // Skip if rule has skipIfEmpty and value is empty
       if (rule.skipIfEmpty && this.isEmpty(value)) {
         continue
@@ -161,9 +167,7 @@ export class FormValidator {
       return this.createResult(true)
     }
 
-    const asyncRules = fieldConfig.rules?.filter(
-      (r): r is AsyncValidator => 'validate' in r && r.validate.constructor.name === 'AsyncFunction'
-    )
+    const asyncRules = fieldConfig.rules?.filter(isAsyncValidator)
 
     if (!asyncRules || asyncRules.length === 0) {
       return this.validateField(fieldName, value, context)
@@ -207,7 +211,7 @@ export class FormValidator {
     }
 
     const asyncRules = fieldConfig.rules?.filter(
-      (r): r is AsyncValidator => 'debounce' in r && (r as AsyncValidator).debounce
+      (r): r is AsyncValidator<unknown> => isAsyncValidator(r) && typeof r.debounce === 'number'
     )
 
     if (!asyncRules || asyncRules.length === 0) {
@@ -215,7 +219,7 @@ export class FormValidator {
     }
 
     // Get the debounce delay from the first async rule
-    const debounce = (asyncRules[0] as AsyncValidator).debounce ?? 300
+    const debounce = asyncRules[0].debounce ?? 300
 
     // Clear existing timer
     const asyncState = this.asyncStates.get(fieldName)

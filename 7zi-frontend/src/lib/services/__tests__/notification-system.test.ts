@@ -8,9 +8,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { NotificationType, NotificationPriority } from './notification-types'
-import { NotificationIndexedDBStorage } from './notification-indexeddb'
-import { ClientNotificationManager } from './client-notification-manager'
+import { NotificationType, NotificationPriority } from '../notification-types'
+import { NotificationIndexedDBStorage } from '../notification-indexeddb'
+import { ClientNotificationManager } from '../client-notification-manager'
 
 describe('Notification System', () => {
   let storage: NotificationIndexedDBStorage

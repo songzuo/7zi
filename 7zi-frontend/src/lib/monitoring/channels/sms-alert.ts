@@ -46,6 +46,13 @@ export interface SMSChannelConfig extends BaseChannelConfig {
 
   // Template options
   maxLength?: number
+
+  /**
+   * 网关请求超时时间（毫秒）。
+   *
+   * 默认 10000ms；传入 0 或负数表示不设置超时（不传 signal）。
+   */
+  timeout?: number
 }
 
 interface SMSMessage {
@@ -76,6 +83,7 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
 
     this.smsConfig = {
       maxLength: 160,
+      timeout: 10000,
       ...config,
       enabled,
     }
@@ -118,6 +126,7 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
             from: this.smsConfig.senderId,
             message,
           }),
+          ...this.buildTimeoutSignal(),
         })
 
         if (!response.ok) {
@@ -134,6 +143,28 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
 
     // Fallback to console log if gateway not configured
     logger.debug(`[SMSAlert] Would send SMS to ${to}: ${message}`)
+  }
+
+  /**
+   * 构造请求超时 signal
+   *
+   * - `timeout` 未配置或 <= 0：不设置超时（不传 signal）
+   * - `timeout` > 0：使用 `AbortSignal.timeout`
+   * - 运行环境不支持 `AbortSignal.timeout`：降级为不设置超时
+   */
+  private buildTimeoutSignal(): { signal?: AbortSignal } {
+    const timeout = this.smsConfig.timeout
+    if (!timeout || timeout <= 0) return {}
+
+    if (typeof AbortSignal === 'undefined' || typeof AbortSignal.timeout !== 'function') {
+      return {}
+    }
+
+    try {
+      return { signal: AbortSignal.timeout(timeout) }
+    } catch {
+      return {}
+    }
   }
 
   /**
@@ -189,6 +220,7 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
         headers: {
           'Authorization': `Bearer ${this.smsConfig.apiKey}`,
         },
+        ...this.buildTimeoutSignal(),
       })
 
       if (response.ok) {

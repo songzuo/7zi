@@ -150,7 +150,7 @@ export function usePrefersReducedMotion(): boolean {
  */
 export function useIdle(timeout: number = 60000): boolean {
   const [isIdle, setIsIdle] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

@@ -159,16 +159,16 @@ export function WebhookLogViewer({
                   </span>
 
                   {/* 订阅 ID */}
-                  {log.context?.subscriptionId && (
+                  {Boolean(log.context?.subscriptionId) && (
                     <span className="text-xs text-gray-500">
-                      订阅: {String(log.context.subscriptionId).slice(0, 8)}...
+                      订阅: {String(log.context?.subscriptionId).slice(0, 8)}...
                     </span>
                   )}
 
                   {/* 交付 ID */}
-                  {log.context?.deliveryId && (
+                  {Boolean(log.context?.deliveryId) && (
                     <span className="text-xs text-gray-500">
-                      交付: {String(log.context.deliveryId).slice(0, 8)}...
+                      交付: {String(log.context?.deliveryId).slice(0, 8)}...
                     </span>
                   )}
                 </div>

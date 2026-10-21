@@ -607,8 +607,3 @@ export class ClientNotificationManager {
  * 单例实例
  */
 export const clientNotificationManager = new ClientNotificationManager()
-
-/**
- * 导出类型
- */
-export type { NotificationEvent, NotificationEventListener, NotificationStats }

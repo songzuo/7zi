@@ -10,6 +10,7 @@ import type {
   ValidationResult,
   AsyncValidator,
   ChainedValidator,
+  AnyValidationRule,
   Translator,
   DEFAULT_MESSAGES,
   DefaultMessageKey,
@@ -379,6 +380,7 @@ export function custom<T = unknown>(
 
 class ChainedValidatorImpl<T = unknown> implements ChainedValidator<T> {
   private rules: ValidationRule<T>[] = []
+  private asyncRules: AsyncValidator<T>[] = []
 
   required(message?: string): ChainedValidator<T> {
     this.rules.push(required(message) as ValidationRule<T>)
@@ -405,13 +407,13 @@ class ChainedValidatorImpl<T = unknown> implements ChainedValidator<T> {
     return this
   }
 
-  min(min: number, message?: string): ChainedValidator<T> {
-    this.rules.push(min(min, message) as ValidationRule<T>)
+  min(minValue: number, message?: string): ChainedValidator<T> {
+    this.rules.push(min(minValue, message) as ValidationRule<T>)
     return this
   }
 
-  max(max: number, message?: string): ChainedValidator<T> {
-    this.rules.push(max(max, message) as ValidationRule<T>)
+  max(maxValue: number, message?: string): ChainedValidator<T> {
+    this.rules.push(max(maxValue, message) as ValidationRule<T>)
     return this
   }
 
@@ -441,12 +443,19 @@ class ChainedValidatorImpl<T = unknown> implements ChainedValidator<T> {
       message: message || getErrorMessage('async'),
       debounce,
     }
-    this.rules.push(asyncRule as ValidationRule<T>)
+    // An async rule is not a plain ValidationRule (its validate() returns a Promise),
+    // so it is kept in a separate list and merged only when building sync rules.
+    this.asyncRules.push(asyncRule)
     return this
   }
 
   build(): ValidationRule<T>[] {
     return this.rules
+  }
+
+  /** Build sync + async rules together (async rules keep their Promise signature) */
+  buildAll(): AnyValidationRule<T>[] {
+    return [...this.rules, ...this.asyncRules]
   }
 }
 

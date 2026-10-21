@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 // 基础骨架屏组件
 // ============================================
 
-interface SkeletonProps {
+export interface SkeletonProps {
   /** CSS 类名 */
   className?: string
   /** 动画是否开启 */
@@ -48,7 +48,7 @@ Skeleton.displayName = 'Skeleton'
 // 文本骨架屏
 // ============================================
 
-interface SkeletonTextProps extends Omit<SkeletonProps, 'children'> {
+export interface SkeletonTextProps extends Omit<SkeletonProps, 'children'> {
   /** 行数 */
   lines?: number
   /** 每行高度 */
@@ -84,7 +84,7 @@ SkeletonText.displayName = 'SkeletonText'
 // 圆形头像骨架屏
 // ============================================
 
-interface SkeletonAvatarProps extends Omit<SkeletonProps, 'children'> {
+export interface SkeletonAvatarProps extends Omit<SkeletonProps, 'children'> {
   /** 尺寸 */
   size?: number
   /** 是否为圆形 */
@@ -112,7 +112,7 @@ SkeletonAvatar.displayName = 'SkeletonAvatar'
 // 卡片骨架屏
 // ============================================
 
-interface SkeletonCardProps {
+export interface SkeletonCardProps {
   /** CSS 类名 */
   className?: string
   /** 是否显示头像 */
@@ -185,7 +185,7 @@ SkeletonCard.displayName = 'SkeletonCard'
 // 列表骨架屏
 // ============================================
 
-interface SkeletonListProps extends Omit<SkeletonProps, 'children'> {
+export interface SkeletonListProps extends Omit<SkeletonProps, 'children'> {
   /** 列表项数量 */
   count?: number
   /** 列表项配置 */
@@ -209,7 +209,7 @@ SkeletonList.displayName = 'SkeletonList'
 // 表格骨架屏
 // ============================================
 
-interface SkeletonTableProps extends Omit<SkeletonProps, 'children'> {
+export interface SkeletonTableProps extends Omit<SkeletonProps, 'children'> {
   /** 行数 */
   rows?: number
   /** 列数 */
@@ -269,7 +269,7 @@ SkeletonTable.displayName = 'SkeletonTable'
 // 图片骨架屏
 // ============================================
 
-interface SkeletonImageProps extends Omit<SkeletonProps, 'children'> {
+export interface SkeletonImageProps extends Omit<SkeletonProps, 'children'> {
   /** 宽度 */
   width?: number | string
   /** 高度 */
@@ -303,7 +303,7 @@ SkeletonImage.displayName = 'SkeletonImage'
 // 导航骨架屏
 // ============================================
 
-interface SkeletonNavigationProps extends Omit<SkeletonProps, 'children'> {
+export interface SkeletonNavigationProps extends Omit<SkeletonProps, 'children'> {
   /** 导航项数量 */
   items?: number
   /** 导航项高度 */
@@ -354,7 +354,7 @@ SkeletonNavigation.displayName = 'SkeletonNavigation'
 // 加载状态包装器
 // ============================================
 
-interface LoadingWrapperProps {
+export interface LoadingWrapperProps {
   /** 是否加载中 */
   loading: boolean
   /** 加载中的骨架屏 */
