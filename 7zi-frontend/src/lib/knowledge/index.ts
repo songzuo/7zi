@@ -14,8 +14,8 @@ export {
 } from './document-pipeline';
 
 // 向量存储
+export type { IVectorStore } from './vector-store';
 export {
-  IVectorStore,
   WeaviateVectorStore,
   LocalVectorStore,
   VectorStoreFactory,
@@ -39,7 +39,8 @@ import { DocumentProcessor } from './document-pipeline';
 import { VectorStoreFactory } from './vector-store';
 import { SmartRetriever } from './smart-retriever';
 import { RAGQA } from './rag-qa';
-import type { VectorStoreConfig, RetrievalConfig, RAGQAConfig } from './types';
+import type { VectorStoreConfig, RetrievalConfig } from './types';
+import type { RAGQAConfig } from './rag-qa';
 
 /**
  * 创建完整的 RAG 系统

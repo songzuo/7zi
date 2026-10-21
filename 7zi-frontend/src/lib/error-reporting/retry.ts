@@ -422,7 +422,7 @@ export function retry<T extends (...args: unknown[]) => Promise<unknown>>(
   ): PropertyDescriptor {
     const originalMethod = descriptor.value as T
 
-    descriptor.value = function (...args: Parameters<T>) {
+    descriptor.value = function (this: unknown, ...args: Parameters<T>) {
       return withRetry(() => originalMethod.apply(this, args), options)
     } as unknown as T
 
@@ -489,13 +489,13 @@ export function createRetryState<T>(
           attempt = attempts
           isRetrying = false
           if (!success) {
-            error = options.onComplete ? undefined : new Error('Operation failed')
+            error = options.onComplete ? null : new Error('Operation failed')
           }
         },
       })
 
       if (result.success) {
-        data = result.data
+        data = result.data ?? null
         error = null
       } else {
         error = result.error || new Error('Operation failed')

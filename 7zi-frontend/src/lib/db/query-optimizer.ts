@@ -202,14 +202,14 @@ export class QueryOptimizer {
       return results[0]
     }
 
-    return new Promise((resolve) => {
+    return new Promise<T>((resolve) => {
       // 初始化批次队列
       if (!this.batchQueue.has(batchKey)) {
         this.batchQueue.set(batchKey, [])
       }
 
       const queue = this.batchQueue.get(batchKey)!
-      queue.push({ params, resolve })
+      queue.push({ params, resolve: resolve as (result: unknown) => void })
 
       // 清除之前的定时器
       if (this.batchTimers.has(batchKey)) {

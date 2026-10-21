@@ -233,7 +233,7 @@ export function useAutoSave<T = unknown>(
       const manager = getDraftStorageManager()
 
       if (draftIdRef.current) {
-        await manager.updateDraft(draftIdRef.current, dataRef.current)
+        await manager.updateDraft<T>(draftIdRef.current, dataRef.current as Partial<T>)
       } else {
         const id = await manager.saveDraft(type, dataRef.current, ttl ? { ttl } : undefined)
         setDraftId(id)

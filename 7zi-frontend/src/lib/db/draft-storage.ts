@@ -552,6 +552,32 @@ export class DraftStorageManager {
   }
 
   /**
+   * 保存草稿（使用调用方指定的 ID）
+   * 用于需要保持外部 ID 稳定性的场景（如执行状态）
+   */
+  async saveDraftWithId<T = unknown>(
+    id: string,
+    type: DraftType,
+    data: T,
+    options: SaveDraftOptions = {}
+  ): Promise<string> {
+    const ttl = options.ttl !== undefined ? options.ttl : DEFAULT_TTL
+    const now = Date.now()
+
+    const draft: Draft<T> = {
+      id,
+      type,
+      data,
+      createdAt: now,
+      updatedAt: now,
+      expiresAt: now + ttl,
+    }
+
+    await this.backend.save(draft)
+    return draft.id
+  }
+
+  /**
    * 加载草稿
    */
   async loadDraft<T = unknown>(id: string): Promise<Draft<T> | null> {

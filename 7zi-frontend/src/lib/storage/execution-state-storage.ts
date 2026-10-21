@@ -333,5 +333,3 @@ export const executionStateStorage = {
   },
 }
 
-// 导出类型
-export type { PersistentExecutionState }

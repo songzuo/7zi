@@ -193,16 +193,7 @@ export class ExecutionStorageManager {
     // 使用 instanceId 作为草稿 ID，如果不存在则生成
     const draftId = state.instanceId || this.generateExecutionId(state.workflowId)
 
-    const draft: Draft<ExecutionStateData> = {
-      id: draftId,
-      type: DRAFT_TYPE,
-      data: dataToSave,
-      createdAt: state.startTime,
-      updatedAt: now,
-      expiresAt: now + ttl,
-    }
-
-    await manager.save(draft)
+    await manager.saveDraftWithId<ExecutionStateData>(draftId, DRAFT_TYPE, dataToSave, { ttl })
     logger.debug(`[ExecutionStorage] Saved execution state: ${draftId}`)
     return draftId
   }

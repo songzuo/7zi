@@ -250,7 +250,7 @@ class WorkflowEditor {
   private async saveDraft(data: unknown) {
     if (this.draftId) {
       // 更新现有草稿
-      await updateDraft(this.draftId, data)
+      await updateDraft(this.draftId, data as Record<string, unknown>)
     } else {
       // 创建新草稿
       this.draftId = await saveDraft('workflow', data)

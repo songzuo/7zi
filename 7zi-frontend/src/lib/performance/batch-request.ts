@@ -4,6 +4,8 @@
  * Particularly useful for mobile networks with high latency
  */
 
+import { generateSecureId } from '@/lib/utils'
+
 interface BatchRequest {
   id: string;
   url: string;
@@ -337,4 +339,3 @@ export const batchManager = new BatchRequestManager('/api/batch');
 export const requestCache = new DeduplicatedRequestCache();
 
 export default BatchRequestManager;
-er;

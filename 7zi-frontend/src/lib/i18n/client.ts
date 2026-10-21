@@ -7,6 +7,7 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
+import type { Resource } from 'i18next'
 import { i18nConfig } from './config'
 
 export { useTranslation } from 'react-i18next'
@@ -70,9 +71,9 @@ const getTranslations = async (language: string) => {
 
 // 翻译资源（初始只加载默认语言）
 const resources = {
-  zh: null, // 延迟加载
-  en: null, // 延迟加载
-}
+  zh: {}, // 延迟加载
+  en: {}, // 延迟加载
+} as unknown as Resource
 
 // 初始化 i18next
 i18n
@@ -92,7 +93,7 @@ getTranslations('zh').then((zh) => {
 
 // 导出初始化函数供需要时调用
 export const initLanguage = async (language: string) => {
-  if (resources[language as keyof typeof resources] === null) {
+  if (!resources[language as keyof typeof resources]) {
     const translations = await getTranslations(language)
     i18n.addResourceBundle(language, 'translation', translations, true)
   }

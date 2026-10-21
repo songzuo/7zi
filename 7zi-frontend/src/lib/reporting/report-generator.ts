@@ -569,11 +569,12 @@ export class ReportGenerator {
    * 获取时间范围字符串
    */
   private getTimeRangeString(data: AggregatedData | Record<string, AggregatedData>): string {
-    if ('timeRange' in data) {
-      return data.timeRange.type
+    const single = data as AggregatedData
+    if (single.timeRange && typeof single.timeRange.type === 'string') {
+      return single.timeRange.type
     }
-    const firstData = Object.values(data)[0]
-    if (firstData && 'timeRange' in firstData) {
+    const firstData = Object.values(data as Record<string, AggregatedData>)[0]
+    if (firstData?.timeRange && typeof firstData.timeRange.type === 'string') {
       return firstData.timeRange.type
     }
     return 'unknown'

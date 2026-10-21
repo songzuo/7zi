@@ -421,7 +421,8 @@ export class SyncManager {
   private async fetchServerUpdates(): Promise<void> {
     try {
       // Get last sync timestamp from metadata
-      const lastSyncTimestamp = await this.storage.getMeta<number>('lastServerSync') || 0;
+      const lastSyncMeta = await this.storage.getMeta('lastServerSync')
+      const lastSyncTimestamp = typeof lastSyncMeta === 'number' ? lastSyncMeta : 0;
 
       // Fetch updates since last sync
       const response = await fetch(`/api/sync/updates?since=${lastSyncTimestamp}`);

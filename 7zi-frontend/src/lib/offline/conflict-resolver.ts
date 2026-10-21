@@ -271,7 +271,9 @@ export class ConflictResolver {
             merged[resolution.field] = resolution.serverValue;
             break;
           case 'custom':
-            merged[resolution.field] = resolution.customValue;
+            if (resolution.customValue !== undefined) {
+              merged[resolution.field] = resolution.customValue;
+            }
             break;
         }
         resolvedFields.push(resolution.field);

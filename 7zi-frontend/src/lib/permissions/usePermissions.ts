@@ -6,6 +6,7 @@
 
 import { useMemo, useCallback } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
+import { UserRole } from '../auth'
 import type { Permission as Permission, RoleDefinition, UserWithRoles } from './types'
 import {
   hasPermission,
@@ -52,11 +53,13 @@ export function usePermissions(): UsePermissionsReturn {
       .map(id => permissionManager.getRoleById(id))
       .filter((r): r is RoleDefinition => r !== undefined)
     
+    const role = (user.role as UserRole) ?? UserRole.GUEST
+
     return {
       id: user.id,
       username: user.name || user.email || '',
       email: user.email || '',
-      role: user.role,
+      role,
       permissions: [],
       createdAt: new Date(),
       updatedAt: new Date(),

@@ -183,7 +183,7 @@ export class ErrorReportingService {
     }
 
     // 调用 beforeSend 钩子
-    let finalReport = report
+    let finalReport: ErrorReport | null = report
     if (this.config.beforeSend) {
       finalReport = this.config.beforeSend(report)
       if (!finalReport) return

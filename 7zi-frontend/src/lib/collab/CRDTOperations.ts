@@ -7,6 +7,8 @@
  * @version 1.12.0
  */
 
+import { generateSecureId } from '@/lib/utils'
+
 /**
  * Version vector for conflict detection
  * Each client has a counter for each node they can modify
@@ -352,7 +354,7 @@ export class CRDTOperations {
           newDoc.set(addOp.elementId, {
             id: addOp.elementId,
             ...(addOp.value as Record<string, unknown>),
-          } as T)
+          } as unknown as T)
         }
         break
       }

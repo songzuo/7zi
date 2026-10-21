@@ -73,7 +73,7 @@ export function lazyLoad3D<T extends object>(
   return createDynamicImport(importFn, {
     ssr: false,
     desktopOnly: true,
-    fallback: fallbackComponent,
+    fallback: fallbackComponent as ComponentType,
   })
 }
 
@@ -87,7 +87,7 @@ export function lazyLoadChart<T extends object>(
 ) {
   return createDynamicImport(importFn, {
     ssr: false,
-    fallback: fallbackComponent,
+    fallback: fallbackComponent as ComponentType,
   })
 }
 

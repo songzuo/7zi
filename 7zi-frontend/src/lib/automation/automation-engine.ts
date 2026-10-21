@@ -465,7 +465,7 @@ export class RuleValidator {
   /**
    * 清理表达式，移除危险代码
    */
-  private static sanitizeExpression(expression: string): string {
+  static sanitizeExpression(expression: string): string {
     // 移除危险的关键字
     const dangerous = ['import', 'require', 'eval', 'Function', 'process', 'global', 'window']
     let sanitized = expression
@@ -1150,7 +1150,7 @@ export class AutomationEngine {
     try {
       // Use Node.js vm module for safe sandboxed evaluation
       // This replaces unsafe new Function() which can access the global scope
-      const sanitized = this.sanitizeExpression(expression)
+      const sanitized = RuleValidator.sanitizeExpression(expression)
       const result = vm.runInNewContext(
         `(() => { try { return !!( ${sanitized} ) } catch(e) { return false } })()`,
         { ctx: context },

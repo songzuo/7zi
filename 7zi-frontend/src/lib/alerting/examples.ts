@@ -9,6 +9,7 @@ import {
   WebhookChannel,
   MultiChannelAlertService,
   getAlertService,
+  createChannel,
   type NotificationPayload,
   type SlackChannelConfig,
   type DiscordChannelConfig,

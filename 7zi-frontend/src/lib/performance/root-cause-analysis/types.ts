@@ -3,6 +3,9 @@
  * 根因分析类型定义
  */
 
+import type { QueryIssue } from './database-tracker'
+import type { APIIssue } from './api-tracker'
+
 // ============================================
 // Performance Context
 // ============================================
@@ -213,7 +216,7 @@ export interface DatabaseAnalysisDetails {
     type: string
     rowCount: number
   }
-  issues: string[]
+  issues: QueryIssue[]
 }
 
 /**
@@ -230,7 +233,7 @@ export interface APIAnalysisDetails {
     duration: number
     statusCode: number
   }
-  issues: string[]
+  issues: APIIssue[]
 }
 
 /**
