@@ -272,11 +272,7 @@ describe('A2A JSON-RPC API - POST /api/a2a/jsonrpc', () => {
 
 describe('A2A JSON-RPC API - OPTIONS /api/a2a/jsonrpc', () => {
   it('应该返回 CORS 头', async () => {
-    const request = new NextRequest('http://localhost:3000/api/a2a/jsonrpc', {
-      method: 'OPTIONS',
-    })
-
-    const response = await OPTIONS(request)
+    const response = await OPTIONS()
 
     expect(response.status).toBe(204)
     expect(response.headers.get('Access-Control-Allow-Methods')).toContain('POST')

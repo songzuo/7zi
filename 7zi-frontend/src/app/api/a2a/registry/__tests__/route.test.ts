@@ -116,7 +116,7 @@ describe('GET /api/a2a/registry', () => {
   })
 
   it('?id=xxx - Agent 不存在返回 404', async () => {
-    vi.mocked(agentScheduler.getAgent).mockReturnValue(null)
+    vi.mocked(agentScheduler.getAgent).mockReturnValue(undefined)
 
     const req = new NextRequest('http://localhost:3000/api/a2a/registry?id=nonexistent')
     const res = await GET(req)

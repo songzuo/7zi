@@ -52,7 +52,7 @@ export interface UseWorkflowDraftState {
  */
 export interface UseWorkflowDraftActions {
   /** 保存草稿 */
-  saveDraft: (data: Omit<WorkflowDraft, 'id' | 'workflowId'> & { metadata?: Partial<WorkflowDraft['metadata']> }) => Promise<void>
+  saveDraft: (data: DraftInput) => Promise<void>
   /** 加载草稿 */
   loadDraft: () => Promise<void>
   /** 删除草稿 */
@@ -71,41 +71,10 @@ export interface UseWorkflowDraftActions {
 export type UseWorkflowDraftReturn = UseWorkflowDraftState & UseWorkflowDraftActions
 
 /**
- * 工作流节点和边的类型（与 React Flow 兼容）
- */
-interface FlowNode {
-  id: string
-  type?: string
-  position: { x: number; y: number }
-  data?: Record<string, unknown>
-}
-
-interface FlowEdge {
-  id: string
-  source: string
-  target: string
-  sourceHandle?: string
-  targetHandle?: string
-  data?: Record<string, unknown>
-}
-
-/**
  * 草稿数据输入类型
+ * 直接取自 draftStorage.saveDraft 的参数类型，避免与存储层定义漂移
  */
-interface DraftInput {
-  name?: string
-  nodes?: FlowNode[]
-  edges?: FlowEdge[]
-  variables?: Array<{
-    name: string
-    type: string
-    defaultValue?: unknown
-  }>
-  metadata?: {
-    createdBy?: string
-    description?: string
-  }
-}
+type DraftInput = Parameters<typeof draftStorage.saveDraft>[1]
 
 /**
  * useWorkflowDraft Hook
