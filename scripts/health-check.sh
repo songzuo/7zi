@@ -18,7 +18,7 @@ REPORT_DIR="${WORKSPACE_DIR}/logs/health-check"
 REPORT_FILE="${REPORT_DIR}/health-check-$(date +%Y%m%d-%H%M%S).log"
 ALERT_THRESHOLD_DISK=90      # 磁盘使用率告警阈值 (%)
 ALERT_THRESHOLD_MEMORY=90    # 内存使用率告警阈值 (%)
-SERVER_IP="165.99.43.61"      # 7zi.com 服务器 IP
+SERVER_IP="198.44.179.155"      # 7zi.com 服务器 IP
 SERVER_URL="https://7zi.com"  # 网站URL
 
 # 创建报告目录
@@ -112,13 +112,13 @@ check_website_access() {
 check_nginx() {
     log "INFO" "=== 检查 Nginx 服务状态 ==="
 
-    if ! sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "systemctl is-active nginx" &>/dev/null; then
+    if ! sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "systemctl is-active nginx" &>/dev/null; then
         record_check "FAIL" "Nginx服务" "无法连接或未运行"
         return
     fi
 
     local nginx_status
-    nginx_status=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "systemctl is-active nginx" 2>&1)
+    nginx_status=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "systemctl is-active nginx" 2>&1)
 
     if [ "$nginx_status" = "active" ]; then
         record_check "PASS" "Nginx服务" "运行中"
@@ -129,7 +129,7 @@ check_nginx() {
 
     # 检查 Nginx 配置
     local nginx_config
-    nginx_config=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "nginx -t 2>&1" | grep -c "successful")
+    nginx_config=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "nginx -t 2>&1" | grep -c "successful")
 
     if [ "$nginx_config" -gt 0 ]; then
         record_check "PASS" "Nginx配置" "有效"
@@ -139,7 +139,7 @@ check_nginx() {
 
     # 检查 Nginx 进程数
     local nginx_processes
-    nginx_processes=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "ps aux | grep 'nginx: master' | grep -v grep | wc -l" 2>&1)
+    nginx_processes=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "ps aux | grep 'nginx: master' | grep -v grep | wc -l" 2>&1)
 
     if [ "$nginx_processes" -gt 0 ]; then
         record_check "PASS" "Nginx进程" "$nginx_processes 个主进程"
@@ -162,7 +162,7 @@ check_pm2() {
 
     # 检查远程服务器上的 PM2
     local pm2_list
-    pm2_list=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "pm2 list 2>&1" || echo "")
+    pm2_list=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "pm2 list 2>&1" || echo "")
 
     if [ -z "$pm2_list" ]; then
         record_check "FAIL" "PM2" "无法获取进程列表"
@@ -192,7 +192,7 @@ check_pm2() {
 
     # 检查进程重启次数
     local pm2_restarts
-    pm2_restarts=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "pm2 jlist 2>/dev/null | jq -r '[.[].pm2_env.restart_time] | add' 2>/dev/null" || echo "0")
+    pm2_restarts=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "pm2 jlist 2>/dev/null | jq -r '[.[].pm2_env.restart_time] | add' 2>/dev/null" || echo "0")
 
     if [ "$pm2_restarts" -lt 10 ]; then
         record_check "PASS" "PM2重启" "总重启次数: $pm2_restarts"
@@ -209,14 +209,14 @@ check_docker() {
     log "INFO" "=== 检查 Docker 容器状态 ==="
 
     # 检查 Docker 是否运行
-    if ! sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "docker ps &>/dev/null"; then
+    if ! sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "docker ps &>/dev/null"; then
         record_check "WARN" "Docker" "Docker 未运行或未安装"
         return
     fi
 
     # 检查运行的容器数
     local docker_running
-    docker_running=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "docker ps -q | wc -l" 2>&1)
+    docker_running=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "docker ps -q | wc -l" 2>&1)
 
     if [ "$docker_running" -gt 0 ]; then
         record_check "PASS" "Docker容器" "$docker_running 个运行中"
@@ -226,7 +226,7 @@ check_docker() {
 
     # 检查是否有异常退出的容器
     local docker_exited
-    docker_exited=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "docker ps -a --filter 'status=exited' -q | wc -l" 2>&1)
+    docker_exited=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "docker ps -a --filter 'status=exited' -q | wc -l" 2>&1)
 
     if [ "$docker_exited" -eq 0 ]; then
         record_check "PASS" "Docker状态" "无异常退出容器"
@@ -236,7 +236,7 @@ check_docker() {
 
     # 检查 Docker 磁盘使用
     local docker_disk_usage
-    docker_disk_usage=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "docker system df --format '{{.Size}}' 2>&1 | head -1" || echo "")
+    docker_disk_usage=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "docker system df --format '{{.Size}}' 2>&1 | head -1" || echo "")
 
     if [ -n "$docker_disk_usage" ]; then
         record_check "INFO" "Docker磁盘" "使用量: $docker_disk_usage"
@@ -252,7 +252,7 @@ check_disk() {
 
     # 获取根分区使用率
     local disk_usage
-    disk_usage=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "df -h / | awk 'NR==2 {print \$5}' | tr -d '%'" 2>&1)
+    disk_usage=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "df -h / | awk 'NR==2 {print \$5}' | tr -d '%'" 2>&1)
 
     if [ -z "$disk_usage" ]; then
         record_check "FAIL" "磁盘检查" "无法获取磁盘使用率"
@@ -269,7 +269,7 @@ check_disk() {
 
     # 获取 inode 使用情况
     local inode_usage
-    inode_usage=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "df -i / | awk 'NR==2 {print \$5}' | tr -d '%'" 2>&1)
+    inode_usage=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "df -i / | awk 'NR==2 {print \$5}' | tr -d '%'" 2>&1)
 
     if [ -n "$inode_usage" ] && [ "$inode_usage" -lt 90 ]; then
         record_check "PASS" "Inode空间" "使用率: ${inode_usage}%"
@@ -290,7 +290,7 @@ check_memory() {
     local mem_available
     local mem_usage_percent
 
-    mem_info=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "free | awk 'NR==2 {print \$2,\$7}'" 2>&1)
+    mem_info=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "free | awk 'NR==2 {print \$2,\$7}'" 2>&1)
 
     if [ -z "$mem_info" ]; then
         record_check "FAIL" "内存检查" "无法获取内存信息"
@@ -311,7 +311,7 @@ check_memory() {
 
     # 检查 Swap 使用
     local swap_usage
-    swap_usage=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "free | awk 'NR==3 {print \$3,\$2}' | awk '{if(\$2!=0) print (\$1*100/\$2); else print 0}'" 2>&1)
+    swap_usage=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "free | awk 'NR==3 {print \$3,\$2}' | awk '{if(\$2!=0) print (\$1*100/\$2); else print 0}'" 2>&1)
 
     if [ -n "$swap_usage" ]; then
         swap_usage_percent=$(echo "$swap_usage" | awk '{printf "%.0f", $1}')
@@ -333,7 +333,7 @@ check_load() {
     log "INFO" "=== 检查系统负载 ==="
 
     local load_info
-    load_info=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "uptime | awk -F'load average:' '{print \$2}'" 2>&1 | xargs)
+    load_info=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "uptime | awk -F'load average:' '{print \$2}'" 2>&1 | xargs)
 
     if [ -z "$load_info" ]; then
         record_check "FAIL" "系统负载" "无法获取负载信息"
@@ -348,7 +348,7 @@ check_load() {
     load_1min=$(echo $load_info | awk '{print $1}' | cut -d',' -f1)
     load_5min=$(echo $load_info | awk '{print $2}' | cut -d',' -f1)
     load_15min=$(echo $load_info | awk '{print $3}')
-    cpu_cores=$(sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "nproc" 2>&1)
+    cpu_cores=$(sshpass -p "${SSH_PASSWORD:?需设置 SSH_PASSWORD 环境变量}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${SERVER_IP} "nproc" 2>&1)
 
     load_1min_int=$(echo "$load_1min" | awk '{printf "%.0f", $1}')
 

@@ -21,9 +21,9 @@ PROJECT_NAME="7zi-frontend"
 
 # 服务器配置
 SERVER_HOST="7zi.com"
-SERVER_IP="165.99.43.61"
+SERVER_IP="198.44.179.155"
 SERVER_USER="root"
-SERVER_PASS='ge20993344$ZZ'
+SERVER_PASS="${SSH_PASSWORD:-}"
 
 # 路径配置
 DEPLOY_PATH="/opt/7zi-frontend"
