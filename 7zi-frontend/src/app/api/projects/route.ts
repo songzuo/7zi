@@ -252,14 +252,14 @@ class ProjectController {
 
     // 检查权限（资源级别）
     const permissionContext: PermissionContext = {
-      userId: user.id,
+      userId: ctx.user.id,
       resourceOwnerId: project.ownerId,
       resourceId: projectId,
       resourceType: ResourceType.PROJECT,
     }
 
     // 如果是项目所有者或超级管理员，允许更新
-    if (project.ownerId === user.id || user.roles.some(r => r.level >= 100)) {
+    if (project.ownerId === ctx.user.id || ctx.user.roles.some(r => r.level >= 100)) {
       const updatedProject = {
         ...project,
         ...(updates as Partial<Project>),
@@ -273,7 +273,7 @@ class ProjectController {
 
     // 否则检查是否有 project:manage 权限
     const permissionCheck = canAccessResource(
-      user,
+      ctx.user,
       ResourceType.PROJECT,
       ActionType.UPDATE,
       permissionContext
@@ -310,14 +310,14 @@ class ProjectController {
 
     // 检查权限（资源级别）
     const permissionContext: PermissionContext = {
-      userId: user.id,
+      userId: ctx.user.id,
       resourceOwnerId: project.ownerId,
       resourceId: projectId,
       resourceType: ResourceType.PROJECT,
     }
 
     // 如果是项目所有者或超级管理员，允许删除
-    if (project.ownerId === user.id || user.roles.some(r => r.level >= 100)) {
+    if (project.ownerId === ctx.user.id || ctx.user.roles.some(r => r.level >= 100)) {
       delete projects[projectId]
 
       return createSuccessResponse({
@@ -327,7 +327,7 @@ class ProjectController {
 
     // 否则检查是否有 project:delete 权限
     const permissionCheck = canAccessResource(
-      user,
+      ctx.user,
       ResourceType.PROJECT,
       ActionType.DELETE,
       permissionContext
@@ -389,20 +389,20 @@ class ProjectController {
 
     // 检查项目读取权限
     const permissionContext: PermissionContext = {
-      userId: user.id,
+      userId: ctx.user.id,
       resourceOwnerId: project.ownerId,
       resourceId: projectId,
       resourceType: ResourceType.PROJECT,
     }
 
     // 项目所有者或管理员可以读取
-    if (project.ownerId === user.id || user.roles.some(r => r.level >= 100)) {
+    if (project.ownerId === ctx.user.id || ctx.user.roles.some(r => r.level >= 100)) {
       return createSuccessResponse(project)
     }
 
     // 否则检查是否有 project:read 权限
     const permissionCheck = canAccessResource(
-      user,
+      ctx.user,
       ResourceType.PROJECT,
       ActionType.READ,
       permissionContext

@@ -65,6 +65,32 @@ const SENSITIVE_FIELDS = [
   'private_key',
 ]
 
+/**
+ * 将任意捕获值规范化为 Error 实例，便于统一提取 name/message/stack
+ */
+function toError(value: unknown): Error {
+  if (value instanceof Error) {
+    return value
+  }
+  if (typeof value === 'string') {
+    return new Error(value)
+  }
+  if (value && typeof value === 'object') {
+    const obj = value as { name?: unknown; message?: unknown; stack?: unknown }
+    const err = new Error(
+      typeof obj.message === 'string' ? obj.message : JSON.stringify(value)
+    )
+    if (typeof obj.name === 'string') {
+      err.name = obj.name
+    }
+    if (typeof obj.stack === 'string') {
+      err.stack = obj.stack
+    }
+    return err
+  }
+  return new Error(String(value))
+}
+
 function sanitizeData(data: unknown): unknown {
   if (typeof data !== 'object' || data === null) {
     return data
@@ -106,18 +132,18 @@ export class Logger {
   private formatMessage(
     level: LogLevel,
     message: string,
-    data?: Record<string, unknown>,
-    error?: Error
+    data?: unknown,
+    error?: unknown
   ): string | object {
     const timestamp = new Date().toISOString()
     const logData = this.config.sanitizeSensitiveData ? sanitizeData(data) : data
 
-    const errorInfo = error
+    const errorInfo = error !== undefined
       ? {
           error: {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
+            name: toError(error).name,
+            message: toError(error).message,
+            stack: toError(error).stack,
           },
         }
       : {}
@@ -151,10 +177,11 @@ export class Logger {
       parts.push(JSON.stringify(logData, null, 2))
     }
 
-    if (error) {
-      parts.push(`\nError: ${error.message}`)
-      if (error.stack) {
-        parts.push(`\nStack: ${error.stack}`)
+    if (error !== undefined) {
+      const normalizedError = toError(error)
+      parts.push(`\nError: ${normalizedError.message}`)
+      if (normalizedError.stack) {
+        parts.push(`\nStack: ${normalizedError.stack}`)
       }
     }
 
@@ -164,8 +191,8 @@ export class Logger {
   private async log(
     level: LogLevel,
     message: string,
-    data?: Record<string, unknown>,
-    error?: Error
+    data?: unknown,
+    error?: unknown
   ): Promise<void> {
     if (!this.shouldLog(level)) {
       return
@@ -206,23 +233,23 @@ export class Logger {
     }
   }
 
-  debug(message: string, data?: Record<string, unknown>): void {
+  debug(message: string, data?: unknown): void {
     this.log('debug', message, data)
   }
 
-  info(message: string, data?: Record<string, unknown>): void {
+  info(message: string, data?: unknown): void {
     this.log('info', message, data)
   }
 
-  warn(message: string, data?: Record<string, unknown>): void {
+  warn(message: string, data?: unknown): void {
     this.log('warn', message, data)
   }
 
-  error(message: string, error?: Error, data?: Record<string, unknown>): void {
+  error(message: string, error?: unknown, data?: unknown): void {
     this.log('error', message, data, error)
   }
 
-  fatal(message: string, error?: Error, data?: Record<string, unknown>): void {
+  fatal(message: string, error?: unknown, data?: unknown): void {
     this.log('fatal', message, data, error)
   }
 

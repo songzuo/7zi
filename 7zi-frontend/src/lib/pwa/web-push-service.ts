@@ -44,10 +44,27 @@ export interface PushNotificationPayload {
 /**
  * Web Push Service
  */
+/**
+ * 浏览器原生 PushSubscription（与本文件导出的 JSON 序列化接口区分）
+ */
+type NativePushSubscription = globalThis.PushSubscription
+
+/**
+ * 将原生 PushSubscription 转换为可 JSON 序列化的结构
+ */
+function toSerializableSubscription(subscription: NativePushSubscription): PushSubscription {
+  const raw =
+    typeof subscription.toJSON === 'function' ? subscription.toJSON() : undefined
+  if (raw && typeof raw === 'object' && 'endpoint' in (raw as object)) {
+    return raw as unknown as PushSubscription
+  }
+  return subscription as unknown as PushSubscription
+}
+
 export class WebPushService {
   private static instance: WebPushService
   private swRegistration: ServiceWorkerRegistration | null = null
-  private subscription: PushSubscription | null = null
+  private subscription: NativePushSubscription | null = null
 
   private constructor() {}
 
@@ -139,20 +156,21 @@ export class WebPushService {
       // Check if already subscribed
       if (this.subscription) {
         logger.debug('Already subscribed to push notifications')
-        return this.subscription.toJSON() as PushSubscription
+        return toSerializableSubscription(this.subscription)
       }
 
       // Convert VAPID key to Uint8Array
       const convertedVapidKey = this.urlBase64ToUint8Array(applicationServerKey)
 
       // Subscribe
-      this.subscription = await this.swRegistration.pushManager.subscribe({
+      const nativeSubscription = await this.swRegistration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: convertedVapidKey,
+        applicationServerKey: convertedVapidKey as BufferSource,
       })
+      this.subscription = nativeSubscription
 
       logger.debug('Successfully subscribed to push notifications')
-      return this.subscription.toJSON() as PushSubscription
+      return toSerializableSubscription(nativeSubscription)
     } catch (error) {
       logger.error('Failed to subscribe to push notifications:', error)
       return null
@@ -184,10 +202,10 @@ export class WebPushService {
   }
 
   /**
-   * Get current subscription
+   * Get current subscription (serializable JSON 形式)
    */
   getSubscription(): PushSubscription | null {
-    return this.subscription
+    return this.subscription ? toSerializableSubscription(this.subscription) : null
   }
 
   /**
@@ -210,7 +228,6 @@ export class WebPushService {
         body: payload.body,
         icon: payload.icon || '/icons/icon-192x192.png',
         badge: payload.badge || '/icons/icon-72x72.png',
-        image: payload.image,
         data: payload.data,
         actions: payload.actions,
         vibrate: payload.vibrate || [200, 100, 200],
@@ -218,7 +235,9 @@ export class WebPushService {
         requireInteraction: payload.requireInteraction || false,
         silent: payload.silent || false,
         timestamp: payload.timestamp || Date.now(),
-      })
+        // 'image' 并非所有浏览器的 NotificationOptions 标准字段，单独透传
+        ...(payload.image ? { image: payload.image } : {}),
+      } as NotificationOptions & { image?: string })
     } catch (error) {
       logger.error('Failed to show local notification:', error)
     }
