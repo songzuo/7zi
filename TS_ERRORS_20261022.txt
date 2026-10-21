@@ -1,0 +1,64 @@
+src/app/api/notifications/__tests__/route.test.ts(321,63): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Notification'.
+src/app/api/notifications/__tests__/route.test.ts(347,63): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Notification'.
+src/app/api/notifications/__tests__/route.test.ts(497,63): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Notification'.
+src/app/api/notifications/enhanced/__tests__/route.test.ts(339,69): error TS2345: Argument of type '{ success: false; error: string; }' is not assignable to parameter of type '{ success: boolean; notificationId: string; emailSent: boolean; error?: string | undefined; }'.
+src/components/WorkflowEditor/__tests__/Toolbar.test.tsx(33,35): error TS2352: Conversion of type '{ nodes: never[]; edges: never[]; }' to type 'WorkflowDefinition' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/components/WorkflowEditor/__tests__/templates.test.ts(134,44): error TS2345: Argument of type 'import("/root/.openclaw/workspace/7zi-frontend/src/components/WorkflowEditor/templates").WorkflowTemplate[]' is not assignable to parameter of type 'WorkflowTemplate[]'.
+src/components/WorkflowEditor/__tests__/workflow-store.test.ts(496,38): error TS2345: Argument of type '{ type: string; severity: string; message: string; }[]' is not assignable to parameter of type '{ id: string; message: string; }[]'.
+src/components/WorkflowEditor/__tests__/workflow-store.test.ts(514,36): error TS2345: Argument of type '{ instance: { id: string; workflowId: string; status: "running"; startTime: number; progress: { total: number; completed: number; failed: number; }; }; nodeStates: {}; }' is not assignable to parameter of type '{ status: string; result?: unknown; }'.
+src/components/performance/__tests__/LazyLoadImage.test.tsx(45,49): error TS2345: Argument of type '(callback: IntersectionObserverCallback) => { observe: Mock<Procedure>; unobserve: Mock<Procedure>; disconnect: Mock<Procedure>; }' is not assignable to parameter of type '() => { observe: Mock<Procedure>; unobserve: Mock<Procedure>; disconnect: Mock<Procedure>; }'.
+src/components/performance/__tests__/LazyLoadImage.test.tsx(64,7): error TS2554: Expected 2 arguments, but got 1.
+src/components/ui/RichTextEditor/__tests__/RichTextEditor.test.tsx(317,7): error TS2322: Type 'Mock<() => { theme: string; systemTheme: string; setTheme: Mock<Procedure>; }>' is not assignable to type '(<T>(item: T, deep?: false | undefined) => MaybeMocked<T>) & (<T>(item: T, deep: true) => MaybeMockedDeep<T>) & (<T>(item: T, options: { partial?: false | undefined; deep?: false | undefined; }) => MaybeMocked<...>) & (<T>(item: T, options: { ...; }) => MaybeMockedDeep<...>) & (<T>(item: T, options: { ...; }) => May...'.
+src/contexts/__tests__/PermissionContext.test.tsx(26,43): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/contexts/__tests__/PermissionContext.test.tsx(28,40): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/hooks/__tests__/useWebhooks.test.ts(150,70): error TS2345: Argument of type '{ name: string; url: string; eventType: "workflow.completed"; }' is not assignable to parameter of type 'CreateWebhookInput'.
+src/hooks/__tests__/useWebhooks.test.ts(170,51): error TS2345: Argument of type '{ name: string; url: string; eventType: "workflow.completed"; }' is not assignable to parameter of type 'CreateWebhookInput'.
+src/hooks/__tests__/useWebhooks.test.ts(345,16): error TS2322: Type 'string' is not assignable to type 'undefined'.
+src/lib/__tests__/api-rate-limit.test.ts(109,11): error TS2739: Type 'Response' is missing the following properties from type 'NextResponse<unknown>': cookies, [INTERNALS]
+src/lib/__tests__/api-rate-limit.test.ts(158,11): error TS2739: Type 'Response' is missing the following properties from type 'NextResponse<unknown>': cookies, [INTERNALS]
+src/lib/__tests__/api-rate-limit.test.ts(277,11): error TS2739: Type 'Response' is missing the following properties from type 'NextResponse<unknown>': cookies, [INTERNALS]
+src/lib/__tests__/permissions.test.ts(42,3): error TS2322: Type '{ id: string; username: string; email: string; role?: UserRole | undefined; permissions?: Permission[] | undefined; createdAt?: Date | undefined; updatedAt?: Date | undefined; }' is not assignable to type 'User'.
+src/lib/__tests__/permissions.test.ts(900,25): error TS2352: Conversion of type '{ id: string; roleIds: never[]; roles: never[]; }' to type 'UserWithRoles' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/lib/__tests__/socket.test.ts(44,58): error TS2345: Argument of type 'Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>' is not assignable to parameter of type 'SocketIOServer'.
+src/lib/__tests__/socket.test.ts(47,66): error TS2345: Argument of type '() => void' is not assignable to parameter of type '(httpServer: unknown) => Promise<void>'.
+src/lib/__tests__/socket.test.ts(90,60): error TS2345: Argument of type 'Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>' is not assignable to parameter of type 'SocketIOServer'.
+src/lib/__tests__/validation-schemas-security.test.ts(402,55): error TS2322: Type '{ path: string[]; message: string; code: "invalid_string"; }' is not assignable to type 'ZodIssue'.
+src/lib/__tests__/websocket-compression.test.ts(137,9): error TS2349: This expression is not callable.
+src/lib/__tests__/websocket-manager-enhanced.test.ts(73,7): error TS2322: Type 'Mock<() => void>' is not assignable to type '(() => Socket<DefaultEventsMap, DefaultEventsMap>) | undefined'.
+src/lib/ai/dialogue/__tests__/EnhancedIntentAnalyzer.test.ts(360,56): error TS2345: Argument of type '{ dialogueId: string; currentTopic: string; topicHistory: never[]; turns: { id: string; userId: string; content: string; timestamp: number; turnNumber: number; intent: IntentCategory; }[]; globalContext: {}; userPreferences: { ...; }; state: "clarifying"; }' is not assignable to parameter of type 'DialogueContext'.
+src/lib/ai/dialogue/__tests__/MultiTurnDialogueManager.test.ts(355,33): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+src/lib/ai/dialogue/__tests__/MultiTurnDialogueManager.test.ts(364,57): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+src/lib/ai/dialogue/__tests__/SentimentAnalyzer.test.ts(320,54): error TS2345: Argument of type '{ dialogueId: string; currentTopic: string; topicHistory: never[]; turns: { id: string; userId: string; content: string; timestamp: number; turnNumber: number; sentiment: { label: SentimentLabel; confidence: number; intensity: number; }; }[]; globalContext: {}; userPreferences: { ...; }; state: "active"; }' is not assignable to parameter of type 'DialogueContext'.
+src/lib/ai/dialogue/__tests__/integration.test.ts(134,14): error TS18047: 'stats' is possibly 'null'.
+src/lib/ai/dialogue/__tests__/integration.test.ts(135,14): error TS18047: 'stats' is possibly 'null'.
+src/lib/alerting/__tests__/MultiChannelNotifications.test.ts(54,35): error TS2345: Argument of type '{ webhookUrl: undefined; type: "slack"; channel?: string; username?: string; iconUrl?: string; iconEmoji?: string; }' is not assignable to parameter of type 'ChannelConfig'.
+src/lib/audio/__tests__/STTRouter.test.ts(181,14): error TS2532: Object is possibly 'undefined'.
+src/lib/audio/__tests__/STTRouter.test.ts(211,14): error TS2532: Object is possibly 'undefined'.
+src/lib/audio/__tests__/STTRouter.test.ts(279,7): error TS2552: Cannot find name 'mockSpeechRecognition'. Did you mean 'MockSpeechRecognitionImpl'?
+src/lib/audio/__tests__/WhisperClient.test.ts(166,14): error TS2532: Object is possibly 'undefined'.
+src/lib/audio/__tests__/WhisperClient.test.ts(167,14): error TS2532: Object is possibly 'undefined'.
+src/lib/db/__tests__/draft-storage.test.ts(199,45): error TS18046: 'd.data' is of type 'unknown'.
+src/lib/db/__tests__/draft-storage.test.ts(589,14): error TS18046: 'draft.data' is of type 'unknown'.
+src/lib/db/__tests__/draft-storage.test.ts(700,14): error TS18046: 'draft.data' is of type 'unknown'.
+src/lib/error-reporting/__tests__/error-log-history.test.ts(20,20): error TS2554: Expected 0-1 arguments, but got 2.
+src/lib/error-reporting/__tests__/error-log-history.test.ts(128,105): error TS2353: Object literal may only specify known properties, and 'timestamp' does not exist in type 'Omit<ErrorLogEntry, "id" | "timestamp" | "resolved">'.
+src/lib/error-reporting/__tests__/error-log-history.test.ts(129,106): error TS2353: Object literal may only specify known properties, and 'timestamp' does not exist in type 'Omit<ErrorLogEntry, "id" | "timestamp" | "resolved">'.
+src/lib/error-reporting/__tests__/error-log-history.test.ts(130,104): error TS2353: Object literal may only specify known properties, and 'timestamp' does not exist in type 'Omit<ErrorLogEntry, "id" | "timestamp" | "resolved">'.
+src/lib/error-reporting/__tests__/global-error-handler.test.ts(9,23): error TS2554: Expected 0-1 arguments, but got 2.
+src/lib/error-reporting/__tests__/global-error-handler.test.ts(19,29): error TS2554: Expected 0-1 arguments, but got 2.
+src/lib/error-reporting/__tests__/global-error-handler.test.ts(33,31): error TS2554: Expected 0-1 arguments, but got 2.
+src/lib/error-reporting/__tests__/retry.test.ts(6,86): error TS2614: Module '"../retry"' has no exported member 'DEFAULT_RETRYABLE_ERRORS'. Did you mean to use 'import DEFAULT_RETRYABLE_ERRORS from "../retry"' instead?
+src/lib/execution/__tests__/execution-storage.test.ts(67,19): error TS2339: Property 'transaction' does not exist on type '{ createObjectStore: Mock<Procedure>; objectStoreNames: { contains: Mock<Procedure>; }; }'.
+src/lib/execution/__tests__/execution-storage.test.ts(120,15): error TS2339: Property 'ExecutionStatus' does not exist on type 'typeof import("/root/.openclaw/workspace/7zi-frontend/src/lib/execution/execution-storage")'.
+src/lib/execution/__tests__/execution-storage.test.ts(122,23): error TS2749: 'ExecutionStatus' refers to a value, but is being used as a type here. Did you mean 'typeof ExecutionStatus'?
+src/lib/performance/budget-control/budget.test.ts(267,43): error TS2345: Argument of type '{ budgets: { timings: { metric: string; budget: number; tolerance: number; unit: string; }[]; }[]; }' is not assignable to parameter of type 'Partial<PerformanceBudgetConfig>'.
+src/lib/reporting/__tests__/report-generator.test.ts(214,29): error TS2345: Argument of type '"custom"' is not assignable to parameter of type 'ReportType'.
+src/lib/reporting/__tests__/report-generator.test.ts(217,50): error TS2367: This comparison appears to be unintentional because the types 'ReportType' and '"custom"' have no overlap.
+src/lib/security/headers.test.ts(223,48): error TS2345: Argument of type '{ geolocation: string; microphone: string; camera: string; }' is not assignable to parameter of type 'PermissionsPolicyConfig'.
+src/lib/security/headers.test.ts(234,48): error TS2345: Argument of type '{ autoplay: string; }' is not assignable to parameter of type 'PermissionsPolicyConfig'.
+src/lib/security/headers.test.ts(252,48): error TS2345: Argument of type '{ payment: string; }' is not assignable to parameter of type 'PermissionsPolicyConfig'.
+src/lib/services/__tests__/notification.test.ts(240,45): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number | bigint'.
+src/lib/storage/__tests__/execution-state-storage.test.ts(311,9): error TS2345: Argument of type '{ id: string; workflowId: string; status: "running"; startTime: number; progress: { total: number; completed: number; failed: number; }; variables: ({ name: string; value: string; type: string; defaultValue?: undefined; } | { ...; })[]; }' is not assignable to parameter of type 'WorkflowInstance'.
+src/lib/validation/__tests__/async-validators.test.ts(50,40): error TS2345: Argument of type '{ country: string; }' is not assignable to parameter of type 'ValidationContext'.
+src/lib/webhook/__tests__/webhook.test.ts(309,9): error TS2322: Type 'Mock<() => Promise<unknown>>' is not assignable to type '{ (input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>; (input: string | Request | URL, init?: RequestInit | undefined): Promise<...>; }'.
+src/lib/workflow/__tests__/replay-engine.test.ts(30,5): error TS2741: Property 'type' is missing in type '{}' but required in type 'TriggerConfig'.

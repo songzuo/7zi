@@ -32,7 +32,7 @@ import {
   type UserWithRoles,
   type PermissionContext,
 } from '../permissions'
-import type { User } from '../auth'
+import { UserRole, type User } from '../auth'
 
 /**
  * ==================== 测试辅助函数 ====================
@@ -43,6 +43,10 @@ function createMockUser(overrides: Partial<User> = {}): User {
     id: 'user-1',
     email: 'test@example.com',
     username: 'testuser',
+    role: UserRole.USER,
+    permissions: [],
+    createdAt: new Date('2024-01-01T00:00:00.000Z'),
+    updatedAt: new Date('2024-01-01T00:00:00.000Z'),
     ...overrides,
   }
 }
@@ -897,7 +901,7 @@ describe('createPermissionMiddleware', () => {
 
 describe('Boundary Cases', () => {
   it('应该处理无效的用户对象', () => {
-    const invalidUser = { id: '', roleIds: [], roles: [] } as UserWithRoles
+    const invalidUser = createUserWithRoles(createMockUser({ id: '' }), [])
     expect(hasPermission(invalidUser, 'project:read')).toBe(false)
     expect(getUserMaxLevel(invalidUser)).toBe(0)
   })

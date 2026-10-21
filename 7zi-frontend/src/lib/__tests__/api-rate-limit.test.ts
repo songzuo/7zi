@@ -95,7 +95,7 @@ describe('API Rate Limit Integration', () => {
         return new NextResponse(JSON.stringify({ success: true }), { status: 200 })
       })
 
-      let blockedResponse: NextResponse | null = null
+      let blockedResponse: Response | null = null
 
       // Make 7 requests to trigger rate limit
       for (let i = 0; i < 7; i++) {
@@ -144,7 +144,7 @@ describe('API Rate Limit Integration', () => {
         return new NextResponse(JSON.stringify({ success: true }), { status: 200 })
       })
 
-      let blockedResponse: NextResponse | null = null
+      let blockedResponse: Response | null = null
 
       // Make 12 requests to trigger rate limit
       for (let i = 0; i < 12; i++) {
@@ -263,7 +263,7 @@ describe('API Rate Limit Integration', () => {
         return new NextResponse(JSON.stringify({ success: true }), { status: 200 })
       })
 
-      let blockedResponse: NextResponse | null = null
+      let blockedResponse: Response | null = null
 
       // Make 2 requests
       for (let i = 0; i < 2; i++) {
