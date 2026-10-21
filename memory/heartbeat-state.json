@@ -1,38 +1,24 @@
 {
   "lastChecks": {
-    "调度器运行": "2026-10-19 03:44 UTC",
+    "调度器运行": "2026-10-21 08:02 UTC",
+    "gateway状态": "2026-10-21 08:02 UTC",
     "email": null,
     "calendar": null,
     "weather": null,
     "memory-maintenance": "2026-10-19 03:44 UTC",
     "api-status-check": "2026-10-19 03:44 UTC"
   },
-  "activeTasks": {
-    "调度时间": "2026-10-19 03:44 UTC",
-    "任务列表": [],
-    "总数": 0,
-    "状态": "已完成"
+  "gateway状态": {
+    "服务": "openclaw-gateway.service",
+    "状态": "✅ active (running)",
+    "PID": 1169,
+    "运行时间": "2天+",
+    "openclaw-node.service": "✅ inactive (关闭，无冲突)"
   },
-  "开发任务": {
-    "完成的任务": [
-      "文档归档 - 3个报告移动到 docs/reports/2026-10/",
-      "Git 提交 - b3304a0c6 (报告+配置)",
-      "Git 提交 - 40b26c4d6 (日志)"
-    ],
-    "push状态": "✅ 已推送到 origin/main"
+  "最近错误": {
+    "SIGTERM": "exec命令超时终止，非网关崩溃",
+    "ad模块": "子代理任务失败，非关键"
   },
-  "api状态": {
-    "阻塞开始": "约2026-05-02",
-    "持续时间": "200+ 小时",
-    "错误类型": "Invalid token (HTTP 401)",
-    "提供商": {
-      "MiniMax": "❌ 需确认状态",
-      "volcengine": "❌ rate limit/401",
-      "glm-4.7": "❌ token过期"
-    },
-    "子代理": "已暂停"
-  },
-  "gateway状态": "正常",
   "生产环境": {
     "7zi.com": "✅ 正常",
     "PM2 nextjs": "✅ online",
