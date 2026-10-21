@@ -105,10 +105,10 @@ const PRIORITY_COLORS: Record<NotificationPriority, string> = {
  */
 export function NotificationCenter({ userId }: { userId?: string }) {
   const {
-    notifications,
-    groups,
+    notifications: rawNotifications,
+    groups: rawGroups,
     unreadCount,
-    stats,
+    stats: rawStats,
     preferences,
     loading,
     error,
@@ -120,6 +120,13 @@ export function NotificationCenter({ userId }: { userId?: string }) {
     cleanupExpired,
     savePreferences,
   } = useNotificationCenter(userId)
+
+  // 调用侧类型收敛：用本地等价类型承接上游返回值。
+  // 上游 `NotificationGroup` / `NotificationStats` 的导入来源不稳定，
+  // 一旦退化为 any，`Object.entries(stats.byType)` 的计数会被推断为 unknown。
+  const notifications: LocalNotification[] = rawNotifications
+  const groups: LocalNotificationGroup[] = rawGroups
+  const stats: LocalNotificationStats | null = rawStats
 
   const [view, setView] = useState<'list' | 'groups'>('list')
   const [filterType, setFilterType] = useState<NotificationType | 'all'>('all')
@@ -542,13 +549,16 @@ export function NotificationBadge({ userId }: { userId?: string }) {
 export function NotificationPopup({ userId }: { userId?: string }) {
   // useNotifications 只提供列表/加载状态；操作与未读数分别来自
   // useNotificationActions 与 useUnreadCount
-  const { notifications } = useNotifications({
+  const { notifications: rawNotifications } = useNotifications({
     userId,
     read: false,
     limit: 5,
   })
   const { count: unreadCount } = useUnreadCount(userId)
   const { markAsRead, deleteNotification } = useNotificationActions()
+
+  // 调用侧类型收敛：保证 notification.type / priority 可用于索引 Record
+  const notifications: LocalNotification[] = rawNotifications
 
   const [isOpen, setIsOpen] = useState(false)
 
