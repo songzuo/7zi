@@ -9,7 +9,8 @@
  *
  *   - production + missing secret  -> console.error('[FATAL] ...') + exit(1)
  *   - non-production + missing     -> console.warn + insecure dev fallback key
- *   - secret shorter than 64 chars -> console.warn (does NOT exit)
+ *   - production + short secret    -> console.error('[ERROR] ...') + exit(1)
+ *   - non-production + short secret-> console.warn (does NOT exit)
  *
  * @param {object}  [options]
  * @param {object}  [options.env]      environment to read (default: process.env)
@@ -43,6 +44,14 @@ function getJWTSecret(options = {}) {
   }
 
   if (secret.length < MIN_SECRET_LENGTH) {
+    if (isProduction) {
+      logger.error(
+        `[ERROR] JWT_SECRET is too short (${secret.length} chars). Minimum ${MIN_SECRET_LENGTH} chars recommended for HS256.`
+      )
+      exit(1)
+      // process.exit() terminates, but keep a return for injected/mock exits.
+      return undefined
+    }
     logger.warn(
       `[WARN] JWT_SECRET is too short (${secret.length} chars). Minimum ${MIN_SECRET_LENGTH} recommended for HS256.`
     )

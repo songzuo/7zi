@@ -71,6 +71,21 @@ describe('production guard: JWT_SECRET required', () => {
     expect(result.stdout).not.toMatch(/WebSocket Server Started/)
   })
 
+  test('exits with code 1 when JWT_SECRET is too short in production', async () => {
+    // 回归：短密钥在生产环境必须 FATAL 退出（旧 websocket-service 目录的更严行为）
+    const result = await runServer({
+      NODE_ENV: 'production',
+      PORT: '0',
+      JWT_SECRET: 'too-short-secret',
+    })
+
+    expect(result.timedOut).toBe(false)
+    expect(result.code).toBe(1)
+    expect(result.stderr).toMatch(/\[ERROR\] JWT_SECRET is too short/)
+    // Must not have started listening
+    expect(result.stdout).not.toMatch(/WebSocket Server Started/)
+  })
+
   test('starts normally in production when a strong JWT_SECRET is provided', async () => {
     const result = await runServer({
       NODE_ENV: 'production',

@@ -22,20 +22,41 @@
     "automation"
   ],
   "jest": {
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/__tests__/**/*.test.js"
-    ],
-    "collectCoverageFrom": [
-      "websocket/lib/**/*.js"
-    ],
-    "coverageDirectory": "<rootDir>/coverage",
-    "coverageThreshold": {
-      "global": {
-        "lines": 60
+    "projects": [
+      {
+        "displayName": "websocket",
+        "rootDir": "/root/.openclaw/workspace/7zi-backend",
+        "testEnvironment": "node",
+        "testMatch": [
+          "<rootDir>/websocket/__tests__/**/*.test.js"
+        ],
+        "collectCoverageFrom": [
+          "websocket/lib/**/*.js"
+        ],
+        "coverageDirectory": "/tmp/covtest/ws",
+        "coverageThreshold": {
+          "global": {
+            "lines": 60
+          }
+        },
+        "testTimeout": 20000
+      },
+      {
+        "displayName": "workflow-engine",
+        "rootDir": "/root/.openclaw/workspace/workflow-engine/backend",
+        "testEnvironment": "node",
+        "collectCoverageFrom": [
+          "src/engine/**/*.js"
+        ],
+        "coverageDirectory": "/tmp/covtest/wf",
+        "coverageThreshold": {
+          "global": {
+            "lines": 60
+          }
+        },
+        "testTimeout": 20000
       }
-    },
-    "testTimeout": 20000
+    ]
   },
   "author": "7zi Team",
   "license": "MIT",
