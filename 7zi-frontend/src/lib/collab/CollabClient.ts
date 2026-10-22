@@ -353,7 +353,7 @@ export class CollabClient {
         }
         break
 
-      case 'doc:update':
+      case 'doc:update': {
         const updatePayload = message.payload as { nodeId: string; changes: Partial<NodeData> }
         this.updateLocalNode(updatePayload.nodeId, updatePayload.changes)
         this.emit({
@@ -362,8 +362,9 @@ export class CollabClient {
           timestamp: message.timestamp,
         })
         break
+      }
 
-      case 'doc:delete':
+      case 'doc:delete': {
         const deletePayload = message.payload as { nodeId: string }
         this.document.delete(deletePayload.nodeId)
         this.emit({
@@ -372,8 +373,9 @@ export class CollabClient {
           timestamp: message.timestamp,
         })
         break
+      }
 
-      case 'sync:response':
+      case 'sync:response': {
         const syncPayload = message.payload as {
           nodes: NodeData[]
           users: CollabUser[]
@@ -390,8 +392,9 @@ export class CollabClient {
         syncPayload.locks.forEach((lock) => this.locks.set(lock.nodeId, lock))
         this.emit({ type: 'sync:complete', timestamp: Date.now() })
         break
+      }
 
-      case 'error':
+      case 'error': {
         const errorPayload = message.payload as { code?: string; message?: string }
         this.emit({
           type: 'error',
@@ -399,6 +402,7 @@ export class CollabClient {
           timestamp: message.timestamp,
         })
         break
+      }
     }
   }
 

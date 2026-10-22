@@ -249,19 +249,21 @@ export class DialogueTemplateEngine {
         }
         return false
 
-      case 'topic':
+      case 'topic': {
         const currentTopic = context.currentTopic
         if (Array.isArray(condition.value)) {
           return condition.value.includes(currentTopic)
         }
         return this.compareValues(currentTopic, condition.value, condition.operator)
+      }
 
-      case 'state':
+      case 'state': {
         const currentState = context.state
         if (Array.isArray(condition.value)) {
           return condition.value.includes(currentState)
         }
         return this.compareValues(currentState, condition.value, condition.operator)
+      }
 
       default:
         return true

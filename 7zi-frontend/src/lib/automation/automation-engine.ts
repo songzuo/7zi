@@ -675,12 +675,13 @@ export class AutomationEngine {
     let timeout: NodeJS.Timeout | null = null
 
     switch (scheduleType) {
-      case 'interval':
+      case 'interval': {
         const intervalMs = Number(value)
         timeout = setInterval(execute, intervalMs) as unknown as NodeJS.Timeout
         break
+      }
 
-      case 'cron':
+      case 'cron': {
         // 简化的 cron 实现（生产环境应使用专业库如 node-cron）
         const cronDelay = this.calculateNextCronDelay(config.value as string, timezone)
         timeout = setTimeout(() => {
@@ -689,14 +690,16 @@ export class AutomationEngine {
           this.setupSchedule(ruleId, config)
         }, cronDelay)
         break
+      }
 
-      case 'once':
+      case 'once': {
         const executeTime = new Date(String(value)).getTime()
         const delay = executeTime - Date.now()
         if (delay > 0) {
           timeout = setTimeout(execute, delay)
         }
         break
+      }
     }
 
     if (timeout) {
