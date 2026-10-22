@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Providers } from '@/components/Providers'
 import { ClientAnalytics } from '@/components/ClientAnalytics'
@@ -112,13 +113,17 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const requestHeaders = await headers()
+  const locale = requestHeaders.get('x-locale')
+  const documentLanguage = locale === 'zh' ? 'zh-CN' : locale || 'zh-CN'
+
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang={documentLanguage} suppressHydrationWarning>
       <head>
         {/* PWA Meta Tags for iOS */}
         <meta name="apple-mobile-web-app-capable" content="yes" />

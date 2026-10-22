@@ -236,9 +236,11 @@ function handleI18nRouting(request: NextRequest): NextResponse {
     return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url))
   }
 
-  // Set locale header for pages to use
-  const response = NextResponse.next()
+  // Forward the validated locale so server layouts can set the document language.
   const locale = pathname.split('/')[1] as Locale
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-locale', locale)
+  const response = NextResponse.next({ request: { headers: requestHeaders } })
   response.headers.set('x-locale', locale)
   return response
 }

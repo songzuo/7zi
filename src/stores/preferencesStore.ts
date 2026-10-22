@@ -15,6 +15,7 @@
  */
 
 import { create } from 'zustand'
+import { useShallow } from 'zustand/react/shallow'
 import { devtools, persist } from 'zustand/middleware'
 
 // ============================================================================
@@ -244,32 +245,38 @@ export const useSettings = () => usePreferencesStore(s => s.settings)
  * 获取主题设置
  */
 export const useTheme = () => {
-  return usePreferencesStore(state => ({
-    theme: state.settings.theme,
-    setTheme: state.setTheme,
-    toggleTheme: state.toggleTheme,
-    isDark: state.isDark,
-  }))
+  return usePreferencesStore(
+    useShallow(state => ({
+      theme: state.settings.theme,
+      setTheme: state.setTheme,
+      toggleTheme: state.toggleTheme,
+      isDark: state.isDark,
+    }))
+  )
 }
 
 /**
  * 获取语言设置
  */
 export const useLanguage = () => {
-  return usePreferencesStore(state => ({
-    language: state.settings.language,
-    setLanguage: state.setLanguage,
-  }))
+  return usePreferencesStore(
+    useShallow(state => ({
+      language: state.settings.language,
+      setLanguage: state.setLanguage,
+    }))
+  )
 }
 
 /**
  * 获取通知偏好
  */
 export const useNotificationPreferences = () => {
-  return usePreferencesStore(state => ({
-    notifications: state.settings.notifications,
-    setNotifications: state.setNotifications,
-  }))
+  return usePreferencesStore(
+    useShallow(state => ({
+      notifications: state.settings.notifications,
+      setNotifications: state.setNotifications,
+    }))
+  )
 }
 
 /**
