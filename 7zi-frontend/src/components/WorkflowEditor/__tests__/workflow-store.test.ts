@@ -14,6 +14,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type { Node, Edge } from 'reactflow'
+import type { ExecutionState, ValidationError } from '../types'
 
 // 注意：我们直接测试 store 的逻辑，不使用 mock zustand
 // 因为 zustand 的实现细节对于测试来说不是必要的
@@ -28,8 +29,8 @@ interface WorkflowState {
   edges: Edge[]
   selectedNodeId: string | null
   selectedEdgeId: string | null
-  validationErrors: Array<{ id: string; message: string }>
-  executionState: { status: string; result?: unknown } | null
+  validationErrors: ValidationError[]
+  executionState: ExecutionState | null
   isExecuting: boolean
   isDirty: boolean
   isSaving: boolean
@@ -47,8 +48,8 @@ interface WorkflowStore extends WorkflowState {
   removeEdge: (id: string) => void
   selectNode: (id: string | null) => void
   selectEdge: (id: string | null) => void
-  setValidationErrors: (errors: Array<{ id: string; message: string }>) => void
-  setExecutionState: (state: { status: string; result?: unknown }) => void
+  setValidationErrors: (errors: ValidationError[]) => void
+  setExecutionState: (state: ExecutionState) => void
   clearExecutionState: () => void
   reset: () => void
   markDirty: () => void
@@ -171,11 +172,11 @@ describe('WorkflowStore', () => {
       state.selectedNodeId = null
     }
 
-    state.setValidationErrors = (errors: Array<{ id: string; message: string }>) => {
+    state.setValidationErrors = (errors: ValidationError[]) => {
       state.validationErrors = errors
     }
 
-    state.setExecutionState = (executionState: { status: string; result?: unknown }) => {
+    state.setExecutionState = (executionState: ExecutionState) => {
       state.executionState = executionState
     }
 
@@ -491,7 +492,9 @@ describe('WorkflowStore', () => {
 
   describe('验证状态测试', () => {
     it('应该能够设置验证错误', () => {
-      const errors = [{ type: 'structure', severity: 'error', message: 'Missing Start node' }]
+      const errors: ValidationError[] = [
+        { type: 'structure', severity: 'error', message: 'Missing Start node' },
+      ]
 
       getState().setValidationErrors(errors)
       expect(getState().validationErrors).toEqual(errors)

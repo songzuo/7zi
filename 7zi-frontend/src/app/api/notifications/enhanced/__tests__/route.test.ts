@@ -338,6 +338,8 @@ describe('Enhanced Notifications API - POST /api/notifications/enhanced', () => 
   it('应该处理发送失败', async () => {
     vi.mocked(enhancedNotificationService.notify).mockResolvedValue({
       success: false,
+      notificationId: '',
+      emailSent: false,
       error: 'Failed to send email',
     })
 

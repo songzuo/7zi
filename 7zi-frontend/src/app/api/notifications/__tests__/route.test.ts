@@ -60,7 +60,29 @@ vi.mock('@/lib/cache', () => ({
 import { GET, POST } from '../route'
 import { notificationService } from '@/lib/services/notification'
 import { authenticateJWT } from '@/lib/auth/api-auth'
-import { NotificationType, NotificationPriority } from '@/lib/services/notification'
+import {
+  NotificationType,
+  NotificationPriority,
+  type Notification,
+} from '@/lib/services/notification'
+
+/**
+ * 构造符合 notification-types 中 Notification 接口的测试数据。
+ * 避免与 DOM lib 中的全局 Notification 类型冲突。
+ */
+function createMockNotification(overrides: Partial<Notification> = {}): Notification {
+  return {
+    id: 'notif-123',
+    userId: 'user-1',
+    type: NotificationType.INFO,
+    priority: NotificationPriority.MEDIUM,
+    title: 'Test',
+    message: 'Test message',
+    read: false,
+    createdAt: Date.now(),
+    ...overrides,
+  }
+}
 
 describe('Notifications API Route', () => {
   beforeEach(() => {
@@ -318,15 +340,12 @@ describe('Notifications API Route', () => {
 
   describe('POST /api/notifications', () => {
     it('should create notification with required fields', async () => {
-      vi.mocked(notificationService.notify).mockReturnValue({
-      id: 'notif-123',
-      userId: 'user-1',
-      type: 'info',
-      title: 'Test',
-      message: 'Test message',
-      read: false,
-      createdAt: new Date(),
-    } as unknown as Notification)
+      vi.mocked(notificationService.notify).mockReturnValue(
+        createMockNotification({
+          title: 'Test',
+          message: 'Test message',
+        })
+      )
 
       const request = new NextRequest('http://localhost/api/notifications', {
         method: 'POST',
@@ -352,15 +371,12 @@ describe('Notifications API Route', () => {
     })
 
     it('should create notification with all fields', async () => {
-      vi.mocked(notificationService.notify).mockReturnValue({
-      id: 'notif-123',
-      userId: 'user-1',
-      type: 'info',
-      title: 'Test',
-      message: 'Test message',
-      read: false,
-      createdAt: new Date(),
-    } as unknown as Notification)
+      vi.mocked(notificationService.notify).mockReturnValue(
+        createMockNotification({
+          title: 'Test',
+          message: 'Test message',
+        })
+      )
 
       const request = new NextRequest('http://localhost/api/notifications', {
         method: 'POST',
@@ -510,15 +526,12 @@ describe('Notifications API Route', () => {
     })
 
     it('should create notification with expiresAt', async () => {
-      vi.mocked(notificationService.notify).mockReturnValue({
-      id: 'notif-123',
-      userId: 'user-1',
-      type: 'info',
-      title: 'Test',
-      message: 'Test message',
-      read: false,
-      createdAt: new Date(),
-    } as unknown as Notification)
+      vi.mocked(notificationService.notify).mockReturnValue(
+        createMockNotification({
+          title: 'Test',
+          message: 'Test message',
+        })
+      )
 
       const expiresAt = new Date('2025-12-31T23:59:59Z').toISOString()
       const request = new NextRequest('http://localhost/api/notifications', {

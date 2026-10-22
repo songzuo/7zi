@@ -130,7 +130,18 @@ describe('Workflow Template System', () => {
 
   describe('Template Validation', () => {
     it('should pass all validations', () => {
-      const templates = listTemplates()
+      // templateValidation 使用自己的宽松结构（config: Record<string, unknown>），
+      // 这里把模板节点 config 展开为普通对象以对齐该结构。
+      const templates = listTemplates().map((template) => ({
+        ...template,
+        workflow: {
+          ...template.workflow,
+          nodes: template.workflow.nodes.map((node) => ({
+            ...node,
+            config: { ...node.config },
+          })),
+        },
+      }))
       const result = runTemplateValidation(templates)
       expect(result.success).toBe(true)
       expect(result.errors).toHaveLength(0)

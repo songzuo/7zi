@@ -11,12 +11,22 @@ import { RichTextEditor } from '../RichTextEditor'
 import React from 'react'
 
 // Mock ThemeContext
-vi.mock('@/shared/context/ThemeContext', () => ({
-  useTheme: () => ({
+type MockThemeContextValue = {
+  theme: 'light' | 'dark' | 'system'
+  setTheme: (theme: 'light' | 'dark' | 'system') => void
+  resolvedTheme: 'light' | 'dark'
+}
+
+const { useThemeMock } = vi.hoisted(() => ({
+  useThemeMock: vi.fn<() => MockThemeContextValue>(() => ({
     theme: 'light',
     setTheme: vi.fn(),
     resolvedTheme: 'light',
-  }),
+  })),
+}))
+
+vi.mock('@/shared/context/ThemeContext', () => ({
+  useTheme: useThemeMock,
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 
@@ -24,7 +34,14 @@ vi.mock('@/shared/context/ThemeContext', () => ({
 const mockExecCommand = vi.fn()
 beforeEach(() => {
   mockExecCommand.mockClear()
-   
+
+  // 重置主题 mock，避免单个用例的返回值泄漏到其它用例
+  useThemeMock.mockReturnValue({
+    theme: 'light',
+    setTheme: vi.fn(),
+    resolvedTheme: 'light',
+  })
+
   document.execCommand = mockExecCommand
 })
 
@@ -314,16 +331,20 @@ describe('RichTextEditor', () => {
   // 深色模式测试
   describe('Dark Mode', () => {
     it('应该正确应用深色模式类名', () => {
-      vi.mocked = vi.fn(() => ({
-        theme: 'dark',
-        systemTheme: 'dark',
-        setTheme: vi.fn(),
-      }))
-
       // 注意：实际深色模式测试需要 ThemeProvider
-      // 这里只测试组件能正确渲染
+      // 这里通过覆盖 useTheme mock 的返回值来验证深色模式下的渲染
+      useThemeMock.mockReturnValue({
+        theme: 'dark',
+        resolvedTheme: 'dark',
+        setTheme: vi.fn(),
+      })
+
       const { container } = render(<RichTextEditor />)
       expect(container).toBeDefined()
+
+      // 深色模式下编辑器文本应使用深色主题的样式类
+      const editor = screen.getByRole('textbox')
+      expect(editor.className).toContain('text-gray-100')
     })
   })
 
