@@ -20,6 +20,12 @@ export const GA4Events = {
 
 export type GA4EventName = (typeof GA4Events)[keyof typeof GA4Events]
 
+/**
+ * Signature of the global gtag.js dataLayer function.
+ * gtag accepts a command string plus an arbitrary payload.
+ */
+type GtagFunction = (...args: unknown[]) => unknown
+
 interface GA4EventParams {
   [key: string]: string | number | boolean | undefined
 }
@@ -62,7 +68,7 @@ export function trackEvent(eventName: string, params?: GA4EventParams): void {
 
   try {
     // Push to dataLayer for gtag to pick up
-    const gtag = (window as Window & { gtag?: Function }).gtag
+    const gtag = (window as Window & { gtag?: GtagFunction }).gtag
     if (gtag && typeof gtag === 'function') {
       gtag('event', eventName, params)
       logger.debug('[GA4] Event tracked', { eventName, params })
@@ -110,7 +116,7 @@ export function setUserProperties(properties: GA4UserProperties): void {
   if (!isGA4Configured()) return
 
   try {
-    const gtag = (window as Window & { gtag?: Function }).gtag
+    const gtag = (window as Window & { gtag?: GtagFunction }).gtag
     if (gtag && typeof gtag === 'function') {
       gtag('set', 'user_properties', properties)
     }
@@ -127,7 +133,7 @@ export function identifyUser(userId: string, properties?: GA4UserProperties): vo
   if (!isGA4Configured()) return
 
   try {
-    const gtag = (window as Window & { gtag?: Function }).gtag
+    const gtag = (window as Window & { gtag?: GtagFunction }).gtag
     if (gtag && typeof gtag === 'function') {
       gtag('set', { user_id: userId })
       if (properties) {
@@ -148,7 +154,7 @@ export function clearUser(): void {
   if (!isGA4Configured()) return
 
   try {
-    const gtag = (window as Window & { gtag?: Function }).gtag
+    const gtag = (window as Window & { gtag?: GtagFunction }).gtag
     if (gtag && typeof gtag === 'function') {
       // Clear user ID by setting to undefined
       gtag('set', { user_id: undefined })

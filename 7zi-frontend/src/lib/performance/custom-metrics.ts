@@ -247,7 +247,7 @@ export class CustomMetricsTracker {
     if (typeof window === 'undefined') return
 
     const checkMemory = () => {
-      // @ts-ignore - performance.memory is non-standard but supported in Chrome
+      // performance.memory is non-standard but supported in Chrome (declared in src/types/global.d.ts)
       if (performance.memory) {
         const memory = performance.memory
         this.metrics.memoryUsage = memory.usedJSHeapSize / 1024 / 1024 // MB

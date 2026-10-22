@@ -97,7 +97,10 @@ export class EvomapGateway {
     try {
       const stored = localStorage.getItem(this.getStorageKey(key))
       if (stored) return safeParseJSON(stored, defaultValue)
-    } catch {}
+    } catch (error) {
+      // 读取本地存储失败（隐私模式/配额限制等）时静默回退到默认值
+      void error
+    }
     return defaultValue
   }
 
@@ -105,7 +108,10 @@ export class EvomapGateway {
     if (!isClient) return
     try {
       localStorage.setItem(this.getStorageKey(key), JSON.stringify(value))
-    } catch {}
+    } catch (error) {
+      // 写入本地存储失败（隐私模式/配额限制等）时静默忽略
+      void error
+    }
   }
 
   private loadOrCreateNodeId(): string {

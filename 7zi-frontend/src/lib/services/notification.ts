@@ -59,7 +59,7 @@ export class NotificationService {
     // Lazy load socket.io - this code path only runs on the server at runtime
     // Use eval to prevent bundler from analyzing the import
     try {
-      // @ts-ignore - Dynamic server-only import
+      // Dynamic server-only import via eval to prevent the bundler from analyzing it
       const { Server } = await (0, eval)('import("socket.io")')
       this.io = new Server(httpServer, {
         cors: { origin: '*', methods: ['GET', 'POST'] },

@@ -74,7 +74,7 @@ export function safeAssign<T extends object>(target: T, ...sources: Partial<T>[]
 
     for (const key in source) {
       // 跳过原型链属性和危险键
-      if (source.hasOwnProperty(key) && !['__proto__', 'constructor', 'prototype'].includes(key)) {
+      if (Object.prototype.hasOwnProperty.call(source, key) && !['__proto__', 'constructor', 'prototype'].includes(key)) {
         ;(result as T)[key] = source[key] as T[Extract<keyof T, string>]
       }
     }

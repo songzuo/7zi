@@ -100,7 +100,7 @@ export class ErrorMonitor {
 
     // 3. 调用栈第一帧
     if (error.stack) {
-      const match = error.stack.match(/at\s+(.+?)\s+[\<(]/)
+      const match = error.stack.match(/at\s+(.+?)\s+[(<]/)
       if (match && match[1]) {
         const fnName = match[1].toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
         if (fnName && fnName.length > 1 && fnName.length < 50) {

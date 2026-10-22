@@ -237,8 +237,12 @@ export class GlobalErrorHandler {
     }
 
     // 覆盖 XMLHttpRequest
-    // 注意：覆写后的 this 是 XMLHttpRequest 实例，不是处理器，需捕获实例引用
-    const handler = this
+    // 注意：覆写后的 this 是 XMLHttpRequest 实例，不是处理器，需通过箭头函数捕获处理器引用
+    const reportNetworkError = (
+      options: Parameters<GlobalErrorHandler['reportNetworkError']>[0]
+    ): void => {
+      this.reportNetworkError(options)
+    }
     const originalXHROpen = XMLHttpRequest.prototype.open
     const originalXHRSend = XMLHttpRequest.prototype.send
 
@@ -254,7 +258,7 @@ export class GlobalErrorHandler {
     XMLHttpRequest.prototype.send = function (...args: unknown[]) {
       this.addEventListener('error', () => {
         const url = (this as XMLHttpRequest & { _url?: string })._url
-        handler.reportNetworkError({
+        reportNetworkError({
           type: 'NetworkError',
           message: 'XMLHttpRequest failed',
           severity: 'high',
@@ -270,7 +274,7 @@ export class GlobalErrorHandler {
       this.addEventListener('load', () => {
         const url = (this as XMLHttpRequest & { _url?: string })._url
         if (this.status >= 400) {
-          handler.reportNetworkError({
+          reportNetworkError({
             type: 'NetworkError',
             message: `HTTP ${this.status}: ${this.statusText}`,
             severity: this.status >= 500 ? 'high' : 'medium',
