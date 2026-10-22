@@ -72,6 +72,7 @@ describe('WebSocketManager - Enhanced Tests', () => {
       onAny,
       disconnect: vi.fn(() => {
         mockSocket.connected = false
+        return mockSocket as Socket
       }),
       off: vi.fn(),
     }

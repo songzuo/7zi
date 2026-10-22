@@ -6,6 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
+import { z } from 'zod'
 import {
   usernameSchema,
   passwordSchema,
@@ -396,8 +397,9 @@ describe('Validation Schemas - Security Tests', () => {
       const mockIssue = {
         path: ['username'],
         message: '用户名格式无效',
-        code: 'invalid_string' as const,
-      }
+        code: z.ZodIssueCode.invalid_string,
+        validation: 'email' as const,
+      } satisfies z.ZodIssue
 
       const response = createValidationErrorResponse([mockIssue])
 

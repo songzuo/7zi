@@ -118,7 +118,7 @@ describe('MessageCompressor', () => {
   })
 
   describe('batching', () => {
-    it('should batch messages correctly', done => {
+    it('should batch messages correctly', async () => {
       const receivedBatches: Array<{ event: string; data: unknown }>[] = []
 
       const callback = (batch: Array<{ event: string; data: unknown }>) => {
@@ -131,11 +131,12 @@ describe('MessageCompressor', () => {
       }
 
       // 等待批处理完成
-      setTimeout(() => {
-        // 应该有至少一个批次
-        expect(receivedBatches.length).toBeGreaterThan(0)
-        done()
-      }, 100)
+      await new Promise<void>((resolve) => {
+        setTimeout(() => resolve(), 100)
+      })
+
+      // 应该有至少一个批次
+      expect(receivedBatches.length).toBeGreaterThan(0)
     })
   })
 
