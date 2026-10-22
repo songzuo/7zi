@@ -5,7 +5,7 @@
  * 增强型性能监控仪表板组件 - 包含 Web Vitals 和性能预算
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   AlertTriangle,
   Clock,
@@ -61,36 +61,7 @@ export function EnhancedPerformanceDashboard({
   const [isLoading, setIsLoading] = useState(true)
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
 
-  // Initialize monitoring on mount
-  useEffect(() => {
-    // Initialize Web Vitals monitoring
-    webVitalsMonitor.init()
-    // Initialize custom metrics tracking
-    customMetricsTracker.init()
-
-    // Load initial data
-    loadMetrics()
-
-    // Set up periodic check for budget alarms
-    const budgetCheckInterval = setInterval(() => {
-      checkBudgetAlarms()
-    }, 30000) // Check every 30 seconds
-
-    return () => clearInterval(budgetCheckInterval)
-  }, [])
-
-  // Auto refresh
-  useEffect(() => {
-    if (!refreshInterval) return
-
-    const interval = setInterval(() => {
-      loadMetrics()
-    }, refreshInterval)
-
-    return () => clearInterval(interval)
-  }, [refreshInterval])
-
-  const loadMetrics = async () => {
+  const loadMetrics = useCallback(async () => {
     setIsLoading(true)
     try {
       const [metricsData, alarmsData] = await Promise.all([
@@ -120,17 +91,47 @@ export function EnhancedPerformanceDashboard({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  const checkBudgetAlarms = async () => {
+  const checkBudgetAlarms = useCallback(async () => {
     const triggeredAlarms = await budgetManager.checkAlarms(
       webVitalsMonitor.getMetrics(),
       customMetricsTracker.getMetrics()
     )
     if (triggeredAlarms.length > 0) {
-      setBudgetAlarms([...budgetAlarms, ...triggeredAlarms])
+      // 使用函数式更新，避免闭包捕获旧的 budgetAlarms 状态
+      setBudgetAlarms((prev) => [...prev, ...triggeredAlarms])
     }
-  }
+  }, [])
+
+  // Initialize monitoring on mount
+  useEffect(() => {
+    // Initialize Web Vitals monitoring
+    webVitalsMonitor.init()
+    // Initialize custom metrics tracking
+    customMetricsTracker.init()
+
+    // Load initial data
+    loadMetrics()
+
+    // Set up periodic check for budget alarms
+    const budgetCheckInterval = setInterval(() => {
+      checkBudgetAlarms()
+    }, 30000) // Check every 30 seconds
+
+    return () => clearInterval(budgetCheckInterval)
+  }, [loadMetrics, checkBudgetAlarms])
+
+  // Auto refresh
+  useEffect(() => {
+    if (!refreshInterval) return
+
+    const interval = setInterval(() => {
+      loadMetrics()
+    }, refreshInterval)
+
+    return () => clearInterval(interval)
+  }, [refreshInterval, loadMetrics])
 
   const handleClearData = async () => {
     if (confirm('Are you sure you want to clear all monitoring data?')) {

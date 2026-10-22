@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import TimeRangeSelector from './TimeRangeSelector';
 import StatCard from './StatCard';
 import MetricChart from './MetricChart';
@@ -47,7 +47,7 @@ export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
 
   // Load dashboard data
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -106,12 +106,12 @@ export function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange, config]);
 
   // Load data on mount and when time range changes
   useEffect(() => {
     loadData();
-  }, [timeRange]);
+  }, [loadData]);
 
   // Auto-refresh
   useEffect(() => {
@@ -122,7 +122,7 @@ export function Dashboard() {
 
       return () => clearInterval(interval);
     }
-  }, [config.refreshInterval, timeRange]);
+  }, [config.refreshInterval, loadData]);
 
   // Get stat card data from stats
   const getStatCardData = (metricName: string, aggregation?: string): StatCardData | null => {

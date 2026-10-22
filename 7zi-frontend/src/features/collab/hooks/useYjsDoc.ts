@@ -127,6 +127,10 @@ export function useYjsDoc(options: UseYjsDocOptions): UseYjsDocReturn {
     awarenessStates: new Map(),
   })
 
+  // 最新的连接状态（ref 承载，避免 init effect 因 connectionInfo 变化而重复初始化文档）
+  const connectionStateRef = useRef(connectionInfo.state)
+  connectionStateRef.current = connectionInfo.state
+
   // Initialize document
   useEffect(() => {
     // Initialize Y.Doc placeholder
@@ -141,7 +145,7 @@ export function useYjsDoc(options: UseYjsDocOptions): UseYjsDocReturn {
     setDocState({
       docId,
       isSynced: false,
-      isConnected: connectionInfo.state === 'connected',
+      isConnected: connectionStateRef.current === 'connected',
       pendingUpdates: 0,
     })
 

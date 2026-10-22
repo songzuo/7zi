@@ -244,11 +244,15 @@ export function useCollabCursors(
 
   // Cleanup on unmount
   useEffect(() => {
+    // 在 effect 内复制 ref 引用，避免 cleanup 执行时 ref.current 已变化的隐患
+    // （该 Map 实例本身不会被重新赋值，只做增删，因此复制引用与直接读取等价）
+    const timeouts = cursorTimeoutsRef.current
+
     return () => {
       if (throttleTimerRef.current) {
         clearTimeout(throttleTimerRef.current)
       }
-      cursorTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout))
+      timeouts.forEach((timeout) => clearTimeout(timeout))
     }
   }, [])
 

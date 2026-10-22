@@ -96,32 +96,9 @@ export function useExecutionPersistence(
     stateRef.current = state
   }, [state])
 
-  // 自动加载
-  useEffect(() => {
-    if (autoLoad && executionId) {
-      loadExecution(executionId)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [executionId, autoLoad])
-
-  // 自动保存
-  useEffect(() => {
-    if (autoSaveInterval > 0 && stateRef.current) {
-      autoSaveRef.current = setInterval(() => {
-        if (stateRef.current && stateRef.current.status === 'running') {
-          saveState(stateRef.current).catch(err => {
-            console.error('[useExecutionPersistence] Auto-save failed:', err)
-          })
-        }
-      }, autoSaveInterval)
-    }
-
-    return () => {
-      if (autoSaveRef.current) {
-        clearInterval(autoSaveRef.current)
-      }
-    }
-  }, [autoSaveInterval])
+  // loadExecution / saveState 的最新引用（通过 ref 承载，避免闭包捕获旧函数）
+  const loadExecutionRef = useRef<((id: string) => Promise<void>) | null>(null)
+  const saveStateRef = useRef<((stateUpdate?: Partial<ExecutionStateData>) => Promise<void>) | null>(null)
 
   /**
    * 初始化新执行
@@ -250,6 +227,43 @@ export function useExecutionPersistence(
       throw err
     }
   }, [onError])
+
+  // 同步 loadExecution / saveState 的最新引用，供自动加载与自动保存使用
+  useEffect(() => {
+    loadExecutionRef.current = loadExecution
+  }, [loadExecution])
+
+  useEffect(() => {
+    saveStateRef.current = saveState
+  }, [saveState])
+
+  // 自动加载
+  useEffect(() => {
+    if (autoLoad && executionId) {
+      // 通过 ref 调用最新的 loadExecution，避免闭包捕获旧实现
+      void loadExecutionRef.current?.(executionId)
+    }
+  }, [executionId, autoLoad])
+
+  // 自动保存
+  useEffect(() => {
+    if (autoSaveInterval > 0 && stateRef.current) {
+      autoSaveRef.current = setInterval(() => {
+        if (stateRef.current && stateRef.current.status === 'running') {
+          // 通过 ref 调用最新的 saveState，避免闭包捕获旧实现
+          saveStateRef.current?.(stateRef.current).catch(err => {
+            console.error('[useExecutionPersistence] Auto-save failed:', err)
+          })
+        }
+      }, autoSaveInterval)
+    }
+
+    return () => {
+      if (autoSaveRef.current) {
+        clearInterval(autoSaveRef.current)
+      }
+    }
+  }, [autoSaveInterval])
 
   /**
    * 更新节点状态

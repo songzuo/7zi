@@ -5,7 +5,7 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   analyticsService,
   type TimeRange,
@@ -45,7 +45,8 @@ export function useAnalytics(
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
-  const fetchData = async () => {
+  // 使用 useCallback 稳定化，依赖项完整声明，便于在 effect 中安全引用
+  const fetchData = useCallback(async () => {
     if (!enabled || !workflowId) {
       return
     }
@@ -70,7 +71,7 @@ export function useAnalytics(
     } finally {
       setLoading(false)
     }
-  }
+  }, [enabled, workflowId, timeRange, trendDays])
 
   useEffect(() => {
     fetchData()
@@ -79,7 +80,7 @@ export function useAnalytics(
       const interval = setInterval(fetchData, refetchInterval)
       return () => clearInterval(interval)
     }
-  }, [workflowId, timeRange, trendDays, enabled, refetchInterval])
+  }, [fetchData, refetchInterval])
 
   return {
     stats,
@@ -105,7 +106,7 @@ export function useWorkflowStats(
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!enabled || !workflowId) {
       return
     }
@@ -122,7 +123,7 @@ export function useWorkflowStats(
     } finally {
       setLoading(false)
     }
-  }
+  }, [enabled, workflowId, timeRange])
 
   useEffect(() => {
     fetchData()
@@ -131,7 +132,7 @@ export function useWorkflowStats(
       const interval = setInterval(fetchData, refetchInterval)
       return () => clearInterval(interval)
     }
-  }, [workflowId, timeRange, enabled, refetchInterval])
+  }, [fetchData, refetchInterval])
 
   return { stats, loading, error, refetch: fetchData }
 }
@@ -150,7 +151,7 @@ export function useExecutionTrend(
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!enabled || !workflowId) {
       return
     }
@@ -167,7 +168,7 @@ export function useExecutionTrend(
     } finally {
       setLoading(false)
     }
-  }
+  }, [enabled, workflowId, days])
 
   useEffect(() => {
     fetchData()
@@ -176,7 +177,7 @@ export function useExecutionTrend(
       const interval = setInterval(fetchData, refetchInterval)
       return () => clearInterval(interval)
     }
-  }, [workflowId, days, enabled, refetchInterval])
+  }, [fetchData, refetchInterval])
 
   return { trend, loading, error, refetch: fetchData }
 }

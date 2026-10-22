@@ -223,6 +223,12 @@ export function useRoomWebSocket(
   }, [addMember, removeMember, updateMember, updateRoom, addMessage])
 
   /**
+   * 当前是否处于某个房间中（用布尔值代替对象本身作为依赖，
+   * 避免 currentRoom 对象引用变化导致 effect 重复执行）
+   */
+  const hasCurrentRoom = Boolean(currentRoom)
+
+  /**
    * Auto-connect when current room changes
    */
   useEffect(() => {
@@ -232,7 +238,7 @@ export function useRoomWebSocket(
     if (!manager) return
 
     // If we have a room and user, connect/join
-    if (currentRoom && currentUserId) {
+    if (hasCurrentRoom && currentUserId) {
       // Ensure connected
       if (!manager.isConnected()) {
         manager.connect()
@@ -241,7 +247,7 @@ export function useRoomWebSocket(
       // If no room, disconnect
       manager.disconnect()
     }
-  }, [currentRoom?.id, currentUserId, autoConnect])
+  }, [hasCurrentRoom, currentUserId, autoConnect])
 
   /**
    * Connect action
