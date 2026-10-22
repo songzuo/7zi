@@ -23,7 +23,7 @@ export const test = base.extend<TestFixtures>({
   },
 
   // Mock user data
-  user: async ({}, use) => {
+  user: async (_fixtures, use) => {
     const user: User = {
       id: 'test-user-1',
       username: 'testuser',

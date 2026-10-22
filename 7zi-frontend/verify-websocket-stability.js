@@ -10,7 +10,7 @@
 
 // Import without type checking for direct execution
 const WebSocketManagerModule = require('./src/lib/websocket-manager.ts');
-const { WebSocketManager, ConnectionState } = WebSocketManagerModule;
+const { WebSocketManager } = WebSocketManagerModule;
 
 console.log('=== WebSocket Stability Verification ===\n');
 
@@ -21,9 +21,9 @@ const wsManager = new WebSocketManager({
   autoConnect: false,
 });
 
-let stateChanges: { state: ConnectionState; previous: ConnectionState }[] = [];
+let stateChanges = [];
 
-wsManager.onStateChange((state: ConnectionState, previous: ConnectionState) => {
+wsManager.onStateChange((state, previous) => {
   stateChanges.push({ state, previous });
   console.log(`  State changed: ${previous} → ${state}`);
 });

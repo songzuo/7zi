@@ -61,7 +61,10 @@ if (build.success) {
       const staticSize = execSync('du -sh .next/static 2>/dev/null || echo "N/A"', { cwd: ROOT, encoding: 'utf8' }).trim();
       console.log(`   缓存: ${cacheSize}`);
       console.log(`   静态资源: ${staticSize}`);
-    } catch (e) {}
+    } catch (e) {
+      // 缓存目录可能尚未生成，忽略并继续
+      void e;
+    }
   }
 }
 

@@ -19,7 +19,7 @@
     "build:analyze": "NODE_ENV=production ANALYZE=true next build --turbopack",
     "build:analyze:webpack": "NODE_ENV=production ANALYZE=true USE_WEBPACK=true next build",
     "start": "next start",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern .storybook --ignore-pattern .next --ignore-pattern node_modules --max-warnings 0",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern .storybook --ignore-pattern .next --ignore-pattern node_modules",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -31,7 +31,8 @@
     "test:all": "npm run test && npm run test:e2e",
     "test:ci": "vitest run --reporter=junit --reporter=json",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "lint:strict": "npm run lint -- --max-warnings 0"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",

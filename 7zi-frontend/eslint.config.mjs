@@ -10,6 +10,10 @@ export default [
       "node_modules/**",
       ".next/**",
       "**/node_modules/**",
+      // next-pwa 构建期生成物（非手写源码，不参与 lint）
+      "public/workbox-*.js",
+      "public/sw.js",
+      "public/workbox-*.js.map",
       "typescript-any-fixes.ts",
       "verify-websocket-stability.ts",
       "**/*.test.ts",
@@ -24,9 +28,10 @@ export default [
       "react-hooks": reactHooks,
     },
     rules: {
-      // 仅注册规则定义（源码中的 eslint-disable 注释引用了 exhaustive-deps）。
-      // 不启用 react-hooks v7 的推荐规则集，避免一次性引入 200+ 新错误。
-      "react-hooks/exhaustive-deps": "off",
+      // 启用 exhaustive-deps（warn 级）：源码中已有多处 eslint-disable 注释引用该规则，
+      // 此前规则未注册导致这些注释变成 "Unused eslint-disable directive" 警告，
+      // 且 hook 依赖问题完全不可见。v7 其余推荐规则（rules-of-hooks 等）不启用。
+      "react-hooks/exhaustive-deps": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-require-imports": "off",
