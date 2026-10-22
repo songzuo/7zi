@@ -37,9 +37,14 @@ class MockSpeechRecognitionImpl {
   start = vi.fn()
 }
 
+// 可替换的构造 mock（默认返回 MockSpeechRecognitionImpl 实例）
+const mockSpeechRecognition = vi.fn(() => new MockSpeechRecognitionImpl())
+
 // Assign directly to global without vi.fn wrapper for constructor compatibility
 Object.defineProperty(global.window, 'webkitSpeechRecognition', {
-  value: MockSpeechRecognitionImpl,
+  value: function (this: unknown) {
+    return mockSpeechRecognition()
+  },
   configurable: true,
 })
 
@@ -178,7 +183,7 @@ describe('STTRouter', () => {
       })
 
       expect(result.results).toHaveLength(1)
-      expect(result.results[0].speaker.speakerId).toBe('speaker_1')
+      expect(result.results[0].speaker?.speakerId).toBe('speaker_1')
     })
 
     it('should fallback to regular transcription on diarization error', async () => {
@@ -208,7 +213,7 @@ describe('STTRouter', () => {
 
       expect(result.usedFallback).toBe(true)
       expect(result.results).toHaveLength(1)
-      expect(result.results[0].speaker.speakerId).toBe('speaker_1')
+      expect(result.results[0].speaker?.speakerId).toBe('speaker_1')
     })
   })
 

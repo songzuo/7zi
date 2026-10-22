@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { EnhancedIntentAnalyzer } from '../EnhancedIntentAnalyzer'
-import type { IntentCategory } from '../types'
+import type { DialogueContext, IntentCategory } from '../types'
 
 describe('EnhancedIntentAnalyzer', () => {
   let analyzer: EnhancedIntentAnalyzer
@@ -333,7 +333,7 @@ describe('EnhancedIntentAnalyzer', () => {
 
   describe('上下文增强', () => {
     it('应该考虑对话上下文', () => {
-      const context = {
+      const context: DialogueContext = {
         dialogueId: 'test',
         currentTopic: 'workflow',
         topicHistory: [],

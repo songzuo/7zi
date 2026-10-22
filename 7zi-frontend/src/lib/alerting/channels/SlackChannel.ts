@@ -9,7 +9,7 @@ import {
   NotificationPayload,
   SendResult,
   SlackChannelConfig,
-  ChannelConfig,
+  ChannelConfigInput,
 } from './NotificationChannel';
 
 /**
@@ -90,9 +90,9 @@ export class SlackChannel implements NotificationChannel {
   /**
    * 验证配置
    */
-  validateConfig(config: ChannelConfig): boolean {
+  validateConfig(config: ChannelConfigInput): boolean {
     if (config.type !== 'slack') return false;
-    const slackConfig = config as SlackChannelConfig;
+    const slackConfig = config as Partial<SlackChannelConfig>;
     
     // 验证 webhook URL 格式
     if (!slackConfig.webhookUrl) {

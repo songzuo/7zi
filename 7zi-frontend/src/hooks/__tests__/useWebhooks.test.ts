@@ -12,6 +12,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useWebhooks, useWebhookSubscription, useWebhookLogs, useWebhookEventTypes, useWebhookTest } from '@/hooks/useWebhooks'
+import type { CreateWebhookInput } from '@/lib/webhook/types'
 
 // Mock webhook manager
 const mockSubscription = {
@@ -140,10 +141,10 @@ describe('useWebhooks', () => {
         expect(result.current.subscriptions.length).toBeGreaterThan(0)
       })
 
-      const input = {
+      const input: CreateWebhookInput = {
         name: 'New Webhook',
         url: 'https://example.com/webhook',
-        eventType: 'workflow.completed' as const,
+        events: ['workflow.completed'],
       }
 
       await act(async () => {
@@ -159,10 +160,10 @@ describe('useWebhooks', () => {
         expect(result.current.subscriptions.length).toBeGreaterThan(0)
       })
 
-      const input = {
+      const input: CreateWebhookInput = {
         name: 'New Webhook',
         url: 'https://example.com/webhook',
-        eventType: 'workflow.completed' as const,
+        events: ['workflow.completed'],
       }
 
       await act(async () => {
@@ -335,7 +336,7 @@ describe('useWebhookLogs', () => {
 
   it('should reload logs on filter change', async () => {
     const { result, rerender } = renderHook(({ subId }) => useWebhookLogs(subId), {
-      initialProps: { subId: undefined },
+      initialProps: { subId: undefined as string | undefined },
     })
 
     await waitFor(() => {

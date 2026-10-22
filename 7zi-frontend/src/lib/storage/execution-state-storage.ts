@@ -8,8 +8,26 @@
  * @version 1.12.2
  */
 
-import type { ExecutionState, WorkflowInstance, NodeStatus, NodeExecutionResult } from '@/components/WorkflowEditor/types'
+import type { ExecutionState, WorkflowInstance, NodeStatus, NodeExecutionResult, WorkflowVariable } from '@/components/WorkflowEditor/types'
 import { logger } from '@/lib/logger'
+
+/**
+ * 允许数组形式变量的工作流实例
+ *
+ * 运行时的 `createPersistentState` 同时支持两种 variables 形态：
+ * - 对象格式：`Record<string, WorkflowVariable>`
+ * - 数组格式：`{ name: string, value?: unknown, defaultValue?: unknown }[]`
+ */
+export type WorkflowInstanceLike = Omit<WorkflowInstance, 'variables'> & {
+  variables?:
+    | Record<string, WorkflowVariable>
+    | Array<{
+        name: string
+        value?: unknown
+        defaultValue?: unknown
+        type?: string
+      }>
+}
 
 /**
  * 执行状态存储接口
@@ -103,7 +121,7 @@ export const executionStateStorage = {
   createPersistentState(
     executionId: string,
     workflowId: string,
-    instance: WorkflowInstance,
+    instance: WorkflowInstanceLike,
     currentNodeId: string | null,
     nodeStates: Record<string, { status: NodeStatus; result?: NodeExecutionResult }>
   ): PersistentExecutionState {

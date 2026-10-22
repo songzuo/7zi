@@ -110,7 +110,7 @@ export interface RetryResult<T> {
 /**
  * 默认可重试的错误类型
  */
-const DEFAULT_RETRYABLE_ERRORS = [
+export const DEFAULT_RETRYABLE_ERRORS = [
   'Error',
   'TypeError',
   'RangeError',

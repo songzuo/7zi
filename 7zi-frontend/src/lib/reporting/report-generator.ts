@@ -20,6 +20,12 @@ export type ReportType =
   | 'export'       // 导出报表
 
 /**
+ * 自定义报表类型（可通过 addTemplate 注册）
+ * 保持字面量联合的可辨识性，同时允许运行时注册的自定义类型
+ */
+export type CustomReportType = ReportType | (string & {})
+
+/**
  * 报表配置
  */
 export interface ReportConfig {
@@ -89,7 +95,7 @@ export interface ChartDataset {
  * 报表模板
  */
 interface ReportTemplate {
-  type: ReportType
+  type: CustomReportType
   template: string
   variables: string[]
 }
@@ -222,7 +228,7 @@ const REPORT_TEMPLATES: Record<string, ReportTemplate> = {
  * 报表生成器类
  */
 export class ReportGenerator {
-  private templates: Map<ReportType, ReportTemplate>
+  private templates: Map<CustomReportType, ReportTemplate>
   private defaultOptions: ReportOptions
 
   constructor() {
@@ -614,7 +620,7 @@ export class ReportGenerator {
   /**
    * 获取可用模板
    */
-  getTemplates(): Array<{ type: ReportType; variables: string[] }> {
+  getTemplates(): Array<{ type: CustomReportType; variables: string[] }> {
     return Array.from(this.templates.values()).map(t => ({
       type: t.type,
       variables: t.variables,
@@ -624,7 +630,7 @@ export class ReportGenerator {
   /**
    * 添加自定义模板
    */
-  addTemplate(type: ReportType, template: string, variables: string[]): void {
+  addTemplate(type: CustomReportType, template: string, variables: string[]): void {
     this.templates.set(type, { type, template, variables })
   }
 }

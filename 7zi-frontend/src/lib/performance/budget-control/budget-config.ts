@@ -28,6 +28,22 @@ export interface BudgetConfigOptions {
   validate?: boolean
 }
 
+/**
+ * 待校验的（可能不合法的）配置输入类型
+ * 校验 API 需要接受不完整/非法的配置，以便报告错误
+ */
+export type PerformanceBudgetConfigInput = Omit<
+  Partial<PerformanceBudgetConfig>,
+  'budgets'
+> & {
+  budgets?: Partial<PageBudget>[]
+  enabled?: unknown
+  checkOnBuild?: unknown
+  failOnViolation?: unknown
+  warningThreshold?: unknown
+  errorThreshold?: unknown
+}
+
 export interface BudgetValidationResult {
   valid: boolean
   errors: string[]
@@ -61,7 +77,7 @@ export class BudgetConfigManager {
    * 从 JSON 对象加载配置
    */
   loadFromJSON(
-    json: Partial<PerformanceBudgetConfig>,
+    json: PerformanceBudgetConfigInput,
     options?: { mergeWithDefault?: boolean }
   ): BudgetValidationResult {
     const validation = this.validateConfig(json)
@@ -73,9 +89,9 @@ export class BudgetConfigManager {
     const shouldMerge = options?.mergeWithDefault ?? this.options.mergeWithDefault ?? false
 
     if (shouldMerge) {
-      this.config = this.mergeConfigs(this.config, json)
+      this.config = this.mergeConfigs(this.config, json as Partial<PerformanceBudgetConfig>)
     } else {
-      this.config = { ...this.config, ...json }
+      this.config = { ...this.config, ...(json as Partial<PerformanceBudgetConfig>) }
     }
 
     return validation
@@ -85,7 +101,7 @@ export class BudgetConfigManager {
    * Validate budget configuration
    * 验证预算配置
    */
-  validateConfig(config: Partial<PerformanceBudgetConfig>): BudgetValidationResult {
+  validateConfig(config: PerformanceBudgetConfigInput): BudgetValidationResult {
     const errors: string[] = []
     const warnings: string[] = []
 
@@ -100,7 +116,7 @@ export class BudgetConfigManager {
         errors.push('budgets must be an array')
       } else {
         for (let i = 0; i < config.budgets.length; i++) {
-          const budget = config.budgets[i]
+          const budget = config.budgets[i] as Partial<PageBudget>
           const budgetErrors = this.validatePageBudget(budget, i)
           errors.push(...budgetErrors.errors)
           warnings.push(...budgetErrors.warnings)

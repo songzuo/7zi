@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import LazyLoadImage from '../LazyLoadImage';
 
 // Mock IntersectionObserver
-const mockIntersectionObserver = vi.fn(() => ({
+const mockIntersectionObserver = vi.fn((_callback?: IntersectionObserverCallback) => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
@@ -40,10 +40,12 @@ describe('LazyLoadImage', () => {
 
   it('loads image when in viewport', async () => {
     const mockEntry = { isIntersecting: true };
-    let observerCallback: IntersectionObserverCallback;
+    let observerCallback: IntersectionObserverCallback = () => {};
 
-    mockIntersectionObserver.mockImplementation((callback: IntersectionObserverCallback) => {
-      observerCallback = callback;
+    mockIntersectionObserver.mockImplementation((callback?: IntersectionObserverCallback) => {
+      if (callback) {
+        observerCallback = callback;
+      }
       return {
         observe: vi.fn(),
         unobserve: vi.fn(),
@@ -61,7 +63,7 @@ describe('LazyLoadImage', () => {
 
     // Simulate intersection
     act(() => {
-      observerCallback([mockEntry]);
+      observerCallback([mockEntry as unknown as IntersectionObserverEntry], {} as IntersectionObserver);
     });
 
     await waitFor(() => {

@@ -237,7 +237,7 @@ describe('Notification Service', () => {
 
       expect(filter.startTime).toBeDefined()
       expect(filter.endTime).toBeDefined()
-      expect(filter.startTime).toBeLessThan(filter.endTime)
+      expect(filter.startTime!).toBeLessThan(filter.endTime!)
     })
   })
 

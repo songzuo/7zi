@@ -350,9 +350,10 @@ describe('MultiTurnDialogueManager', () => {
       const exported = manager.exportContext(dialogueId)
 
       expect(exported).toBeDefined()
+      expect(exported).not.toBeNull()
       expect(typeof exported).toBe('string')
 
-      const parsed = JSON.parse(exported)
+      const parsed = JSON.parse(exported!)
       expect(parsed.dialogueId).toBe(dialogueId)
       expect(parsed.turns).toHaveLength(2)
     })
@@ -361,7 +362,7 @@ describe('MultiTurnDialogueManager', () => {
       const exported = manager.exportContext(dialogueId)
       manager.clearDialogueContext(dialogueId)
 
-      const success = manager.importContext(dialogueId, exported)
+      const success = manager.importContext(dialogueId, exported!)
 
       expect(success).toBe(true)
 

@@ -15,6 +15,7 @@ import {
   NodeExecutionStatus,
   TriggerType,
 } from '../replay-engine'
+import type { TriggerConfig } from '../execution-history-store'
 
 describe('WorkflowReplayEngine', () => {
   let engine: WorkflowReplayEngine
@@ -23,16 +24,17 @@ describe('WorkflowReplayEngine', () => {
     executionId: 'exec-1',
     workflowId: 'wf-1',
     workflowName: 'Test Workflow',
+    workflowSnapshot: {
+      nodes: [],
+      edges: [],
+    },
     status: 'completed',
     startTime: 1000,
     endTime: 5000,
-    triggerType: 'manual' as TriggerType,
-    triggerConfig: {},
-    userId: 'user-1',
+    trigger: 'manual' as TriggerType,
+    triggerConfig: { type: 'manual' } satisfies TriggerConfig,
     nodeExecutions: nodeExecs,
-    context: {},
     createdAt: 1000,
-    updatedAt: 5000,
   })
 
   beforeEach(() => {

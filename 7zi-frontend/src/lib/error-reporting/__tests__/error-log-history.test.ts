@@ -17,7 +17,7 @@ Object.defineProperty(globalThis, 'localStorage', {
 })
 
 // Mock logger
-vi.fn('../logger', () => ({
+vi.mock('../logger', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -124,10 +124,9 @@ describe('ErrorLogHistoryService', () => {
 
   describe('query', () => {
     beforeEach(() => {
-      const now = Date.now()
-      service.add({ type: 'ErrorA', message: 'Error A', severity: 'high', category: 'api', context: {}, timestamp: now - 1000 })
-      service.add({ type: 'ErrorB', message: 'Error B', severity: 'medium', category: 'ui', context: {}, timestamp: now - 500 })
-      service.add({ type: 'ErrorC', message: 'Error C', severity: 'low', category: 'api', context: {}, timestamp: now })
+      service.add({ type: 'ErrorA', message: 'Error A', severity: 'high', category: 'api', context: {} })
+      service.add({ type: 'ErrorB', message: 'Error B', severity: 'medium', category: 'ui', context: {} })
+      service.add({ type: 'ErrorC', message: 'Error C', severity: 'low', category: 'api', context: {} })
     })
 
     it('should query by type', () => {

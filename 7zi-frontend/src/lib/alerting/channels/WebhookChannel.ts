@@ -8,7 +8,7 @@ import {
   NotificationPayload,
   SendResult,
   WebhookChannelConfig,
-  ChannelConfig,
+  ChannelConfigInput,
 } from './NotificationChannel';
 
 /**
@@ -45,9 +45,9 @@ export class WebhookChannel implements NotificationChannel {
   /**
    * 验证配置
    */
-  validateConfig(config: ChannelConfig): boolean {
+  validateConfig(config: ChannelConfigInput): boolean {
     if (config.type !== 'webhook') return false;
-    const webhookConfig = config as WebhookChannelConfig;
+    const webhookConfig = config as Partial<WebhookChannelConfig>;
     
     // 验证 URL
     if (!webhookConfig.url) {

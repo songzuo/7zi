@@ -306,8 +306,8 @@ describe('Webhook 系统', () => {
         };
 
         // Mock fetch with timeout
-        global.fetch = vi.fn(() =>
-          new Promise((_, reject) => {
+        global.fetch = vi.fn<typeof fetch>(() =>
+          new Promise<Response>((_, reject) => {
             setTimeout(() => reject(new Error('Timeout')), 100);
           })
         );

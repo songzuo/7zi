@@ -8,7 +8,7 @@ import {
   NotificationPayload,
   SendResult,
   DiscordChannelConfig,
-  ChannelConfig,
+  ChannelConfigInput,
 } from './NotificationChannel';
 
 /**
@@ -80,9 +80,9 @@ export class DiscordChannel implements NotificationChannel {
   /**
    * 验证配置
    */
-  validateConfig(config: ChannelConfig): boolean {
+  validateConfig(config: ChannelConfigInput): boolean {
     if (config.type !== 'discord') return false;
-    const discordConfig = config as DiscordChannelConfig;
+    const discordConfig = config as Partial<DiscordChannelConfig>;
     
     // 验证 webhook URL 格式
     if (!discordConfig.webhookUrl) {

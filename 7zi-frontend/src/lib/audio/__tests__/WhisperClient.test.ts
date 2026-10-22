@@ -163,8 +163,8 @@ describe('WhisperClient', () => {
       })
 
       expect(results).toHaveLength(2)
-      expect(results[0].speaker.speakerId).toBe('speaker_1')
-      expect(results[1].speaker.speakerId).toBe('speaker_2')
+      expect(results[0].speaker?.speakerId).toBe('speaker_1')
+      expect(results[1].speaker?.speakerId).toBe('speaker_2')
     })
   })
 

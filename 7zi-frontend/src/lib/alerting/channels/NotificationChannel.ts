@@ -102,6 +102,11 @@ export interface WebhookChannelConfig {
 }
 
 /**
+ * 渠道配置输入（允许字段缺失，用于配置校验场景）
+ */
+export type ChannelConfigInput = ChannelConfig | Partial<ChannelConfig>;
+
+/**
  * 通知渠道接口
  */
 export interface NotificationChannel {
@@ -120,5 +125,5 @@ export interface NotificationChannel {
    * @param config 渠道配置
    * @returns 是否有效
    */
-  validateConfig(config: ChannelConfig): boolean;
+  validateConfig(config: ChannelConfigInput): boolean;
 }

@@ -12,6 +12,7 @@ import {
   createRetryableAsyncValidator,
   createCachedAsyncValidator,
 } from '../async-validators'
+import type { ValidationContext } from '../types'
 
 describe('Async Validators', () => {
   describe('createAsyncValidator', () => {
@@ -46,7 +47,12 @@ describe('Async Validators', () => {
       const checkFn = vi.fn().mockResolvedValue(true)
       const validator = createAsyncValidator('test', checkFn, 'Validation failed')
 
-      const context = { country: 'US' }
+      const context: ValidationContext = {
+        values: { country: 'US' },
+        fieldName: 'test',
+        fieldNames: ['test'],
+        country: 'US',
+      }
       await validator.validate('test', context)
       expect(checkFn).toHaveBeenCalledWith('test', context)
     })

@@ -318,7 +318,15 @@ describe('Notifications API Route', () => {
 
   describe('POST /api/notifications', () => {
     it('should create notification with required fields', async () => {
-      vi.mocked(notificationService.notify).mockResolvedValue('notif-123')
+      vi.mocked(notificationService.notify).mockReturnValue({
+      id: 'notif-123',
+      userId: 'user-1',
+      type: 'info',
+      title: 'Test',
+      message: 'Test message',
+      read: false,
+      createdAt: new Date(),
+    } as unknown as Notification)
 
       const request = new NextRequest('http://localhost/api/notifications', {
         method: 'POST',
@@ -344,7 +352,15 @@ describe('Notifications API Route', () => {
     })
 
     it('should create notification with all fields', async () => {
-      vi.mocked(notificationService.notify).mockResolvedValue('notif-123')
+      vi.mocked(notificationService.notify).mockReturnValue({
+      id: 'notif-123',
+      userId: 'user-1',
+      type: 'info',
+      title: 'Test',
+      message: 'Test message',
+      read: false,
+      createdAt: new Date(),
+    } as unknown as Notification)
 
       const request = new NextRequest('http://localhost/api/notifications', {
         method: 'POST',
@@ -494,7 +510,15 @@ describe('Notifications API Route', () => {
     })
 
     it('should create notification with expiresAt', async () => {
-      vi.mocked(notificationService.notify).mockResolvedValue('notif-123')
+      vi.mocked(notificationService.notify).mockReturnValue({
+      id: 'notif-123',
+      userId: 'user-1',
+      type: 'info',
+      title: 'Test',
+      message: 'Test message',
+      read: false,
+      createdAt: new Date(),
+    } as unknown as Notification)
 
       const expiresAt = new Date('2025-12-31T23:59:59Z').toISOString()
       const request = new NextRequest('http://localhost/api/notifications', {

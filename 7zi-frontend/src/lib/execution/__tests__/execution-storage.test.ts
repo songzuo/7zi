@@ -27,6 +27,7 @@ const mockIndexedDB = {
 
 const mockIDBDatabase = {
   createObjectStore: vi.fn().mockReturnValue(mockObjectStore),
+  transaction: vi.fn(),
   objectStoreNames: {
     contains: vi.fn().mockReturnValue(false),
   },
@@ -117,7 +118,9 @@ beforeEach(() => {
 describe('Execution Storage', () => {
   describe('Type Definitions', () => {
     it('should define ExecutionStatus types', async () => {
-      const { ExecutionStatus } = await import('../execution-storage')
+      // ExecutionStatus 是纯类型（type alias），运行时不可解构，
+      // 因此这里用静态类型导入 + 动态导入模块以确认模块可用
+      const module = await import('../execution-storage')
 
       const statuses: ExecutionStatus[] = [
         'pending',
@@ -128,6 +131,7 @@ describe('Execution Storage', () => {
         'cancelled',
       ]
 
+      expect(module).toBeDefined()
       expect(statuses).toHaveLength(6)
     })
 
@@ -236,4 +240,4 @@ describe('Integration Tests', () => {
 })
 
 // Type imports
-import type { NodeState, ExecutionStateData } from '../execution-storage'
+import type { NodeState, ExecutionStateData, ExecutionStatus } from '../execution-storage'

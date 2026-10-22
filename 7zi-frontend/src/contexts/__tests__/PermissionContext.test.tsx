@@ -21,11 +21,11 @@ vi.mock('@/contexts/PermissionContext/utils', () => ({
   checkPermission: vi.fn((user, permission) => ({
     allowed: user?.permissions.includes(permission) ?? false,
   })),
-  checkPermissions: vi.fn((user, permissions, options) => {
+  checkPermissions: vi.fn((user, permissions: string[], options) => {
     if (options?.requireAll) {
-      return { allowed: permissions.every(p => user?.permissions.includes(p) ?? false) }
+      return { allowed: permissions.every((p: string) => user?.permissions.includes(p) ?? false) }
     }
-    return { allowed: permissions.some(p => user?.permissions.includes(p) ?? false) }
+    return { allowed: permissions.some((p: string) => user?.permissions.includes(p) ?? false) }
   }),
   checkRole: vi.fn((user, role) => user?.role === role),
   checkIsAdmin: vi.fn((user) => user?.role === Role.ADMIN),

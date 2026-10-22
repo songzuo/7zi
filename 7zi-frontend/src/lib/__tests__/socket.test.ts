@@ -4,7 +4,16 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { Server as HTTPServer } from 'http'
-import { Server as SocketIOServer } from 'socket.io'
+/**
+ * notificationService 内部使用结构化的 SocketIOServer 类型（非 socket.io 的 Server 类），
+ * 这里保持一致，避免类型不匹配
+ */
+type MockSocketIOServer = {
+  on(event: string, listener: (...args: unknown[]) => void): void
+  emit(event: string, data: unknown): void
+  to(room: string): MockSocketIOServer
+  close(): void
+}
 import { initializeSocketIO, getSocketIO } from '../socket'
 import { notificationService } from '../services/notification'
 
@@ -19,7 +28,7 @@ vi.mock('../services/notification', () => ({
 
 describe('Socket.IO Initialization', () => {
   let mockHttpServer: HTTPServer
-  let mockIOServer: SocketIOServer
+  let mockIOServer: MockSocketIOServer
 
   beforeEach(() => {
     // Create mock HTTP server
@@ -35,7 +44,7 @@ describe('Socket.IO Initialization', () => {
       close: vi.fn(),
       to: vi.fn(() => mockIOServer),
       emit: vi.fn(),
-    } as unknown as SocketIOServer
+    } as unknown as MockSocketIOServer
 
     // Clear all mocks
     vi.clearAllMocks()
@@ -44,7 +53,7 @@ describe('Socket.IO Initialization', () => {
     vi.mocked(notificationService.getIO).mockReturnValue(mockIOServer)
 
     // Mock notificationService.initialize
-    vi.mocked(notificationService.initialize).mockImplementation(() => {})
+    vi.mocked(notificationService.initialize).mockImplementation(async () => {})
   })
 
   afterEach(() => {

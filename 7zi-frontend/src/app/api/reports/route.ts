@@ -212,7 +212,7 @@ export async function GET(request: NextRequest) {
 /**
  * 获取模板描述
  */
-function getTemplateDescription(type: ReportType): string {
+function getTemplateDescription(type: ReportType | string): string {
   const descriptions: Record<ReportType, { zh: string; en: string; ja: string }> = {
     summary: {
       zh: '汇总报表 - 提供关键指标的快速概览',
@@ -245,5 +245,5 @@ function getTemplateDescription(type: ReportType): string {
       ja: 'エクスポートレポート - エクスポートとデータ交換に適した形式',
     },
   }
-  return descriptions[type].zh
+  return descriptions[type as ReportType]?.zh ?? ''
 }

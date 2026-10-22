@@ -30,7 +30,13 @@ vi.mock('../WorkflowExporter', () => ({
       }),
       React.createElement('button', {
         'data-testid': 'import-btn',
-        onClick: () => onImport?.({ nodes: [], edges: [] } as WorkflowDefinition),
+        onClick: () =>
+          onImport?.({
+            id: 'workflow-imported',
+            name: 'Imported Workflow',
+            nodes: [],
+            edges: [],
+          }),
       })
     ),
 }))

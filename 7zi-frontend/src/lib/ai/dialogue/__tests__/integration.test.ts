@@ -131,8 +131,9 @@ describe('AIDialogueEnhancementSystem - Integration', () => {
       const stats = system.getDialogueStats(dialogueId)
 
       expect(stats).toBeDefined()
-      expect(stats.totalTurns).toBe(2)
-      expect(stats.coherenceScore).toBeDefined()
+      expect(stats).not.toBeNull()
+      expect(stats!.totalTurns).toBe(2)
+      expect(stats!.coherenceScore).toBeDefined()
     })
   })
 

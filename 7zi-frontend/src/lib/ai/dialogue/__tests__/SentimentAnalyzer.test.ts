@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { SentimentAnalyzer } from '../SentimentAnalyzer'
-import type { SentimentLabel } from '../types'
+import type { DialogueContext, SentimentLabel } from '../types'
 
 describe('SentimentAnalyzer', () => {
   let analyzer: SentimentAnalyzer
@@ -289,7 +289,7 @@ describe('SentimentAnalyzer', () => {
 
   describe('上下文增强', () => {
     it('应该考虑对话上下文', () => {
-      const context = {
+      const context: DialogueContext = {
         dialogueId: 'test',
         currentTopic: 'workflow',
         topicHistory: [],

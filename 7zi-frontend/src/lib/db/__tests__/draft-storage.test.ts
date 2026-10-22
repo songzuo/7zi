@@ -195,7 +195,7 @@ describe('DraftStorage', () => {
       // 等待过期
       await new Promise(resolve => setTimeout(resolve, 10))
 
-      const drafts = await manager.listDrafts('workflow')
+      const drafts = await manager.listDrafts<{ name: string }>('workflow')
       const expiredDraft = drafts.find(d => d.data.name === 'Expired')
 
       expect(expiredDraft).toBeUndefined()
@@ -584,7 +584,7 @@ describe('DraftStorage', () => {
     it('should handle very long data', async () => {
       const longString = 'x'.repeat(10000)
       const draftId = await manager.saveDraft('workflow', { longString })
-      const draft = await manager.loadDraft(draftId)
+      const draft = await manager.loadDraft<{ longString: string }>(draftId)
 
       expect(draft?.data.longString).toHaveLength(10000)
     })
@@ -694,7 +694,7 @@ describe('DraftStorage', () => {
 
       // 创建新的管理器实例
       const newManager = new DraftStorageManager()
-      const draft = await newManager.loadDraft(draftId)
+      const draft = await newManager.loadDraft<{ name: string }>(draftId)
 
       expect(draft).toBeDefined()
       expect(draft?.data.name).toBe('Cross Instance')

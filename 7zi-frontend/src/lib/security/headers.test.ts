@@ -18,6 +18,7 @@ import {
   PRODUCTION_CONFIG,
   type SecurityHeadersConfig,
   type CSPConfig,
+  type PermissionsPolicyConfig,
 } from './headers'
 
 describe('Security Headers Configuration', () => {
@@ -214,7 +215,7 @@ describe('Security Headers Configuration', () => {
 
   describe('generatePermissionsPolicy', () => {
     it('应该生成基本的 Permissions-Policy', () => {
-      const config = {
+      const config: PermissionsPolicyConfig = {
         geolocation: 'none',
         microphone: 'none',
         camera: 'none',
@@ -227,7 +228,7 @@ describe('Security Headers Configuration', () => {
     })
 
     it('应该支持 self 值', () => {
-      const config = {
+      const config: PermissionsPolicyConfig = {
         autoplay: 'self',
       }
 
@@ -236,7 +237,7 @@ describe('Security Headers Configuration', () => {
     })
 
     it('应该支持数组值', () => {
-      const config = {
+      const config: PermissionsPolicyConfig = {
         notifications: ['https://example.com', 'https://cdn.example.com'],
       }
 
@@ -245,7 +246,7 @@ describe('Security Headers Configuration', () => {
     })
 
     it('应该支持通配符', () => {
-      const config = {
+      const config: PermissionsPolicyConfig = {
         payment: '*',
       }
 
