@@ -1,5 +1,26 @@
 # HEARTBEAT - 持续工作调度
 
+## 最后检查: 2026-10-22 04:50 (Berlin)
+
+### 本轮状态（04:30-04:50）
+- **前端 tsc 错误 11 → 8**（源码 0，全部在测试文件），提交 `d66b7ce11`
+- 趋势：425 → 197 → 131 → 89 → 64 → 59 → 51 → 11 → **8**
+- 活跃子代理 4 个（T19 TS-G1 / T21 workflow-engine / T22 backend-CI / T23 npm 漏洞）
+- `retry.ts` 语法损坏已修复（T16 报告的并发写入污染，主管已复核干净）
+- 验证：G-2 组改动文件 44 tests 全绿
+
+### 待关注
+1. **⚠️ 并发写入冲突**：T16 报告 `retry.ts` 被另一个 agent 写坏（注入 `</newString>` token），
+   当时有两个 agent 作用域重叠。主管已要求派 T19 时给出**文件级互斥清单**，避免再次互相覆盖
+2. **git 历史密码**：仍含 10+ commit 明文 — 重写历史需主人决策
+3. **GitHub PAT 轮换**：`~/.git-credentials` 与 botmem remote 曾内嵌 PAT，建议轮换
+4. **线上 7zi-project 暗色主题**：`/root/7zi-project/src/app/globals.css` 缺 `@custom-variant dark`，
+   手动切换主题时 `dark:` 类不生效（69KB/28% 规则被包在 prefers-color-scheme 内）
+5. **`.env.secrets` 密码不统一**（短版 / 带 `$ZZ` 长版，两者均可登录）— 请确认唯一正确密码
+
+---
+
+
 ## 最后检查: 2026-10-21 19:05 (17:05 UTC)
 
 ### 🔴 本轮 P0 修复：Tailwind v4 工具类完全未生成（已提交 bfad61fa7）
