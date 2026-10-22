@@ -5,8 +5,9 @@
     "email": null,
     "calendar": null,
     "weather": null,
-    "memory-maintenance": "2026-10-19 03:44 UTC",
-    "api-status-check": "2026-10-19 03:44 UTC"
+    "memory-maintenance": "2026-10-22 16:45 UTC",
+    "api-status-check": "2026-10-19 03:44 UTC",
+    "claw-mesh": "2026-10-22 16:45 UTC"
   },
   "gateway状态": {
     "服务": "openclaw-gateway.service",
@@ -29,5 +30,9 @@
     "load": "中等",
     "内存": "正常",
     "Swap": "75% 使用 - 需关注"
+  },
+  "最近巡检": {
+    "时间": "2026-10-23 00:45 CST",
+    "结果": "bot5/bot6 正常；bot3/bot4 SSH 全部 Permission denied 无法逐台核验；本地 4 提交已推送 origin/main"
   }
 }
