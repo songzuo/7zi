@@ -101,9 +101,111 @@ ok=0; for i in $(seq 1 8); do
 - 🟡 **仓库内 7.5 万个 node_modules 文件**：清理需重写历史
 - 🟡 **bot5 每 5 分钟推送**：频率高于其他节点，可改错峰
 
-## 六、注意事项
+## 六、共享文件分发机制
+
+集群共享的两份文件通过仓库的 `static/` 目录分发：
+
+| 文件 | 用途 |
+|------|------|
+| `static/HEARTBEAT.md` | 集群共用的巡检清单，各节点运行时以仓库版本为准 |
+| `static/docs/CLAW-MESH-HANDOVER.md` | 本交接说明 |
+
+- 推送方：各节点 `claw-mesh-sync.sh` 的 `sync_to_github` 步骤
+- 拉取方：`read_other_machines` 步骤，**始终以仓库版本覆盖本机**（防止版本漂移）
+- **白名单机制**：只同步上述两份，**不要整目录拷贝 `docs/`**，
+  否则会把本机几百份私有文档污染到所有节点（已发生过一次，317 份）
+- 写入采用**临时文件 + mv** 原子替换；脱敏逻辑**排除 `static/`**，
+  否则会与拷贝竞态把文件截断为 0 字节（已发生过一次）
+
+### ⚠️ 0 字节陷阱（务必了解）
+`cp` 直接写目标文件会**先截断目标**。若进程在拷贝过程中被 kill / 超时中断
+（弱网节点上同步常被打断），目标就变成**空文件**。
+2026-10-22 因此清空过仓库的 `static/HEARTBEAT.md` 以及 bot2/bot3/bot4 的本机清单。
+
+**正确写法**（脚本里已采用）：
+```bash
+rm -f "$dst.tmp"
+if cp "$src" "$dst.tmp" && [ -s "$dst.tmp" ]; then
+    mv -f "$dst.tmp" "$dst"      # 原子替换
+else
+    rm -f "$dst.tmp"              # 失败则保留原文件
+fi
+```
+**排查提示**：若发现某节点清单/文档变成 0 字节，先看
+`wc -c < 文件` 确认，再检查是否有脚本在直接 `cp` 到该文件。
+
+## 七、弱网与 GitHub 访问
+
+部分节点到 `github.com` 的链路会**间歇性黑洞**（TCP 通但 TLS 无响应，
+或直接不可达），表现为 `git fetch` 永久挂起、状态停在 `step: 1 pulling`。
+
+**已装的自愈**：
+- `github-ip-pin.sh`（每 10 分钟）：探测 `github.com` 可达性，
+  不可达时从候选 IP 里挑一个能完成 TLS 的写进 `/etc/hosts`
+- 候选 IP：`20.27.177.113` / `20.200.245.247` / `20.207.73.82` /
+  `20.205.243.166` / `140.82.121.3`
+- 已知黑洞 IP（2026-10-23 实测 bot5 命中）：`20.205.243.166`、
+  `140.82.121.4` / `140.82.114.3` / `140.82.113.4` / `140.82.112.4`
+
+**手动排查**：
+```bash
+getent hosts github.com
+timeout 15 curl -s -o /dev/null -w "%{http_code}\n" https://github.com/
+for ip in 20.27.177.113 140.82.121.3; do
+  timeout 20 curl -s -o /dev/null -w "$ip=%{http_code}\n" --resolve github.com:443:$ip https://github.com/
+done
+```
+注意：`api.github.com` / `codeload.github.com` 可用**不代表**
+`github.com` 可用 —— 它们的 IP 段和路由不同。
+
+**手动恢复**：
+```bash
+pkill -f git-remote-https                      # 先杀掉挂起的 fetch
+sed -i '/[[:space:]]github\.com$/d' /etc/hosts
+echo "<可用IP> github.com" >> /etc/hosts
+```
+
+## 八、常驻服务与日志
+
+日志无上限增长曾把 bot6 的磁盘推到 250MB 日志占用。
+现五台统一有 `/etc/logrotate.d/openclaw-clawmesh`（size 20M / rotate 3 / compress）。
+
+**注意**：`logrotate` 要求日志目录权限安全。bot5/bot6 的 `/var/log`
+曾是 `drwxrwxr-x`（组/其他可写），logrotate 会直接拒绝执行并报
+`parent directory has insecure permissions`。已收紧为 755，
+规则里也加了 `su root root`。
+
+**`~` 在 crontab 里不展开**：所有 cron 里的脚本路径一律写绝对路径。
+（bot6 的 evomap 心跳曾写成 `~/.openclaw/skills/evomap/evomap-cli.js`，
+实际指向不存在的 `/.openclaw/...`，静默失败了很久。）
+
+## 九、工作区文件保护
+
+`docs/` 全树曾被外部进程整体删除（bot4 305 个文件、bot6 477 个文件）。
+**各节点现都有 `workspace-guard.sh`（每 5 分钟）**：
+用 `git ls-files --deleted` 检测已跟踪但缺失的文件，自动从 HEAD 恢复。
+
+```bash
+git ls-files --deleted | head -20   # 应为空
+ls docs/ | wc -l                    # 与本节点历史一致
+```
+
+⚠️ **清理"疑似污染文件"前务必确认归属**。
+2026-10-22 曾把各节点自己的历史文档误判为同步污染并删除。
+判据要看内容来源，不能只看"文件名像不像共享文件"或"几台节点文件名是否相同"。
+
+## 十、注意事项
 
 - 改任何节点的 cron 前，确认 `/etc/cron.d/` 也要看 —— 只看 `crontab -l` 会漏
 - 各节点 SSH 时注意 SSHLIMIT：短时间内反复重试会把自己封掉，等 60 秒窗口过期即可
-- bot4 主机本身偶发 SSH 不稳（与 SSHLIMIT 无关），重试即可恢复
+- bot4 / bot6 主机本身偶发 SSH 不稳（ping 通但 22 端口不通，与 SSHLIMIT 无关），
+  重试或等 1~2 分钟即可恢复；bot6 在 2026-10-22 20:20 前后出现过一次
+- **SSH 排障提示**：若 `ssh -vv` 显示 `Authentication succeeded` 但命令无输出，
+  那是会话层（PTY 分配）的问题，不是网络问题。加 `-T -n`（不分配伪终端、
+  不读 stdin）即可正常返回
+- bot3 到 github.com 的链路有**间歇性丢包**（5 次请求约 2 次成功），
+  同步脚本已加 connectTimeout=15 + 5 次重试 + 分步 fetch/rebase 来适配
+- bot3 出现过**整机服务不可用**（22 和 18789 端口同时不通，ping 正常），
+  属主机自身问题，恢复后需手动确认同步与文件分发状态
+- 排查"文件变空"时优先怀疑 `cp` 的截断行为，不要只在文件内容里找原因
 - 推送时间已错峰，**不要改成同一时刻**，会互相抢 push
