@@ -62,7 +62,7 @@
 
 ```bash
 # .env.local
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]
 GITHUB_OWNER=songzuo
 GITHUB_REPO=7zi
 ```
@@ -71,11 +71,11 @@ GITHUB_REPO=7zi
 
 ```bash
 # 使用 OpenClaw secrets
-openclaw secrets set GITHUB_TOKEN "ghp_xxx"
+openclaw secrets set GITHUB_TOKEN "[已移除]"
 
 # 或使用 Git secrets
 git secrets --register-provider
-git secrets --add "ghp_.*"
+git secrets --add "[已移除].*"
 ```
 
 ---

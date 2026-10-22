@@ -116,7 +116,7 @@ NEXT_PUBLIC_BAIDU_ID=
 # GitHub Personal Access Token
 # 获取地址: https://github.com/settings/tokens
 # 需要的权限: repo, user
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]
 
 # GitHub 仓库信息 (公开，可使用 NEXT_PUBLIC_)
 NEXT_PUBLIC_GITHUB_OWNER=songzuo
@@ -160,7 +160,7 @@ NEXT_PUBLIC_BAIDU_ID=
 # ========================================
 # GitHub API
 # ========================================
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]
 NEXT_PUBLIC_GITHUB_OWNER=songzuo
 NEXT_PUBLIC_GITHUB_REPO=7zi
 

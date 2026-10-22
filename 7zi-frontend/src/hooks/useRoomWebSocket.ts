@@ -223,10 +223,12 @@ export function useRoomWebSocket(
   }, [addMember, removeMember, updateMember, updateRoom, addMessage])
 
   /**
-   * 当前是否处于某个房间中（用布尔值代替对象本身作为依赖，
-   * 避免 currentRoom 对象引用变化导致 effect 重复执行）
+   * 当前房间 ID（用派生标量代替 currentRoom 对象本身作为依赖，
+   * 避免 store 返回新对象引用时 effect 被无意义地重复触发）
    */
-  const hasCurrentRoom = Boolean(currentRoom)
+  const currentRoomId = currentRoom?.id
+  // 是否处于某个房间中（保持与原 `currentRoom && currentUserId` 判断完全一致）
+  const hasCurrentRoom = currentRoom !== null && currentRoom !== undefined
 
   /**
    * Auto-connect when current room changes
@@ -247,7 +249,7 @@ export function useRoomWebSocket(
       // If no room, disconnect
       manager.disconnect()
     }
-  }, [hasCurrentRoom, currentUserId, autoConnect])
+  }, [currentRoomId, hasCurrentRoom, currentUserId, autoConnect])
 
   /**
    * Connect action

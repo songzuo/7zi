@@ -48,6 +48,16 @@ const eslintConfig = [
       '7zi-frontend/html/**',
       '7zi-frontend/.next/**',
       '7zi-frontend/out/**',
+      // 嵌套子项目：各自有独立 eslint 配置 / 技术栈，由各自目录的 lint 脚本负责。
+      // 根级 ESLint 只检查根 src/，否则会重复 lint 且规则集不匹配
+      // (例如根配置启用了 react-hooks v7 规则，子项目未启用)。
+      '7zi-frontend/**',
+      '7zi-backend/**',
+      'workflow-engine/**',
+      'botmem/**',
+      'tests/**',
+      'e2e/**',
+      'scripts/**',
     ],
   },
   {

@@ -29,7 +29,7 @@
 
 ```bash
 # .env.local
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]
 GITHUB_OWNER=songzuo
 GITHUB_REPO=7zi
 ```

@@ -129,7 +129,11 @@ export function useYjsDoc(options: UseYjsDocOptions): UseYjsDocReturn {
 
   // 最新的连接状态（ref 承载，避免 init effect 因 connectionInfo 变化而重复初始化文档）
   const connectionStateRef = useRef(connectionInfo.state)
-  connectionStateRef.current = connectionInfo.state
+
+  // 在 init effect 之前同步 ref，保证 init 时读到的是最新连接状态
+  useEffect(() => {
+    connectionStateRef.current = connectionInfo.state
+  }, [connectionInfo.state])
 
   // Initialize document
   useEffect(() => {

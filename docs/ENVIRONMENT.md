@@ -119,7 +119,7 @@ export async function GET() {
 
 | 变量名                     | 类型 | 必填         | 默认值 | 说明                                   | 示例值                     |
 | -------------------------- | ---- | ------------ | ------ | -------------------------------------- | -------------------------- |
-| `GITHUB_TOKEN`             | 私有 | **Required** | -      | GitHub Personal Access Token（服务端） | `ghp_xxxxxxxxxxxxxxxxxxxx` |
+| `GITHUB_TOKEN`             | 私有 | **Required** | -      | GitHub Personal Access Token（服务端） | `[已移除]` |
 | `NEXT_PUBLIC_GITHUB_OWNER` | 公开 | **Required** | -      | GitHub 仓库所有者                      | `songzhuo`                 |
 | `NEXT_PUBLIC_GITHUB_REPO`  | 公开 | **Required** | -      | GitHub 仓库名称                        | `openclaw-workspace`       |
 
@@ -230,7 +230,7 @@ export async function GET() {
 
 | 变量名                  | 类型 | 必填     | 默认值 | 说明                | 示例值                   |
 | ----------------------- | ---- | -------- | ------ | ------------------- | ------------------------ |
-| `STRIPE_SECRET_KEY`     | 私有 | Optional | -      | Stripe 密钥         | `sk_live_xxxxxxxxxxxxxx` |
+| `STRIPE_SECRET_KEY`     | 私有 | Optional | -      | Stripe 密钥         | `[已移除]_xxxxxxxxxxxxxx` |
 | `STRIPE_WEBHOOK_SECRET` | 私有 | Optional | -      | Stripe Webhook 密钥 | `whsec_xxxxxxxxxxxxxx`   |
 
 ### Cloudflare 配置 (可选)
@@ -295,7 +295,7 @@ NEXT_PUBLIC_APP_NAME=7zi AI Platform (Dev)
 # ========================================
 # GitHub API 配置
 # ========================================
-GITHUB_TOKEN=ghp_dev_xxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]_xxxxxxxxxxxxxxxxxxxx
 NEXT_PUBLIC_GITHUB_OWNER=songzhuo
 NEXT_PUBLIC_GITHUB_REPO=openclaw-workspace
 
@@ -360,7 +360,7 @@ NEXT_PUBLIC_BAIDU_ID=your-baidu-id
 # ========================================
 # GitHub API 配置
 # ========================================
-GITHUB_TOKEN=ghp_prod_xxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]_xxxxxxxxxxxxxxxxxxxx
 NEXT_PUBLIC_GITHUB_OWNER=songzhuo
 NEXT_PUBLIC_GITHUB_REPO=openclaw-workspace
 
@@ -424,10 +424,10 @@ NEXT_PUBLIC_IMAGE_DOMAINS=7zi.com,cdn.7zi.com,images.unsplash.com
 
 ```bash
 # 开发环境
-GITHUB_TOKEN=ghp_dev_xxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]_xxxxxxxxxxxx
 
 # 生产环境
-GITHUB_TOKEN=ghp_prod_xxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]_xxxxxxxxxxxx
 ```
 
 ### 3. 限制密钥权限
@@ -476,7 +476,7 @@ RESEND_API_KEY=
 DATABASE_URL=
 
 # ❌ 不要包含实际值
-GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]
 ```
 
 ---

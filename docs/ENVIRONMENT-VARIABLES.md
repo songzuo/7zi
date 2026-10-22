@@ -130,7 +130,7 @@ NEXT_PUBLIC_BAIDU_ID=
 # ⚠️ 不要使用 NEXT_PUBLIC_ 前缀
 # 获取地址：https://github.com/settings/tokens
 # 需要权限：repo, user, read:org
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]
 
 # GitHub 仓库信息 (公开，可使用 NEXT_PUBLIC_)
 NEXT_PUBLIC_GITHUB_OWNER=songzuo
@@ -236,7 +236,7 @@ NEXT_PUBLIC_BAIDU_ID=your-baidu-id
 # ========================================
 # GitHub API (生产环境)
 # ========================================
-GITHUB_TOKEN=ghp_production_token_xxxxxxxxxxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]_token_xxxxxxxxxxxxxxxxxxxx
 NEXT_PUBLIC_GITHUB_OWNER=songzuo
 NEXT_PUBLIC_GITHUB_REPO=7zi
 
@@ -289,7 +289,7 @@ OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # 其他第三方服务
 # ========================================
 # Stripe (支付)
-STRIPE_SECRET_KEY=sk_live_xxxxxxxxxxxxxx
+STRIPE_SECRET_KEY=[已移除]_xxxxxxxxxxxxxx
 STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxx
 
 # Cloudflare (CDN/图片)
@@ -333,7 +333,7 @@ CLOUDFLARE_API_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 | Secret              | 说明                      | 示例                          |
 | ------------------- | ------------------------- | ----------------------------- |
-| `GITHUB_TOKEN`      | GitHub Token (用于自动化) | `ghp_xxxxxx`                  |
+| `GITHUB_TOKEN`      | GitHub Token (用于自动化) | `[已移除]`                  |
 | `SENTRY_AUTH_TOKEN` | Sentry 认证令牌           | `your-token`                  |
 | `SLACK_WEBHOOK_URL` | Slack 通知 Webhook        | `https://hooks.slack.com/...` |
 
@@ -383,10 +383,10 @@ jobs:
 
 ```bash
 # 开发环境
-GITHUB_TOKEN=ghp_dev_xxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]_xxxxxxxxxxxx
 
 # 生产环境
-GITHUB_TOKEN=ghp_prod_xxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]_xxxxxxxxxxxx
 ```
 
 ### 3. 限制密钥权限
@@ -439,7 +439,7 @@ RESEND_API_KEY=
 DATABASE_URL=
 
 # ❌ 不要包含实际值
-GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+GITHUB_TOKEN=[已移除]
 ```
 
 ---

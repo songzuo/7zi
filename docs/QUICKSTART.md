@@ -84,7 +84,7 @@ NEXT_PUBLIC_GITHUB_REPO=7zi
 ```bash
 NEXT_PUBLIC_GITHUB_OWNER=songzuo
 NEXT_PUBLIC_GITHUB_REPO=7zi
-NEXT_PUBLIC_GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+NEXT_PUBLIC_GITHUB_TOKEN=[已移除]
 ```
 
 > 💡 **获取 GitHub Token:**  
@@ -177,7 +177,7 @@ lsof -ti:3000 | xargs kill -9  # macOS/Linux
 
 ```bash
 # 在 .env.local 中配置 GitHub Token
-NEXT_PUBLIC_GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+NEXT_PUBLIC_GITHUB_TOKEN=[已移除]
 ```
 
 未认证：60 次/小时  

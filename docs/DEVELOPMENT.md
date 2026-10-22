@@ -109,7 +109,7 @@ nano .env.local
 # ====================
 NEXT_PUBLIC_GITHUB_OWNER=songzuo
 NEXT_PUBLIC_GITHUB_REPO=7zi
-NEXT_PUBLIC_GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+NEXT_PUBLIC_GITHUB_TOKEN=[已移除]
 
 # ====================
 # 应用配置

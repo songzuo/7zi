@@ -692,7 +692,7 @@ vercel --prod
 # GitHub API 配置
 NEXT_PUBLIC_GITHUB_OWNER=songzuo
 NEXT_PUBLIC_GITHUB_REPO=7zi
-NEXT_PUBLIC_GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx  # 可选
+NEXT_PUBLIC_GITHUB_TOKEN=[已移除]  # 可选
 
 # 应用配置
 NEXT_PUBLIC_APP_URL=https://your-domain.com

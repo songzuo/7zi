@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useRef, useCallback, useMemo, useState, DependencyList } from 'react';
+import { useDepsVersion } from '@/lib/hooks/useDepsVersion';
 
 /**
  * Memoize component with deep comparison support
@@ -483,35 +484,49 @@ export function useIdleCallback(
   callback: () => void,
   deps: DependencyList = []
 ) {
+  // 用 ref 承载最新 callback，避免闭包捕获旧函数
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+
+  // 动态依赖转换为静态版本号
+  const depsVersion = useDepsVersion(deps);
+
   useEffect(() => {
     if (typeof window === 'undefined' || !('requestIdleCallback' in window)) {
-      callback();
+      callbackRef.current();
       return;
     }
 
     const id = requestIdleCallback(() => {
-      callback();
+      callbackRef.current();
     });
 
     return () => {
       cancelIdleCallback(id);
     };
-  }, deps);
+  }, [depsVersion]);
 }
 
 /**
  * Use animation frame hook - schedules work for next repaint
  */
 export function useAnimationFrame(callback: () => void, deps: DependencyList = []) {
+  // 用 ref 承载最新 callback，避免闭包捕获旧函数
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+
+  // 动态依赖转换为静态版本号
+  const depsVersion = useDepsVersion(deps);
+
   useEffect(() => {
     const id = requestAnimationFrame(() => {
-      callback();
+      callbackRef.current();
     });
 
     return () => {
       cancelAnimationFrame(id);
     };
-  }, deps);
+  }, [depsVersion]);
 }
 
 /**
@@ -554,13 +569,20 @@ export function useLayoutStabilizer<T>(
   fn: () => T,
   deps: DependencyList
 ): T {
+  // 用 ref 承载最新 fn，避免闭包捕获旧函数
+  const fnRef = useRef(fn);
+  fnRef.current = fn;
+
   const [result, setResult] = useState<T>(fn());
+
+  // 动态依赖转换为静态版本号
+  const depsVersion = useDepsVersion(deps);
 
   useEffect(() => {
     requestAnimationFrame(() => {
-      setResult(fn());
+      setResult(fnRef.current());
     });
-  }, deps);
+  }, [depsVersion]);
 
   return result;
 }

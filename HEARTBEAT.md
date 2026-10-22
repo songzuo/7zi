@@ -142,7 +142,7 @@
 ### 🔐 本轮主管直修：凭据全面清除（19:00-19:20）
 - 主工作区 + botmem 两个仓库，**62 个跟踪文件**的明文密码 → `${SSH_PASSWORD}` 引用
 - 提交：`91f3e7c9d` / `7ef03c17b` / `f2f81e758` / botmem `4f5aaefaa0`
-- `git grep 'ge20993344'` 全仓命中 **0**
+- `git grep '[已移除]4'` 全仓命中 **0**
 - 顺带把 botmem `.git/config` 里明文 GitHub PAT 从 remote URL 移除（凭据已在 `~/.git-credentials`）
 
 ### 待关注

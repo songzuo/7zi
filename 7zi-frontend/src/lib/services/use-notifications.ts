@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useDepsVersion } from '@/lib/hooks/useDepsVersion'
 import type {
   Notification,
   NotificationType,
@@ -428,6 +429,10 @@ export function useNotificationListener(
     listenerRef.current = listener
   }, [listener])
 
+  // 动态依赖数组转换为静态版本号（deps 由调用方在运行时决定，
+  // 无法以字面量形式传给 useEffect，静态分析无法校验）
+  const depsVersion = useDepsVersion(deps)
+
   useEffect(() => {
     const wrappedListener: NotificationEventListener = (event, data) => {
       listenerRef.current(event, data)
@@ -438,7 +443,7 @@ export function useNotificationListener(
     return () => {
       clientNotificationManager.off(event, wrappedListener)
     }
-  }, [event, ...deps])
+  }, [event, depsVersion])
 }
 
 /**
