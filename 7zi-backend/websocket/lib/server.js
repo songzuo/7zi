@@ -35,6 +35,10 @@ function createServer(options = {}) {
         JSON.stringify({
           status: 'ok',
           timestamp: new Date().toISOString(),
+          // `roomCount` is the canonical name of the room counter.
+          // `rooms` is kept as a backwards-compatible alias (it has always
+          // been a number on /health).
+          roomCount: roomManager.rooms.size,
           rooms: roomManager.rooms.size,
           connections: io.sockets.sockets.size,
         })
@@ -51,9 +55,12 @@ function createServer(options = {}) {
       res.end(
         JSON.stringify({
           connections: io.sockets.sockets.size,
-          rooms: rooms.length,
+          // `roomCount` carries the number of rooms, `rooms` carries the
+          // room array itself. Previously both were declared under the key
+          // `rooms`, so the count was silently overwritten by the array.
+          roomCount: rooms.length,
           totalUsers,
-          rooms: rooms,
+          rooms,
         })
       )
       return

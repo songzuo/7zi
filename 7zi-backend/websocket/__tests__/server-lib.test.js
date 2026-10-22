@@ -89,6 +89,7 @@ describe('lib/server', () => {
     const json = JSON.parse(res.body)
     expect(json.status).toBe('ok')
     expect(json.rooms).toBe(0)
+    expect(json.roomCount).toBe(0)
     expect(json.connections).toBe(0)
     expect(json.timestamp).toEqual(expect.any(String))
   })
@@ -103,13 +104,37 @@ describe('lib/server', () => {
     const json = JSON.parse(res.body)
     expect(json.connections).toBe(0)
     expect(json.totalUsers).toBe(0)
-    // KNOWN DEFECT: the /stats payload declares `rooms` twice
-    // (rooms.length then rooms), so JSON.stringify keeps the LAST one.
-    // The room COUNT is therefore unreachable by clients.
-    // See P1-7_WEBSOCKET_TESTS_20261021.md -> DEFECT-01.
+    // FIXED (was DEFECT-01): the /stats payload used to declare `rooms` twice
+    // (rooms.length then rooms), so JSON.stringify kept the LAST one and the
+    // room COUNT was unreachable by clients.
+    // Now the count lives under `roomCount` and `rooms` holds the array.
     expect(Array.isArray(json.rooms)).toBe(true)
     expect(json.rooms).toEqual([])
-    expect(json.roomsCount).toBeUndefined()
+    expect(json.roomCount).toBe(0)
+  })
+
+  test('/stats exposes the room array AND the room count at the same time', async () => {
+    build()
+    const roomA = manager.ensureRoom('room-a', 'document', 'd1')
+    manager.addUserToRoom(roomA, { id: 'u1', name: 'Alice' })
+    const roomB = manager.ensureRoom('room-b', 'document', 'd2')
+    manager.addUserToRoom(roomB, { id: 'u2', name: 'Bob' })
+    manager.addUserToRoom(roomB, { id: 'u3', name: 'Carol' })
+    const port = await listen(httpServer)
+
+    const res = await httpGet(port, '/stats')
+    const json = JSON.parse(res.body)
+
+    // 房间数量：与 roomCount 一致，且与数组长度一致
+    expect(json.roomCount).toBe(2)
+    // 房间数组：仍然是数组，且没有被数量覆盖
+    expect(Array.isArray(json.rooms)).toBe(true)
+    expect(json.rooms).toHaveLength(json.roomCount)
+    expect(json.rooms.map(r => r.id).sort()).toEqual(['room-a', 'room-b'])
+    // 用户总数仍然正确
+    expect(json.totalUsers).toBe(3)
+    // 旧的重复键不能残留
+    expect(Object.keys(json).filter(k => k === 'rooms')).toHaveLength(1)
   })
 
   test('serves a plain-text default response for unknown paths', async () => {
@@ -132,10 +157,11 @@ describe('lib/server', () => {
     const res = await httpGet(port, '/stats')
     const json = JSON.parse(res.body)
 
-    // KNOWN DEFECT: see DEFECT-01 - `rooms` is the array, not the count.
+    // FIXED (was DEFECT-01): `rooms` is the array, `roomCount` is the count.
     expect(json.totalUsers).toBe(1)
     expect(json.rooms).toHaveLength(1)
     expect(json.rooms[0]).toMatchObject({ id: 'stats-room', userCount: 1 })
+    expect(json.roomCount).toBe(1)
   })
 
   test('the /health endpoint reports the room count', async () => {
@@ -144,7 +170,10 @@ describe('lib/server', () => {
     const port = await listen(httpServer)
 
     const res = await httpGet(port, '/health')
-    expect(JSON.parse(res.body).rooms).toBe(1)
+    const json = JSON.parse(res.body)
+    expect(json.rooms).toBe(1)
+    // /health 的房间数量同样以 roomCount 暴露，`rooms` 保留为向后兼容别名
+    expect(json.roomCount).toBe(1)
   })
 
   test('configures Socket.IO with the expected CORS and ping options', () => {

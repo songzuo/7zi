@@ -17,6 +17,9 @@ export default [
       '**/build/**',
       '**/.next/**',
       '**/standalone/**',
+      // 示例片段：仅供复制粘贴，不是可运行模块（引用了外部的 server/engine/app/PORT 变量）
+      'workflow-engine/websocket-integration-example.js',
+      '**/websocket-integration-example.js',
     ],
   },
   js.configs.recommended,
@@ -31,7 +34,16 @@ export default [
       },
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      // caughtErrorsIgnorePattern: 与项目 `^_` 命名约定保持一致，
+      // 让 `catch (_error) { ... }` 这种「有意忽略的异常」不再报警告。
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       'no-console': 'off',
       eqeqeq: ['warn', 'smart'],
       'prefer-const': 'warn',
