@@ -1,13 +1,15 @@
 # HEARTBEAT - 持续工作调度
 
-## 最后检查: 2026-10-22 04:50 (Berlin)
+## 最后检查: 2026-10-22 05:20 (Berlin)
 
-### 本轮状态（04:30-04:50）
-- **前端 tsc 错误 11 → 8**（源码 0，全部在测试文件），提交 `d66b7ce11`
-- 趋势：425 → 197 → 131 → 89 → 64 → 59 → 51 → 11 → **8**
-- 活跃子代理 4 个（T19 TS-G1 / T21 workflow-engine / T22 backend-CI / T23 npm 漏洞）
+### 🎉 本轮里程碑：前端 TypeScript 错误归零
+- **前端 `tsc --noEmit --incremental false` = 0 errors**（源码 0 + 测试文件 0）
+- 提交 `d66b7ce11`（G-2）+ `c8c4c59d2`（G-1），主管均独立复跑验证
+- 完整趋势：425 → 197 → 131 → 89 → 64 → 59 → 51 → 11 → 8 → **0**
+- G-1 组 5 文件 127 tests 全绿；G-2 组 44 tests 全绿
+- 全程无 `as any` / `it.skip` / 弱化断言
 - `retry.ts` 语法损坏已修复（T16 报告的并发写入污染，主管已复核干净）
-- 验证：G-2 组改动文件 44 tests 全绿
+- 活跃子代理 3 个（T21 workflow-engine / T22 backend-CI / T23 npm 漏洞）
 
 ### 待关注
 1. **⚠️ 并发写入冲突**：T16 报告 `retry.ts` 被另一个 agent 写坏（注入 `</newString>` token），
