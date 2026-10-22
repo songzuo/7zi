@@ -15,6 +15,7 @@
  */
 
 import { create } from 'zustand'
+import { useShallow } from 'zustand/react/shallow'
 import { devtools, persist } from 'zustand/middleware'
 
 // ============================================================================
@@ -569,16 +570,18 @@ export const useUIStore = create<UIState>()(
  * 获取侧边栏状态
  */
 export const useSidebar = () =>
-  useUIStore(state => ({
-    isOpen: state.sidebar.isOpen,
-    isCollapsed: state.sidebar.isCollapsed,
-    width: state.sidebar.width,
-    toggle: state.toggleSidebar,
-    open: state.openSidebar,
-    close: state.closeSidebar,
-    toggleCollapse: state.toggleSidebarCollapse,
-    setWidth: state.setSidebarWidth,
-  }))
+  useUIStore(
+    useShallow(state => ({
+      isOpen: state.sidebar.isOpen,
+      isCollapsed: state.sidebar.isCollapsed,
+      width: state.sidebar.width,
+      toggle: state.toggleSidebar,
+      open: state.openSidebar,
+      close: state.closeSidebar,
+      toggleCollapse: state.toggleSidebarCollapse,
+      setWidth: state.setSidebarWidth,
+    }))
+  )
 
 /**
  * 获取当前活动的 Modal
@@ -599,10 +602,12 @@ export const useToastCount = () => useUIStore(state => state.toasts.length)
  * 获取全局加载状态
  */
 export const useGlobalLoading = () =>
-  useUIStore(state => ({
-    isLoading: state.globalLoading,
-    message: state.loadingMessage,
-  }))
+  useUIStore(
+    useShallow(state => ({
+      isLoading: state.globalLoading,
+      message: state.loadingMessage,
+    }))
+  )
 
 /**
  * 获取表单草稿
@@ -623,47 +628,55 @@ export const useHasFormDraft = (formId: string) => useUIStore(state => state.for
  * 获取 Modal 操作
  */
 export const useModalActions = () =>
-  useUIStore(state => ({
-    openModal: state.openModal,
-    closeModal: state.closeModal,
-    closeAllModals: state.closeAllModals,
-    updateModal: state.updateModal,
-  }))
+  useUIStore(
+    useShallow(state => ({
+      openModal: state.openModal,
+      closeModal: state.closeModal,
+      closeAllModals: state.closeAllModals,
+      updateModal: state.updateModal,
+    }))
+  )
 
 /**
  * 获取 Toast 操作
  */
 export const useToastActions = () =>
-  useUIStore(state => ({
-    addToast: state.addToast,
-    removeToast: state.removeToast,
-    clearToasts: state.clearToasts,
-    clearToastsByType: state.clearToastsByType,
-    success: state.success,
-    error: state.error,
-    warning: state.warning,
-    info: state.info,
-    loading: state.loading,
-  }))
+  useUIStore(
+    useShallow(state => ({
+      addToast: state.addToast,
+      removeToast: state.removeToast,
+      clearToasts: state.clearToasts,
+      clearToastsByType: state.clearToastsByType,
+      success: state.success,
+      error: state.error,
+      warning: state.warning,
+      info: state.info,
+      loading: state.loading,
+    }))
+  )
 
 /**
  * 获取加载状态操作
  */
 export const useLoadingActions = () =>
-  useUIStore(state => ({
-    setGlobalLoading: state.setGlobalLoading,
-  }))
+  useUIStore(
+    useShallow(state => ({
+      setGlobalLoading: state.setGlobalLoading,
+    }))
+  )
 
 /**
  * 获取表单草稿操作
  */
 export const useFormDraftActions = () =>
-  useUIStore(state => ({
-    saveFormDraft: state.saveFormDraft,
-    loadFormDraft: state.loadFormDraft,
-    deleteFormDraft: state.deleteFormDraft,
-    clearFormDrafts: state.clearFormDrafts,
-  }))
+  useUIStore(
+    useShallow(state => ({
+      saveFormDraft: state.saveFormDraft,
+      loadFormDraft: state.loadFormDraft,
+      deleteFormDraft: state.deleteFormDraft,
+      clearFormDrafts: state.clearFormDrafts,
+    }))
+  )
 
 // ============================================================================
 // 实用 Hooks

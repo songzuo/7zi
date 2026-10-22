@@ -10,6 +10,7 @@
  */
 
 import { useEffect, ReactNode, useMemo } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import type { Permission, Role } from '@/lib/permissions/types'
 import {
   usePermissionStore,
@@ -95,12 +96,14 @@ export function usePermissions() {
   const actions = usePermissionActions()
 
   // Get all state in one selector to minimize re-renders
-  const state = usePermissionStore(state => ({
-    userId: state.userId,
-    roles: state.roles,
-    permissions: state.permissions,
-    customPermissions: state.customPermissions,
-  }))
+  const state = usePermissionStore(
+    useShallow(state => ({
+      userId: state.userId,
+      roles: state.roles,
+      permissions: state.permissions,
+      customPermissions: state.customPermissions,
+    }))
+  )
 
   // Build context object for backward compatibility
   const context = useMemo(() => {
@@ -134,10 +137,7 @@ export function usePermissions() {
     [hasPermission]
   )
 
-  const hasRole = useMemo(
-    () => (role: Role) => state.roles.includes(role),
-    [state.roles]
-  )
+  const hasRole = useMemo(() => (role: Role) => state.roles.includes(role), [state.roles])
 
   const hasAnyRole = useMemo(
     () => (roles: Role[]) => roles.some(r => state.roles.includes(r)),

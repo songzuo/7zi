@@ -3,13 +3,13 @@
  * 当访问不存在的路由时显示
  */
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Locale, locales, defaultLocale } from '@/i18n/config'
 
-type Params = Promise<{ locale: string }>
-
-export default async function NotFound({ params }: { params: Params }) {
-  const { locale } = await params
+export default async function NotFound() {
+  const requestHeaders = await headers()
+  const locale = requestHeaders.get('x-locale') || defaultLocale
 
   // Use default locale if invalid
   const validLocale = locales.includes(locale as Locale) ? locale : defaultLocale

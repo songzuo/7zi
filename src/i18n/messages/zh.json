@@ -464,7 +464,20 @@
   },
   "dashboard": {
     "title": "控制台",
-    "description": "项目控制台 - 查看项目进度和数据"
+    "description": "项目控制台 - 查看项目进度和数据",
+    "titleShort": "控制台",
+    "autoRefresh": "自动刷新",
+    "updated": "更新时间",
+    "refresh": "刷新",
+    "stats": "统计信息",
+    "quickActions": "快捷操作",
+    "recentActivity": "最近活动",
+    "members": "团队成员",
+    "working": "工作中",
+    "busy": "忙碌",
+    "idle": "空闲",
+    "offline": "离线",
+    "footer": "由 7zi Studio 提供支持"
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. All rights reserved.",

@@ -464,7 +464,20 @@
   },
   "dashboard": {
     "title": "ダッシュボード",
-    "description": "プロジェクトダッシュボード - プロジェクトの進捗とデータを表示"
+    "description": "プロジェクトダッシュボード - プロジェクトの進捗とデータを表示",
+    "titleShort": "ダッシュボード",
+    "autoRefresh": "自動更新",
+    "updated": "更新日時",
+    "refresh": "更新",
+    "stats": "統計",
+    "quickActions": "クイックアクション",
+    "recentActivity": "最近のアクティビティ",
+    "members": "チームメンバー",
+    "working": "作業中",
+    "busy": "取り込み中",
+    "idle": "待機中",
+    "offline": "オフライン",
+    "footer": "7zi Studio 提供"
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. All rights reserved.",

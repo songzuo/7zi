@@ -464,7 +464,20 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "description": "Project Dashboard - View project progress and data"
+    "description": "Project Dashboard - View project progress and data",
+    "titleShort": "Dashboard",
+    "autoRefresh": "Auto refresh",
+    "updated": "Updated",
+    "refresh": "Refresh",
+    "stats": "Statistics",
+    "quickActions": "Quick actions",
+    "recentActivity": "Recent activity",
+    "members": "Team members",
+    "working": "Working",
+    "busy": "Busy",
+    "idle": "Idle",
+    "offline": "Offline",
+    "footer": "Powered by 7zi Studio"
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. All rights reserved.",

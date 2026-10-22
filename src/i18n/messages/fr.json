@@ -464,7 +464,20 @@
   },
   "dashboard": {
     "title": "Tableau de bord",
-    "description": "Tableau de bord de projet - Voir la progression et les données du projet"
+    "description": "Tableau de bord de projet - Voir la progression et les données du projet",
+    "titleShort": "Tableau de bord",
+    "autoRefresh": "Actualisation automatique",
+    "updated": "Mis à jour",
+    "refresh": "Actualiser",
+    "stats": "Statistiques",
+    "quickActions": "Actions rapides",
+    "recentActivity": "Activité récente",
+    "members": "Membres de l’équipe",
+    "working": "En cours",
+    "busy": "Occupé",
+    "idle": "Inactif",
+    "offline": "Hors ligne",
+    "footer": "Propulsé par 7zi Studio"
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. Tous droits réservés.",

@@ -147,17 +147,7 @@ export function optimizeLCP() {
     }
   })
 
-  // 3. 移除阻塞渲染的 CSS
-  const stylesheets = document.querySelectorAll('link[rel="stylesheet"]')
-  stylesheets.forEach(link => {
-    const stylesheet = link as HTMLLinkElement
-    if (!stylesheet.media || stylesheet.media === 'all') {
-      stylesheet.media = 'print'
-      stylesheet.addEventListener('load', () => {
-        stylesheet.media = 'all'
-      })
-    }
-  })
+  // Leave stylesheet loading to Next.js; changing media after load can disable site styling.
 }
 
 // ============================================

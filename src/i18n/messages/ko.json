@@ -464,7 +464,20 @@
   },
   "dashboard": {
     "title": "대시보드",
-    "description": "프로젝트 대시보드 - 프로젝트 진행 상황과 데이터 보기"
+    "description": "프로젝트 대시보드 - 프로젝트 진행 상황과 데이터 보기",
+    "titleShort": "대시보드",
+    "autoRefresh": "자동 새로고침",
+    "updated": "업데이트",
+    "refresh": "새로고침",
+    "stats": "통계",
+    "quickActions": "빠른 작업",
+    "recentActivity": "최근 활동",
+    "members": "팀 구성원",
+    "working": "작업 중",
+    "busy": "바쁨",
+    "idle": "대기 중",
+    "offline": "오프라인",
+    "footer": "7zi Studio 제공"
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. All rights reserved.",
