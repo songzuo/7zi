@@ -3,21 +3,7 @@
  * 根因分析器（增强版 - 集成缓存和高级分析规则）
  */
 
-import {
-  PerformanceContext,
-  RootCause,
-  RootCauseCandidate,
-  RootCauseAnalysisConfig,
-  DEFAULT_ROOT_CAUSE_CONFIG,
-  SlowQuery,
-  SlowAPICall,
-  RenderingMetrics,
-  MemoryMetrics,
-  SlowResource,
-  ResourceMetrics,
-  NetworkInfo,
-  CPUMetrics,
-} from './types'
+import { PerformanceContext, RootCause, RootCauseCandidate, RootCauseAnalysisConfig, DEFAULT_ROOT_CAUSE_CONFIG, SlowQuery, SlowAPICall, RenderingMetrics, MemoryMetrics, SlowResource, ResourceMetrics, CPUMetrics } from './types'
 import { DatabaseTracker, QueryIssue } from './database-tracker'
 import { APITracker, APIIssue } from './api-tracker'
 import { RootCauseCache } from './cache'

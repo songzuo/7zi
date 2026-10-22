@@ -20,10 +20,7 @@ import {
   User,
   GitBranch,
 } from 'lucide-react'
-import type {
-  WorkflowVersion,
-  WorkflowVersionHistoryResponse,
-} from '@/types/workflow-version'
+import type { WorkflowVersionHistoryResponse } from '@/types/workflow-version'
 
 // ============================================
 // Types

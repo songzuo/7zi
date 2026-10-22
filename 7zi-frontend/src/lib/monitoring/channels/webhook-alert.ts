@@ -14,13 +14,7 @@
  */
 
 import { Alert, AlertChannel } from '../alert-engine'
-import {
-  BaseAlertChannel,
-  BaseChannelConfig,
-  RetryConfig,
-  DedupConfig,
-  RateLimitConfig,
-} from './base-alert-channel'
+import { BaseAlertChannel, BaseChannelConfig } from './base-alert-channel'
 import { logger } from '@/lib/logger'
 
 export interface WebhookChannelConfig extends BaseChannelConfig {

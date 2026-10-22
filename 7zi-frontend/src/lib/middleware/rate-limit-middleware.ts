@@ -6,9 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { RateLimiter, RateLimitResult, getClientIP, generateRateLimitKey, formatRateLimitHeaders } from '../rate-limit/limiter'
-import { MemoryRateLimitStorage } from '../rate-limit/memory-storage'
-import { RateLimitConfig } from '../rate-limit/config'
+import { RateLimitResult, getClientIP, formatRateLimitHeaders } from '../rate-limit/limiter'
 import { logger } from '@/lib/logger'
 
 /**

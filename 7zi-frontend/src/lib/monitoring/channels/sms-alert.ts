@@ -14,13 +14,7 @@
 
 import { Alert, AlertChannel } from '../alert-engine'
 import { logger } from '@/lib/logger'
-import {
-  BaseAlertChannel,
-  BaseChannelConfig,
-  RetryConfig,
-  DedupConfig,
-  RateLimitConfig,
-} from './base-alert-channel'
+import { BaseAlertChannel, BaseChannelConfig } from './base-alert-channel'
 
 /**
  * SMS 渠道配置

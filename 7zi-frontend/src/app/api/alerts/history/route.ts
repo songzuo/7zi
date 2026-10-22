@@ -8,14 +8,7 @@
 
 import { NextRequest } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
-import { 
-  AlertHistory, 
-  AlertHistoryResponse,
-  AlertHistoryQuery,
-  Severity,
-  MetricType,
-  Condition
-} from '@/types/alerts'
+import { AlertHistory, AlertHistoryResponse, Severity, MetricType, Condition } from '@/types/alerts'
 import { createSuccessResponse, createBadRequestError, createNotFoundError, createErrorResponse } from '@/lib/api/error-handler'
 
 // ============================================

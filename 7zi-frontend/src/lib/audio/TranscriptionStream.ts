@@ -7,13 +7,7 @@
  * @version 1.13.0
  */
 
-import type {
-  StreamTranscriptionConfig,
-  TranscriptionEvent,
-  TranscriptionWithSpeaker,
-  SupportedLanguage,
-  AudioEventListener,
-} from './types'
+import type { StreamTranscriptionConfig, TranscriptionEvent, TranscriptionWithSpeaker, AudioEventListener } from './types'
 import { logger } from '@/lib/logger'
 
 /**

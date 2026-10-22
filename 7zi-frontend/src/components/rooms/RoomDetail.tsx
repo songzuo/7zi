@@ -13,10 +13,10 @@
 
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
-import type { Room, RoomMember, RoomSettings } from '@/types/rooms'
+import type { Room, RoomSettings } from '@/types/rooms'
 import { useRoomStore } from '@/stores/room-store'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'

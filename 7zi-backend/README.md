@@ -69,14 +69,16 @@ pnpm start:workflow
 ### WebSocket 服务
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `PORT` | 3002 | WebSocket 服务端口（`bin/start-all.sh` 中为 `WS_PORT`，默认 3010） |
+| `PORT` | 3002 | WebSocket 服务端口（优先级高于 `WS_PORT`） |
+| `WS_PORT` | 3002 | WebSocket 专用端口变量（`bin/start-all.sh` 注入，默认 3010；仅在未设置 `PORT` 时生效） |
 | `NEXT_PUBLIC_SITE_URL` | http://localhost:3000 | CORS 允许的源 |
 | `LOG_LEVEL` | info | 日志级别 |
 
 ### 工作流引擎
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `PORT` | 3002 | 工作流服务端口（`bin/start-all.sh` 中为 `WF_PORT`，默认 3011） |
+| `PORT` | 3001 | 工作流服务端口（优先级高于 `WF_PORT`） |
+| `WF_PORT` | 3001 | 工作流引擎专用端口变量（`bin/start-all.sh` 注入，默认 3011；仅在未设置 `PORT` 时生效） |
 | `DATABASE_URL` | - | 数据库连接字符串 |
 | `REDIS_URL` | redis://localhost:6379 | Redis 连接字符串 |
 
@@ -85,7 +87,7 @@ pnpm start:workflow
 | 服务 | 直接运行 | `bin/start-all.sh` |
 |------|---------|-------------------|
 | WebSocket | 3002 | 3010 |
-| 工作流引擎 | 3002 | 3011 |
+| 工作流引擎 | 3001 | 3011 |
 | 7zi-frontend | 3000 | - |
 
 ## 📡 API 端点
@@ -149,4 +151,4 @@ npx jest websocket/ --coverage
 
 ---
 
-*最后更新: 2026-10-20*
+*最后更新: 2026-10-22*

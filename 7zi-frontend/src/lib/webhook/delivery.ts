@@ -4,11 +4,7 @@
  * 7zi-frontend v1.12.2
  */
 
-import type {
-  WebhookDelivery,
-  CreateDeliveryInput,
-  DeliveryStatus,
-} from './types';
+import type { WebhookDelivery, CreateDeliveryInput } from './types'
 
 // ==================== 配置常量 ====================
 

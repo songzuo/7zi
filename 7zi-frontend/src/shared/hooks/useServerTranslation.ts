@@ -3,7 +3,6 @@
  * 只能在服务端组件中使用
  */
 
-import { getT } from '@/lib/i18n/server'
 import type { TFunction } from 'i18next'
 
 interface UseServerTranslationOptions {

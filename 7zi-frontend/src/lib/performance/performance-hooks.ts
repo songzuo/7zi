@@ -2,7 +2,7 @@
  * Performance optimization hooks for mobile optimization
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 export { useDebounce, useThrottle } from './optimization-utils';
 

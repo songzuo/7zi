@@ -5,16 +5,7 @@
 
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
-import type {
-  AIChatStore,
-  AIConversation,
-  AIMessage,
-  AISuggestion,
-  SuggestionRequest,
-  ConversationContext,
-  ChatStatus,
-  StreamStats,
-} from './types'
+import type { AIChatStore, AIConversation, AIMessage, AISuggestion, SuggestionRequest, ChatStatus, StreamStats } from './types'
 import {
   aiClient,
   AIAuthError,

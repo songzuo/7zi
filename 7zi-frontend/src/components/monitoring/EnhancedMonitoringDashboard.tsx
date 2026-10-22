@@ -10,22 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Cpu,
-  Database,
-  Globe,
-  TrendingDown,
-  TrendingUp,
-  Zap,
-  RefreshCw,
-  Settings,
-  History,
-  BarChart3,
-} from 'lucide-react'
+import { Activity, AlertTriangle, CheckCircle, Clock, Database, TrendingDown, TrendingUp, Zap, RefreshCw, Settings, History } from 'lucide-react'
 import { monitor } from '@/lib/monitoring'
 import type { AggregatedMetrics, AlarmEvent } from '@/lib/monitoring/types'
 import { PerformanceChart } from './PerformanceChart'

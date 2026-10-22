@@ -20,12 +20,7 @@ export type {
   RollbackResponse,
 } from '@/types/workflow-version'
 
-import type {
-  WorkflowVersion,
-  WorkflowDefinition,
-  CreateWorkflowVersionDTO,
-  RollbackWorkflowDTO,
-} from '@/types/workflow-version'
+import type { WorkflowVersion, CreateWorkflowVersionDTO } from '@/types/workflow-version'
 
 // ============================================
 // Storage Keys

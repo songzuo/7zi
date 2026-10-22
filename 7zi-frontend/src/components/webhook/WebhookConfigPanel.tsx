@@ -6,12 +6,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import {
-  WebhookSubscription,
-  CreateWebhookInput,
-  WebhookEventType,
-  WEBHOOK_EVENT_TYPE_LABELS,
-} from '@/lib/webhook';
+import { WebhookSubscription, CreateWebhookInput, WebhookEventType } from '@/lib/webhook'
 import { useWebhooks, useWebhookEventTypes } from '@/hooks/useWebhooks';
 
 // ==================== 类型定义 ====================

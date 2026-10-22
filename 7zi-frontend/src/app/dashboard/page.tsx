@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Dashboard as DashboardComponent } from '@/features/dashboard/components/Dashboard';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import type { OnboardingData } from '@/types/onboarding';
-import { isOnboardingCompleted, setOnboardingCompleted } from '@/types/onboarding';
+import { setOnboardingCompleted } from '@/types/onboarding'
 
 const STORAGE_KEY = 'onboarding_completed';
 

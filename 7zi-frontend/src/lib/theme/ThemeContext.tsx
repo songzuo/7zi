@@ -6,7 +6,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
-import { ThemeMode, getResolvedTheme, themeConfig } from './theme-config';
+import { ThemeMode } from './theme-config'
 import { logger } from '../logger';
 
 interface ThemeContextValue {

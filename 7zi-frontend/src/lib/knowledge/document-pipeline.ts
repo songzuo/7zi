@@ -2,13 +2,7 @@
  * 文档处理管道 - 解析、分块和嵌入生成
  */
 
-import {
-  Document,
-  DocumentChunk,
-  EmbeddingRequest,
-  EmbeddingResponse,
-  DocumentProcessorConfig,
-} from './types';
+import { Document, DocumentChunk, DocumentProcessorConfig } from './types'
 
 export class DocumentProcessor {
   private config: Required<DocumentProcessorConfig>;

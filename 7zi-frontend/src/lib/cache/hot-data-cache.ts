@@ -4,7 +4,7 @@
  * 提供高性能的 API 响应缓存，支持租户/用户隔离、TTL 自动过期、缓存统计等功能
  */
 
-import { InMemoryStorage, StorageItem } from '../db/storage'
+import { InMemoryStorage } from '../db/storage'
 
 /**
  * 缓存键配置接口

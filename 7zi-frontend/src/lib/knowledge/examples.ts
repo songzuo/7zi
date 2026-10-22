@@ -2,16 +2,7 @@
  * 知识库 RAG 系统使用示例
  */
 
-import {
-  createRAGSystem,
-  DocumentProcessor,
-  VectorStoreFactory,
-  SmartRetriever,
-  RAGQA,
-  type VectorStoreConfig,
-  type RetrievalConfig,
-  type RAGQAConfig,
-} from './index';
+import { createRAGSystem, DocumentProcessor, VectorStoreFactory, SmartRetriever, RAGQA, type VectorStoreConfig, type RetrievalConfig } from './index'
 
 // ==================== 示例 1: 基本使用 ====================
 

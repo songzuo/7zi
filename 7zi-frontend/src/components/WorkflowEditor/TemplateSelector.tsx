@@ -8,13 +8,7 @@
  */
 
 import React, { useState, useMemo } from 'react'
-import {
-  listTemplates,
-  listTemplatesByCategory,
-  listTemplatesByDifficulty,
-  searchTemplatesByTag,
-  type WorkflowTemplate,
-} from './templates'
+import { listTemplates, listTemplatesByCategory, type WorkflowTemplate } from './templates'
 
 // ============================================
 // 样式定义

@@ -14,7 +14,7 @@
 
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useRoomStore } from '@/stores/room-store'

@@ -5,7 +5,7 @@
  */
 
 import { ReactNode } from 'react'
-import { Permission, ActionType, ResourceType } from './types'
+import { Permission } from './types'
 import { usePermissions } from './usePermissions'
 
 export type PermissionCondition = 

@@ -4,7 +4,7 @@
  * Type definitions for API route contexts
  */
 
-import type { User, UserRole } from '@/lib/auth'
+import type { UserRole } from '@/lib/auth'
 
 /**
  * Authenticated user context for API routes

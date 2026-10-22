@@ -10,7 +10,7 @@ import { useAnalytics } from '@/hooks/useAnalytics'
 import { WorkflowStatsCard, ExecutionTrendChart } from '@/components/analytics'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Select, SelectItem } from '@/components/ui/Select'
+import { Select } from '@/components/ui/Select'
 import type { TimeRange } from '@/lib/analytics/service'
 
 export default function AnalyticsDashboardDemo() {

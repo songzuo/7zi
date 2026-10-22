@@ -4,9 +4,9 @@
  * POST /api/rooms/[id]/leave - 离开房间
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { roomStore } from '@/lib/api/rooms/store'
-import { withErrorHandling, createSuccessResponse, createNotFoundError, createBadRequestError } from '@/lib/api/error-handler'
+import { createSuccessResponse, createNotFoundError, createBadRequestError } from '@/lib/api/error-handler'
 import { logger } from '@/lib/logger'
 import { withCSRF } from '@/lib/middleware/csrf'
 

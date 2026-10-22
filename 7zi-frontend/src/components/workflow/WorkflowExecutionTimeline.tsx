@@ -12,7 +12,6 @@
 import React, { useMemo, useCallback } from 'react'
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, FastForward } from 'lucide-react'
 import type { ExecutionHistory } from '@/lib/workflow/execution-history-store'
-import type { ReplayStep } from '@/lib/workflow/replay-engine'
 import { cn } from '@/lib/utils'
 
 // ============================================

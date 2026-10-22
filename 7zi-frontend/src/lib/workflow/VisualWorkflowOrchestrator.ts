@@ -8,16 +8,7 @@
  * @version 1.12.2
  */
 
-import type {
-  WorkflowDefinition,
-  WorkflowNodeData,
-  WorkflowEdgeData,
-  WorkflowInstance,
-  WorkflowVariable,
-  NodeStatus,
-  NodeExecutionResult,
-  ExecutionState,
-} from '@/components/WorkflowEditor/types'
+import type { WorkflowDefinition, WorkflowNodeData, WorkflowInstance, WorkflowVariable, NodeExecutionResult, ExecutionState } from '@/components/WorkflowEditor/types'
 import { executionStateStorage, type PersistentExecutionState } from '@/lib/storage/execution-state-storage'
 import { webhookManager } from '@/lib/webhook'
 import type { WebhookEvent } from '@/lib/webhook'

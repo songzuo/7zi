@@ -10,7 +10,6 @@ import { PerformanceDashboard } from '@/components/performance/PerformanceDashbo
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary'
 import { usePerformanceMonitoring } from '@/hooks/usePerformanceMonitoring'
 import { initErrorReporting } from '@/lib/error-reporting/error-reporting'
-import { Button } from '@/components/ui/Button'
 
 export default function PerformanceMonitoringPage() {
   // Initialize performance monitoring

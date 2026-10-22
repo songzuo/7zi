@@ -4,7 +4,6 @@ import { agentScheduler } from '@/lib/agents/scheduler/scheduler'
 import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
 import type { AgentLearningStats, CapabilityScore } from '@/lib/agents/learning/types'
-import type { TaskStatus } from '@/lib/agents/scheduler/types'
 
 interface RouteParams {
   params: Promise<{ agentId: string }>

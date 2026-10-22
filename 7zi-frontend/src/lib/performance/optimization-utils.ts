@@ -3,7 +3,7 @@
  * Includes React.memo, useMemo, useCallback patterns and animation utilities
  */
 
-import React, { useEffect, useRef, useCallback, useMemo, useState, DependencyList } from 'react';
+import React, { useEffect, useRef, useCallback, useState, DependencyList } from 'react'
 import { useDepsVersion } from '@/lib/hooks/useDepsVersion';
 
 /**

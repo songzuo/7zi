@@ -8,7 +8,7 @@
  * - 资源级别的访问控制
  */
 
-import { User, UserRole } from './auth'
+import { User } from './auth'
 
 /**
  * ==================== RBAC 模型定义 ====================

@@ -16,7 +16,6 @@
  */
 
 import { create } from 'zustand'
-import { shallow } from 'zustand/shallow'
 
 /**
  * UI 通知类型（简化版，用于 Toast 显示）

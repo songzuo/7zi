@@ -5,15 +5,8 @@
  */
 
 import { generateSecureId } from '@/lib/utils'
-import type {
-  DialogueTurn,
-  DialogueContext,
-  CoherenceScore,
-  CoherenceAnalysis,
-  DialogueEnhancementConfig,
-  DialogueEnhancementError,
-} from './types'
-import { DEFAULT_CONFIG, ERROR_CODES } from './types'
+import type { DialogueTurn, DialogueContext, CoherenceScore, CoherenceAnalysis, DialogueEnhancementConfig } from './types'
+import { DEFAULT_CONFIG } from './types'
 
 export class MultiTurnDialogueManager {
   private contexts: Map<string, DialogueContext>

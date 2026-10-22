@@ -34,7 +34,7 @@ import type {
   NodeChange,
   EdgeChange,
 } from 'reactflow'
-import { BackgroundVariant, Position } from 'reactflow'
+import { BackgroundVariant } from 'reactflow'
 
 import 'reactflow/dist/style.css'
 

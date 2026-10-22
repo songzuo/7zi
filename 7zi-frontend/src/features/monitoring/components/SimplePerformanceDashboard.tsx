@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { AlertTriangle, Clock, Zap, Activity, RefreshCw, Trash2 } from 'lucide-react'
+import { AlertTriangle, Zap, Activity, RefreshCw, Trash2 } from 'lucide-react'
 import { monitor, AggregatedMetrics, AlarmEvent } from '@/lib/monitoring'
 
 interface SimplePerformanceDashboardProps {

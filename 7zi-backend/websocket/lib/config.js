@@ -12,7 +12,11 @@ const DEFAULT_ALLOWED_ORIGIN = 'http://localhost:3000'
 const DEFAULT_LOG_LEVEL = 'info'
 
 function loadConfig(env = process.env) {
-  const rawPort = env.PORT
+  // 支持两种端口环境变量：
+  // - PORT   通用端口变量（优先级最高）
+  // - WS_PORT WebSocket 专用端口变量（bin/start-all.sh 注入的就是它）
+  // 两者都未设置时使用 DEFAULT_PORT，默认端口语义保持不变。
+  const rawPort = env.PORT || env.WS_PORT
   const parsedPort = Number.parseInt(rawPort, 10)
 
   return {

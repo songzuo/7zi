@@ -21,7 +21,7 @@
  * - 工具栏按钮状态（加载动画、禁用状态）
  */
 
-import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 // 动态导入 React Flow 核心组件
 import { ReactFlowProvider, ReactFlow, Background, Controls, MiniMap, Panel } from './reactflow-imports'
@@ -37,7 +37,7 @@ import type {
   NodeChange,
   EdgeChange,
 } from 'reactflow'
-import { BackgroundVariant, SelectionMode, Position } from 'reactflow'
+import { BackgroundVariant, SelectionMode } from 'reactflow'
 
 import 'reactflow/dist/style.css'
 

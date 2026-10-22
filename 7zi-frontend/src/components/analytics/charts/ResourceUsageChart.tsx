@@ -7,19 +7,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import {
-  ComposedChart,
-  Line,
-  Area,
-  Bar,
-  AreaChart,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts'
+import { ComposedChart, Line, Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { cn } from '@/lib/utils'
 import type { ResourceUsageData } from '@/lib/analytics/types'

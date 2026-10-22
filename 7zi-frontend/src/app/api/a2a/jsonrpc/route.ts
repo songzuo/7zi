@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { agentScheduler } from '@/lib/agents/scheduler/scheduler'
-import type { JSONRPCRequest, JSONRPCResponse, TaskStatus } from '@/lib/agents/scheduler/types'
+import type { JSONRPCRequest, JSONRPCResponse } from '@/lib/agents/scheduler/types'
 import { authenticateJWT } from '@/lib/auth/api-auth'
 import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
 

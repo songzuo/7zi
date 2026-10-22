@@ -7,11 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import type {
-  WorkflowVersion,
-  WorkflowVersionHistoryQuery,
-  WorkflowVersionHistoryResponse,
-} from '@/types/workflow-version'
+import type { WorkflowVersion, WorkflowVersionHistoryResponse } from '@/types/workflow-version'
 
 // ============================================
 // In-Memory Store (Replace with database in production)

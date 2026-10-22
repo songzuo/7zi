@@ -7,18 +7,7 @@
  * @version 1.13.0
  */
 
-import type {
-  STTProvider,
-  STTRouterConfig,
-  STTRouteResult,
-  TranscriptionResult,
-  TranscriptionWithSpeaker,
-  WhisperConfig,
-  StreamTranscriptionConfig,
-  AudioEventListener,
-  TranscriptionEvent,
-  SupportedLanguage,
-} from './types'
+import type { STTProvider, STTRouterConfig, STTRouteResult, TranscriptionResult, TranscriptionWithSpeaker, WhisperConfig, StreamTranscriptionConfig, SupportedLanguage } from './types'
 import { WhisperClient } from './WhisperClient'
 import { TranscriptionStream } from './TranscriptionStream'
 

@@ -11,12 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  RateLimiter,
-  getClientIP,
-  generateRateLimitKey,
-  formatRateLimitHeaders,
-} from './lib/rate-limit/limiter'
+import { RateLimiter, generateRateLimitKey, formatRateLimitHeaders } from './lib/rate-limit/limiter'
 import { MemoryRateLimitStorage } from './lib/rate-limit/memory-storage'
 import { getRateLimitForPath, RateLimitConfig } from './lib/rate-limit/config'
 

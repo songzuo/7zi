@@ -3,9 +3,9 @@
  * Implements intelligent background sync with multiple triggers and incremental updates
  */
 
-import { OfflineStorage, SyncQueueItem, DataEntry, STORES } from './storage';
+import { OfflineStorage, SyncQueueItem, DataEntry } from './storage'
 import { logger } from '@/lib/logger'
-import { ConflictResolver, ResolutionStrategy, ConflictMeta } from './conflict-resolver';
+import { ConflictResolver, ResolutionStrategy } from './conflict-resolver'
 
 // Sync state
 export type SyncState = 'idle' | 'syncing' | 'error' | 'paused';

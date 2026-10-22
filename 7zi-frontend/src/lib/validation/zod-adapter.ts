@@ -5,13 +5,7 @@
  */
 
 import { z } from 'zod'
-import type {
-  ValidationRule,
-  ValidationContext,
-  ValidationResult,
-  ZodFieldSchema,
-  Translator,
-} from './types'
+import type { ValidationRule, ValidationContext, Translator } from './types'
 import { createResult, getErrorMessage } from './validators'
 
 // ============================================================================

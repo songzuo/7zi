@@ -4,10 +4,7 @@
  * Permission Provider - 提供权限管理功能
  */
 
-import {
-  PermissionProvider as BasePermissionProvider,
-  createUserFromPayload,
-} from '@/contexts/PermissionContext'
+import { PermissionProvider as BasePermissionProvider } from '@/contexts/PermissionContext'
 import { useEffect, useState } from 'react'
 
 interface PermissionProviderProps {

@@ -16,18 +16,10 @@
  * @version 2.1.0
  */
 
-import { Alert, AlertChannel, AlertSeverity, AlertPriority } from '../alert-engine'
+import { Alert, AlertChannel } from '../alert-engine'
 import { logger } from '@/lib/logger'
 import { sendEmailViaApi, testSmtpViaApi } from '@/lib/email/api-client'
-import {
-  BaseAlertChannel,
-  BaseChannelConfig,
-  RetryConfig,
-  DedupConfig,
-  RateLimitConfig,
-  AlertLevel,
-  priorityToLevel,
-} from './base-alert-channel'
+import { BaseAlertChannel, BaseChannelConfig } from './base-alert-channel'
 
 export interface EmailChannelConfig extends BaseChannelConfig {
   // SMTP Configuration

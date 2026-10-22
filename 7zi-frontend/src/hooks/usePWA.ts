@@ -11,15 +11,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { webPushService, type PushNotificationPayload } from '@/lib/pwa/web-push-service'
 import { serviceWorkerManager } from '@/lib/pwa/service-worker-manager'
-import {
-  isPWAInstalled,
-  isMobile,
-  isIOS,
-  isAndroid,
-  isOnline,
-  listenNetworkStatus,
-  type SWMessage,
-} from '@/lib/pwa/utils'
+import { isPWAInstalled, isMobile, isIOS, isAndroid, isOnline, listenNetworkStatus } from '@/lib/pwa/utils'
 
 export interface PWAState {
   isSupported: boolean

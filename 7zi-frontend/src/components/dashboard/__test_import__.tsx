@@ -2,7 +2,7 @@
  * 测试导入 - 验证组件是否能正确导入
  */
 
-import { AgentStatusPanel, type Agent, type AgentTask, type ResourceUsage } from './index'
+import { AgentStatusPanel, type Agent } from './index'
 
 // 测试类型是否正确导出
 const testAgent: Agent = {

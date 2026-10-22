@@ -10,14 +10,7 @@ import { createContext, useContext, useState, useCallback, ReactNode } from 'rea
 
 import { Role, Permission, User, CheckPermissionOptions, PermissionContextType } from './types'
 
-import {
-  checkPermission,
-  checkPermissions,
-  checkRole,
-  checkIsAdmin,
-  checkResourceAccess,
-  createUserFromPayload,
-} from './utils'
+import { checkPermission, checkPermissions, checkRole, checkIsAdmin, checkResourceAccess } from './utils'
 
 /**
  * Permission Context

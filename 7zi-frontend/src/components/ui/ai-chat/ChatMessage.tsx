@@ -8,7 +8,7 @@
 
 import React, { useCallback, useMemo } from 'react'
 import clsx from 'clsx'
-import type { ChatMessageProps, AIMessage, AISuggestion } from './types'
+import type { ChatMessageProps } from './types'
 
 // ============================================
 // 代码块渲染

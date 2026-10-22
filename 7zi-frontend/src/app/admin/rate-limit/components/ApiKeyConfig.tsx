@@ -7,17 +7,7 @@
  */
 
 import { useState } from 'react'
-import { 
-  Key, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save,
-  X,
-  Zap,
-  TrendingUp,
-  Calendar
-} from 'lucide-react'
+import { Key, Edit, Save, X, Zap, TrendingUp, Calendar } from 'lucide-react'
 import { useApiKeyTiers, useRateLimitKeys } from '../hooks/useRateLimitApi'
 import type { ApiKeyTierConfig } from '../hooks/useRateLimitApi'
 

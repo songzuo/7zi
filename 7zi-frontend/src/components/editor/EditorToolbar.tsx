@@ -6,26 +6,7 @@
  */
 
 import React from 'react'
-import {
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
-  Quote,
-  Code,
-  Link,
-  Undo,
-  Redo,
-  Link2Off as LinkOff,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-} from 'lucide-react'
+import { Bold, Italic, Underline, Strikethrough, Heading1, Heading2, Heading3, List, ListOrdered, Quote, Code, Link, Undo, Redo, Link2Off as LinkOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ToolbarButtonProps {

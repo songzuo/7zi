@@ -3,7 +3,7 @@
  * Provides robust offline storage with automatic sync
  */
 
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { openDB, IDBPDatabase } from 'idb'
 import { logger } from '@/lib/logger'
 import { generateSecureId } from '@/lib/utils'
 

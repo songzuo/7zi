@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { useKeyboardShortcutsEnhanced } from '@/hooks/useKeyboardShortcutsEnhanced';
 import { Shortcut } from '@/lib/keyboard/shortcut-registry';
-import { shortcutManager, ShortcutConflict } from '@/lib/keyboard/shortcut-manager';
+import { ShortcutConflict } from '@/lib/keyboard/shortcut-manager'
 import ShortcutSettingsEnhanced from './ShortcutSettingsEnhanced';
 import ShortcutSearch, { useShortcutSearch } from './ShortcutSearch';
 import ShortcutTutorial, { TutorialProgress, useShortcutTutorial } from './ShortcutTutorial';

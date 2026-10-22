@@ -14,21 +14,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
-import {
-  Camera,
-  Upload,
-  Download,
-  Undo,
-  Redo,
-  Trash2,
-  Square,
-  PenTool,
-  Type,
-  X,
-  Plus,
-  Minus,
-  RotateCw,
-} from 'lucide-react'
+import { Camera, Upload, Download, Undo, Redo, Trash2, Square, PenTool, Type, X, Plus, Minus } from 'lucide-react'
 
 type AnnotationType = 'rect' | 'pen' | 'text'
 

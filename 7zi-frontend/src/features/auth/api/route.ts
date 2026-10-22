@@ -8,14 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  loginSchema,
-  registerSchema,
-  passwordResetRequestSchema,
-  passwordResetSchema,
-  createValidationErrorResponse,
-  validateAndSanitizeBody,
-} from '../../../lib/validation-schemas'
+import { loginSchema, registerSchema, passwordResetSchema, createValidationErrorResponse, validateAndSanitizeBody } from '../../../lib/validation-schemas'
 import { AuditLogger } from '@/features/audit/lib/logger'
 import { getClientIP } from '../../../lib/rate-limit/limiter'
 import { AuditEventType } from '@/features/audit/lib/types'

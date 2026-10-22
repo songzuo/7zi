@@ -9,14 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  AlertRule,
-  UpdateAlertRuleDTO,
-  MetricType,
-  Condition,
-  Severity,
-  NotificationChannel
-} from '@/types/alerts'
+import { AlertRule, MetricType, Condition, Severity, NotificationChannel } from '@/types/alerts'
 import { withCSRF } from '@/lib/middleware/csrf'
 
 // Import the shared store (in production, this would be a database)

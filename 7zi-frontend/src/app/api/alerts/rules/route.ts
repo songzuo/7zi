@@ -9,15 +9,7 @@
 
 import { NextRequest } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  AlertRule,
-  CreateAlertRuleDTO,
-  AlertRulesResponse,
-  MetricType,
-  Condition,
-  Severity,
-  NotificationChannel
-} from '@/types/alerts'
+import { AlertRule, AlertRulesResponse, MetricType, Condition, Severity, NotificationChannel } from '@/types/alerts'
 import { createSuccessResponse, createBadRequestError, createErrorResponse } from '@/lib/api/error-handler'
 import { withCSRF } from '@/lib/middleware/csrf'
 

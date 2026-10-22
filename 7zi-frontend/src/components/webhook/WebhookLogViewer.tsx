@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { WebhookLog, WebhookLogLevel } from '@/lib/webhook';
+import { WebhookLogLevel } from '@/lib/webhook'
 import { useWebhookLogs } from '@/hooks/useWebhooks';
 
 // ==================== 类型定义 ====================

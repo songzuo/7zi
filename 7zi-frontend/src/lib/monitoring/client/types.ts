@@ -3,7 +3,6 @@
  * 客户端性能监控类型定义
  */
 
-import type { Metric } from 'web-vitals'
 
 export interface WebVitalsMetric {
   id: string

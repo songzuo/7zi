@@ -17,7 +17,7 @@ import {
   Severity
 } from '@/types/alerts'
 import { Button } from '@/components/ui/Button'
-import { Card, CardHeader, CardBody, CardTitle } from '@/components/ui/Card'
+import { Card, CardBody } from '@/components/ui/Card'
 import { AlertRuleForm } from './AlertRuleForm'
 import { AlertHistoryList } from './AlertHistory'
 

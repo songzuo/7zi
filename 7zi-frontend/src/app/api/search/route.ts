@@ -6,7 +6,7 @@
 
 import { NextRequest } from 'next/server'
 import { authMiddleware } from '@/middleware/auth.middleware'
-import { searchSchema, sanitizeHtml } from '@/shared/lib/validation-schemas'
+import { searchSchema } from '@/shared/lib/validation-schemas'
 import { createSuccessResponse, createBadRequestError, createErrorResponse } from '@/lib/api/error-handler'
 import { createHotDataCache, CachePresets } from '@/lib/cache'
 

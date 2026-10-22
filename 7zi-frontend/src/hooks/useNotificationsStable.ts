@@ -13,12 +13,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { logger } from '@/lib/logger'
-import type {
-  Notification,
-  NotificationType,
-  NotificationPriority,
-  NotificationFilter,
-} from '@/lib/services/notification'
+import type { Notification, NotificationFilter } from '@/lib/services/notification'
 import { WebSocketManager, ConnectionState } from '@/lib/websocket-manager'
 
 /**

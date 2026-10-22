@@ -13,7 +13,19 @@ const {
 } = require('./src/engine/executors');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+
+const DEFAULT_PORT = 3001;
+
+/**
+ * 解析监听端口。
+ * 优先级：PORT（通用变量） > WF_PORT（bin/start-all.sh 注入） > 3001（默认）。
+ * 保持与历史行为完全一致：只有 PORT/WF_PORT 完全未设置时才使用默认端口。
+ */
+function resolvePort(env = process.env) {
+  return env.PORT || env.WF_PORT || DEFAULT_PORT;
+}
+
+const PORT = resolvePort(process.env);
 
 // 中间件
 app.use(cors());
@@ -519,4 +531,4 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Export for testing
-module.exports = { app, engine };
+module.exports = { app, engine, resolvePort, DEFAULT_PORT };

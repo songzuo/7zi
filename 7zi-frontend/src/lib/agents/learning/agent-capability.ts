@@ -6,13 +6,7 @@
  * @module agent-capability
  */
 
-import type {
-  AgentId,
-  TaskType,
-  CapabilityScore,
-  AgentLearningStats,
-  TaskHistoryRecord,
-} from './types'
+import type { AgentId, TaskType, CapabilityScore, TaskHistoryRecord } from './types'
 
 /**
  * Capability assessment result

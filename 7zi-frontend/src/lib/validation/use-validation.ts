@@ -7,13 +7,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import type {
-  FieldConfig,
-  FormConfig,
-  FieldState,
-  ValidationTrigger,
-  FormValidationResult,
-} from './types'
+import type { FormConfig, FieldState, ValidationTrigger, FormValidationResult } from './types'
 import { FormValidator } from './form-validator'
 
 // ============================================================================

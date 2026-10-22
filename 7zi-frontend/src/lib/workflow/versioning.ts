@@ -13,11 +13,7 @@
  */
 
 import { generateSecureId } from '@/lib/utils'
-import type {
-  WorkflowVersion,
-  WorkflowDefinition,
-  CreateWorkflowVersionDTO,
-} from '@/types/workflow-version'
+import type { WorkflowVersion, WorkflowDefinition } from '@/types/workflow-version'
 
 // ============================================
 // Diff Types

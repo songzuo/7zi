@@ -3,7 +3,7 @@
  * Z-Score 异常检测算法
  */
 
-import { MetricBaseline, AnomalyDetection } from '../types'
+import { MetricBaseline } from '../types'
 
 export interface ZScoreResult {
   zScore: number

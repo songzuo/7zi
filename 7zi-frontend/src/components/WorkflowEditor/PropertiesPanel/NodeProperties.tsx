@@ -10,19 +10,7 @@ import React, { useState, useCallback } from 'react'
 import type { Node } from 'reactflow'
 import type { WorkflowNodeData, ValidationError } from '../types'
 import { RichTextEditor } from '@/components/editor'
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Plus, 
-  Trash2, 
-  Copy, 
-  CheckCircle2, 
-  AlertCircle, 
-  AlertTriangle,
-  Settings,
-  Info,
-  X
-} from 'lucide-react'
+import { ChevronDown, ChevronRight, Plus, Trash2, Copy, CheckCircle2, AlertCircle, AlertTriangle, Settings, Info } from 'lucide-react'
 
 interface NodePropertiesProps {
   node: Node<WorkflowNodeData>

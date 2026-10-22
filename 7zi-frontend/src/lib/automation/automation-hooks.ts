@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import type { AutomationRule, ExecutionResult, TriggerType, RuleStatus, EventType } from './automation-engine'
+import type { AutomationRule, ExecutionResult, RuleStatus, EventType } from './automation-engine'
 import { automationEngine } from './automation-engine'
 import { DEFAULT_RULE_TEMPLATES, createRuleFromTemplate } from './default-templates'
 

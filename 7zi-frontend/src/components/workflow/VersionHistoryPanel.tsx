@@ -24,12 +24,7 @@ import {
   getCompressionManager,
   VersionCompressionManager,
 } from '@/lib/workflow/versioning'
-import type {
-  WorkflowDiff,
-  VersionBranch,
-  SnapshotPolicy,
-  CompressionRule,
-} from '@/lib/workflow/versioning'
+import type { WorkflowDiff, VersionBranch, SnapshotPolicy } from '@/lib/workflow/versioning'
 import {
   getWorkflowVersionHistory,
   rollbackWorkflow,

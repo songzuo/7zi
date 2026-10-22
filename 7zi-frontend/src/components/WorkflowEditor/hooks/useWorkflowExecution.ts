@@ -4,7 +4,7 @@
  * 集成 EnhancedWorkflowExecutor 进行工作流执行
  */
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import type { Edge, Node } from 'reactflow'
 import type { WorkflowInstance, ExecutionLog } from '../types'
 import type { ExecutionState } from '../types'

@@ -4,27 +4,8 @@
  * 使用示例和最佳实践
  */
 
-import type {
-  ExecutionStateData,
-  NodeState,
-  ExecutionProgress,
-} from './execution-storage'
-import {
-  saveExecutionState,
-  loadExecutionState,
-  updateExecutionProgress,
-  updateNodeState,
-  completeExecution,
-  failExecution,
-  pauseExecution,
-  resumeExecution,
-  cancelExecution,
-  addExecutionLog,
-  updateVariables,
-  listExecutions,
-  deleteExecution,
-  clearExpiredExecutions,
-} from './execution-storage'
+import type { ExecutionStateData, NodeState } from './execution-storage'
+import { saveExecutionState, loadExecutionState, updateExecutionProgress, updateNodeState, completeExecution, failExecution, pauseExecution, resumeExecution, addExecutionLog, updateVariables, listExecutions, deleteExecution, clearExpiredExecutions } from './execution-storage'
 
 // ============================================
 // 示例 1: 基本使用 - 保存和加载执行状态

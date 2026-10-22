@@ -8,7 +8,7 @@
 
 import { PerformanceAlerter, performanceAlerter } from '../alerting/alerter'
 import { BudgetChecker, budgetChecker } from './budget-checker'
-import { BudgetCheckResult, BudgetViolation, PageBudget } from './types'
+import { BudgetCheckResult, BudgetViolation } from './types'
 
 // Re-export types from budget-config for convenience
 export type { BudgetConfigOptions, BudgetValidationResult } from './budget-config'

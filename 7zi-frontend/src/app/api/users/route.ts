@@ -5,18 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  UserWithRoles,
-  createUserWithRoles,
-  RequirePermission,
-  RequireAnyPermission,
-  RequireAllPermissions,
-  RequireRoleLevel,
-  ResourceType,
-  ActionType,
-  PermissionDeniedError,
-  Permissions,
-} from '@/lib/permissions'
+import { UserWithRoles, createUserWithRoles, RequirePermission, RequireAnyPermission, RequireAllPermissions, RequireRoleLevel, ResourceType, ActionType, PermissionDeniedError } from '@/lib/permissions'
 import { UserRole } from '@/lib/auth'
 import {
   createSuccessResponse,

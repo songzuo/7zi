@@ -6,11 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  enhancedNotificationService,
-  UserNotificationPreferences,
-  NotificationPriority,
-} from '@/lib/services/notification-enhanced'
+import { enhancedNotificationService, NotificationPriority } from '@/lib/services/notification-enhanced'
 import {
   createSuccessResponse,
   createValidationError,

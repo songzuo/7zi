@@ -9,7 +9,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { shortcutManager } from '@/lib/keyboard/shortcut-manager';
 import { Shortcut } from '@/lib/keyboard/shortcut-registry';
 import ShortcutTooltip from './ShortcutTooltip';
-import { getPlatformKey } from '@/lib/keyboard/defaults';
 
 interface ShortcutSearchProps {
   isOpen?: boolean;

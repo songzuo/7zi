@@ -3,14 +3,8 @@
  * v1.12.3
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  fuzzyMatch,
-  fuzzyMatchItems,
-  fuzzyMatchAll,
-  fuzzyMatchAny,
-  type FuzzySearchOptions
-} from '../fuzzy-search';
+import { describe, it, expect } from 'vitest'
+import { fuzzyMatch, fuzzyMatchItems, fuzzyMatchAll, fuzzyMatchAny } from '../fuzzy-search'
 
 describe('fuzzyMatch', () => {
   describe('基础匹配', () => {

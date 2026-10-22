@@ -22,10 +22,9 @@ import {
 } from '@/lib/db/feedback-storage'
 import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas'
 import { z } from 'zod'
-import { v4 as uuidv4 } from 'uuid'
 import { withAdmin, withAuth, type AuthResult } from '@/lib/auth/api-auth'
 import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
-import { createSuccessResponse, createBadRequestError, createNotFoundError, createForbiddenError, createErrorResponse } from '@/lib/api/error-handler'
+import { createSuccessResponse, createBadRequestError, createNotFoundError, createErrorResponse } from '@/lib/api/error-handler'
 import { withCSRF } from '@/lib/middleware/csrf'
 
 /**

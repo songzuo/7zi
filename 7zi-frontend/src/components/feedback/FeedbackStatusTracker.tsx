@@ -13,16 +13,7 @@
 import React from 'react'
 import { useTranslation } from '@/lib/i18n/client'
 import type { FeedbackStatus } from '@/lib/db/feedback-types'
-import {
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  XCircle,
-  Archive,
-  Eye,
-  Wrench,
-  Sparkles,
-} from 'lucide-react'
+import { CheckCircle2, Clock, XCircle, Archive, Wrench } from 'lucide-react'
 
 interface FeedbackStatusTrackerProps {
   currentStatus: FeedbackStatus

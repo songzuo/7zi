@@ -14,7 +14,6 @@
 
 import { useToast as useToastContext } from './ToastProvider'
 import type { ToastOptions } from './ToastProvider'
-import type { ToastType } from './Toast'
 
 /**
  * useToast hook

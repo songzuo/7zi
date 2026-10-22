@@ -8,16 +8,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { EvomapGateway } from './gateway'
-import type {
-  AssetBundle,
-  Gene,
-  Capsule,
-  EvolutionEvent,
-  NodeStatus,
-  Task,
-  PublishResult,
-  FetchResult,
-} from './types'
+import type { AssetBundle, NodeStatus, Task, PublishResult, FetchResult } from './types'
 
 export interface UseEvomapOptions {
   hubUrl?: string

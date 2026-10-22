@@ -6,7 +6,7 @@
  */
 
 import { NextRequest } from 'next/server'
-import type { AISuggestion, SuggestionCategory } from '@/components/ui/ai-chat/types'
+import type { AISuggestion } from '@/components/ui/ai-chat/types'
 import { createSuccessResponse, createBadRequestError, createErrorResponse } from '@/lib/api/error-handler'
 
 // ============================================

@@ -8,12 +8,7 @@
  */
 
 import { generateSecureId } from '@/lib/utils'
-import type {
-  WorkflowDefinition,
-  WorkflowNodeData,
-  WorkflowEdgeData,
-  NodeConfig,
-} from './types'
+import type { WorkflowDefinition, WorkflowNodeData } from './types'
 
 // ============================================
 // 模板类型定义

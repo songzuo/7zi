@@ -6,7 +6,7 @@
  * 对于更复杂的场景，建议使用专业库如 isolation-forest
  */
 
-import { MetricDataPoint, AnomalyDetection } from '../types'
+import { MetricDataPoint } from '../types'
 
 export interface IsolationForestConfig {
   numTrees: number // 树的数量

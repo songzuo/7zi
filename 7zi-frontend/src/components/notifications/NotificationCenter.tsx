@@ -8,20 +8,7 @@
 
 import React, { useState, useMemo, useCallback } from 'react'
 import { Notification, NotificationType, NotificationPriority } from '@/lib/services/notification'
-import {
-  X,
-  Check,
-  CheckCheck,
-  Trash2,
-  Filter,
-  Info,
-  CheckCircle,
-  AlertTriangle,
-  XCircle,
-  MessageSquare,
-  Bell,
-  Clock,
-} from 'lucide-react'
+import { X, Check, CheckCheck, Trash2, Info, CheckCircle, AlertTriangle, XCircle, MessageSquare, Bell, Clock } from 'lucide-react'
 
 // Extract helper functions outside component to avoid recreation
 const getIcon = (type: NotificationType) => {

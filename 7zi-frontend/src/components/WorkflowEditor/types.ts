@@ -7,7 +7,7 @@
  * 定义工作流编辑器中使用的所有 TypeScript 类型
  */
 
-import type { Node, Edge, NodeProps } from 'reactflow'
+import type { NodeProps } from 'reactflow'
 
 // ============================================
 // 后端类型定义

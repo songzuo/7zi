@@ -4,20 +4,7 @@
  * 展示如何使用草稿存储模块的示例代码
  */
 
-import {
-  DraftType,
-  Draft,
-  DraftStorageManager,
-  getDraftStorageManager,
-  saveDraft,
-  loadDraft,
-  listDrafts,
-  deleteDraft,
-  clearExpiredDrafts,
-  updateDraft,
-  clearAllDrafts,
-  initializeDraftStorage,
-} from './draft-storage'
+import { getDraftStorageManager, saveDraft, loadDraft, listDrafts, deleteDraft, clearExpiredDrafts, updateDraft, initializeDraftStorage } from './draft-storage'
 
 /**
  * 示例 1: 基本使用 - 保存和加载草稿

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, EyeOff, ArrowRight, Check, X, Mail, Lock, User } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, X, Mail, Lock, User } from 'lucide-react'
 import { getPasswordStrength } from '@/lib/auth'
 import { trackSignUp } from '@/lib/analytics/ga4'
 

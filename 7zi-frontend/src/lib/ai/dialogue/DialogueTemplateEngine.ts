@@ -4,16 +4,7 @@
  * v1.13.0
  */
 
-import type {
-  DialogueTemplate,
-  TemplateVariable,
-  TemplateCategory,
-  TemplateCondition,
-  DialogueContext,
-  SentimentResult,
-  IntentResult,
-  DialogueEnhancementConfig,
-} from './types'
+import type { DialogueTemplate, TemplateCategory, TemplateCondition, DialogueContext, SentimentResult, IntentResult, DialogueEnhancementConfig } from './types'
 import { DEFAULT_CONFIG } from './types'
 
 /**

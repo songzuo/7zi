@@ -10,12 +10,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import type { Socket } from 'socket.io-client'
 
 // Import from shared types
-import type {
-  Notification,
-  NotificationType,
-  NotificationPriority,
-  NotificationFilter,
-} from '@/lib/services/notification'
+import type { Notification, NotificationFilter } from '@/lib/services/notification'
 import { logger } from '@/lib/logger'
 
 /**

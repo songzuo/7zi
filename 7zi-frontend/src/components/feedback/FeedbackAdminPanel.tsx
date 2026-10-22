@@ -12,36 +12,9 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import {
-  Inbox,
-  Clock,
-  AlertCircle,
-  CheckCircle2,
-  XCircle,
-  Filter,
-  Search,
-  ChevronDown,
-  MessageSquare,
-  Send,
-  Star,
-  TrendingUp,
-  Users,
-  BarChart3,
-  PieChart,
-  RefreshCw,
-  Download,
-  Archive,
-  Trash2,
-  Edit2,
-  Eye,
-  EyeOff,
-  Reply,
-  MoreVertical,
-  Calendar,
-} from 'lucide-react'
+import { Inbox, Clock, AlertCircle, CheckCircle2, Filter, Search, ChevronDown, MessageSquare, Send, Star, BarChart3, RefreshCw, Download, Archive, Trash2, Reply } from 'lucide-react'
 import type {
   FeedbackType,
   FeedbackPriority,

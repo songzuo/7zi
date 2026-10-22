@@ -15,7 +15,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { X, Star, Upload, Camera, Send, Save, Loader2 } from 'lucide-react'
+import { X, Star, Upload, Camera, Send, Loader2 } from 'lucide-react'
 
 interface FeedbackModalProps {
   isOpen: boolean

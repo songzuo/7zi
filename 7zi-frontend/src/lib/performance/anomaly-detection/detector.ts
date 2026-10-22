@@ -3,7 +3,6 @@
  * 性能异常检测器 - 核心模块
  */
 
-import { v4 as uuidv4 } from 'uuid'
 import {
   AnomalyDetection,
   AnomalyDetectionConfig,
@@ -13,7 +12,7 @@ import {
   DEFAULT_ANOMALY_CONFIG,
 } from './types'
 import { BaselineManager } from './baseline'
-import { detectAnomalyZScore, calculatePercentChange } from './algorithms/z-score'
+import { detectAnomalyZScore } from './algorithms/z-score'
 import { trainAndDetect } from './algorithms/isolation-forest'
 import { CompositeFilter, createDefaultFilters, FilterContext } from './filters'
 

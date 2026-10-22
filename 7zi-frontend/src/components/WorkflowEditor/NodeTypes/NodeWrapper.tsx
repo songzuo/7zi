@@ -6,7 +6,7 @@
  */
 
 import React, { memo, ReactNode } from 'react'
-import { Handle, Position, type NodeProps } from 'reactflow'
+import { Handle, Position } from 'reactflow'
 import type { WorkflowNodeData } from '../types'
 
 interface NodeWrapperProps {

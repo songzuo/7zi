@@ -5,18 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import {
-  WorkflowEditor,
-  ExpressionEditor,
-  useCustomNodes,
-  useWorkflowExport,
-  useUndoRedo,
-  type WorkflowDefinition,
-  type CustomNodeRegistration,
-  type WorkflowNodeData,
-  type WorkflowExport,
-  type NodeType,
-} from '@/components/WorkflowEditor'
+import { WorkflowEditor, ExpressionEditor, useCustomNodes, useWorkflowExport, useUndoRedo, type WorkflowDefinition, type WorkflowNodeData, type WorkflowExport } from '@/components/WorkflowEditor'
 import type { NodeProps, Node } from 'reactflow'
 
 // ============================================

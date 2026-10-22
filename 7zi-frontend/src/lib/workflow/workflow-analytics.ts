@@ -7,11 +7,7 @@
  * 提供工作流执行数据的统计分析功能
  */
 
-import type {
-  ExecutionHistory,
-  NodeExecution,
-  ExecutionHistoryQuery,
-} from './execution-history-store'
+import type { ExecutionHistory, ExecutionHistoryQuery } from './execution-history-store'
 import { executionHistoryStore } from './execution-history-store'
 
 // Re-export types from execution-history-store

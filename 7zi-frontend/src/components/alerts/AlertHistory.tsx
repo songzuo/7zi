@@ -9,12 +9,7 @@
 
 import React, { useState } from 'react'
 import clsx from 'clsx'
-import { 
-  AlertHistory as AlertHistoryType,
-  Severity,
-  MetricType,
-  Condition
-} from '@/types/alerts'
+import { AlertHistory as AlertHistoryType, Severity, MetricType } from '@/types/alerts'
 import { Card, CardBody } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 

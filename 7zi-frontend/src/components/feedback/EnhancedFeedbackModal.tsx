@@ -15,23 +15,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import {
-  X,
-  Star,
-  Upload,
-  Camera,
-  Send,
-  Loader2,
-  Sparkles,
-  AlertCircle,
-  CheckCircle2,
-  MessageSquare,
-  Lightbulb,
-  Wand2,
-  Copy,
-  ThumbsUp,
-  ThumbsDown,
-} from 'lucide-react'
+import { X, Send, Loader2, Sparkles, AlertCircle, Lightbulb, Wand2, Copy, ThumbsUp, ThumbsDown } from 'lucide-react'
 import FeedbackModal, { FeedbackType, FeedbackPriority, FeedbackData } from './FeedbackModal'
 
 interface EnhancedFeedbackModalProps {

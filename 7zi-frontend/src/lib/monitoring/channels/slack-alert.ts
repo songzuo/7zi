@@ -12,14 +12,9 @@
  * @version 2.0.0
  */
 
-import { Alert, AlertChannel, AlertSeverity, AlertPriority } from '../alert-engine'
+import { Alert, AlertChannel } from '../alert-engine'
 import { logger } from '@/lib/logger'
-import {
-  BaseAlertChannel,
-  BaseChannelConfig,
-  AlertLevel,
-  priorityToLevel,
-} from './base-alert-channel'
+import { BaseAlertChannel, BaseChannelConfig } from './base-alert-channel'
 
 export interface SlackChannelConfig extends BaseChannelConfig {
   // Webhook URL (simpler, no additional config needed)

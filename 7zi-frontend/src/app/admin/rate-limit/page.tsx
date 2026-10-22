@@ -9,18 +9,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import {
-  Shield,
-  Activity,
-  Key,
-  Globe,
-  FileText,
-  RefreshCw,
-  Settings,
-  AlertTriangle,
-  CheckCircle,
-  XCircle
-} from 'lucide-react'
+import { Shield, Activity, Key, Globe, FileText, RefreshCw, AlertTriangle } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { RateLimitStats } from './components/RateLimitStats'
 import { ApiKeyConfig } from './components/ApiKeyConfig'

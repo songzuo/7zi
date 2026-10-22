@@ -1,20 +1,8 @@
 'use client'
 
-import type { Metadata } from 'next'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  Check,
-  X,
-  Mail,
-  ArrowRight,
-  Star,
-  Zap,
-  Shield,
-  Users,
-  Headphones,
-  Globe,
-} from 'lucide-react'
+import { Check, X, Mail, ArrowRight, Star, Zap, Shield, Users, Globe } from 'lucide-react'
 import { Navigation } from '@/components/ui/Navigation'
 
 type PricingTier = 'free' | 'pro' | 'enterprise'

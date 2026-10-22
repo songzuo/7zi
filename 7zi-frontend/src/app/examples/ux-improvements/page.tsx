@@ -13,26 +13,12 @@ import {
   PrefetchLink,
   useSmartPrefetch,
 } from '@/components/performance/SmartPrefetch'
-import { Button, IconButton, ButtonGroup } from '@/components/ui/Button'
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  CardImage,
-  CardBadge,
-  CardActions,
-} from '@/components/ui/Card'
+import { Button, ButtonGroup } from '@/components/ui/Button'
+import { Card, CardHeader, CardBody, CardImage, CardBadge, CardActions } from '@/components/ui/Card'
 import { Input, Textarea } from '@/components/ui/Input'
-import {
-  Skeleton,
-  SkeletonText,
-  SkeletonCard,
-  SkeletonList,
-  LoadingWrapper,
-} from '@/components/ui/Skeleton'
+import { Skeleton, SkeletonText, SkeletonList, LoadingWrapper } from '@/components/ui/Skeleton'
 import { NavigationWithSkeleton } from '@/components/ui/NavigationSkeleton'
-import { TaskCard, TaskList, TaskStatusToggle } from '@/components/ui/TaskCard'
+import { TaskList, TaskStatusToggle } from '@/components/ui/TaskCard'
 
 // ============================================
 // 页面预加载示例

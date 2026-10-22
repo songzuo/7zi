@@ -3,7 +3,7 @@
  * 伪异常过滤器
  */
 
-import { AnomalyDetection, MetricBaseline } from './types'
+import { AnomalyDetection } from './types'
 
 export interface FilterRule {
   name: string

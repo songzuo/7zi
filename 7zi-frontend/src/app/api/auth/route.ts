@@ -5,19 +5,12 @@
  */
 
 import { NextRequest } from 'next/server'
-import {
-  loginSchema,
-  registerSchema,
-  passwordResetRequestSchema,
-  passwordResetSchema,
-  createValidationErrorResponse,
-  validateAndSanitizeBody,
-} from '@/lib/validation-schemas'
+import { loginSchema, registerSchema, passwordResetSchema, createValidationErrorResponse, validateAndSanitizeBody } from '@/lib/validation-schemas'
 import { AuditLogger } from '@/lib/audit/logger'
 import { AuditEventType } from '@/lib/audit/types'
 import { getClientIP } from '@/lib/rate-limit/limiter'
 import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
-import { createSuccessResponse, createUnauthorizedError, createErrorResponse, createBadRequestError } from '@/lib/api/error-handler'
+import { createErrorResponse } from '@/lib/api/error-handler'
 import { withCSRF } from '@/lib/middleware/csrf'
 
 /**

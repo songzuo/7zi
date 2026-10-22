@@ -1,15 +1,4 @@
-import type {
-  AgentId,
-  AgentLearningStats,
-  CapabilityScore,
-  TaskFeatures,
-  TaskHistoryRecord,
-  TaskType,
-  PredictionResult,
-  WeightAdjustment,
-  LearningSystemStats,
-  AggregatedStats,
-} from './types'
+import type { AgentId, AgentLearningStats, TaskFeatures, TaskHistoryRecord, TaskType, PredictionResult, WeightAdjustment, LearningSystemStats, AggregatedStats } from './types'
 
 export class AdaptiveLearner {
   private agentStats: Map<AgentId, AgentLearningStats> = new Map()

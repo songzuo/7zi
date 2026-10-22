@@ -6,17 +6,7 @@
  */
 
 import { generateSecureId } from '@/lib/utils'
-import type {
-  Agent,
-  AgentStatus,
-  Task,
-  TaskStatus,
-  TaskPriority,
-  QueueStats,
-  ScheduleTaskRequest,
-  ScheduleTaskResponse,
-  UpdateTaskRequest,
-} from './types'
+import type { Agent, AgentStatus, Task, QueueStats, ScheduleTaskRequest, ScheduleTaskResponse, UpdateTaskRequest } from './types'
 
 class AgentScheduler {
   private agents: Map<string, Agent> = new Map()

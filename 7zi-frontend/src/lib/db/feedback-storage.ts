@@ -22,17 +22,7 @@ export type {
 } from './feedback-types'
 
 // 重新导出类型（保持向后兼容）
-import type {
-  FeedbackType,
-  FeedbackPriority,
-  FeedbackStatus,
-  FeedbackRating,
-  Feedback,
-  FeedbackFilter,
-  FeedbackSort,
-  PaginatedFeedbacks,
-  FeedbackStats,
-} from './feedback-types'
+import type { FeedbackType, FeedbackPriority, FeedbackStatus, FeedbackRating, Feedback, FeedbackFilter, FeedbackSort, FeedbackStats } from './feedback-types'
 
 /**
  * Database row interface for feedback table

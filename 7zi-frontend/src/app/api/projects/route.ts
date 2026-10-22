@@ -5,27 +5,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  UserWithRoles,
-  createUserWithRoles,
-  RequirePermission,
-  RequireRoleLevel,
-  ResourceType,
-  ActionType,
-  PermissionDeniedError,
-  Permissions,
-  PermissionContext,
-  canAccessResource,
-} from '@/lib/permissions'
+import { UserWithRoles, createUserWithRoles, RequirePermission, RequireRoleLevel, ResourceType, ActionType, PermissionDeniedError, PermissionContext, canAccessResource } from '@/lib/permissions'
 import { UserRole } from '@/lib/auth'
-import {
-  createSuccessResponse,
-  createUnauthorizedError,
-  createForbiddenError,
-  createNotFoundError,
-  createErrorResponse,
-  ErrorType,
-} from '@/lib/api/error-handler'
+import { createSuccessResponse, createUnauthorizedError, createForbiddenError, createNotFoundError, createErrorResponse } from '@/lib/api/error-handler'
 import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
 import { withCSRF } from '@/lib/middleware/csrf'
 

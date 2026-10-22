@@ -6,24 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
-import {
-  AlertTriangle,
-  Clock,
-  Zap,
-  Activity,
-  RefreshCw,
-  Trash2,
-  TrendingUp,
-  TrendingDown,
-  CheckCircle,
-  XCircle,
-  Gauge,
-  Database,
-  Network,
-  Cpu,
-  Layout,
-  MousePointer2,
-} from 'lucide-react'
+import { AlertTriangle, Clock, Zap, Activity, RefreshCw, Trash2, TrendingDown, CheckCircle, XCircle, Gauge, Database, Network, Cpu, Layout, MousePointer2 } from 'lucide-react'
 import { monitor, AggregatedMetrics, AlarmEvent } from '@/lib/monitoring'
 import {
   webVitalsMonitor,

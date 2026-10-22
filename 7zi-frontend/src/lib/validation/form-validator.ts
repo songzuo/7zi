@@ -4,24 +4,8 @@
  * Main form validation engine with field-level and form-level validation
  */
 
-import type {
-  ValidationRule,
-  AnyValidationRule,
-  ValidationContext,
-  ValidationResult,
-  FieldError,
-  FormValidationResult,
-  FieldConfig,
-  FormConfig,
-  FieldState,
-  ValidationTrigger,
-  AsyncValidator,
-  AsyncValidationState,
-  FormValidationRule,
-  Translator,
-} from './types'
+import type { ValidationRule, ValidationContext, ValidationResult, FormValidationResult, FieldConfig, FormConfig, FieldState, ValidationTrigger, AsyncValidator, AsyncValidationState, FormValidationRule } from './types'
 import { isAsyncValidator, isSyncRule } from './types'
-import { required } from './validators'
 
 // ============================================================================
 // Form Validator Class

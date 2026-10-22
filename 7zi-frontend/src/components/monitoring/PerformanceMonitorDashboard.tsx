@@ -7,7 +7,7 @@
 
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -20,29 +20,10 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { Skeleton } from '@/components/ui/Skeleton'
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Cpu,
-  Database,
-  Globe,
-  TrendingDown,
-  TrendingUp,
-  Zap,
-  RefreshCw,
-  Settings,
-  History,
-  BarChart3,
-  HardDrive,
-  Network,
-  Monitor,
-  Bell,
-} from 'lucide-react'
+import { Activity, AlertTriangle, CheckCircle, Clock, Cpu, Database, TrendingDown, TrendingUp, Zap, RefreshCw, Settings, BarChart3, HardDrive, Network, Monitor, Bell } from 'lucide-react'
 import { ResourceUsageChart } from '@/components/analytics/charts/ResourceUsageChart'
 import { PerformanceChart } from './PerformanceChart'
-import { AlarmConfigPanel, AlarmRule } from './AlarmConfigPanel'
+import { AlarmConfigPanel } from './AlarmConfigPanel'
 import { monitor } from '@/lib/monitoring'
 import type { AggregatedMetrics, AlarmEvent } from '@/lib/monitoring/types'
 import type { ResourceUsageData } from '@/lib/analytics/types'

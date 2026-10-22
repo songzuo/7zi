@@ -5,7 +5,7 @@
  * 新增: 流动动画效果、选中高亮、渐变边
  */
 
-import { memo, useEffect, useRef } from 'react'
+import { memo } from 'react'
 import { EdgeLabelRenderer, getBezierPath, type EdgeProps } from 'reactflow'
 import type { WorkflowEdgeData } from '../types'
 

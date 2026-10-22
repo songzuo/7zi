@@ -13,7 +13,6 @@
 
 import { getDraftStorageManager } from '@/lib/db/draft-storage'
 import { generateSecureId } from '@/lib/utils'
-import type { Draft } from '@/lib/db/draft-storage'
 import { logger } from '@/lib/logger'
 
 // ============================================

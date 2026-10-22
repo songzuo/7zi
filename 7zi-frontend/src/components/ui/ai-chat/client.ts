@@ -4,18 +4,7 @@
  * v1.12.x
  */
 
-import {
-  type AIMessage,
-  type AIConversation,
-  type SendMessageRequest,
-  type SendMessageResponse,
-  type StreamChunk,
-  type SuggestionRequest,
-  type SuggestionResponse,
-  type AIUsage,
-  AIChatError,
-} from '@/components/ui/ai-chat/types'
-import { logger } from '@/lib/logger'
+import { type AIConversation, type SendMessageRequest, type SendMessageResponse, type StreamChunk, type SuggestionRequest, type SuggestionResponse, type AIUsage, AIChatError } from '@/components/ui/ai-chat/types'
 
 // ============================================
 // API 配置

@@ -4,18 +4,7 @@
  * 7zi-frontend v1.12.2
  */
 
-import {
-  WebhookSubscription,
-  CreateWebhookInput,
-  UpdateWebhookInput,
-  WebhookEvent,
-  WebhookEventType,
-  WebhookDelivery,
-  WebhookLog,
-  WebhookLogLevel,
-  TestEventResult,
-  SignatureValidationResult,
-} from './types';
+import { WebhookSubscription, CreateWebhookInput, UpdateWebhookInput, WebhookEvent, WebhookDelivery, WebhookLog, WebhookLogLevel, TestEventResult, SignatureValidationResult } from './types'
 import { WebhookDeliveryService, webhookDeliveryService } from './delivery';
 
 // ==================== 配置常量 ====================

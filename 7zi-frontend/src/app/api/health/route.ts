@@ -16,7 +16,7 @@ import { NextResponse } from 'next/server'
 import os from 'os'
 import { promises as fs } from 'fs'
 import path from 'path'
-import { createErrorResponse, createServiceUnavailableError } from '@/lib/api/error-handler'
+import { createServiceUnavailableError } from '@/lib/api/error-handler'
 
 // ============================================
 // 健康检查配置

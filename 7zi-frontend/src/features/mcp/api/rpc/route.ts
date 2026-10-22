@@ -241,7 +241,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { mcpServer } from '@/lib/mcp/server'
-import { createErrorResponse } from '@/lib/api/error-handler'
 
 /**
  * 支持 CORS（用于 Claude Desktop 等客户端）

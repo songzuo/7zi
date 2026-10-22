@@ -9,7 +9,6 @@ import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import {
   Select,
@@ -19,17 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
-import {
-  Calendar,
-  Download,
-  Filter,
-  RefreshCw,
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  Clock,
-  Database,
-} from 'lucide-react'
+import { Download, RefreshCw, Activity, Clock, Database } from 'lucide-react'
 import { monitor } from '@/lib/monitoring'
 import type { PerformanceMetric, AggregatedMetrics } from '@/lib/monitoring/types'
 import { PerformanceChart } from './PerformanceChart'
