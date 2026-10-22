@@ -1,5 +1,17 @@
 # HEARTBEAT - 持续工作调度
 
+## 最后检查: 2026-10-22 09:55 (Berlin)
+
+### ✅ npm 漏洞分级 + 修复（接手 T23）
+- `pnpm audit`: critical 1 / high 1 / moderate 0 / low 0
+- **critical: storybook 10.3.5** 缺 origin 校验 → 恶意网站可向 Storybook preview 注入代码
+  → 生态统一升到 10.6.2+（storybook / eslint-plugin-storybook / 3 个 addon）
+  → 验证 `pnpm build-storybook` 成功，audit critical **1 → 0**
+- **high: braces 3.0.3** 深层嵌套栈耗尽 DoS → 上游无补丁（patched `<0.0.0`），维持现状
+- 提交 `5c3845357`
+
+---
+
 ## 最后检查: 2026-10-22 09:45 (Berlin)
 
 ### 🔴 重大发现：CI lint 门禁自 4 月起就是坏的
