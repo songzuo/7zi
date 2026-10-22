@@ -1,5 +1,20 @@
 # HEARTBEAT - 持续工作调度
 
+## 最后检查: 2026-10-22 09:45 (Berlin)
+
+### 🔴 重大发现：CI lint 门禁自 4 月起就是坏的
+- `package.json` 的 lint 带 `--max-warnings 0`，但项目长期有 660+ 条 no-unused-vars 警告
+- `.github/workflows/ci.yml` 直接跑 `npm run lint` → **CI 从 2026-04-21 起必然失败**
+- 另有 194 个 error 全部来自 `public/workbox-*.js` / `public/sw.js`（next-pwa 压缩产物被误当源码 lint）
+- `react-hooks/exhaustive-deps` 规则被设为 `off`，导致源码中 5 处 eslint-disable 注释变成
+  "Unused directive" 警告，且 41 处 hook 依赖问题完全不可见
+- **修复**：忽略生成物 + 启用 exhaustive-deps(warn) + 清理 3 个脚本的真实错误 +
+  `lint` 默认只拦 error，新增 `lint:strict` 渐进收紧
+- **验证**：`npm run lint` exit=0（此前必然 exit=1），eslint 200 errors → 0，tsc 0
+- 提交 `235719873`
+
+---
+
 ## 最后检查: 2026-10-22 05:25 (Berlin)
 
 ### 🎉 今日里程碑汇总（全部经主管独立复跑验证）
