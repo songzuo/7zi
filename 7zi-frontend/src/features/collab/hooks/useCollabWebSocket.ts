@@ -205,10 +205,11 @@ export function useCollabWebSocket(
             }
             break
 
-          case 'error':
+          case 'error': {
             const error = new Error((message.payload as { message?: string })?.message || 'Unknown error')
             errorHandlersRef.current.forEach((handler) => handler(error))
             break
+          }
         }
       } catch (err) {
         logger.error('[useCollabWebSocket] Failed to parse message', err instanceof Error ? err : undefined)

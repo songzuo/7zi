@@ -13,9 +13,7 @@ import {
   UseNotificationsReturn,
 } from '@/hooks/useNotifications'
 
-interface NotificationContextValue extends UseNotificationsReturn {
-  // Extend with any additional context values
-}
+type NotificationContextValue = UseNotificationsReturn;
 
 export type { NotificationContextValue }
 

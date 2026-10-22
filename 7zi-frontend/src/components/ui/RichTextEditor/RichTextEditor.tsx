@@ -331,7 +331,7 @@ class MarkdownConverter {
     html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
 
     // 转换无序列表
-    html = html.replace(/^\- (.*$)/gim, '<li>$1</li>')
+    html = html.replace(/^- (.*$)/gim, '<li>$1</li>')
 
     // 转换有序列表
     html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>')

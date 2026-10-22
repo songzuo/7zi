@@ -21,7 +21,7 @@ export interface WebSocketEventCallbacks {
   reconnect: Array<(attempt: number) => void>
   reconnect_attempt: Array<(attempt: number) => void>
   reconnect_failed: Array<() => void>
-  [key: string]: Array<Function>
+  [key: string]: Array<(...args: any[]) => void>
 }
 
 // ============================================================
@@ -54,8 +54,8 @@ export interface EnhancedWebSocketMock {
   _simulateReconnect: (attempt?: number) => void
   
   // 便捷方法：注册事件（返回取消注册函数）
-  _on: (event: string, callback: Function) => () => void
-  _once: (event: string, callback: Function) => void
+  _on: (event: string, callback: (...args: unknown[]) => void) => () => void
+  _once: (event: string, callback: (...args: unknown[]) => void) => void
 }
 
 // 创建增强型 WebSocket Mock
@@ -76,7 +76,7 @@ export const createWebSocketMock = (): EnhancedWebSocketMock => {
     _callbacks: callbacks,
 
     // 基本 Socket.IO 方法
-    on: vi.fn((event: string, callback: Function) => {
+    on: vi.fn((event: string, callback: (...args: unknown[]) => void) => {
       if (!callbacks[event]) {
         callbacks[event] = []
       }
@@ -84,7 +84,7 @@ export const createWebSocketMock = (): EnhancedWebSocketMock => {
       return instance
     }),
 
-    off: vi.fn((event: string, callback?: Function) => {
+    off: vi.fn((event: string, callback?: (...args: unknown[]) => void) => {
       if (callback) {
         const index = callbacks[event]?.indexOf(callback)
         if (index > -1) callbacks[event].splice(index, 1)
@@ -165,7 +165,7 @@ export const createWebSocketMock = (): EnhancedWebSocketMock => {
     },
 
     // 便捷注册方法（返回取消注册函数）
-    _on: (event: string, callback: Function) => {
+    _on: (event: string, callback: (...args: unknown[]) => void) => {
       if (!callbacks[event]) {
         callbacks[event] = []
       }
@@ -177,7 +177,7 @@ export const createWebSocketMock = (): EnhancedWebSocketMock => {
     },
 
     // 注册一次性事件
-    _once: (event: string, callback: Function) => {
+    _once: (event: string, callback: (...args: unknown[]) => void) => {
       const unsubscribe = instance._on(event, (...args: unknown[]) => {
         unsubscribe()
         callback(...args)

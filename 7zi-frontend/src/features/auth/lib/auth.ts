@@ -156,7 +156,7 @@ export function isSessionExpiringSoon(session: Session, minutes = 5): boolean {
 export function isValidToken(token: string): boolean {
   // 实际应用中应该使用 JWT 或其他令牌验证库
   // 这里只做基本的格式验证
-  return token.length > 0 && /^[a-zA-Z0-9\-_\.]+$/.test(token)
+  return token.length > 0 && /^[a-zA-Z0-9\-_.]+$/.test(token)
 }
 
 /**
