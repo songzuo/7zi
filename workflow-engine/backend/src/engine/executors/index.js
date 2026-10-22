@@ -101,8 +101,9 @@ class ConditionExecutor extends BaseExecutor {
   evaluateCondition(expression, execution, input) {
     // 简单的条件求值
     try {
-      const fn = new Function('variables', 'input', `return ${expression}`);
-      return fn(execution.variables, input);
+      // output 作为 input 的别名，兼容模板中 "output.status >= 200" 这类写法
+      const fn = new Function('variables', 'input', 'output', `return ${expression}`);
+      return fn(execution.variables, input, input);
     } catch (error) {
       console.error('Condition evaluation error:', error);
       return false;

@@ -307,6 +307,11 @@ describe('WorkflowEngine - Advanced Execution', () => {
       const result = engine.resolvePath('user.name', context);
       expect(result).toBeUndefined();
     });
+
+    test('should resolve array index path', () => {
+      const context = { items: [{ id: 'a' }, { id: 'b' }] };
+      expect(engine.resolvePath('items[1].id', context)).toBe('b');
+    });
   });
 
   describe('safeEval', () => {
@@ -345,6 +350,22 @@ describe('WorkflowEngine - Advanced Execution', () => {
       const context = {};
       expect(engine.safeEval('${undefined_var} > 5', context)).toBe(false);
     });
+
+    test('should compare string variables without quoting issues', () => {
+      const context = { name: 'John' };
+      expect(engine.safeEval('${name} == "John"', context)).toBe(true);
+      expect(engine.safeEval('${name} == "Jane"', context)).toBe(false);
+    });
+
+    test('should treat string values as literals rather than executable code', () => {
+      const context = { payload: '"; return true; //' };
+      expect(engine.safeEval('${payload} == "safe"', context)).toBe(false);
+    });
+
+    test('should support literal keywords', () => {
+      expect(engine.safeEval('${true}', {})).toBe(true);
+      expect(engine.safeEval('${false}', {})).toBe(false);
+    });
   });
 
   describe('evaluateCondition', () => {
@@ -363,6 +384,24 @@ describe('WorkflowEngine - Advanced Execution', () => {
       const execution = { variables: {}, nodeExecutions: [] };
       const result = engine.evaluateCondition('${undefinedVar} > 5', execution, {});
       expect(result).toBe(false);
+    });
+
+    test('should resolve bare variable names against execution variables', () => {
+      const execution = { variables: { skipFlag: 0, takeFlag: 1 }, nodeExecutions: [] };
+
+      expect(engine.evaluateCondition('${skipFlag} == 1', execution, {})).toBe(false);
+      expect(engine.evaluateCondition('${takeFlag} == 1', execution, {})).toBe(true);
+    });
+
+    test('should resolve variables.* against execution variables', () => {
+      const execution = { variables: { value: 10 }, nodeExecutions: [] };
+      expect(engine.evaluateCondition('${variables.value} > 3', execution, {})).toBe(true);
+    });
+
+    test('should support plain JS expressions using output fields', () => {
+      const execution = { variables: {}, nodeExecutions: [] };
+      expect(engine.evaluateCondition("branch === 'valid'", execution, { branch: 'valid' })).toBe(true);
+      expect(engine.evaluateCondition("branch === 'invalid'", execution, { branch: 'valid' })).toBe(false);
     });
   });
 
