@@ -1,27 +1,45 @@
 # HEARTBEAT - 持续工作调度
 
-## 最后检查: 2026-10-22 05:20 (Berlin)
+## 最后检查: 2026-10-22 05:25 (Berlin)
 
-### 🎉 本轮里程碑：前端 TypeScript 错误归零
-- **前端 `tsc --noEmit --incremental false` = 0 errors**（源码 0 + 测试文件 0）
-- 提交 `d66b7ce11`（G-2）+ `c8c4c59d2`（G-1），主管均独立复跑验证
-- 完整趋势：425 → 197 → 131 → 89 → 64 → 59 → 51 → 11 → 8 → **0**
-- G-1 组 5 文件 127 tests 全绿；G-2 组 44 tests 全绿
-- 全程无 `as any` / `it.skip` / 弱化断言
-- `retry.ts` 语法损坏已修复（T16 报告的并发写入污染，主管已复核干净）
-- 活跃子代理 3 个（T21 workflow-engine / T22 backend-CI / T23 npm 漏洞）
+### 🎉 今日里程碑汇总（全部经主管独立复跑验证）
+
+| 项 | 起始 | 现状 |
+|---|---|---|
+| 前端 TypeScript 错误 | 425 | **0** |
+| 前端 ESLint `src/lib` 错误 | 10+ | **0** |
+| 工作流条件引擎缺陷 | 4 处 | **0**（含表达式注入风险）|
+| 明文密码（跟踪文件） | 62 处 | **0** |
+| 部署脚本源站 IP | 已下线 | **198.44.179.155**（已验证）|
+
+### 本轮提交（7 个）
+- `d66b7ce11` G-2 组类型修复（11 → 8）
+- `c8c4c59d2` G-1 组类型修复（8 → **0**）
+- `e89c0093e` no-case-declarations（9 处 case 加块）
+- `adbcea929` **safeEval 引擎重写**（源码 bug，非测试问题）
+- `113c6dc9b` src/lib lint 清理（8 文件）
+- `c507675c9` / `2101e51f2` 心跳文档
+
+### 关键成果
+1. **Tailwind v4 工具类全丢**（整站样式静默失效）→ 已修
+2. **safeEval 4 处缺陷**：裸变量名解析失败 / 字符串比较损坏 / 假值语义错误 / 运算符误判；
+   变量改为 JS 字面量注入，**顺带消除表达式注入风险**
+3. **jest haste map 不遍历符号链接** → `7zi-backend/workflow-engine` 的 `npm test`
+   一直是 "No tests found"，等于从未真正跑过
+4. **凭据泄露**：主仓库 + botmem 共 62 个跟踪文件明文密码 → `${SSH_PASSWORD}` 引用
+
+### 仍在运行
+- T22 sysadmin-backend-ci（7zi-backend README 端口 + GitHub Actions CI）
+- T23 consultant-npm-vuln（npm 漏洞 22 个分级）
 
 ### 待关注
-1. **⚠️ 并发写入冲突**：T16 报告 `retry.ts` 被另一个 agent 写坏（注入 `</newString>` token），
-   当时有两个 agent 作用域重叠。主管已要求派 T19 时给出**文件级互斥清单**，避免再次互相覆盖
-2. **git 历史密码**：仍含 10+ commit 明文 — 重写历史需主人决策
-3. **GitHub PAT 轮换**：`~/.git-credentials` 与 botmem remote 曾内嵌 PAT，建议轮换
-4. **线上 7zi-project 暗色主题**：`/root/7zi-project/src/app/globals.css` 缺 `@custom-variant dark`，
-   手动切换主题时 `dark:` 类不生效（69KB/28% 规则被包在 prefers-color-scheme 内）
-5. **`.env.secrets` 密码不统一**（短版 / 带 `$ZZ` 长版，两者均可登录）— 请确认唯一正确密码
+1. **git 历史仍含明文密码**（10+ commit）— 重写历史需主人决策
+2. **GitHub PAT 建议轮换**（`~/.git-credentials` 与 botmem remote 曾内嵌）
+3. **线上 7zi-project 暗色主题**：缺 `@custom-variant dark`，手动切主题时 `dark:` 类不生效
+4. **`.env.secrets` 密码不统一**（短版 / 带 `$ZZ` 长版均可登录）— 请确认唯一正确密码
+5. **backend ESLint 崩溃**：`@typescript-eslint/no-unused-expressions` 版本冲突（既有问题）
 
 ---
-
 
 ## 最后检查: 2026-10-21 19:05 (17:05 UTC)
 
