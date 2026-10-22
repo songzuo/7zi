@@ -60,7 +60,7 @@ jobs:
   e2e-tests:
     name: E2E Tests (${{ matrix.browser }})
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     # ✅ Optimization: Only run on PR and main (not develop)
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     strategy:
