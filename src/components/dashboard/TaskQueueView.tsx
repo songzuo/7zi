@@ -13,6 +13,7 @@
  */
 
 import { FC, useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import {
   ListTodo,
   Clock,
@@ -520,8 +521,8 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
 }) => {
   const tasks = useSchedulerStore(selectTasks)
   const stats = useSchedulerStore(selectStats)
-  const urgentTasks = useSchedulerStore(selectUrgentTasks)
-  const overdueTasks = useSchedulerStore(selectOverdueTasks)
+  const urgentTasks = useSchedulerStore(useShallow(selectUrgentTasks))
+  const overdueTasks = useSchedulerStore(useShallow(selectOverdueTasks))
   const agents = useSchedulerStore(selectAgents)
   const refresh = useSchedulerStore(state => state.refresh)
   const failTask = useSchedulerStore(state => state.failTask)
@@ -1079,8 +1080,8 @@ export interface TaskQueueCompactProps {
  */
 export const TaskQueueCompact: FC<TaskQueueCompactProps> = ({ className = '' }) => {
   const stats = useSchedulerStore(selectStats)
-  const urgentTasks = useSchedulerStore(selectUrgentTasks)
-  const overdueTasks = useSchedulerStore(selectOverdueTasks)
+  const urgentTasks = useSchedulerStore(useShallow(selectUrgentTasks))
+  const overdueTasks = useSchedulerStore(useShallow(selectOverdueTasks))
 
   return (
     <div className={`flex items-center gap-4 ${className}`}>
