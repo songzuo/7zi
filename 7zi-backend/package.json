@@ -31,32 +31,34 @@
           "<rootDir>/websocket/__tests__/**/*.test.js"
         ],
         "collectCoverageFrom": [
-          "websocket/lib/**/*.js"
+          "<rootDir>/websocket/lib/**/*.js"
         ],
         "coverageDirectory": "<rootDir>/coverage",
         "coverageThreshold": {
           "global": {
             "lines": 60
           }
-        },
-        "testTimeout": 20000
+        }
       },
       {
         "displayName": "workflow-engine",
         "rootDir": "<rootDir>/../workflow-engine/backend",
         "testEnvironment": "node",
         "collectCoverageFrom": [
-          "src/engine/**/*.js"
+          "<rootDir>/src/engine/**/*.js",
+          "<rootDir>/server.js",
+          "<rootDir>/websocket/**/*.js"
         ],
         "coverageDirectory": "<rootDir>/coverage",
         "coverageThreshold": {
           "global": {
             "lines": 60
           }
-        },
-        "testTimeout": 20000
+        }
       }
-    ]
+    ],
+    "coverageProvider": "v8",
+    "testTimeout": 20000
   },
   "author": "7zi Team",
   "license": "MIT",
@@ -68,7 +70,7 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "socket.io": "^4.7.4",
-    "uuid": "^9.0.0",
+    "uuid": "^11.1.1",
     "ws": "^8.14.0"
   },
   "devDependencies": {

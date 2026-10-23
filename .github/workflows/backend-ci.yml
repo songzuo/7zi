@@ -1,0 +1,265 @@
+# ============================================
+# 7zi Backend CI Pipeline (T47)
+# ============================================
+# 特性：
+# - 覆盖 7zi-backend 与 workflow-engine/backend 两套后端
+# - Lint + Jest（含覆盖率阈值门禁）
+# - npm audit 生产依赖漏洞门禁（moderate 及以上直接失败）
+# - 与前端 ci.yml 保持一致的命名 / 缓存 / 注释风格
+# ============================================
+
+name: Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '7zi-backend/**'
+      - 'workflow-engine/backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - '7zi-backend/**'
+      - 'workflow-engine/backend/**'
+      - '.github/workflows/backend-ci.yml'
+  workflow_dispatch:
+
+# ============================================
+# 安全：仅限必要的权限
+# ============================================
+permissions:
+  contents: read
+
+# 并发控制
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  # ============================================
+  # Job 1: 依赖安装（7zi-backend）
+  # ============================================
+  setup-7zi-backend:
+    name: 安装依赖 (7zi-backend)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            7zi-backend/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-7zi-backend-${{ hashFiles('7zi-backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-7zi-backend-
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 7zi-backend/package-lock.json
+
+      - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline
+        working-directory: 7zi-backend
+
+  # ============================================
+  # Job 2: 依赖安装（workflow-engine/backend）
+  # ============================================
+  setup-workflow-engine:
+    name: 安装依赖 (workflow-engine)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            workflow-engine/backend/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-workflow-engine-${{ hashFiles('workflow-engine/backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-workflow-engine-
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: workflow-engine/backend/package-lock.json
+
+      - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline
+        working-directory: workflow-engine/backend
+
+  # ============================================
+  # Job 3: 安全审计（生产依赖，moderate 门禁）
+  # ============================================
+  security-audit:
+    name: 依赖漏洞审计
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            7zi-backend/package-lock.json
+            workflow-engine/backend/package-lock.json
+
+      - name: 审计 7zi-backend 生产依赖
+        run: npm audit --omit=dev --audit-level=moderate
+        working-directory: 7zi-backend
+
+      - name: 审计 workflow-engine 生产依赖
+        run: npm audit --omit=dev --audit-level=moderate
+        working-directory: workflow-engine/backend
+
+      - name: 审计 7zi-backend 子服务生产依赖
+        run: |
+          for dir in 7zi-backend/workflow-service 7zi-backend/websocket-service; do
+            echo "::group::$dir"
+            npm audit --omit=dev --audit-level=moderate --prefix "$dir"
+            ::endgroup::
+          done
+
+      - name: 检查 uuid 声明版本（>= 11.1.1，修复 GHSA-w5hq-g745-h8pq）
+        run: |
+          set -e
+          for dir in 7zi-backend workflow-engine/backend 7zi-backend/workflow-service 7zi-backend/websocket-service; do
+            echo "::group::$dir"
+            node -e "
+              const pkg = require('./$dir/package.json')
+              const range = (pkg.dependencies && pkg.dependencies.uuid) || ''
+              const m = /(\d+)\.(\d+)\.(\d+)/.exec(range)
+              if (!m) {
+                console.error('❌ 未声明 uuid 依赖: $dir')
+                process.exit(1)
+              }
+              const [maj, min] = [Number(m[1]), Number(m[2])]
+              if (maj < 11 || (maj === 11 && min < 1)) {
+                console.error('❌ uuid 版本过低: $dir -> ' + range + ' (要求 >= 11.1.1)')
+                process.exit(1)
+              }
+              console.log('✅ $dir uuid ' + range + ' 满足要求')
+            "
+            ::endgroup::
+          done
+
+  # ============================================
+  # Job 4: 7zi-backend Lint + Jest（含覆盖率）
+  # ============================================
+  test-7zi-backend:
+    name: 测试 (7zi-backend)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [setup-7zi-backend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            7zi-backend/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-7zi-backend-${{ hashFiles('7zi-backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-7zi-backend-
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 7zi-backend/package-lock.json
+
+      - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline
+        working-directory: 7zi-backend
+
+      - name: ESLint
+        run: npm run lint
+        working-directory: 7zi-backend
+
+      - name: Jest（含覆盖率）
+        run: npx jest --coverage
+        working-directory: 7zi-backend
+
+      - name: 上传覆盖率
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-7zi-backend
+          path: 7zi-backend/coverage/
+          retention-days: 7
+
+  # ============================================
+  # Job 5: workflow-engine/backend Lint + Jest（含覆盖率）
+  # ============================================
+  test-workflow-engine:
+    name: 测试 (workflow-engine)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [setup-workflow-engine]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            workflow-engine/backend/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-workflow-engine-${{ hashFiles('workflow-engine/backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-workflow-engine-
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: workflow-engine/backend/package-lock.json
+
+      - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline
+        working-directory: workflow-engine/backend
+
+      - name: ESLint
+        run: npm run lint
+        working-directory: workflow-engine/backend
+
+      - name: Jest（含覆盖率）
+        run: npx jest --coverage
+        working-directory: workflow-engine/backend
+
+      - name: 上传覆盖率
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-workflow-engine
+          path: workflow-engine/backend/coverage/
+          retention-days: 7
