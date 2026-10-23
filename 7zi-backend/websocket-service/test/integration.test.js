@@ -41,8 +41,10 @@ describe('WebSocket Service Integration', () => {
     assert.strictEqual(res.status, 200)
     const body = await res.json()
     assert.ok(typeof body.connections === 'number')
-    // Note: the stats endpoint returns rooms as an array (last key wins over rooms:rooms.length)
+    // `roomCount` 承载房间数量，`rooms` 承载房间数组本身
     assert.ok(Array.isArray(body.rooms))
+    assert.strictEqual(typeof body.roomCount, 'number')
+    assert.strictEqual(body.roomCount, body.rooms.length)
     assert.ok(typeof body.totalUsers === 'number')
   })
 

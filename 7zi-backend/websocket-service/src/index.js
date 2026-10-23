@@ -562,7 +562,9 @@ function createServer() {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({
         connections: io.sockets.sockets.size,
-        rooms: rooms.length,
+        // `roomCount` 承载房间数量，`rooms` 承载房间数组本身。
+        // 原先两者都声明在 `rooms` 键下，后者静默覆盖前者（no-dupe-keys）。
+        roomCount: rooms.length,
         totalUsers,
         rooms,
       }))
