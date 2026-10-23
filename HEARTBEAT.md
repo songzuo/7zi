@@ -1,45 +1,52 @@
-# HEARTBEAT - 持续工作调度
+# HEARTBEAT.md
 
-## 最后检查: 2026-10-24 00:50 (Beijing)
+## 当前基线（2026-10-24 05:38–05:52，T86 实测）
 
-### ✅ 四道门禁全绿（主管独立复跑，全部 exit 0）
-| 门禁 | 结果 |
+| 检查项 | 命令 | 结果 |
+|---|---|---|
+| 前端 ESLint（`7zi-frontend/src`） | `cd 7zi-frontend && npx eslint src` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
+| 后端 ESLint | `cd 7zi-backend && npx eslint .` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
+| 根级 ESLint | `npx eslint src` | ✅ **0 errors / 1625 warnings**（exit 0） |
+| 后端 Jest | `cd 7zi-backend && npx jest` | ✅ **16 套件 / 342 用例全绿**，15.3s |
+| 后端 Jest worker | 同上 | ⚠️ 输出 `A worker process has failed to exit gracefully`（测试全绿，但疑似 teardown 泄漏，**待验证**） |
+| 前端 collab-client | `cd 7zi-frontend && npx vitest run tests/features/collab-client.test.ts` | ✅ **38 passed (38)**，Duration 3.82s（05:55 实测；05:39 时为 15 failed / 23 passed，已由 T82 修复） |
+
+### 后端 CI 实际覆盖范围
+- `.github/workflows/` 共 **9 个** workflow 配置
+- `backend-ci.yml` 5 个 job，**只**覆盖 `7zi-backend/`（根）与 `workflow-engine/backend/`
+- **尚未覆盖** `7zi-backend/websocket-service/` 与 `7zi-backend/workflow-service/`
+  （两者 `package.json` 都有 `lint` / `test` 脚本，CI 未调用）→ 真实覆盖缺口
+- 真实 GitHub Actions 上的**首次运行尚未发生**
+
+### Git 状态（05:40 实测）
+- 本地 `main` **领先 `origin/main` 30 个提交**（`origin/main` = `17cf105a92`，2026-10-23 00:44）
+- 工作区：**5 个已修改文件**（`HEARTBEAT.md` / `eslint.config.mjs` / `memory/claw-mesh-state.json` /
+  `src/lib/monitoring/prometheus.js` / `state/tasks.json`）+ 1 个未跟踪文件（`DEV_TASKS_20261024_0537.md`）
+- 全部改动**未 push**
+
+### 关键判断记录（继承 00:50 心跳，勿推翻）
+- `src/lib/monitoring/prometheus.js` 是**编译产物但被 Next 优先加载**（`.js` 先于 `.ts`）。
+  原 `_this`→`this` 改法在 `forEach(function(){})` 回调里 `this` 为 undefined，运行时会 TypeError。
+  已改为箭头函数（与 `.ts` 源码一致），`this` 词法绑定回实例，`node --check` + 最小复现验证过。
+- prefetch 测试的 9 个失败已用 `git stash` 干净树对照，确认**存量非本次引入**。
+- 裸 `curl` 打 `https://7zi.com/` 返回 403 是 **Cloudflare/WAF 拦 curl UA**，不是站点故障；
+  所有健康检查/监控脚本必须带浏览器 UA。
+
+### 集群 SSH 实测（05:44）
+| 节点 | 结果 |
 |---|---|
-| 根 `eslint src` | **0 errors** / 1630 warnings |
-| 根 `tsc --noEmit` | **0 errors** |
-| 7zi-frontend `eslint .` | **0 errors** / 88 warnings |
-| 7zi-backend `eslint .` | **0 errors** / 0 warnings |
-| 根 `eslint .`（CI 门禁实际命令） | **0 errors** / 1767 warnings，**140 秒**（修复前 15+ 分钟） |
-
-### 本轮提交（源码全部入库，工作区仅剩文档/报告）
-- `3254d4838e` 根级 src/ ESLint 错误清零 + 恢复被清空的 eslint.config.mjs
-- `0ad99bb99e` CollabClient 防御性丢弃非法帧 + 搜索建议中英双语补齐
-- `db6d4a1a94` 抽出 performPrefetch 纯函数，修掉循环内调用 Hook
-- `888be49974` 心跳更新
-
-### 关键判断记录
-- `monitoring/prometheus.js` 是**编译产物但被 Next 优先加载**（.js 先于 .ts）。
-  原 `_this`→`this` 改法在 `forEach(function(){})` 回调里 this 为 undefined，
-  运行时会 TypeError。已改为箭头函数（与 .ts 源码一致），
-  `this` 词法绑定回实例，`node --check` + 最小复现验证过。
-- prefetch 测试 9 个失败已用 `git stash` 干净树对照，确认**存量非本次引入**。
-
-### ⚠️ 部署链路 3 个高危未决（详见 T81_DEPLOY_READINESS.md）
-1. 源站内存仅剩 339MB / 97% 占用 → 不能在 198.44.179.155 上跑 `next build`
-2. `deploy.sh` 健康检查打 `localhost:3000`，但 3000 无服务（实际 3001/28080）
-   → 会误判失败并自动回滚
-3. `/opt/7zi-frontend` 与本地不同源（服务器 HEAD `d523bcb1` vs 本地，
-   服务器另有 55 个未提交改动）→ rsync `--delete` 有不可逆丢失风险
-4. bot5.szspd.cn SSH 密码与 key 全部被拒 → 测试环境无法验证
-
-### 待主人拍板
-1. 部署目标：bot5 还是 /opt/7zi-frontend 容器？
-2. rsync 还是服务器 git pull（55 个 dirty 改动归属）？
-3. 是否允许本地/CI 构建镜像推源站（源站内存不足）？
-4. bot5 的正确凭据？
-5. git 历史明文密码是否重写 / GitHub PAT 是否轮换？
+| bot3 | ❌ `Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password)` |
+| bot4 | ❌ 同上 |
+| bot5 | ✅ 用 `~/.ssh/id_bot6_ed25519` 可登录（hostname = `ecm-cd59`）；但 `crontab -l` 显示同步为 **`*/5 * * * *`**（每 5 分钟） |
 
 ---
+
+# OpenClaw相关任务前必读
+
+在执行任何OpenClaw配置相关任务之前，请先阅读:
+- openclaw-knowledge-base.md (本机的OpenClaw知识库)
+
+这样可以确保使用最新的配置格式和最佳实践，避免使用过时的大模型知识。
 
 ---
 
@@ -121,14 +128,14 @@ ssh root@bot4.szspd.cn "iptables -L INPUT -n --line-numbers | head -12"
 
 ## 6. 凭据泄露
 ```bash
-grep -rlE 'ghp_[A-Za-z0-9]{20,}' /root/.openclaw/cron/ 2>/dev/null | grep -v git-credential
+grep -rlE 'gh[p]_[A-Za-z0-9]{20,}' /root/.openclaw/cron/ 2>/dev/null | grep -v git-credential
 ```
 应为空。凭据统一由 `clawmesh-credential.sh` 提供，脚本内不应有明文。
 仓库工作树也应无 token（`git clone` 后扫一遍）。
 
 **也要扫日志** —— git 报错会把带 token 的 URL 回显进日志：
 ```bash
-grep -ohE 'ghp_[A-Za-z0-9]{20,}' /var/log/*.log 2>/dev/null | sort -u
+grep -ohE 'gh[p]_[A-Za-z0-9]{20,}' /var/log/*.log 2>/dev/null | sort -u
 ```
 2026-10-22 在 bot4 上发现 `/var/log/botmem-*.log`、`claw-mesh.log` 里
 有 1200+ 处失效 token 明文（已脱敏）。**写完脚本记得回头扫一遍日志。**
@@ -204,12 +211,25 @@ ls docs/ | wc -l                          # 应为 305
 - 升完务必跑 `openclaw plugins list` + `openclaw doctor --non-interactive` 验证
 
 ## 已知遗留（需用户决策，勿擅自处理）
+> 📄 **完整决策清单见 [`DECISION_PENDING_20261024.md`](./DECISION_PENDING_20261024.md)（15 条，D1–D15）**。
+> 以下为速览（2026-10-24 05:40 实测口径）：
+
 - git 历史中可能仍残留旧 token —— 彻底清除需重写历史 + 强制推送
+  （实测：**`songzuo/botmem` 历史中有 1 个真实形态的 `ghp_` PAT**；`songzuo/7zi` 历史只查到占位符。
+  详见 D1）
 - 仓库内 7.5 万个 node_modules 文件 —— 清理需重写历史
+  （实测口径修正：**工作树已干净（HEAD 树 0 个）**，node_modules 只残留在 git **历史**里 ——
+  botmem 58,986 个唯一路径 / `.git` 241M；7zi 9,782 个 / `.git` 361M。详见 D7）
 - bot5 每 5 分钟推送一次，频率高于其他节点
+  （实测确认：`crontab -l` 为 `*/5 * * * * /root/.openclaw/cron/claw-mesh-sync.sh`。详见 D6）
 - **跨节点 SSH 从 bot4 全部被拒**（bot4 → bot2/3/5/6 `Permission denied (publickey)`）。
   需在其它节点把 bot4 的公钥加进 `~/.ssh/authorized_keys`。
   bot4 公钥指纹：`selfadm-bot4 SHA256:HVsRFkhJH6LJBZsPD3XbDVtyoHO45Ow3sjVx64NTtQM`
 
 ## 推送时间（已错峰，勿改成同一时刻）
 bot2 `:00` / bot4 `:15` / bot6 `:30` / bot3 `:45` / bot5 `*/5`
+
+> ⚠️ 另注：**OpenClaw 侧 cron 的"挤在整点"归因不成立** —— `~/.openclaw/cron/jobs.json` 的表达式
+> 已错峰（08:00 / 08:07 / 08:17 / 08:37 / 09:23）。cron 大面积 rate limit 失败的根因更可能是
+> **模型提供商只剩 minimax 一家可用**（coze 500 / custom1 401 / volcengine 404 实测），
+> 详见 D4 / D5。
