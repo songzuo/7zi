@@ -9,14 +9,14 @@ const WorkflowEngine = require('../src/engine/WorkflowEngine')
 function makeMockExecutor(output = {}) {
   return {
     type: 'mock',
-    execute: async (node, execution, input) => output,
+    execute: async (_node, _execution, _input) => output,
   }
 }
 
 function makeFailingExecutor(errorMsg = 'mock error') {
   return {
     type: 'mock',
-    execute: async (node, execution, input) => {
+    execute: async (_node, _execution, _input) => {
       throw new Error(errorMsg)
     },
   }

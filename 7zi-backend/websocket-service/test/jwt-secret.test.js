@@ -38,7 +38,7 @@ describe('jwt-secret', () => {
     const shortSecret = 'only-32-chars-secret-key-here-xxxx'
     let warningLogged = false
     const origWarn = console.warn
-    console.warn = (msg) => { warningLogged = true }
+    console.warn = (_msg) => { warningLogged = true }
     try {
       const fn = loadWithEnv({ JWT_SECRET: shortSecret, NODE_ENV: 'development' })
       const secret = fn()
@@ -66,7 +66,7 @@ describe('jwt-secret', () => {
     delete process.env.JWT_SECRET
     let warningLogged = false
     const origWarn = console.warn
-    console.warn = (msg) => { warningLogged = true }
+    console.warn = (_msg) => { warningLogged = true }
     try {
       const fn = loadWithEnv({ NODE_ENV: 'development' })
       const secret = fn()

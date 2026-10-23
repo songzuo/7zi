@@ -19,8 +19,11 @@ describe('WebSocket Service Integration', () => {
     await new Promise((resolve) => httpServer.listen(TEST_PORT, resolve))
   })
 
-  after(() => {
-    httpServer.close()
+  after(async () => {
+    // 关闭服务器并强制断开残留连接，否则 socket.io 的 keep-alive 连接
+    // 会一直持有事件循环，导致测试进程无法退出。
+    httpServer.closeAllConnections?.()
+    await new Promise((resolve) => httpServer.close(resolve))
   })
 
   // ── HTTP Endpoints ───────────────────────────────────────────────
@@ -66,17 +69,19 @@ describe('WebSocket Service Integration', () => {
     const socket = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
     })
     socket.on('connect', () => { done() })
     socket.on('connect_error', (err) => { done(new Error(`Connection failed: ${err.message}`)) })
-    t.test({ cleanup: () => socket.close() })
+    t.after(() => socket.close())
   })
 
   test('receives auth:authenticated on connection', (t, done) => {
     const socket = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userName: 'TestUser', userId: 'user-integration-1' },
     })
@@ -88,7 +93,7 @@ describe('WebSocket Service Integration', () => {
       } catch (e) { done(e) }
     })
     socket.on('connect_error', (err) => done(new Error(`Connection failed: ${err.message}`)))
-    t.test({ cleanup: () => socket.close() })
+    t.after(() => socket.close())
   })
 
   // ── Room Management ────────────────────────────────────────────
@@ -97,6 +102,7 @@ describe('WebSocket Service Integration', () => {
     const socket = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-join-1', userName: 'JoinUser' },
     })
@@ -113,13 +119,14 @@ describe('WebSocket Service Integration', () => {
       } catch (e) { done(e) }
     })
     socket.on('connect_error', (err) => done(new Error(`Connection failed: ${err.message}`)))
-    t.test({ cleanup: () => socket.close() })
+    t.after(() => socket.close())
   })
 
   test('room:leave leaves a room and receives room:left', (t, done) => {
     const socket = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-leave-1', userName: 'LeaveUser' },
     })
@@ -136,19 +143,21 @@ describe('WebSocket Service Integration', () => {
       } catch (e) { done(e) }
     })
     socket.on('connect_error', (err) => done(new Error(`Connection failed: ${err.message}`)))
-    t.test({ cleanup: () => socket.close() })
+    t.after(() => socket.close())
   })
 
   test('second user joining room triggers room:user_joined on first user', (t, done) => {
     const socket1 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-multi-1', userName: 'UserOne' },
     })
     const socket2 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-multi-2', userName: 'UserTwo' },
     })
@@ -169,7 +178,7 @@ describe('WebSocket Service Integration', () => {
     socket1.on('connect_error', (err) => errors.push(`S1: ${err.message}`))
     socket2.on('connect_error', (err) => errors.push(`S2: ${err.message}`))
     if (errors.length > 0) done(new Error(errors.join(', ')))
-    t.test({ cleanup: () => { socket1.close(); socket2.close() } })
+    t.after(() => { socket1.close(); socket2.close() })
   })
 
   // ── Disconnect Cleanup ─────────────────────────────────────────
@@ -178,12 +187,14 @@ describe('WebSocket Service Integration', () => {
     const socket1 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-disconnect-1', userName: 'DisconnectUser1' },
     })
     const socket2 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-disconnect-2', userName: 'DisconnectUser2' },
     })
@@ -204,7 +215,7 @@ describe('WebSocket Service Integration', () => {
     })
     socket1.on('connect_error', (err) => done(new Error(`S1: ${err.message}`)))
     socket2.on('connect_error', (err) => done(new Error(`S2: ${err.message}`)))
-    t.test({ cleanup: () => { socket1.close(); socket2.close() } })
+    t.after(() => { socket1.close(); socket2.close() })
   })
 
   // ── Cursor & Presence ──────────────────────────────────────────
@@ -213,12 +224,14 @@ describe('WebSocket Service Integration', () => {
     const socket1 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-cursor-1', userName: 'CursorUser1' },
     })
     const socket2 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-cursor-2', userName: 'CursorUser2' },
     })
@@ -240,19 +253,21 @@ describe('WebSocket Service Integration', () => {
     })
     socket1.on('connect_error', (err) => done(new Error(`S1: ${err.message}`)))
     socket2.on('connect_error', (err) => done(new Error(`S2: ${err.message}`)))
-    t.test({ cleanup: () => { socket1.close(); socket2.close() } })
+    t.after(() => { socket1.close(); socket2.close() })
   })
 
   test('presence:typing broadcasts typing status to other users', (t, done) => {
     const socket1 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-typing-1', userName: 'TypingUser1' },
     })
     const socket2 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-typing-2', userName: 'TypingUser2' },
     })
@@ -274,7 +289,7 @@ describe('WebSocket Service Integration', () => {
     })
     socket1.on('connect_error', (err) => done(new Error(`S1: ${err.message}`)))
     socket2.on('connect_error', (err) => done(new Error(`S2: ${err.message}`)))
-    t.test({ cleanup: () => { socket1.close(); socket2.close() } })
+    t.after(() => { socket1.close(); socket2.close() })
   })
 
   // ── Document Operations ─────────────────────────────────────────
@@ -283,12 +298,14 @@ describe('WebSocket Service Integration', () => {
     const socket1 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-doc-1', userName: 'DocUser1' },
     })
     const socket2 = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-doc-2', userName: 'DocUser2' },
     })
@@ -314,7 +331,7 @@ describe('WebSocket Service Integration', () => {
     })
     socket1.on('connect_error', (err) => done(new Error(`S1: ${err.message}`)))
     socket2.on('connect_error', (err) => done(new Error(`S2: ${err.message}`)))
-    t.test({ cleanup: () => { socket1.close(); socket2.close() } })
+    t.after(() => { socket1.close(); socket2.close() })
   })
 
   // ── test:ping ──────────────────────────────────────────────────
@@ -323,6 +340,7 @@ describe('WebSocket Service Integration', () => {
     const socket = io(BASE_URL, {
       transports: ['websocket'],
       reconnectionDelay: 0,
+      reconnection: false,
       timeout: 5000,
       auth: { userId: 'user-ping-1', userName: 'PingUser' },
     })
@@ -337,6 +355,6 @@ describe('WebSocket Service Integration', () => {
       })
     })
     socket.on('connect_error', (err) => done(new Error(`Connection failed: ${err.message}`)))
-    t.test({ cleanup: () => socket.close() })
+    t.after(() => socket.close())
   })
 })

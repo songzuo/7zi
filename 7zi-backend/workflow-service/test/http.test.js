@@ -2,10 +2,25 @@
 
 const { test, describe, before, after } = require('node:test')
 const assert = require('node:assert')
-const { createServer } = require('../src/index.js')
 
-const TEST_PORT = 3004
+// 端口：优先取 runner 分配的空闲端口（WORKFLOW_TEST_PORT），
+// 其次取 PORT，最后回退到 3004。避免与在跑的实例抢占同一端口导致 EADDRINUSE。
+const TEST_PORT = parseInt(
+  process.env.WORKFLOW_TEST_PORT || process.env.PORT || '3004',
+  10
+)
 const BASE_URL = `http://localhost:${TEST_PORT}`
+
+// 环境变量必须在 require('../src/index.js') 之前设置：
+// src/index.js 在模块加载时就会读取 process.env.PORT 并立即监听端口。
+// 否则服务会抢占默认端口 3001（可能已被占用）导致 EADDRINUSE。
+process.env.PORT = String(TEST_PORT)
+process.env.LOG_LEVEL = 'error'
+process.env.CHECKPOINT_INTERVAL = '999999' // disable checkpoint timer during tests
+
+// src/index.js 导出的是 { app, engine, server }，没有 createServer；
+// 它自身已经用 PORT 监听，这里直接复用其 server 实例。
+const { server: httpServer } = require('../src/index.js')
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -32,18 +47,17 @@ function validWorkflow(overrides = {}) {
 // ============================================================================
 
 describe('Workflow Service HTTP Integration', () => {
-  let server
-
   before(async () => {
-    process.env.PORT = String(TEST_PORT)
-    process.env.LOG_LEVEL = 'error'
-    process.env.CHECKPOINT_INTERVAL = '999999' // disable checkpoint timer during tests
-    server = createServer()
-    await new Promise((resolve) => server.listen(TEST_PORT, resolve))
+    // httpServer 已在 src/index.js 加载时开始监听，等待端口就绪
+    if (!httpServer.listening) {
+      await new Promise((resolve) => httpServer.once('listening', resolve))
+    }
   })
 
-  after(() => {
-    server.close()
+  after(async () => {
+    // 关闭服务器并断开残留连接，确保测试进程能正常退出
+    httpServer.closeAllConnections?.()
+    await new Promise((resolve) => httpServer.close(resolve))
   })
 
   // ── Health checks ───────────────────────────────────────────────────────

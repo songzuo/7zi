@@ -29,8 +29,6 @@ function normalizeUrl(url) {
 
 function green(msg) { console.log('\x1b[32m✓\x1b[0m', msg) }
 function red(msg)   { console.log('\x1b[31m✗\x1b[0m', msg) }
-function yellow(msg) { console.log('\x1b[33m⚠\x1b[0m', msg) }
-function info(msg)  { console.log('  ', msg) }
 
 async function httpHealthCheck(baseUrl) {
   process.stdout.write(`Health check: ${baseUrl}/health ... `)

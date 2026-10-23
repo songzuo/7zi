@@ -150,6 +150,8 @@ class RoomManager {
         logger.info('Room destroyed (idle)', { roomId })
       }
     }, delay)
+    // 空闲清理定时器长达 30 分钟，不能让测试/一次性脚本的进程被它挂住。
+    if (typeof timer.unref === 'function') timer.unref()
     this.cleanupTimers.set(roomId, timer)
   }
 
@@ -606,7 +608,7 @@ function createServer() {
   io.on('connection', (socket) => setupSocketHandlers(socket))
 
   // Heartbeat monitoring - disconnect inactive clients after 60s
-  setInterval(() => {
+  const heartbeatTimer = setInterval(() => {
     const now = Date.now()
     io.sockets.sockets.forEach((socket) => {
       const lastHeartbeat = socket.data.lastHeartbeat || 0
@@ -621,13 +623,23 @@ function createServer() {
   }, 10000)
 
   // Periodic room cleanup logging
-  setInterval(() => {
+  const cleanupTimer = setInterval(() => {
     const rooms = roomManager.getAllRooms()
     logger.debug('Room cleanup check', {
       roomCount: rooms.length,
       totalUsers: rooms.reduce((acc, r) => acc + r.userCount, 0),
     })
   }, 60000)
+
+  // 这些后台定时器不应阻止进程退出：unref 让它们不再 hold 住事件循环，
+  // 同时在服务器关闭时清理，避免测试脚本结束后仍挂着定时器。
+  for (const timer of [heartbeatTimer, cleanupTimer]) {
+    if (typeof timer.unref === 'function') timer.unref()
+  }
+  httpServer.on('close', () => {
+    clearInterval(heartbeatTimer)
+    clearInterval(cleanupTimer)
+  })
 
   return httpServer
 }
@@ -683,7 +695,7 @@ if (require.main === module) {
     process.exit(1)
   })
 
-  process.on('unhandledRejection', (reason, promise) => {
+  process.on('unhandledRejection', (reason, _promise) => {
     logger.error('Unhandled rejection', { reason })
   })
 } // end if (require.main === module)
