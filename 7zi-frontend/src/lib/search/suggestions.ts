@@ -3,7 +3,7 @@
  * 基于搜索历史、热门搜索、模糊匹配
  */
 
-import { fuzzyMatchItems, FuzzySearchOptions } from './fuzzy-search';
+import { fuzzyMatch, fuzzyMatchItems, FuzzySearchOptions } from './fuzzy-search';
 
 export interface SearchSuggestion {
   /** 建议文本 */
@@ -50,33 +50,33 @@ interface MockNode {
 }
 
 const MOCK_WORKFLOWS: MockWorkflow[] = [
-  { id: '1', name: '数据采集工作流', description: '从多个数据源采集数据' },
-  { id: '2', name: '数据清洗工作流', description: '清洗和转换数据' },
-  { id: '3', name: '数据分析工作流', description: '分析和可视化数据' },
-  { id: '4', name: '报表生成工作流', description: '生成各类报表' },
-  { id: '5', name: '邮件通知工作流', description: '发送邮件通知' }
+  { id: '1', name: '数据采集工作流', description: '从多个数据源采集数据', text: 'workflow data collection' },
+  { id: '2', name: '数据清洗工作流', description: '清洗和转换数据', text: 'workflow data cleaning' },
+  { id: '3', name: '数据分析工作流', description: '分析和可视化数据', text: 'workflow data analysis' },
+  { id: '4', name: '报表生成工作流', description: '生成各类报表', text: 'workflow report generation' },
+  { id: '5', name: '邮件通知工作流', description: '发送邮件通知', text: 'workflow email notification' }
 ];
 
 /**
  * 模拟任务数据（实际应从 API 获取）
  */
 const MOCK_TASKS: MockTask[] = [
-  { id: '1', name: '数据导入任务', status: 'pending' },
-  { id: '2', name: '数据导出任务', status: 'running' },
-  { id: '3', name: '模型训练任务', status: 'completed' },
-  { id: '4', name: '模型预测任务', status: 'pending' },
-  { id: '5', name: '数据备份任务', status: 'running' }
+  { id: '1', name: '数据导入任务', status: 'pending', text: 'task data import' },
+  { id: '2', name: '数据导出任务', status: 'running', text: 'task data export' },
+  { id: '3', name: '模型训练任务', status: 'completed', text: 'task model training' },
+  { id: '4', name: '模型预测任务', status: 'pending', text: 'task model prediction' },
+  { id: '5', name: '数据备份任务', status: 'running', text: 'task data backup' }
 ];
 
 /**
  * 模拟节点数据（实际应从 API 获取）
  */
 const MOCK_NODES: MockNode[] = [
-  { id: '1', name: '输入节点', type: 'input' },
-  { id: '2', name: '处理节点', type: 'process' },
-  { id: '3', name: '输出节点', type: 'output' },
-  { id: '4', name: '条件节点', type: 'condition' },
-  { id: '5', name: '循环节点', type: 'loop' }
+  { id: '1', name: '输入节点', type: 'input', text: 'node input' },
+  { id: '2', name: '处理节点', type: 'process', text: 'node process' },
+  { id: '3', name: '输出节点', type: 'output', text: 'node output' },
+  { id: '4', name: '条件节点', type: 'condition', text: 'node condition' },
+  { id: '5', name: '循环节点', type: 'loop', text: 'node loop' }
 ];
 
 /**
@@ -84,9 +84,13 @@ const MOCK_NODES: MockNode[] = [
  */
 const POPULAR_SEARCHES = [
   '工作流',
+  'workflow',
   '任务',
+  'task',
   '节点',
+  'node',
   '数据分析',
+  'data analysis',
   '数据采集',
   '数据清洗',
   '报表生成',
@@ -109,12 +113,18 @@ class SearchHistoryManager {
 
   /**
    * 从 localStorage 加载历史记录
+   * localStorage 是唯一数据源：每次访问都重新同步，
+   * 避免内存缓存与持久化数据不一致（例如其他标签页清理了存储）
    */
   private load(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
-      if (stored) {
-        this.history = JSON.parse(stored);
+      this.history = stored ? JSON.parse(stored) : [];
+      if (!Array.isArray(this.history)) {
+        this.history = [];
       }
     } catch (error) {
       console.error('Failed to load search history:', error);
@@ -139,6 +149,9 @@ class SearchHistoryManager {
   add(query: string): void {
     if (!query || query.trim().length === 0) return;
 
+    // 先与持久化数据同步，避免覆盖其他来源写入的历史
+    this.load();
+
     // 移除重复项
     this.history = this.history.filter((h) => h !== query);
 
@@ -157,6 +170,8 @@ class SearchHistoryManager {
    * 获取最近的历史记录
    */
   getRecent(limit?: number): string[] {
+    // 以 localStorage 为准，确保外部清理（如测试/其他标签页）能立即生效
+    this.load();
     const size = limit || this.history.length;
     return this.history.slice(0, size);
   }
@@ -173,6 +188,7 @@ class SearchHistoryManager {
    * 删除指定历史记录
    */
   remove(query: string): void {
+    this.load();
     this.history = this.history.filter((h) => h !== query);
     this.save();
   }
@@ -182,16 +198,77 @@ class SearchHistoryManager {
 export const searchHistory = new SearchHistoryManager();
 
 /**
+ * 对一组候选文本打分，返回最高分（未匹配返回 null）
+ *
+ * 匹配优先级：完全匹配 > 子串包含 > 模糊匹配（Levenshtein）
+ * 之所以需要子串匹配：mock 数据的展示名是中文，
+ * 而用户可能输入英文别名（如 "workflow"），仅靠编辑距离无法命中。
+ */
+function scoreCandidates(
+  candidates: (string | undefined)[],
+  query: string,
+  options: FuzzySearchOptions
+): number | null {
+  const { ignoreCase = true } = options;
+  const normalizedQuery = ignoreCase ? query.toLowerCase() : query;
+  let best: number | null = null;
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+
+    const text = ignoreCase ? candidate.toLowerCase() : candidate;
+
+    if (text === normalizedQuery) {
+      best = Math.max(best ?? 0, 1);
+      continue;
+    }
+
+    if (text.includes(normalizedQuery)) {
+      // 越接近完整匹配，分数越高
+      const coverage = normalizedQuery.length / text.length;
+      best = Math.max(best ?? 0, 0.6 + 0.3 * coverage);
+      continue;
+    }
+
+    const result = fuzzyMatch(candidate, query, options);
+    if (result.matched) {
+      best = Math.max(best ?? 0, result.score);
+    }
+  }
+
+  return best;
+}
+
+/**
+ * 通用匹配：items 中每项可提供多个可匹配文本字段
+ */
+function matchItems<T>(
+  items: T[],
+  query: string,
+  options: FuzzySearchOptions,
+  getCandidates: (item: T) => (string | undefined)[]
+): { item: T; score: number }[] {
+  return items
+    .map((item) => {
+      const score = scoreCandidates(getCandidates(item), query, options);
+      return score === null ? null : { item, score };
+    })
+    .filter((r): r is { item: T; score: number } => r !== null)
+    .sort((a, b) => b.score - a.score);
+}
+
+/**
  * 从工作流获取建议
  */
 async function getWorkflowSuggestions(
   query: string,
   options: FuzzySearchOptions
 ): Promise<SearchSuggestion[]> {
-  const results = fuzzyMatchItems(MOCK_WORKFLOWS, query, {
-    ...options,
-    getText: (wf) => wf.name
-  });
+  const results = matchItems(MOCK_WORKFLOWS, query, options, (wf) => [
+    wf.name,
+    wf.text,
+    wf.description
+  ]);
 
   return results.map((r) => ({
     text: r.item.name,
@@ -211,10 +288,11 @@ async function getTaskSuggestions(
   query: string,
   options: FuzzySearchOptions
 ): Promise<SearchSuggestion[]> {
-  const results = fuzzyMatchItems(MOCK_TASKS, query, {
-    ...options,
-    getText: (task) => task.name
-  });
+  const results = matchItems(MOCK_TASKS, query, options, (task) => [
+    task.name,
+    task.text,
+    task.status
+  ]);
 
   return results.map((r) => ({
     text: r.item.name,
@@ -234,10 +312,11 @@ async function getNodeSuggestions(
   query: string,
   options: FuzzySearchOptions
 ): Promise<SearchSuggestion[]> {
-  const results = fuzzyMatchItems(MOCK_NODES, query, {
-    ...options,
-    getText: (node) => node.name
-  });
+  const results = matchItems(MOCK_NODES, query, options, (node) => [
+    node.name,
+    node.text,
+    node.type
+  ]);
 
   return results.map((r) => ({
     text: r.item.name,
@@ -377,7 +456,8 @@ export async function getSuggestions(
 
   filtered.sort((a, b) => b.score - a.score);
 
-  return filtered.slice(0, limit);
+  // limit <= 0 表示不返回任何建议
+  return limit > 0 ? filtered.slice(0, limit) : [];
 }
 
 /**

@@ -12,10 +12,22 @@ vi.mock('../services/notification-enhanced', () => ({
   },
 }))
 
-describe('Notification System Initialization', () => {
-  let consoleLogSpy: ReturnType<typeof vi.spyOn>
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>
+// Mock logger：notification-init 通过 logger 记录日志，而非直接调用 console
+const { mockLogger } = vi.hoisted(() => ({
+  mockLogger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  },
+}))
 
+vi.mock('@/lib/logger', () => ({
+  logger: mockLogger,
+}))
+
+describe('Notification System Initialization', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     vi.mocked(enhancedNotificationService.initialize).mockResolvedValue(undefined)
@@ -24,15 +36,9 @@ describe('Notification System Initialization', () => {
     vi.resetModules()
     const mod = await import('../notification-init')
     mod._resetNotificationSystem()
-
-    // Create spies AFTER resetModules to ensure they work with re-imported module
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterEach(() => {
-    consoleLogSpy?.mockRestore()
-    consoleErrorSpy?.mockRestore()
     vi.restoreAllMocks()
   })
 
@@ -48,7 +54,7 @@ describe('Notification System Initialization', () => {
       const { initializeNotificationSystem } = await import('../notification-init')
       await initializeNotificationSystem()
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('[NotificationSystem] Successfully initialized')
+      expect(mockLogger.debug).toHaveBeenCalledWith('[NotificationSystem] Successfully initialized')
     })
 
     it('should not initialize multiple times', async () => {
@@ -57,7 +63,7 @@ describe('Notification System Initialization', () => {
       await initializeNotificationSystem()
 
       expect(enhancedNotificationService.initialize).toHaveBeenCalledTimes(1)
-      expect(consoleLogSpy).toHaveBeenCalledWith('[NotificationSystem] Already initialized')
+      expect(mockLogger.debug).toHaveBeenCalledWith('[NotificationSystem] Already initialized')
     })
 
     it('should handle initialization failure', async () => {
@@ -70,7 +76,7 @@ describe('Notification System Initialization', () => {
 
       await expect(initializeNotificationSystem()).rejects.toThrow('Database connection failed')
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         '[NotificationSystem] Failed to initialize:',
         mockError
       )
@@ -86,7 +92,7 @@ describe('Notification System Initialization', () => {
 
       await expect(initializeNotificationSystem()).rejects.toThrow()
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         '[NotificationSystem] Failed to initialize:',
         mockError
       )

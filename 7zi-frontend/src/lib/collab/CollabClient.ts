@@ -110,6 +110,60 @@ export interface CollabClientOptions {
 }
 
 /**
+ * Known collaboration message types.
+ * Used to validate incoming frames from the transport layer.
+ */
+const COLLAB_MESSAGE_TYPES: ReadonlySet<string> = new Set<string>([
+  'cursor:move',
+  'cursor:select',
+  'cursor:hide',
+  'presence:join',
+  'presence:leave',
+  'presence:heartbeat',
+  'presence:update',
+  'doc:sync',
+  'doc:update',
+  'doc:delete',
+  'lock:acquire',
+  'lock:release',
+  'lock:renew',
+  'sync:request',
+  'sync:response',
+  'error',
+])
+
+/**
+ * Type guard: is the given value a usable collaboration message?
+ *
+ * Guards against undefined / null / non-objects / objects without a
+ * recognised `type` field. Anything that fails this check is dropped by
+ * {@link CollabClient.handleMessage} instead of throwing.
+ */
+export function isValidCollabMessage(value: unknown): value is CollabMessage {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const candidate = value as { type?: unknown }
+  if (typeof candidate.type !== 'string') {
+    return false
+  }
+
+  return COLLAB_MESSAGE_TYPES.has(candidate.type)
+}
+
+/**
+ * Human readable description of an invalid message, used for logging only.
+ */
+function describeMessageValue(value: unknown): string {
+  if (value === null) return 'null'
+  if (value === undefined) return 'undefined'
+  if (typeof value !== 'object') return typeof value
+  const type = (value as { type?: unknown }).type
+  return typeof type === 'string' ? `object(type=${type})` : 'object(type=missing)'
+}
+
+/**
  * CollabClient class
  */
 export class CollabClient {
@@ -251,62 +305,77 @@ export class CollabClient {
 
   /**
    * Handle incoming message
+   *
+   * Defensive: the transport layer may deliver malformed frames
+   * (undefined / null / non-object / missing type). Such frames must never
+   * throw, otherwise the rejection escapes as an Unhandled Rejection.
    */
-  private handleMessage(message: CollabMessage): void {
-    this.log('info', 'Received message', { type: message.type })
+  private handleMessage(message: CollabMessage | null | undefined): void {
+    if (!isValidCollabMessage(message)) {
+      this.log('warn', 'Ignoring invalid collab message', {
+        received: describeMessageValue(message),
+      })
+      return
+    }
 
-    switch (message.type) {
+    const msg = message
+    const timestamp =
+      typeof msg.timestamp === 'number' && Number.isFinite(msg.timestamp) ? msg.timestamp : Date.now()
+
+    this.log('info', 'Received message', { type: msg.type })
+
+    switch (msg.type) {
       case 'cursor:move':
       case 'cursor:select':
-        if (message.userId && message.userId !== this.user.id) {
-          const payload = message.payload as { position: CursorPosition }
-          this.remoteCursors.set(message.userId, {
+        if (msg.userId && msg.userId !== this.user.id) {
+          const payload = msg.payload as { position: CursorPosition }
+          this.remoteCursors.set(msg.userId, {
             cursor: payload.position,
             user: {
-              id: message.userId,
-              name: this.remoteUsers.get(message.userId)?.name || 'Unknown',
-              color: this.remoteUsers.get(message.userId)?.color || '#888888',
+              id: msg.userId,
+              name: this.remoteUsers.get(msg.userId)?.name || 'Unknown',
+              color: this.remoteUsers.get(msg.userId)?.color || '#888888',
             },
-            timestamp: message.timestamp,
+            timestamp: timestamp,
           })
           this.emit({
             type: 'cursor:moved',
-            payload: { userId: message.userId, position: payload.position },
-            timestamp: message.timestamp,
-            userId: message.userId,
+            payload: { userId: msg.userId, position: payload.position },
+            timestamp: timestamp,
+            userId: msg.userId,
           })
         }
         break
 
       case 'presence:join':
-        if (message.userId) {
-          const payload = message.payload as { user: CollabUser; sessionId: string }
-          this.remoteUsers.set(message.userId, payload.user)
+        if (msg.userId) {
+          const payload = msg.payload as { user: CollabUser; sessionId: string }
+          this.remoteUsers.set(msg.userId, payload.user)
           this.emit({
             type: 'user:joined',
             payload: payload,
-            timestamp: message.timestamp,
-            userId: message.userId,
+            timestamp: timestamp,
+            userId: msg.userId,
           })
         }
         break
 
       case 'presence:leave':
-        if (message.userId) {
-          this.remoteUsers.delete(message.userId)
-          this.remoteCursors.delete(message.userId)
+        if (msg.userId) {
+          this.remoteUsers.delete(msg.userId)
+          this.remoteCursors.delete(msg.userId)
           this.emit({
             type: 'user:left',
-            payload: { userId: message.userId },
-            timestamp: message.timestamp,
-            userId: message.userId,
+            payload: { userId: msg.userId },
+            timestamp: timestamp,
+            userId: msg.userId,
           })
         }
         break
 
       case 'presence:update':
-        if (message.userId) {
-          const payload = message.payload as { userId: string; updates: Partial<CollabUser> }
+        if (msg.userId) {
+          const payload = msg.payload as { userId: string; updates: Partial<CollabUser> }
           const existing = this.remoteUsers.get(payload.userId)
           if (existing) {
             this.remoteUsers.set(payload.userId, { ...existing, ...payload.updates })
@@ -314,69 +383,69 @@ export class CollabClient {
           this.emit({
             type: 'user:updated',
             payload,
-            timestamp: message.timestamp,
-            userId: message.userId,
+            timestamp: timestamp,
+            userId: msg.userId,
           })
         }
         break
 
       case 'lock:acquire':
-        if (message.userId) {
-          const payload = message.payload as { nodeId: string; userId: string; userName: string }
-          const expiresAt = message.timestamp + this.options.lockTimeout
+        if (msg.userId) {
+          const payload = msg.payload as { nodeId: string; userId: string; userName: string }
+          const expiresAt = timestamp + this.options.lockTimeout
           this.locks.set(payload.nodeId, {
             nodeId: payload.nodeId,
             userId: payload.userId,
             userName: payload.userName,
-            lockedAt: message.timestamp,
+            lockedAt: timestamp,
             expiresAt,
           })
           this.emit({
             type: 'lock:acquired',
             payload,
-            timestamp: message.timestamp,
-            userId: message.userId,
+            timestamp: timestamp,
+            userId: msg.userId,
           })
         }
         break
 
       case 'lock:release':
-        if (message.userId) {
-          const payload = message.payload as { nodeId: string }
+        if (msg.userId) {
+          const payload = msg.payload as { nodeId: string }
           this.locks.delete(payload.nodeId)
           this.emit({
             type: 'lock:released',
             payload,
-            timestamp: message.timestamp,
-            userId: message.userId,
+            timestamp: timestamp,
+            userId: msg.userId,
           })
         }
         break
 
       case 'doc:update': {
-        const updatePayload = message.payload as { nodeId: string; changes: Partial<NodeData> }
+        const updatePayload = msg.payload as { nodeId: string; changes: Partial<NodeData> }
         this.updateLocalNode(updatePayload.nodeId, updatePayload.changes)
         this.emit({
           type: 'node:updated',
           payload: updatePayload,
-          timestamp: message.timestamp,
+          timestamp: timestamp,
         })
         break
       }
 
       case 'doc:delete': {
-        const deletePayload = message.payload as { nodeId: string }
+        const deletePayload = msg.payload as { nodeId: string }
         this.document.delete(deletePayload.nodeId)
         this.emit({
           type: 'node:deleted',
           payload: deletePayload,
-          timestamp: message.timestamp,
+          timestamp: timestamp,
         })
         break
       }
 
       case 'sync:response': {
-        const syncPayload = message.payload as {
+        const syncPayload = msg.payload as {
           nodes: NodeData[]
           users: CollabUser[]
           locks: EditLock[]
@@ -395,11 +464,11 @@ export class CollabClient {
       }
 
       case 'error': {
-        const errorPayload = message.payload as { code?: string; message?: string }
+        const errorPayload = msg.payload as { code?: string; message?: string }
         this.emit({
           type: 'error',
           payload: errorPayload,
-          timestamp: message.timestamp,
+          timestamp: timestamp,
         })
         break
       }
