@@ -865,7 +865,8 @@ EMAIL_ALERTING_ENABLED=true
 
 | 版本       | 日期       | 主要更新                                                                                                                                                                |
 | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **未发布** | 2026-10-23 | 🚦 后端 CI 门禁落地（`.github/workflows/backend-ci.yml`：lint + jest + 覆盖率阈值 + npm audit 门禁）、🐛 workflow-engine 覆盖率 0% → 93.46%（改用 `coverageProvider: v8`）、🛡️ uuid 9.0.1 → 11.1.1（4 个子目录，生产依赖 0 漏洞）、🧹 前端 lint warnings 312 → 25、🔧 根级 `src/` 36 个 TS 错误清零 |
+| **未发布** | 2026-10-24 | 🧹 代码质量门禁全清：后端 ESLint 0 errors / 0 warnings、前端 `7zi-frontend/src` ESLint 0 errors / 0 warnings、根级 `src/` TS 0 errors、🧪 后端 Jest 16 套件 / 342 用例全绿、前端 error-reporting 4 文件 / 89 用例全绿、🐛 `retry.ts` 3 个真 Bug 修复（Duration 245s → 3.8s）、📄 文档同步 T69–T76 |
+| **未发布** | 2026-10-23 | 🚦 后端 CI 门禁落地（`.github/workflows/backend-ci.yml`：lint + jest + 覆盖率阈值 + npm audit 门禁）、🐛 workflow-engine 覆盖率 0% → 93.46%（改用 `coverageProvider: v8`）、🛡️ uuid 9.0.1 → 11.1.1（4 个子目录，生产依赖 0 漏洞）、🐛 修复 2 处 `no-dupe-keys` 真 Bug、🧹 前端 lint warnings 312 → 24、后端 ESLint 0 errors、🔧 根级 `src/` 36 个 TS 错误清零 |
 | **未发布** | 2026-10-21 | 🔒 P0-3 nodemailer 服务端化（`/api/email`）、🏗️ 后端目录整合（`7zi-backend/`）+ websocket/workflow 服务独立化、🧪 后端 Jest 测试 111 用例全绿（WS 行覆盖率 95.2%）、🔍 依赖/TODO 审计、🔧 前端 TS 错误治理 |
 | **v1.14.4** | 2026-10-19 | 🔒 Server Action 部署修复、vite 依赖更新 (8.0.12→8.3.4 修复安全漏洞)、ws 依赖更新、新增 API 路由测试                                                            |
 | **v1.14.3** | 2026-05-10 | 📊 代码质量深度审查 (540 TypeScript 错误分析)、安全漏洞修复 (serialize-javascript RCE, xlsx ReDoS)、测试策略文档更新                                                    |
@@ -1389,14 +1390,17 @@ pnpm type-check
 
 ### 测试统计
 
-| 指标           | 数值                       |
-| -------------- | -------------------------- | -------------------------------- |
-| **测试文件数** | 60+                        |
-| **测试覆盖**   | 组件、Hooks、工具函数、API | 96% (v1.5.0 Agent Learning 系统) |
-| **测试通过率** | 94.2% (279/296+)           |
-| **测试通过率** | 94.2% (279/296+)           |
-| **有意跳过**   | 9 个 (平台/环境相关)       |
-| **超时配置**   | 60s (单个)、180s (文件)    |
+| 指标 | 数值 |
+| ---- | ---- |
+| **测试文件数** | 60+ |
+| **测试覆盖** | 组件、Hooks、工具函数、API |
+| **后端 Jest** | **16 套件 / 342 用例 全绿**（2026-10-24 实测） |
+| **前端 error-reporting** | **4 文件 / 89 用例 全绿**（2026-10-24 实测） |
+| **有意跳过** | 9 个 (平台/环境相关) |
+| **超时配置** | 60s (单个)、180s (文件) |
+
+> 历史版本统计（如「测试通过率 94.2% (279/296+)」「96% 覆盖率」）来自 v1.5.0 时期的口径，
+> 已不代表当前状态 —— 当前权威基线见下方「代码质量现状（2026-10-24 实测）」。
 
 ### 测试覆盖范围
 
@@ -1406,6 +1410,11 @@ pnpm type-check
 - **E2E 测试**: 关键流程自动化测试
 
 ### 运行测试（前端 / Vitest）
+
+前端测试框架已统一为 **Vitest**（根级 `src/` 用 `vitest ^4.1.12`，`7zi-frontend/` 用 `vitest ^5.0.5`），
+两者均使用 `vitest run` / `vitest run --coverage`；`jest` 已不在任何依赖列表中
+（`@testing-library/jest-dom` 仅作 matcher 库保留）。示例：`src/lib/error-reporting/__tests__/retry.test.ts`
+已从 `@jest/globals` 迁移为 `import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'`。
 
 ```bash
 # 运行所有测试 (监视模式)
@@ -1420,6 +1429,18 @@ npm run test:coverage
 # E2E 测试
 npm run test:e2e
 ```
+
+> ✅ 前端 `error-reporting` 测试已全绿（2026-10-24 实测 `npx vitest run src/lib/error-reporting`
+> → **4 个文件 / 89 用例全绿**，Duration 4.81s）。
+> 此前「11 个用例失败 / Duration 245s」的问题已修复（T69–T76）：
+> ① 放弃 `vi.useFakeTimers()`（假时钟冻结 `setTimeout` 导致每个用例挂到 24s 超时），
+> 改用真实时钟 + 极小 `initialDelay`；② 修正 logger mock 路径 `../logger` → `../../logger`
+> （原路径不存在，mock 落空）；③ 修复 `retry.ts` 的 3 个真 Bug（自定义 `shouldRetry` 被默认规则
+> 覆盖、`@retry` 装饰器泄漏内部 `RetryResult`、未使用的泛型参数）。
+> 详见 `T76_ERROR_REPORTING_TESTS.md`。
+>
+> ❗ 当前唯一已知失败：`7zi-frontend/tests/features/collab-client.test.ts`
+> → **19 failed / 19 passed + 2 Unhandled Rejection**（2026-10-24 实测，归属 T77 修复）。
 
 ### 运行测试（后端 / Jest）
 
@@ -1475,6 +1496,35 @@ npx jest --selectProjects workflow-engine --coverage
 - 本地等价验证：`npm ci` → `npm run lint` → `npx jest --coverage` → `npm audit --omit=dev`
 - 尚未在真实 GitHub Actions 上跑过首次运行，首次推送后建议观察一次
 
+### 代码质量现状（2026-10-24 实测）
+
+| 范围 | 命令 | 结果 |
+|------|------|------|
+| 后端 | `cd 7zi-backend && npx eslint .` | ✅ **0 errors / 0 warnings**（exit 0） |
+| 前端 | `cd 7zi-frontend && npx eslint src` | ✅ **0 errors / 0 warnings**（exit 0） |
+| 根级 `src/` 类型 | `npx tsc --noEmit` | ✅ **0 errors**（exit 0） |
+| 后端测试 | `cd 7zi-backend && npx jest` | ✅ **16 套件 / 342 用例 全绿** |
+| 前端 error-reporting | `cd 7zi-frontend && npx vitest run src/lib/error-reporting` | ✅ **4 文件 / 89 用例 全绿**（4.81s） |
+| 后端依赖 | `npm audit --omit=dev`（4 个子目录） | **0 vulnerabilities** |
+| 前端依赖 | `uuid` 已统一升级至 `^11.1.1` | 生产依赖无 moderate 及以上漏洞 |
+
+> 后端 ESLint 归零路径：T68（0 errors，余 11 warnings）→ T71（改用 ES2019 可选 catch 绑定 `catch {`，
+> 消除两套 flat config 行为不一致）→ T75（11 → 0）。
+> 前端 ESLint 归零路径：312 warnings → T72（24 → 1）→ T74（18 → 0）→ 0。
+> 全部为真实修复，未使用批量 `eslint-disable`、未降级规则、未用 `@ts-ignore` 压制。
+
+> 已修复 2 处 `no-dupe-keys` **真 Bug**：`websocket/lib/server.js` 与 `websocket-service/src/index.js`
+> 的统计接口原先把「房间数量」与「房间数组」写在同一个 `rooms` 键上，后者静默覆盖前者；
+> 现改为 `roomCount`（数量）+ `rooms`（数组）。
+
+### ❗ 当前遗留（2026-10-24 实测，均未修复）
+
+| 遗留项 | 实测结果 | 归属 |
+|---|---|---|
+| `7zi-frontend/tests/features/collab-client.test.ts` | ❌ 19 failed / 19 passed + 2 Unhandled Rejection（`CollabClient.send` → `MockWebSocketManager.emit`，疑为 `handleMessage` 读 `undefined` message 的 `message.type`） | T77 |
+| （已清零） | 根级 `npx eslint src` 原 21 error / 1630 warnings，提交 `3254d4838e` 后为 **0 error / 1630 warnings**；根 `eslint.config.mjs` 曾被截断为 0 字节导致根级 lint 失效，已恢复并修正 `react-hooks` 插件重复注册 | ✅ 已完成 |
+| 后端 CI workflow | 尚未在真实 GitHub Actions 上跑过首次运行，首次推送后建议观察一次 | — |
+
 ---
 
 ## 🖥️ 后端服务
@@ -1499,7 +1549,7 @@ npx jest --selectProjects workflow-engine --coverage
 │   │   ├── auth.js
 │   │   ├── handlers.js
 │   │   └── server.js
-│   └── __tests__/           # Jest 测试（10 个文件 / 111 用例）
+│   └── __tests__/           # Jest 测试（10 套件 / 128 用例）
 ├── websocket-service/     # WebSocket 独立服务（Docker，提交 c95d8af04）
 │   ├── package.json       # 独立依赖
 │   ├── Dockerfile

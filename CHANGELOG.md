@@ -7,6 +7,92 @@
 
 ---
 
+## [未发布] / 2026-10-24
+
+> 本段落由 T79 补记。所有数字均为 **2026-10-24 00:08–00:20 (Asia/Shanghai) 实测复现**，
+> 复现命令与原始输出见 `T79_DOCS_SYNC.md`。
+
+### 🧹 代码质量门禁全清（T69–T76）
+
+- **后端 ESLint：0 error / 0 warning**
+  - `cd 7zi-backend && npx eslint .` → **exit 0，无任何输出**
+  - 覆盖范围：`websocket/`、`workflow-service/`、`workflow-engine/`、`websocket-service/`
+  - 过程记录：T68 → 0 errors（余 11 warnings）→ T71（修 `catch (_error) {}` 与两套 flat config
+    行为不一致：改用 ES2019 可选 catch 绑定 `catch {`，两套配置下无条件豁免）→ T75（11 → 0，
+    根因是 `no-unused-vars` 配置了 `caughtErrorsIgnorePattern: '^_'`，未使用的变量/参数必须以 `_` 开头）
+  - 报告：`T70_BACKEND_FIXES.md`、`T71_BACKEND_LINT_CLEANUP.md`、`T75_BACKEND_LINT_WARNINGS.md`
+- **前端 ESLint（`7zi-frontend/src`）：0 error / 0 warning**
+  - `cd 7zi-frontend && npx eslint src` → **exit 0，无任何输出**
+  - 过程记录：312 warnings 基线 → T72（24 → 1）→ T74（18 → 0）→ T72/T74 修完剩余 1 条后归零
+  - 全部为真实修复（`useCallback` 包裹 / 补齐 `useMemo` 依赖 / 删除未用变量），
+    **未使用批量 `eslint-disable`、未降级规则、未用 `@ts-ignore` 压制**
+  - 报告：`T72_FRONTEND_LINT_CLEANUP.md`
+- **根级 `src/` TypeScript：0 error**
+  - `npx tsc --noEmit` → **exit 0**
+- **根级 `npx eslint src`（非 `7zi-frontend/src`）：0 error / 1630 warnings** ✅
+  - 提交 `3254d4838e`：根 `eslint.config.mjs` 在仓库结构收敛时被截断为 0 字节，
+    导致根级 lint 完全失效（52 个误报 + 遍历 `.next/standalone` / `xunshi-inspector` 需 15+ 分钟）。
+    本轮恢复配置并修正 `react-hooks` 插件重复注册（`Cannot redefine plugin "react-hooks"`），
+    补充 `'**/.next/**'` / `'**/standalone/**'` / `'xunshi-inspector/**'` 忽略
+  - 根 `src/` 21 个 error 全部真实修复：`react/display-name`（SwipeContainer / error-handler）、
+    `react/no-unescaped-entities`（4 个组件）、`no-unsafe-function-type`（plugins/*、web-vitals）、
+    `prefer-const`（format.ts）
+
+### 🧪 测试
+
+- **后端 Jest：16 套件 / 342 用例全绿 ✅**
+  - `cd 7zi-backend && npx jest` → `Test Suites: 16 passed, 16 total` / `Tests: 342 passed, 342 total`
+  - 覆盖 `websocket` 与 `workflow-engine` 两个 project
+- **前端 error-reporting：4 文件 / 89 用例全绿 ✅**
+  - `cd 7zi-frontend && npx vitest run src/lib/error-reporting` → `Test Files 4 passed (4)` / `Tests 89 passed (89)`，Duration 4.81s
+- **T76 新增**：`error-reporting.ts` 此前**无任何单元测试**，本轮补齐
+  `__tests__/error-reporting.test.ts`（581 行 / **40 个用例**），覆盖 `reportError` 采样、
+  `beforeSend` 钩子、缓冲与自动 flush、严重级别映射、采样率分支等真实行为
+- **`retry.ts` 三个真 Bug 修复**（T69，提交 `f2a4fdc944`）
+  1. 自定义 `shouldRetry` 不再被默认规则覆盖 —— 原写法 `shouldRetry(...) || isRetryableError(...)`
+     中 `'Error'` 恰在 `DEFAULT_RETRYABLE_ERRORS` 内，导致「自定义为不可重试」彻底失效；现改为 `shouldRetry` **独占**判定权
+  2. `@retry` 装饰器不再把内部 `RetryResult` 泄漏给调用方 —— 保持原方法返回类型，失败时抛出最后一次错误
+  3. `RetryOptions` 的泛型参数从未被使用，移除（同时消除最后 1 条 ESLint warning）
+- **性能**：单文件 Duration **245.04s → 3.80s**（约 65× 提速）；根因是测试用 `vi.useFakeTimers()`
+  冻结 `setTimeout`，改为真实时钟 + 极小 `initialDelay`；另修正 logger mock 路径
+  `../logger` → `../../logger`（原路径不存在，mock 落空）
+- 报告：`T76_ERROR_REPORTING_TESTS.md`
+
+### 🚨 部署链路高危未决（2026-10-24 只读审查，报告 `T81_DEPLOY_READINESS.md`）
+
+代码门禁已全绿，但**部署前必须先解决 4 项**：
+
+1. **源站内存仅剩 339MB / 97% 占用** → 绝对不能在 `198.44.179.155` 上执行 `next build`
+2. **`deploy.sh` 健康检查打 `localhost:3000`，但 3000 端口无服务**（实际在 3001/28080）
+   → 部署后会**误判失败并自动回滚**
+3. **`/opt/7zi-frontend` 与本地不同源**：服务器 HEAD `d523bcb1` vs 本地 `a1914975fb`，
+   且服务器另有 **55 个未提交改动** → `rsync --delete` 有**不可逆丢失风险**
+4. **bot5.szspd.cn SSH 密码与 key 全部被拒** → 测试环境无法做部署前验证
+
+补充事实：`7zi.com` 首页实为静态站（`/var/www/erhu-brand/china-for-free`），
+Next 仅代理 `/api/health`；curl 默认 UA 被 WAF 拦成 403 **不是故障**。
+
+### 📄 文档同步
+
+- **T73**：把 T47（后端 CI 落地 / 覆盖率修复 / uuid 升级 / no-dupe-keys 修复）的事实同步进
+  `README.md` / `CHANGELOG.md` / `docs/`，并修正了当时 README 中「前端 lint 24 warnings」等口径偏差
+- **T79（本文档段落）**：把 T69–T76 成果与 2026-10-24 实测基线同步进
+  `CHANGELOG.md` / `README.md` / `HEARTBEAT.md`，并清除 README 中已过期的
+  「`retry.test.ts` 11 个用例仍失败」「后端 11 warnings」「前端 24 warnings」等表述
+
+### ❗ 当前遗留（未修复）
+
+- **前端 `7zi-frontend/tests/features/collab-client.test.ts`：19 failed / 19 passed + 2 Unhandled Rejection**
+  - 实测：`cd 7zi-frontend && npx vitest run tests/features/collab-client.test.ts` → `Test Files 1 failed (1)` /
+    `Tests 19 failed | 19 passed (38)` / `Errors 2 errors`，Duration 2.18s
+  - 失败点：`CollabClient.send` → `MockWebSocketManager.emit`（`src/lib/collab/CollabClient.ts`），
+    疑为 `handleMessage` 对 `undefined` message 读取 `message.type` 崩溃 + 测试 mock 与实现契约不一致
+  - **归属 T77 修复**（本任务未触碰该路径）
+- 根级 `src/lib/utils/format.ts:47` 的 1 个 `prefer-const` error（见上）
+- 后端 CI workflow 尚未在真实 GitHub Actions 上跑过首次运行
+
+---
+
 ## [未发布] / 2026-10-23
 
 ### 🆕 CI / 门禁
@@ -39,21 +125,41 @@
 - **`workflow-engine/backend/src/eslint.config.mjs`（新增）** — 该目录原本**没有任何 ESLint 配置**，`npm run lint` 之前直接报错退出码 2；现为 flat config（`no-undef: error` + `no-unused-vars: warn` + `no-empty: warn`），当前 0 error / 0 warning
 - **`7zi-backend/package.json`** — `collectCoverageFrom` 改为 `<rootDir>` 绝对形式；新增 `coverageProvider: "v8"`；`testTimeout` 提升至 20000
 
+### 🐛 真 Bug 修复（no-dupe-keys）
+
+- **两处 `no-dupe-keys` 真 Bug 修复** —— 均为「同一个响应体里两个字段声明在同一个 key 上，后者静默覆盖前者」，属于真实对外 API 语义缺陷，不是风格问题：
+  - `7zi-backend/websocket/lib/server.js` `getStats()`（提交 `288c81561a`）：`rooms` 键同时被用作「房间数量」和「房间数组」，后者覆盖前者 → 数量改名为 `roomCount`，`rooms` 保留数组；`/health` 端点同步补 `roomCount`（`rooms` 保留为向后兼容别名）
+  - `7zi-backend/websocket-service/src/index.js` `/stats`（提交 `e68aba61cc`）：同样的 `rooms` 重复键 → 改为 `roomCount: rooms.length` + `rooms`（数组），并补 `roomCount` 断言
+  - 修复后 `cd 7zi-backend && npx eslint .` → **0 errors**（余下 11 warnings 全部在 `workflow-service/test/engine.test.js` 与 `websocket-service/**`，为未使用参数，非错误）
+
 ### 🧹 前端代码质量
 
-- **前端 ESLint warnings 312 → 37 → 25**（`cd 7zi-frontend && npx eslint src`，0 errors）
+- **前端 ESLint warnings 312 → 37 → 25 → 24 → 0**（`cd 7zi-frontend && npx eslint src`：**0 errors / 0 warnings**）
   - 312 基线：`no-unused-vars` 288 + `exhaustive-deps` 24
-  - 中间态 37：`react-hooks/exhaustive-deps` 为主
-  - 当前 25：`react-hooks/exhaustive-deps` 24 + `@typescript-eslint/no-unused-vars` 1
+  - 中间态 37 → 25 → 24：`react-hooks/exhaustive-deps` 为主
+  - **当前 0**：23 条 `exhaustive-deps` 全部真实修复（根因三类：Hook 内引用未声明依赖 / 异步加载函数未 `useCallback` 化 / 常量在组件体内定义导致 `useMemo` 依赖不稳定），另 1 条 `no-unused-vars` 通过移除 `RetryOptions` 从未使用的泛型参数解决（而非改名 `_T` 压制）
   - 未使用批量 `eslint-disable` / `// @ts-ignore` 绕过
 - **根级 `src/` 36 个 TypeScript 错误清零**（提交 `4f72fa7fec`）：`email-config.ts` 的 `SMTP_DEBUG` 改为从 `process.env` 读取（根因：解构默认值覆盖了环境变量）、`query-builder.ts` 补索引签名、多个文件补缺失类型导入与可选字段
+  - 复测：`npx tsc --noEmit` → **0 errors**
+- **后端 ESLint 归零**（`cd 7zi-backend && npx eslint .`）：**0 errors / 0 warnings**，覆盖 `workflow-service/src`、`workflow-engine/`、`websocket/` 三条路径（提交 `288c81561a` / `T68_BACKEND_LINT_CLEANUP_20261023.md` / `T75_BACKEND_LINT_WARNINGS.md`）
 - **前端 `next` 16.3.8 → 16.4.2**
 
 ### 🧪 测试
 
-- **后端 Jest 全量稳定**：16 套件 / 342 用例全绿（`cd 7zi-backend && npx jest --coverage`）
+- **后端 Jest 全量稳定**：16 套件 / 342 用例全绿（`cd 7zi-backend && npx jest --coverage`，All files 94.74%）
 - **WebSocket 项目实测**：10 套件 / 128 用例全绿，行覆盖率 **96.95%**
-- ⚠️ **前端 `error-reporting` vitest 仍存在问题**（T48 半成品 + T50 在修）：`retry.test.ts` 用 fake timers 但仍真实等待 ~1.1s/次，实测 300s 超时未结束（exit 124）；`withRetry` 的 `AbortSignal` 取消语义、`sleepSync` 在 fake timers 下的忙等死循环正在修复中
+- **workflow-engine project 实测**：6 套件 / 214 用例全绿，All files **93.46%**
+- **前端已统一到 Vitest**：`7zi-frontend/` 的 `src/lib/error-reporting/` 三个测试文件全部使用 vitest 原生 API
+  - `__tests__/retry.test.ts` 已从 `@jest/globals` 迁移为 `import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'`，文件内不再有任何 `jest.*` 调用
+  - `__tests__/error-log-history.test.ts`、`__tests__/global-error-handler.test.ts` 同样改为 vitest 原生 import
+  - `7zi-frontend/package.json` 中 `jest` 已不在依赖列表，仅保留 `@testing-library/jest-dom`（matcher 库，非测试运行器）
+- ✅ **前端 `error-reporting` vitest 全绿**（实测 `npx vitest run src/lib/error-reporting`：**4 个文件 / 89 用例全绿，Duration 4.98s**）
+  - 修复要点：① 放弃 `vi.useFakeTimers()`（假时钟冻结 `setTimeout` 导致每个用例挂到 24s 超时），改用真实时钟 + 极小 `initialDelay`；② 修正 logger mock 路径 `../logger` → `../../logger`（原路径不存在，mock 落空）
+  - **`retry.ts` 三个真 Bug**（提交 `f2a4fdc944`）：
+    - 自定义 `shouldRetry` 不再被默认规则覆盖 —— 原写法 `shouldRetry(...) || isRetryableError(...)` 中，`'Error'` 恰在 `DEFAULT_RETRYABLE_ERRORS` 内，导致「自定义为不可重试」彻底失效；现改为 `shouldRetry` **独占**判定权
+    - `@retry` 装饰器不再把内部 `RetryResult` 泄漏给调用方 —— 保持原方法返回类型，失败时抛出最后一次错误
+    - `RetryOptions` 的泛型参数从未被使用，移除
+  - **性能**：单文件 Duration **245.04s → 3.80s**（约 65× 提速）
 
 ## [未发布 · 2026-10-21 批次] / 2026-10-21
 
