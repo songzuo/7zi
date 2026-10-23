@@ -204,7 +204,7 @@ export class MessageCompressor {
    */
   decompress(event: string, data: unknown): { event: string; data: unknown } {
     if (typeof data === 'object' && data !== null) {
-      const msg = data as { e?: string; d?: unknown; event?: string; data?: unknown }
+
       // 检查是否是压缩格式
       if ('e' in data || 'd' in data) {
         return this.decompressFromReceive(data)

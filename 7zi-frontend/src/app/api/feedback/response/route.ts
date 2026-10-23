@@ -43,7 +43,7 @@ function getUserInfo(request: NextRequest) {
  */
 export const POST = withCSRF(async (request: NextRequest) => {
   try {
-    const { userId, userName, userEmail, userRole } = getUserInfo(request)
+    const { userId: _userId, userName: _userName, userEmail, userRole } = getUserInfo(request)
 
     // Check admin permission
     if (userRole !== 'admin') {

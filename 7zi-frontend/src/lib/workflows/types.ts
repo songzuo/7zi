@@ -48,27 +48,27 @@ export interface Workflow {
 }
 
 export class WorkflowEngine {
-  async createWorkflow(definition: WorkflowDefinition): Promise<Workflow> {
+  async createWorkflow(_definition: WorkflowDefinition): Promise<Workflow> {
     throw new Error('Not implemented')
   }
 
-  async startWorkflow(workflowId: string): Promise<void> {
+  async startWorkflow(_workflowId: string): Promise<void> {
     throw new Error('Not implemented')
   }
 
-  getWorkflow(workflowId: string): Workflow | undefined {
+  getWorkflow(_workflowId: string): Workflow | undefined {
     throw new Error('Not implemented')
   }
 
-  pauseWorkflow(workflowId: string): void {
+  pauseWorkflow(_workflowId: string): void {
     throw new Error('Not implemented')
   }
 
-  resumeWorkflow(workflowId: string): void {
+  resumeWorkflow(_workflowId: string): void {
     throw new Error('Not implemented')
   }
 
-  cancelWorkflow(workflowId: string): void {
+  cancelWorkflow(_workflowId: string): void {
     throw new Error('Not implemented')
   }
 }

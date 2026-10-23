@@ -63,7 +63,7 @@ export class RedisRateLimitStorage implements IRateLimitStorage {
       })
 
       this.initialized = true
-    } catch (error) {
+    } catch (_error) {
       console.warn('[RedisRateLimitStorage] ioredis not installed. Using no-op implementation.')
       this.initialized = false
     }

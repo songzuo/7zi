@@ -137,7 +137,7 @@ const createMockSocket = (): Record<string, any> => {
   return socket
 }
 
-const mockSocket = createMockSocket()
+const _mockSocket = createMockSocket()
 
 vi.mock('socket.io-client', () => {
   const callbacks: Record<string, any> = {}

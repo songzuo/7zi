@@ -116,7 +116,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   onCopy,
   onRetry,
-  onSuggestionClick,
+  onSuggestionClick: _onSuggestionClick,
   showActions = true,
 }) => {
   const isUser = message.role === 'user'

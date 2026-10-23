@@ -64,7 +64,7 @@ export class EnhancedNotificationService {
   /**
    * Initialize the enhanced notification service
    */
-  async initialize(dbPath?: string): Promise<void> {
+  async initialize(_dbPath?: string): Promise<void> {
     try {
       // Initialize storage
       notificationStorage.initialize()
@@ -295,7 +295,7 @@ export class EnhancedNotificationService {
       // Validate timezone
       try {
         now.toLocaleTimeString('en-US', { timeZone: timezone })
-      } catch (tzError) {
+      } catch (_tzError) {
         logger.warn(
           `[EnhancedNotificationService] Invalid timezone "${timezone}", falling back to UTC`
         )

@@ -32,7 +32,16 @@ export default [
       // 此前规则未注册导致这些注释变成 "Unused eslint-disable directive" 警告，
       // 且 hook 依赖问题完全不可见。v7 其余推荐规则（rules-of-hooks 等）不启用。
       "react-hooks/exhaustive-deps": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
+      // 与后端 7zi-backend/eslint.config.js 保持同一套 `^_` 命名约定：
+      // 以 `_` 开头的变量/参数/捕获异常视为「有意忽略」，不再报警告。
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-require-imports": "off",
     },

@@ -93,12 +93,12 @@ export class SlackChannel implements NotificationChannel {
   validateConfig(config: ChannelConfigInput): boolean {
     if (config.type !== 'slack') return false;
     const slackConfig = config as Partial<SlackChannelConfig>;
-    
+
     // 验证 webhook URL 格式
     if (!slackConfig.webhookUrl) {
       return false;
     }
-    
+
     try {
       const url = new URL(slackConfig.webhookUrl);
       if (!url.href.startsWith('https://hooks.slack.com/')) {
@@ -117,7 +117,7 @@ export class SlackChannel implements NotificationChannel {
   async send(payload: NotificationPayload): Promise<SendResult> {
     try {
       const message = this.buildMessage(payload);
-      
+
       const response = await fetch(this.config.webhookUrl, {
         method: 'POST',
         headers: {
@@ -197,7 +197,6 @@ export class SlackChannel implements NotificationChannel {
       error: '#f44336',
       critical: '#9c27b0',
     };
-    const color = severityColors[payload.severity || 'info'];
 
     // 内容块
     blocks.push({

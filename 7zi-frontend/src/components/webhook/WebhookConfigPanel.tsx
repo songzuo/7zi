@@ -31,7 +31,7 @@ export function WebhookConfigPanel({
   onSave,
   mode = 'create',
 }: WebhookConfigPanelProps) {
-  const { eventTypes, getEventLabel, getEventsByCategory } = useWebhookEventTypes();
+  const { eventTypes: _eventTypes, getEventLabel, getEventsByCategory } = useWebhookEventTypes();
   const { createSubscription, updateSubscription, isLoading } = useWebhooks();
 
   // 表单状态

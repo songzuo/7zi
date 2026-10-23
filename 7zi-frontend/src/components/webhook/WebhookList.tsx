@@ -68,7 +68,7 @@ export function WebhookList({ onEdit }: WebhookListProps) {
       await batchDeleteSubscriptions(selectedIds);
       setSelectedIds([]);
       setTestResult({ success: true, message: '删除成功' });
-    } catch (err) {
+    } catch (_err) {
       setTestResult({ success: false, message: '删除失败' });
     }
   }, [selectedIds, batchDeleteSubscriptions]);
@@ -81,7 +81,7 @@ export function WebhookList({ onEdit }: WebhookListProps) {
       await batchUpdateStatus(selectedIds, isActive);
       setSelectedIds([]);
       setTestResult({ success: true, message: isActive ? '已启用' : '已禁用' });
-    } catch (err) {
+    } catch (_err) {
       setTestResult({ success: false, message: '操作失败' });
     }
   }, [selectedIds, batchUpdateStatus]);
@@ -95,7 +95,7 @@ export function WebhookList({ onEdit }: WebhookListProps) {
     try {
       await deleteSubscription(id);
       setTestResult({ success: true, message: '删除成功' });
-    } catch (err) {
+    } catch (_err) {
       setTestResult({ success: false, message: '删除失败' });
     }
   }, [deleteSubscription]);

@@ -45,7 +45,7 @@ export function RoomChat({ room, currentUserId, sendMessage, className }: RoomCh
   // Local state
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [typingUsers, setTypingUsers] = useState<string[]>([])
+  const [typingUsers] = useState<string[]>([])
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null)

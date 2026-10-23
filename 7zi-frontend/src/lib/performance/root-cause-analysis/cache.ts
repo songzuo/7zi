@@ -11,12 +11,6 @@ interface CacheEntry {
   accessCount: number
 }
 
-interface CacheKey {
-  metric: string
-  value: number
-  contextHash: string
-}
-
 export class RootCauseCache {
   private cache: Map<string, CacheEntry> = new Map()
   private readonly maxEntries: number

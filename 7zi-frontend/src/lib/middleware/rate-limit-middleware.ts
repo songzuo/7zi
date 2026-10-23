@@ -357,7 +357,7 @@ export function createRateLimitMiddleware(config: RateLimitMiddlewareConfig = {}
   }
 
   // 启动定期清理
-  const cleanupInterval = setInterval(() => {
+  const _cleanupInterval = setInterval(() => {
     limiter.cleanup()
   }, 60 * 1000) // 每分钟清理一次
 

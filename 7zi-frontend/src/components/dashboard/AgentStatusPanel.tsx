@@ -169,7 +169,7 @@ const STATUS_LABELS: Record<Agent['status'], string> = {
 const ResourceBar = memo(function ResourceBar({
   value,
   label,
-  showWarning = true,
+  showWarning: _showWarning = true,
 }: {
   value: number
   label: string

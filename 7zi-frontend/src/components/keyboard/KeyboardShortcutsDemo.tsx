@@ -114,7 +114,7 @@ export default function KeyboardShortcutsDemo() {
   ];
 
   // Use enhanced keyboard shortcuts hook with conflict detection
-  const { conflicts: hookConflicts, manager } = useKeyboardShortcutsEnhanced(shortcuts, {
+  const { manager } = useKeyboardShortcutsEnhanced(shortcuts, {
     onConflict: (conflict) => {
       console.warn('Shortcut conflict detected:', conflict);
       setConflicts(prev => [...prev, conflict]);

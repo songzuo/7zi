@@ -24,7 +24,7 @@ let storageInstance: MemoryRateLimitStorage | null = null
 /**
  * 获取或创建存储实例
  */
-function getStorage(config: RateLimitConfig): MemoryRateLimitStorage {
+function getStorage(_config: RateLimitConfig): MemoryRateLimitStorage {
   if (!storageInstance) {
     // Proxy runs on Edge, so always use MemoryStorage
     storageInstance = new MemoryRateLimitStorage()

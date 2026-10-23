@@ -455,7 +455,7 @@ export class PerformanceBudgetManager {
     currentValue: number,
     threshold: number,
     condition: 'greater' | 'less',
-    weight: number
+    _weight: number
   ): BudgetViolation | null {
     const isViolation =
       condition === 'greater' ? currentValue > threshold : currentValue < threshold
@@ -485,7 +485,7 @@ export class PerformanceBudgetManager {
   /**
    * 获取影响描述
    */
-  private getImpact(metric: string, severity: string): string {
+  private getImpact(metric: string, _severity: string): string {
     const impactMap: Record<string, string> = {
       LCP: 'Affects perceived load speed',
       FID: 'Affects interactivity',

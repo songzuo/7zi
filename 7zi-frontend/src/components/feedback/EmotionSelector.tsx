@@ -265,7 +265,6 @@ export function SatisfactionRating({
  * 在反馈处理完成后弹出，收集用户满意度
  */
 
-
 interface FeedbackSatisfactionModalProps {
   isOpen: boolean
   feedbackId: string
@@ -279,7 +278,7 @@ interface FeedbackSatisfactionModalProps {
 
 export function FeedbackSatisfactionModal({
   isOpen,
-  feedbackId,
+  feedbackId: _feedbackId,
   onSubmit,
   onClose,
 }: FeedbackSatisfactionModalProps) {

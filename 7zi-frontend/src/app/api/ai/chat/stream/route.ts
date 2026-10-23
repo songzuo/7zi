@@ -29,7 +29,7 @@ interface ChatRequest {
 
 async function* generateStreamResponse(
   userMessage: string,
-  systemPrompt?: string
+  _systemPrompt?: string
 ): AsyncGenerator<string, void, unknown> {
   const lowerMessage = userMessage.toLowerCase()
   let response = ''
@@ -131,7 +131,7 @@ async function fetchData(url) {
   }
   // 问候
   else if (lowerMessage.includes('你好') || lowerMessage.includes('hi') || lowerMessage.includes('hello')) {
-    response = `你好！👋 
+    response = `你好！👋
 
 我是 7zi 助手，很高兴为你服务！
 
@@ -149,7 +149,7 @@ async function fetchData(url) {
 
 **我能帮你：**
 - ⚡ 工作流创建和管理
-- 🔧 代码编写和调试  
+- 🔧 代码编写和调试
 - 📊 数据分析和可视化
 - 📝 文档和报告生成
 - ❓ 技术问题解答

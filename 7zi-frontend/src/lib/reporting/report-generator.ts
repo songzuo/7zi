@@ -399,7 +399,7 @@ export class ReportGenerator {
   /**
    * 格式化详细数据
    */
-  private formatDetailedData(data: AggregatedData | Record<string, AggregatedData>, lang: string): string {
+  private formatDetailedData(data: AggregatedData | Record<string, AggregatedData>, _lang: string): string {
     const metricsData = this.getMetricsData(data)
     let output = '| 指标 | 数值 | 变化 | 变化率 |\n| --- | --- | --- | --- |\n'
 

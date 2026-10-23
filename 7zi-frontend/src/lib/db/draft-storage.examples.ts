@@ -152,7 +152,7 @@ async function example6_UsingManager() {
   console.log('Storage backend:', manager.getBackend())
 
   // 保存草稿
-  const draftId = await manager.saveDraft('template', {
+  const _draftId = await manager.saveDraft('template', {
     name: 'Manager Workflow',
   })
 

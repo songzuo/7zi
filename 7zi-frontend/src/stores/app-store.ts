@@ -100,7 +100,7 @@ const defaultSettings: AppSettings = {
  */
 export const useAppStore = create<AppState>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       settings: defaultSettings,
       isGlobalLoading: false,
       globalLoadingMessage: null,

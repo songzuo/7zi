@@ -1,6 +1,6 @@
 /**
  * Core Validators
- * 
+ *
  * Built-in validation rules with chainable API
  */
 
@@ -29,7 +29,7 @@ export function createResult(valid: boolean, message?: string, rule?: string): V
 function formatMessage(
   message: string,
   params?: Record<string, string | number>,
-  t?: Translator
+  _t?: Translator
 ): string {
   if (!params) return message
 

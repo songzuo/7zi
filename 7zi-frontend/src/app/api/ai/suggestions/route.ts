@@ -170,7 +170,7 @@ const GENERAL_SUGGESTIONS: AISuggestion[] = [
 ]
 
 function getSuggestions(request: SuggestionRequest): AISuggestion[] {
-  const { userInput, conversationHistory, contextType, limit = 8 } = request
+  const { userInput, conversationHistory: _conversationHistory, contextType, limit = 8 } = request
   const lowerInput = userInput.toLowerCase()
 
   // 根据上下文类型选择建议池

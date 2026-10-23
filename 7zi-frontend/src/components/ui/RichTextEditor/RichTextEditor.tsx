@@ -413,7 +413,7 @@ export function RichTextEditor({
     if (!editorRef.current || readOnly) return
 
     // 保存当前状态
-    const currentHtml = editorRef.current.innerHTML
+
     const selection = window.getSelection()
     const cursorPosition = (selection?.rangeCount || 0) > 0 ? selection!.getRangeAt(0).startOffset : null
 

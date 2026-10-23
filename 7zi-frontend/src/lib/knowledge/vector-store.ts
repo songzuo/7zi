@@ -168,7 +168,6 @@ export class WeaviateVectorStore implements IVectorStore {
     if (!this.initialized) await this.initialize();
 
     try {
-      const where = filters ? this.buildWhereFilter(filters) : undefined;
 
       // 实际代码：
       // const result = await this.client.graphql
@@ -219,7 +218,7 @@ export class WeaviateVectorStore implements IVectorStore {
     return results;
   }
 
-  async getChunk(chunkId: string): Promise<DocumentChunk | null> {
+  async getChunk(_chunkId: string): Promise<DocumentChunk | null> {
     if (!this.initialized) await this.initialize();
 
     try {
@@ -248,7 +247,7 @@ export class WeaviateVectorStore implements IVectorStore {
     }
   }
 
-  async getDocumentChunks(documentId: string): Promise<DocumentChunk[]> {
+  async getDocumentChunks(_documentId: string): Promise<DocumentChunk[]> {
     if (!this.initialized) await this.initialize();
 
     try {

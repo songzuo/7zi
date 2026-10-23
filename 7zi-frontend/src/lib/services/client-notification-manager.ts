@@ -132,7 +132,7 @@ export class ClientNotificationManager {
    * 设置 WebSocket 监听器
    */
   private setupWebSocketListeners(): void {
-    websocketManager.onStateChange((state, previousState) => {
+    websocketManager.onStateChange((state, _previousState) => {
       this.wsConnected = state === ConnectionState.CONNECTED
 
       if (state === ConnectionState.CONNECTED) {

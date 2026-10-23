@@ -20,7 +20,7 @@ export function OfflineManager() {
 
   useEffect(() => {
     // Initialize offline modules
-    initOfflineModules().then(({ storage, syncManager }) => {
+    initOfflineModules().then(({ storage: _storage, syncManager }) => {
       console.log('Offline modules initialized');
 
       // Listen to sync state changes
@@ -69,7 +69,7 @@ export function OfflineManager() {
   return (
     <div className="offline-manager">
       <h3>Offline Status</h3>
-      
+
       <div className="status-indicators">
         <div className={`indicator ${isOnline ? 'online' : 'offline'}`}>
           {isOnline ? '🟢 Online' : '🔴 Offline'}
@@ -117,10 +117,10 @@ export function OfflineManager() {
 export async function storeDataOffline(collection: string, data: any) {
   const storage = getOfflineStorage();
   const id = await storage.storeData(collection, data, { isDirty: true });
-  
+
   // Add to sync queue
   await storage.addToSyncQueue(collection, 'update', id, data, 1);
-  
+
   return id;
 }
 

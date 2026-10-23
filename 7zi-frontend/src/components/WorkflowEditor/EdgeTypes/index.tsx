@@ -16,8 +16,8 @@ import type { WorkflowEdgeData } from '../types'
 export const conditionalEdgeType = memo((props: EdgeProps<WorkflowEdgeData>) => {
   const {
     id,
-    source,
-    target,
+    source: _source,
+    target: _target,
     sourceX,
     sourceY,
     targetX,
@@ -60,8 +60,8 @@ export const conditionalEdgeType = memo((props: EdgeProps<WorkflowEdgeData>) => 
         id={id}
         d={edgePath}
         className={`transition-all duration-200 ${
-          selected 
-            ? 'stroke-indigo-500 dark:stroke-indigo-400' 
+          selected
+            ? 'stroke-indigo-500 dark:stroke-indigo-400'
             : 'stroke-gray-400 dark:stroke-gray-600'
         }`}
         fill="none"
@@ -89,8 +89,8 @@ export const conditionalEdgeType = memo((props: EdgeProps<WorkflowEdgeData>) => 
               pointerEvents: 'all',
             }}
             className={`rounded px-2 py-1 text-xs font-medium shadow-sm transition-all ${
-              selected 
-                ? 'bg-indigo-500 text-white ring-2 ring-indigo-300' 
+              selected
+                ? 'bg-indigo-500 text-white ring-2 ring-indigo-300'
                 : 'bg-gray-900 text-white dark:bg-gray-700'
             }`}
           >
@@ -136,8 +136,8 @@ export const animatedEdgeType = memo((props: EdgeProps<WorkflowEdgeData>) => {
         id={id}
         d={edgePath}
         className={`transition-all duration-300 ${
-          selected 
-            ? 'stroke-indigo-400 dark:stroke-indigo-300' 
+          selected
+            ? 'stroke-indigo-400 dark:stroke-indigo-300'
             : 'stroke-indigo-500 dark:stroke-indigo-400'
         }`}
         fill="none"
@@ -209,8 +209,8 @@ export const enhancedEdgeType = memo((props: EdgeProps<WorkflowEdgeData>) => {
         id={id}
         d={edgePath}
         className={`transition-all duration-200 ${
-          selected 
-            ? 'stroke-indigo-500 dark:stroke-indigo-400' 
+          selected
+            ? 'stroke-indigo-500 dark:stroke-indigo-400'
             : 'stroke-gray-400 dark:stroke-gray-600 hover:stroke-gray-500'
         }`}
         fill="none"
@@ -248,16 +248,16 @@ if (typeof document !== 'undefined') {
           stroke-dashoffset: -12;
         }
       }
-      
+
       @keyframes pulse-glow {
         0%, 100% { opacity: 0.3; }
         50% { opacity: 0.6; }
       }
-      
+
       .react-flow__edge-path {
         transition: stroke 0.2s ease, stroke-width 0.2s ease;
       }
-      
+
       .react-flow__edge:hover .react-flow__edge-path {
         stroke-width: 3px;
       }

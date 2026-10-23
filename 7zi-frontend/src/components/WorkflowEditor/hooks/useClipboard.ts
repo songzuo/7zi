@@ -297,7 +297,7 @@ export function useClipboard() {
         const data = JSON.parse(stored) as ClipboardData
         return data && data.nodes && data.nodes.length > 0
       }
-    } catch (error) {
+    } catch (_error) {
       // Ignore
     }
 
@@ -311,7 +311,7 @@ export function useClipboard() {
     setClipboardData(null)
     try {
       localStorage.removeItem(CLIPBOARD_KEY)
-    } catch (error) {
+    } catch (_error) {
       // Ignore
     }
   }, [])

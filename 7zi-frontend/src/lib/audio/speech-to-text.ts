@@ -499,7 +499,7 @@ export class SpeechToText {
         }
       }
 
-      ws.onerror = (error) => {
+      ws.onerror = (_error) => {
         ws.close()
         reject(new Error('WebSocket connection failed'))
       }
@@ -518,7 +518,7 @@ export class SpeechToText {
    * 本地转录（需要后端支持）
    */
   private async transcribeLocally(
-    arrayBuffer: ArrayBuffer
+    _arrayBuffer: ArrayBuffer
   ): Promise<TranscriptionResult> {
     // 这里应该调用后端 API 进行转录
     // 暂时返回模拟数据
@@ -548,7 +548,7 @@ export class SpeechToText {
     }
 
     const results: TranscriptionResult[] = []
-    const chunkSize = Math.floor(segmentSize * audioBuffer.sampleRate)
+    const _chunkSize = Math.floor(segmentSize * audioBuffer.sampleRate)
 
     // 并发处理多个片段
     const batchSize = this.batchConfig.maxConcurrent

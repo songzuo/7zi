@@ -70,7 +70,7 @@ const PRIORITY_CONFIG: Record<
 // ============================================
 
 const TaskCardBase = ({ task, loading, onEdit, onDelete, onStatusChange }: TaskCardProps) => {
-  const [isHovered, setIsHovered] = useState(false)
+  const [_isHovered, setIsHovered] = useState(false)
 
   const handleEdit = useCallback(() => {
     onEdit?.(task)

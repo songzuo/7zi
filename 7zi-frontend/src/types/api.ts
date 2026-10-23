@@ -99,7 +99,7 @@ export function createPaginatedResponse<T>(
 ): PaginatedResponse<T> {
   const total = items.length
   const totalPages = Math.ceil(total / limit)
-  
+
   return {
     items,
     total,
@@ -224,7 +224,7 @@ export interface IdParam {
  *   name: string
  *   email: string
  * }
- * 
+ *
  * // OpenAPI annotation example:
  * // @openapi {
  * //   path: /users/{id}
@@ -272,7 +272,7 @@ export interface ApiEndpointMeta {
 /**
  * Decorator function for API endpoint metadata
  */
-export function apiEndpoint(meta: ApiEndpointMeta) {
+export function apiEndpoint(_meta: ApiEndpointMeta) {
   return function <T extends new (...args: unknown[]) => unknown>(constructor: T) {
     return constructor
   }

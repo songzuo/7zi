@@ -86,7 +86,7 @@ export default function ScreenshotAnnotation({
   const [history, setHistory] = useState<Annotation[][]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [zoom, setZoom] = useState(1)
-  const [scale, setScale] = useState(1)
+  const [_scale] = useState(1)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
@@ -394,7 +394,7 @@ export default function ScreenshotAnnotation({
     setZoom(prev => Math.max(prev - 0.25, 0.5))
   }, [])
 
-  const handleRotate = useCallback(() => {
+  const _handleRotate = useCallback(() => {
     // Implement rotation if needed
   }, [])
 

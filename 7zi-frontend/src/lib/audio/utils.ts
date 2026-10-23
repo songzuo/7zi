@@ -36,7 +36,7 @@ export async function audioBufferToBlob(
   buffer: AudioBuffer,
   format: AudioFormat = 'webm'
 ): Promise<Blob> {
-  const ctx = new AudioContext()
+  const _ctx = new AudioContext()
   const offlineCtx = new OfflineAudioContext(
     buffer.numberOfChannels,
     buffer.length,

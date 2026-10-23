@@ -314,7 +314,7 @@ export class AdaptiveResponseGenerator {
   private selectOpening(
     strategy: ResponseStrategy,
     sentimentPhrases: string[],
-    context: DialogueContext
+    _context: DialogueContext
   ): string {
     const phrases = sentimentPhrases.length > 0 ? sentimentPhrases : ['好的']
 
@@ -349,7 +349,6 @@ export class AdaptiveResponseGenerator {
     // 目前返回占位符
 
     const topic = context.currentTopic
-    const state = context.state
 
     switch (strategy) {
       case 'educational':
@@ -372,7 +371,7 @@ export class AdaptiveResponseGenerator {
   /**
    * 生成结束语
    */
-  private generateClosing(strategy: ResponseStrategy, context: DialogueContext): string {
+  private generateClosing(strategy: ResponseStrategy, _context: DialogueContext): string {
     switch (strategy) {
       case 'educational':
         return '希望这个解释对您有帮助！'

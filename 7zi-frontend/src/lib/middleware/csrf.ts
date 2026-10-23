@@ -61,7 +61,7 @@ function createSignedToken(): string {
 /**
  * Verify and decode a signed token
  */
- 
+
 export function verifyToken(signedToken: string): { valid: boolean; token?: string; error?: string } {
   try {
     const decoded = Buffer.from(signedToken, 'base64').toString('utf-8')
@@ -80,7 +80,7 @@ export function verifyToken(signedToken: string): { valid: boolean; token?: stri
     }
 
     return { valid: true, token }
-  } catch (error) {
+  } catch (_error) {
     return { valid: false, error: 'Token verification failed' }
   }
 }
@@ -137,9 +137,9 @@ function validateOrigin(request: NextRequest): boolean {
  * @param request - Next.js request object
  * @returns NextResponse or null (if validation passes)
  */
- 
+
 export function withCSRF(handler: (request: NextRequest, ...args: any[]) => any) {
-   
+
   return async (request: NextRequest, ...args: any[]): Promise<NextResponse> => {
     const method = request.method.toUpperCase()
 
@@ -219,7 +219,7 @@ export function generateCSRFToken(response?: NextResponse): NextResponse {
  *
  * Returns a new CSRF token to the client
  */
-export async function getCSRFToken(request: NextRequest): Promise<NextResponse> {
+export async function getCSRFToken(_request: NextRequest): Promise<NextResponse> {
   const response = createSuccessResponse({
     token: createSignedToken(),
     headerName: CSRF_CONFIG.headerName,

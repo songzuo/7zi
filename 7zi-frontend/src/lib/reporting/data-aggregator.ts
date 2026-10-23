@@ -296,7 +296,7 @@ export function createTimeRange(
 export class UserActivityDataSource implements DataSource {
   name = 'user-activity'
 
-  async fetchMetrics(timeRange: TimeRangeConfig): Promise<AggregatedMetric[]> {
+  async fetchMetrics(_timeRange: TimeRangeConfig): Promise<AggregatedMetric[]> {
     // 这里应该是实际的数据库查询
     // 示例数据
     return [
@@ -328,7 +328,7 @@ export class UserActivityDataSource implements DataSource {
 export class PerformanceDataSource implements DataSource {
   name = 'performance'
 
-  async fetchMetrics(timeRange: TimeRangeConfig): Promise<AggregatedMetric[]> {
+  async fetchMetrics(_timeRange: TimeRangeConfig): Promise<AggregatedMetric[]> {
     return [
       {
         name: 'avg_response_time',

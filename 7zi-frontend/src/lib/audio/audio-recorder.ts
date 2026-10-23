@@ -703,7 +703,7 @@ export class AudioRecorder {
    */
   private async convertToFlac(
     blob: Blob,
-    options?: FormatConversionOptions
+    _options?: FormatConversionOptions
   ): Promise<Blob> {
     // FLAC 需要特殊处理，大多数浏览器不支持直接编码
     // 这里先转换为 WAV，后续可以使用 flac.js 转换

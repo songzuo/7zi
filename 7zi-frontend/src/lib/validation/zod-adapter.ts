@@ -1,6 +1,6 @@
 /**
  * Zod Schema Adapter
- * 
+ *
  * Integration with Zod schemas for type-safe validation
  */
 
@@ -283,8 +283,8 @@ function createIntegerRule(messages?: Record<string, string>, t?: Translator): V
 /** Create a multiple of rule from Zod */
 function createMultipleOfRule(
   multipleOf: number,
-  messages?: Record<string, string>,
-  t?: Translator
+  _messages?: Record<string, string>,
+  _t?: Translator
 ): ValidationRule {
   return {
     name: 'multipleOf',
@@ -314,7 +314,7 @@ function createCustomRule(
 ): ValidationRule {
   return {
     name: 'custom',
-    validate: (value: unknown, context?: ValidationContext) => {
+    validate: (value: unknown, _context?: ValidationContext) => {
       try {
         const mockCtx: z.RefinementCtx = {
           addIssue: () => {},

@@ -169,7 +169,7 @@ export default function ShortcutSearch({
                     {category}
                   </h3>
                 </div>
-                {shortcuts.map((shortcut, index) => {
+                {shortcuts.map((shortcut, _index) => {
                   const globalIndex = filteredShortcuts.indexOf(shortcut);
                   const isSelected = globalIndex === selectedIndex;
                   const isDisabled = shortcut.enabled === false;

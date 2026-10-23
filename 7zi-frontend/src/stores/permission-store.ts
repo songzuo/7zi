@@ -103,14 +103,6 @@ const MAX_CACHE_SIZE = 500
 /**
  * 添加缓存条目，带大小限制
  */
-function addToCache(key: string, value: PermissionCheckResult) {
-  // 如果缓存已满，删除最老的 25% 条目
-  if (permissionCheckCache.size >= MAX_CACHE_SIZE) {
-    const keysToDelete = Array.from(permissionCheckCache.keys()).slice(0, Math.floor(MAX_CACHE_SIZE * 0.25))
-    keysToDelete.forEach(k => permissionCheckCache.delete(k))
-  }
-  permissionCheckCache.set(key, value)
-}
 
 /**
  * 生成缓存键

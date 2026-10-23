@@ -89,7 +89,7 @@ interface ErrorFallbackConfig {
 /**
  * Simple error fallback for minimal UI
  */
-export function SimpleErrorFallback({ error, resetError }: ErrorFallbackProps) {
+export function SimpleErrorFallback({ error: _error, resetError }: ErrorFallbackProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
       <div className="text-center">
@@ -120,13 +120,12 @@ export function FullErrorFallback({
     config.showErrorDetails ?? process.env.NODE_ENV === 'development'
   )
   const [isRetrying, setIsRetrying] = useState(false)
-  const [retryAttempt, setRetryAttempt] = useState(0)
+  const [retryAttempt] = useState(0)
   const [retryError, setRetryError] = useState<Error | undefined>()
 
   const {
     title = 'Something went wrong',
     message = 'An unexpected error occurred. Please try again.',
-    showErrorDetails: showErrorDetailsProp,
     showRecoveryOptions = true,
     showSupportLink = true,
     supportContact = 'mailto:support@example.com',
@@ -405,7 +404,7 @@ ${errorInfo?.componentStack || 'N/A'}
  * Card-style error fallback for inline use
  */
 export function CardErrorFallback({
-  error,
+  error: _error,
   resetError,
   config = {},
 }: ErrorFallbackProps & {

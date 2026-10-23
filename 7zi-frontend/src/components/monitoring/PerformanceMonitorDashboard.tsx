@@ -71,7 +71,7 @@ function PerformanceMetricCard({
   trend,
   icon,
   description,
-  thresholds,
+  thresholds: _thresholds,
 }: PerformanceMetricCardData): React.ReactElement {
   const statusColors = {
     good: 'text-green-600 dark:text-green-400',

@@ -36,7 +36,7 @@ export function NavigationSkeleton({ isMobile = false, className }: NavigationSk
 // 桌面导航骨架屏
 // ============================================
 
-function DesktopNavigationSkeleton({ className }: { className?: string }) {
+function DesktopNavigationSkeleton({ className: _className }: { className?: string }) {
   return (
     <nav
       className={clsx(
@@ -80,7 +80,7 @@ function DesktopNavigationSkeleton({ className }: { className?: string }) {
 // 移动端导航骨架屏
 // ============================================
 
-function MobileNavigationSkeleton({ className }: { className?: string }) {
+function MobileNavigationSkeleton({ className: _className }: { className?: string }) {
   return (
     <nav
       className={clsx(

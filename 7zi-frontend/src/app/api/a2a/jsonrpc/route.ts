@@ -17,7 +17,7 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, async (request: Ne
   let body: JSONRPCRequest
   try {
     body = await request.json()
-  } catch (parseError) {
+  } catch (_parseError) {
     // Invalid JSON - return 400 with JSON-RPC parse error
     const errorResponse: JSONRPCResponse = {
       jsonrpc: '2.0',

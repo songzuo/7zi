@@ -25,7 +25,7 @@ function getCacheInstance(): HotDataCache {
  *
  * 获取缓存统计信息
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const cache = getCacheInstance()
     const stats = cache.getStats()

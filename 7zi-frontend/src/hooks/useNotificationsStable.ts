@@ -134,7 +134,7 @@ export function useNotificationsStable(
         }
       })
 
-      wsManagerRef.current.on('notifications_cleared', (event, filter) => {
+      wsManagerRef.current.on('notifications_cleared', (_event, _filter) => {
         if (isMounted.current) {
           setNotifications(prev => prev.map(n => ({ ...n, read: true })))
           setUnreadCount(0)
@@ -167,7 +167,7 @@ export function useNotificationsStable(
       })
 
       // Update queue size periodically
-      const queueInterval = setInterval(() => {
+      const _queueInterval = setInterval(() => {
         if (wsManagerRef.current && isMounted.current) {
           setQueueSize(wsManagerRef.current.getQueueSize())
         }

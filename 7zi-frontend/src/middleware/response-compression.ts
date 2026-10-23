@@ -184,7 +184,7 @@ export class ResponseCompressionMiddleware {
   /**
    * 获取响应（模拟，实际使用时需要传入响应）
    */
-  private async getResponse(request: NextRequest): Promise<NextResponse | null> {
+  private async getResponse(_request: NextRequest): Promise<NextResponse | null> {
     // 这里应该返回实际的响应
     // 在实际使用时，这个方法会被替换为获取真实响应的逻辑
     return null
@@ -341,7 +341,7 @@ export class ResponseCompressionMiddleware {
   /**
    * 更新统计信息
    */
-  private updateStats(result: CompressionResult, totalTime: number): void {
+  private updateStats(result: CompressionResult, _totalTime: number): void {
     this.stats.totalRequests++
     this.stats.compressedRequests++
     this.stats.compressionRate = this.stats.compressedRequests / this.stats.totalRequests

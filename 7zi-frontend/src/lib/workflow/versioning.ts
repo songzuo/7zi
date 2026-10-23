@@ -430,7 +430,7 @@ export class WorkflowBranchManager {
    */
   async mergeBranch(
     branchId: string,
-    mergedBy: string
+    _mergedBy: string
   ): Promise<WorkflowVersion> {
     const branch = this.branches.get(branchId)
     if (!branch) {

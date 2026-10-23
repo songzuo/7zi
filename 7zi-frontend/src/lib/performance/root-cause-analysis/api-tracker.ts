@@ -130,7 +130,7 @@ export class APITracker {
     }
 
     // 识别问题
-    const issue = this.identifyAPIIssue(slowApi, metadata)
+    const _issue = this.identifyAPIIssue(slowApi, metadata)
     // Note: Issue is tracked, alert handling should be done at a higher level
   }
 

@@ -93,27 +93,6 @@ export function useWorkflowTemplate(
   /**
    * 根据分类和搜索查询过滤模板
    */
-  const filteredTemplates = useState<Template[]>(() => {
-    let result = templates
-
-    // 分类筛选
-    if (selectedCategory) {
-      result = result.filter(t => t.category === selectedCategory)
-    }
-
-    // 搜索筛选
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim()
-      result = result.filter(
-        t =>
-          t.name.toLowerCase().includes(query) ||
-          t.description.toLowerCase().includes(query) ||
-          t.tags.some(tag => tag.toLowerCase().includes(query))
-      )
-    }
-
-    return result
-  })[0]
 
   // 重新计算筛选结果
   useEffect(() => {
@@ -141,9 +120,6 @@ export function useWorkflowTemplate(
   /**
    * 获取热门模板
    */
-  const popularTemplates = useState<Template[]>(() => {
-    return templateManager.getPopularTemplates(5)
-  })[0]
 
   // 更新热门模板
   useEffect(() => {
@@ -155,9 +131,6 @@ export function useWorkflowTemplate(
   /**
    * 获取最近创建的模板
    */
-  const recentTemplates = useState<Template[]>(() => {
-    return templateManager.getRecentTemplates(5)
-  })[0]
 
   // 更新最近模板
   useEffect(() => {

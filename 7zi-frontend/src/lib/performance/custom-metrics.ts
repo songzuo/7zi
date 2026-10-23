@@ -366,7 +366,7 @@ export class CustomMetricsTracker {
               ws.removeEventListener('message', onMessage)
               clearTimeout(timeout)
             }
-          } catch (e) {
+          } catch (_e) {
             // 忽略非 JSON 消息
           }
         }

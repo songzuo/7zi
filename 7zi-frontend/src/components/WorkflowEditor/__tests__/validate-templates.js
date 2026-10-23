@@ -9,7 +9,7 @@
  * 验证模板系统的核心功能
  */
 
-const path = require('path')
+const _path = require('path')
 
 // 模拟模板数据（用于验证）
 const PRESET_TEMPLATES = [
@@ -219,7 +219,6 @@ function runValidation() {
   console.log()
 
   const errors = []
-  const warnings = []
 
   // 1. 验证模板列表
   if (!validateTemplateList(PRESET_TEMPLATES)) {

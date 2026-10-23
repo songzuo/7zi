@@ -1462,7 +1462,7 @@ npx jest websocket/ --coverage
 │   ├── start-websocket.sh
 │   ├── start-workflow.sh
 │   └── start-all.sh
-├── websocket/             # WebSocket 服务 (Socket.IO, 端口 3010)
+├── websocket/             # WebSocket 服务 (Socket.IO, 端口 3002 / 脚本启动 3010)
 │   ├── websocket-server.js  # 组合根 / 进程入口
 │   ├── lib/                 # 可测的纯逻辑模块
 │   │   ├── config.js
@@ -1480,7 +1480,7 @@ npx jest websocket/ --coverage
 │   │   ├── index.js       # 服务入口
 │   │   └── lib/jwt-secret.js  # JWT secret 校验（生产缺失即致命退出）
 │   └── test/              # unit / integration / jwt-secret 测试
-├── workflow-engine/       # 工作流引擎 (Express, 端口 3011)
+├── workflow-engine/       # 工作流引擎 (Express, 端口 3001 / 脚本启动 3011)
 │   ├── server.js
 │   ├── src/
 │   ├── jest.config.js
@@ -1505,13 +1505,18 @@ npx jest websocket/ --coverage
 cd 7zi-backend
 
 # 同时启动两个服务（生产）
-npm start          # 等价于 ./bin/start-all.sh
+npm start          # = concurrently 跑两个 node 进程，不加载 .env
 
-# 仅 WebSocket 服务（WS_PORT，默认 3010）
-npm run start:websocket
+# 同时启动两个服务（推荐，加载 .env 并注入 WS_PORT / WF_PORT）
+./bin/start-all.sh
 
-# 仅工作流引擎（WF_PORT，默认 3011）
-npm run start:workflow
+# 仅 WebSocket 服务
+npm run start:websocket          # 不加载 .env
+./bin/start-websocket.sh         # 加载 .env，注入 WS_PORT（默认 3010）
+
+# 仅工作流引擎
+npm run start:workflow           # 不加载 .env
+./bin/start-workflow.sh          # 加载 .env，注入 WF_PORT（默认 3011）
 
 # 开发模式（nodemon 热重载）
 npm run dev
@@ -1519,12 +1524,16 @@ npm run dev
 
 ### 端口分配
 
-| 服务 | 默认端口 | 环境变量 |
-|------|---------|---------|
-| WebSocket | 3010 | `WS_PORT` |
-| Workflow Engine | 3011 | `WF_PORT` |
-| 7zi-frontend | 3000 | — |
+| 服务 | npm scripts（不加载 `.env`） | `bin/start-*.sh`（加载 `.env`） | 环境变量（优先级 `PORT` > `WS_PORT`/`WF_PORT`） |
+|------|----------------------------|-------------------------------|-----------------------------------|
+| WebSocket | 3002 | 3010 | `PORT` / `WS_PORT` |
+| Workflow Engine | 3001 | 3011 | `PORT` / `WF_PORT` |
+| 7zi-frontend | 3000 | 3000 | `PORT`（`docker-compose.yml` / `ecosystem.config.production.js`） |
+| websocket-service（Docker 独立服务） | 3002 | — | `PORT`（`7zi-backend/websocket-service/src/index.js`，`EXPOSE 3002`） |
+| workflow-service（Docker 独立服务） | 3001 | — | `PORT`（`7zi-backend/workflow-service/src/index.js`，`EXPOSE 3001`） |
 
+> 兜底端口来自代码常量：`websocket/lib/config.js` → `DEFAULT_PORT = 3002`；`workflow-engine/server.js` → `DEFAULT_PORT = 3001`。
+> 仓库内**未引入 `dotenv`**，`.env` 仅由 `bin/start-*.sh` 以 shell `export` 方式加载，因此 npm scripts 路径下 `.env` 中的 `WS_PORT`/`WF_PORT` 不生效。
 > 整合前两个后端服务均默认 `3001`，端口冲突已解决。
 > 迁移映射表见 [`ARCH_BACKEND_CONSOLIDATION_20261021.md`](./ARCH_BACKEND_CONSOLIDATION_20261021.md)。
 

@@ -14,25 +14,6 @@ import type {
 import { DEFAULT_CONFIG } from './types'
 
 /**
- * 情感词典条目
- */
-interface SentimentLexiconEntry {
-  word: string
-  polarity: number // -1 到 1
-  intensity: number // 强度修饰词
-  partOfSpeech?: string
-}
-
-/**
- * 情感规则
- */
-interface SentimentRule {
-  pattern: RegExp
-  weight: number
-  type: 'amplifier' | 'negator' | 'intensifier'
-}
-
-/**
  * 预定义情感词典
  */
 const POSITIVE_LEXICON: Record<string, number> = {

@@ -56,7 +56,7 @@ export function ExpressionEditor({
       if (newValue.endsWith('{{')) {
         const textarea = textareaRef.current
         if (textarea) {
-          const rect = textarea.getBoundingClientRect()
+          const _rect = textarea.getBoundingClientRect()
           const selectionStart = textarea.selectionStart
           const lines = newValue.substring(0, selectionStart).split('\n')
           const currentLine = lines.length
@@ -103,7 +103,7 @@ export function ExpressionEditor({
   )
 
   // 过滤变量
-  const filterVariables = useCallback(
+  const _filterVariables = useCallback(
     (searchTerm: string) => {
       const filtered = variables.filter(v =>
         v.toLowerCase().includes(searchTerm.toLowerCase())
@@ -214,7 +214,7 @@ export function ExpressionEditor({
  * 语法高亮函数 - XSS 安全版本
  * 使用 React 组件替代 dangerouslySetInnerHTML，防止 XSS 攻击
  */
-function highlightSyntax(code: string, language: string): React.ReactNode {
+function highlightSyntax(code: string, _language: string): React.ReactNode {
   if (!code) return null
 
   // Tokenize code into segments with types

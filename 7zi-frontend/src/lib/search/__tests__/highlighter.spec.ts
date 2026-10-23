@@ -245,7 +245,7 @@ describe('性能测试', () => {
     };
 
     const start = performance.now();
-    const result = highlightMatch(longText, matchResult);
+    const _result = highlightMatch(longText, matchResult);
     const end = performance.now();
 
     const duration = end - start;
@@ -261,7 +261,7 @@ describe('性能测试', () => {
     }));
 
     const start = performance.now();
-    const result = highlightMatches('a'.repeat(200), matchResults);
+    const _result = highlightMatches('a'.repeat(200), matchResults);
     const end = performance.now();
 
     const duration = end - start;

@@ -46,9 +46,11 @@ pnpm install
 **启动所有服务:**
 ```bash
 pnpm start
-# 或使用脚本
+# 或使用脚本（推荐：会自动加载 .env 并注入 WS_PORT / WF_PORT）
 ./bin/start-all.sh
 ```
+> `pnpm start` 等价于 `concurrently "npm run start:websocket" "npm run start:workflow"`，**不加载 `.env`**；
+> `./bin/start-all.sh` 会先加载 `7zi-backend/.env`，再以 `WS_PORT=3010` / `WF_PORT=3011` 启动。两者实际监听端口不同，详见下方「端口速查」。
 
 **仅启动 WebSocket 服务:**
 ```bash
@@ -69,26 +71,34 @@ pnpm start:workflow
 ### WebSocket 服务
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `PORT` | 3002 | WebSocket 服务端口（优先级高于 `WS_PORT`） |
-| `WS_PORT` | 3002 | WebSocket 专用端口变量（`bin/start-all.sh` 注入，默认 3010；仅在未设置 `PORT` 时生效） |
+| `PORT` | 3002 | WebSocket 服务端口。**优先级最高**，一旦设置则 `WS_PORT` 失效（来源：`websocket/lib/config.js` → `loadConfig()`） |
+| `WS_PORT` | 3010 | WebSocket 专用端口变量。`bin/start-websocket.sh` / `bin/start-all.sh` 注入此变量；仅在未设置 `PORT` 时生效（来源：同上） |
 | `NEXT_PUBLIC_SITE_URL` | http://localhost:3000 | CORS 允许的源 |
 | `LOG_LEVEL` | info | 日志级别 |
+
+> 代码内置兜底值为 `DEFAULT_PORT = 3002`（`websocket/lib/config.js`），即 **`PORT` 与 `WS_PORT` 都不设置时**监听 3002。
 
 ### 工作流引擎
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `PORT` | 3001 | 工作流服务端口（优先级高于 `WF_PORT`） |
-| `WF_PORT` | 3001 | 工作流引擎专用端口变量（`bin/start-all.sh` 注入，默认 3011；仅在未设置 `PORT` 时生效） |
+| `PORT` | 3001 | 工作流服务端口。**优先级最高**，一旦设置则 `WF_PORT` 失效（来源：`workflow-engine/server.js` → `resolvePort()`） |
+| `WF_PORT` | 3011 | 工作流引擎专用端口变量。`bin/start-workflow.sh` / `bin/start-all.sh` 注入此变量；仅在未设置 `PORT` 时生效（来源：同上） |
 | `DATABASE_URL` | - | 数据库连接字符串 |
 | `REDIS_URL` | redis://localhost:6379 | Redis 连接字符串 |
 
+> 代码内置兜底值为 `DEFAULT_PORT = 3001`（`workflow-engine/server.js`），即 **`PORT` 与 `WF_PORT` 都不设置时**监听 3001。
+
 ### 端口速查
 
-| 服务 | 直接运行 | `bin/start-all.sh` |
-|------|---------|-------------------|
+| 服务 | `npm start` / `npm run start:*`（直接运行） | `bin/start-*.sh` / `bin/start-all.sh` |
+|------|------------------------------------------|---------------------------------------|
 | WebSocket | 3002 | 3010 |
 | 工作流引擎 | 3001 | 3011 |
-| 7zi-frontend | 3000 | - |
+| 7zi-frontend | 3000 | 3000 |
+
+> ⚠️ **`.env` 只被 shell 脚本加载**。`npm start` / `npm run start:websocket` 直接调用 `node`，仓库内**未引入 `dotenv`**，因此 `7zi-backend/.env` 中的 `WS_PORT` / `WF_PORT` 在走 npm scripts 时**不生效**（实际端口为代码兜底 3002 / 3001）。
+> 需要 3010 / 3011 时，请用 `./bin/start-all.sh`（或 `./bin/start-websocket.sh` / `./bin/start-workflow.sh`），或在启动前 `export WS_PORT=3010 WF_PORT=3011`。
+> 另注意：走脚本时脚本会 `export PORT="${WS_PORT:-3010}"`，此时生效的是 `PORT` 而非 `WS_PORT`（`PORT` 优先级更高）。
 
 ## 📡 API 端点
 

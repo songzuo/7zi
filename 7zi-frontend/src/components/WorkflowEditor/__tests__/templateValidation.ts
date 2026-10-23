@@ -53,11 +53,6 @@ interface WorkflowTemplate {
   workflow: TemplateWorkflow
 }
 
-interface TestTemplate {
-  name: string
-  workflow: { nodes: TemplateNode[]; edges: TemplateEdge[] }
-}
-
 // ============================================
 // 验证函数
 // ============================================

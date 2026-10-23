@@ -138,7 +138,7 @@ class UserController {
    * 列出所有用户 - 需要 user:list 权限
    */
   @RequirePermission(ResourceType.USER, ActionType.LIST)
-  async listUsers(ctx: ApiContext): Promise<NextResponse> {
+  async listUsers(_ctx: ApiContext): Promise<NextResponse> {
     // 实际业务逻辑
     const userList = Object.values(users).map(u => ({
       id: u.id,
@@ -155,7 +155,7 @@ class UserController {
    */
   @RequirePermission(ResourceType.USER, ActionType.CREATE)
   async createUser(ctx: ApiContext, userData: unknown): Promise<NextResponse> {
-    const { user } = ctx
+    const { user: _user } = ctx
 
     const data = userData as UserCreateData
 
@@ -201,7 +201,7 @@ class UserController {
    * 管理用户 - 需要角色等级 >= 80（管理员级别）
    */
   @RequireRoleLevel(80)
-  async manageUser(ctx: ApiContext): Promise<NextResponse> {
+  async manageUser(_ctx: ApiContext): Promise<NextResponse> {
     return createSuccessResponse({
       message: 'User management operations',
     })
@@ -211,7 +211,7 @@ class UserController {
    * 导出用户数据 - 需要 data:export 权限
    */
   @RequirePermission(ResourceType.DATA, ActionType.EXPORT)
-  async exportUsers(ctx: ApiContext): Promise<NextResponse> {
+  async exportUsers(_ctx: ApiContext): Promise<NextResponse> {
     // 实际业务逻辑
     const userData = Object.values(users).map(u => ({
       id: u.id,

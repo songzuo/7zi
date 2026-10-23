@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
   }
 
   const userId = request.headers.get('x-user-id')
-  const userRole = request.headers.get('x-user-role')
+  const _userRole = request.headers.get('x-user-role')
 
   try {
     const body = await request.json()
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const { data, format, options } = validationResult.data
+    const { data, format, options: _options } = validationResult.data
 
     // 验证数据格式
     if (!data || data.length === 0) {
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
     return authResponse
   }
 
-  const userId = request.headers.get('x-user-id')
+  const _userId = request.headers.get('x-user-id')
   const { searchParams } = new URL(request.url)
 
   const page = parseInt(searchParams.get('page') || '1')

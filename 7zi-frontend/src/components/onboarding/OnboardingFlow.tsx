@@ -304,7 +304,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     onComplete(data);
   }, [data, onComplete]);
 
-  const handleSkipAll = useCallback(() => {
+  const _handleSkipAll = useCallback(() => {
     setOnboardingCompleted(false);
     onSkip();
   }, [onSkip]);

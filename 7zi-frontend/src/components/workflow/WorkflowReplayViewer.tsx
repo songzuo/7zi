@@ -210,8 +210,8 @@ export const WorkflowReplayViewer: React.FC<WorkflowReplayViewerProps> = ({
   onComplete,
 }) => {
   // 状态
-  const [nodes, setNodes, onNodesChange] = useNodesState(history.workflowSnapshot.nodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(history.workflowSnapshot.edges)
+  const [nodes, _setNodes, onNodesChange] = useNodesState(history.workflowSnapshot.nodes)
+  const [edges, _setEdges, onEdgesChange] = useEdgesState(history.workflowSnapshot.edges)
   const [replayEngine] = useState(() => {
     const engine = new WorkflowReplayEngine({ speed: initialSpeed, autoPlay })
     engine.load(history)

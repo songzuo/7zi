@@ -136,7 +136,7 @@ const TYPE_ICONS: Record<Agent['type'], string> = {
 const ResourceBar = memo(function ResourceBar({
   value,
   label,
-  showWarning = true,
+  showWarning: _showWarning = true,
 }: {
   value: number
   label: string

@@ -213,7 +213,7 @@ export function useWebSocketPerformance(ws: WebSocket | null) {
       logger.debug('[WebSocket] Connected for performance monitoring')
     })
 
-    ws.addEventListener('error', error => {
+    ws.addEventListener('error', _error => {
       monitor.trackError('WebSocketError', 'WebSocket error occurred', undefined, {
         readyState: ws.readyState,
       })

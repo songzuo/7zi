@@ -67,7 +67,7 @@ export function detectAnomalyZScore(
 export function detectAnomalyPercentile(
   value: number,
   baseline: MetricBaseline,
-  upperPercentile: number = 95
+  _upperPercentile: number = 95
 ): boolean {
   const threshold = baseline.p95
   return value > threshold

@@ -132,7 +132,7 @@ export function useTemplateFilter() {
  * ```
  */
 export function useTemplate(templateId: string | null) {
-  const [loading, setLoading] = useState(false)
+  const [loading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const template = useMemo(() => {

@@ -156,10 +156,10 @@ export default function FeedbackStatusTracker({
       <div className="relative">
         <div className="absolute top-1/2 left-0 right-0 h-0.5 -translate-y-1/2 bg-gray-200" />
         <div className="relative flex justify-between">
-          {STATUS_STEPS.map((step, index) => {
+          {STATUS_STEPS.map((step, _index) => {
             const isCompleted = isStepCompleted(step.status)
             const isCurrent = isStepCurrent(step.status)
-            const isPending = isStepPending(step.status)
+            const _isPending = isStepPending(step.status)
 
             return (
               <div key={step.status} className="flex flex-col items-center">

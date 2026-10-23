@@ -16,7 +16,7 @@ interface ShortcutSettingsProps {
 export default function ShortcutSettings({ isOpen = false, onClose }: ShortcutSettingsProps) {
   const [selectedCategory, setSelectedCategory] = useState<ShortcutCategory>('navigation');
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
-  const [isEditing, setIsEditing] = useState<string | null>(null);
+  const [_isEditing, setIsEditing] = useState<string | null>(null);
 
   useEffect(() => {
     setShortcuts(shortcutRegistry.getAll());
@@ -40,12 +40,6 @@ export default function ShortcutSettings({ isOpen = false, onClose }: ShortcutSe
 
   const handleEditShortcut = (key: string) => {
     setIsEditing(key);
-  };
-
-  const handleCaptureKey = (key: string, newKeyCombo: string) => {
-    shortcutRegistry.update(key, { key: newKeyCombo });
-    setIsEditing(null);
-    setShortcuts(shortcutRegistry.getAll());
   };
 
   const handleResetDefaults = () => {
@@ -171,76 +165,3 @@ export default function ShortcutSettings({ isOpen = false, onClose }: ShortcutSe
   );
 }
 
-/**
- * Shortcut Key Capture Component
- */
-interface KeyCaptureProps {
-  onClose: () => void;
-  onSave: (keyCombo: string) => void;
-}
-
-function KeyCapture({ onClose, onSave }: KeyCaptureProps) {
-  const [capturedKeys, setCapturedKeys] = useState<string[]>([]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      const parts: string[] = [];
-      if (event.ctrlKey) parts.push('ctrl');
-      if (event.metaKey) parts.push('cmd');
-      if (event.shiftKey) parts.push('shift');
-      if (event.altKey) parts.push('alt');
-
-      const key = event.key.toLowerCase();
-      if (
-        key !== 'control' &&
-        key !== 'meta' &&
-        key !== 'shift' &&
-        key !== 'alt'
-      ) {
-        parts.push(key);
-        setCapturedKeys(parts);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (capturedKeys.length > 0) {
-      const timer = setTimeout(() => {
-        onSave(capturedKeys.join('+'));
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [capturedKeys, onSave]);
-
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          Press new key combination
-        </h3>
-        <div className="font-mono text-3xl text-blue-500 dark:text-blue-400 mb-6">
-          {capturedKeys.length > 0 ? getPlatformKey(capturedKeys.join('+')) : '...'}
-        </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-          Press Escape to cancel
-        </p>
-        <button
-          onClick={onClose}
-          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}

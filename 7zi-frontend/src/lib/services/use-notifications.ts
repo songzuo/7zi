@@ -58,7 +58,7 @@ export function useNotifications(filters?: {
     loadNotifications()
 
     // 监听新通知
-    const handleNotification: NotificationEventListener = async (event, data) => {
+    const handleNotification: NotificationEventListener = async (event, _data) => {
       if (event === 'notification:received') {
         await loadNotifications()
       }
@@ -113,7 +113,7 @@ export function useNotificationGroups(filters?: {
     loadGroups()
 
     // 监听新通知
-    const handleNotification: NotificationEventListener = async (event, data) => {
+    const handleNotification: NotificationEventListener = async (event, _data) => {
       if (event === 'notification:received' || event === 'group:created' || event === 'group:updated') {
         await loadGroups()
       }
@@ -161,7 +161,7 @@ export function useUnreadCount(userId?: string) {
     loadCount()
 
     // 监听通知变化
-    const handleNotification: NotificationEventListener = async (event, data) => {
+    const handleNotification: NotificationEventListener = async (event, _data) => {
       if (event === 'notification:received' || event === 'notification:read' || event === 'stats:changed') {
         await loadCount()
       }

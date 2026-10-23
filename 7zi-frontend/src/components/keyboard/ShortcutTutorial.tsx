@@ -8,14 +8,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { shortcutManager } from '@/lib/keyboard/shortcut-manager';
 import { Shortcut } from '@/lib/keyboard/shortcut-registry';
-import ShortcutTooltip from './ShortcutTooltip';
-import { KeyboardKey } from './ShortcutTooltip';
 
-interface TutorialStep {
-  shortcut: Shortcut;
-  instruction: string;
-  hint?: string;
-}
+import { KeyboardKey } from './ShortcutTooltip';
 
 interface ShortcutTutorialProps {
   isOpen?: boolean;

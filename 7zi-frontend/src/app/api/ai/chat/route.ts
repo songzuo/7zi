@@ -14,13 +14,6 @@ import { createSuccessResponse, createBadRequestError, createErrorResponse } fro
 // Types
 // ============================================
 
-interface ChatMessage {
-  id: string
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  timestamp: number
-}
-
 interface ChatRequest {
   content: string
   conversationId?: string
@@ -37,7 +30,7 @@ interface ChatRequest {
 // 模拟 AI 响应生成器
 // ============================================
 
-function generateAIResponse(userMessage: string, systemPrompt?: string): string {
+function generateAIResponse(userMessage: string, _systemPrompt?: string): string {
   const lowerMessage = userMessage.toLowerCase()
 
   // 工作流相关

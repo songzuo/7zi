@@ -5,18 +5,6 @@
 
 import type { TFunction } from 'i18next'
 
-interface UseServerTranslationOptions {
-  /**
-   * 命名空间
-   */
-  ns?: string | string[]
-
-  /**
-   * 语言代码（可选，默认从 cookie/header 检测）
-   */
-  lng?: string
-}
-
 /**
  * i18next TFunction type
  */

@@ -347,7 +347,7 @@ export class InMemoryStorage<T = unknown> {
         }
       }
       return true
-    } catch (error) {
+    } catch (_error) {
       // 回滚
       this.store = backup
       return false

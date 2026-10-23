@@ -10,10 +10,6 @@ import { createSuccessResponse, createNotFoundError, createBadRequestError } fro
 import { logger } from '@/lib/logger'
 import { withCSRF } from '@/lib/middleware/csrf'
 
-interface RouteParams {
-  params: Promise<{ id: string }>
-}
-
 /**
  * POST /api/rooms/[id]/leave - 离开房间
  * Requires CSRF protection

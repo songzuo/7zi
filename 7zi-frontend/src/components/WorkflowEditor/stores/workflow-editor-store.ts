@@ -377,7 +377,7 @@ const useWorkflowHistoryStore = create<HistoryStoreState>()((set, get) => ({
   futureStates: [],
 
   push: (previous: HistoryState) => {
-    const { pastStates, futureStates } = get()
+    const { pastStates, futureStates: _futureStates } = get()
     const nextPast = [...pastStates, previous]
     // 限制历史长度，超出后丢弃最早的记录
     const trimmed =

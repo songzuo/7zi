@@ -101,7 +101,7 @@ export function useCollabCursors(
   const [localCursor, setLocalCursorState] = useState<CursorPosition | null>(null)
 
   // Online users
-  const [onlineUsers, setOnlineUsers] = useState<Map<string, CollabUser>>(new Map())
+  const [onlineUsers] = useState<Map<string, CollabUser>>(new Map())
 
   // Refs
   const lastCursorUpdateRef = useRef<number>(0)
@@ -158,7 +158,7 @@ export function useCollabCursors(
   }, [])
 
   // Update remote cursor from WebSocket
-  const updateRemoteCursor = useCallback(
+  const _updateRemoteCursor = useCallback(
     (remoteUserId: string, cursor: CursorPosition, user: Partial<CollabUser>) => {
       setRemoteCursors((prev) => {
         const next = new Map(prev)
@@ -199,7 +199,7 @@ export function useCollabCursors(
   )
 
   // Remove remote cursor
-  const removeRemoteCursor = useCallback((remoteUserId: string) => {
+  const _removeRemoteCursor = useCallback((remoteUserId: string) => {
     const timeout = cursorTimeoutsRef.current.get(remoteUserId)
     if (timeout) {
       clearTimeout(timeout)

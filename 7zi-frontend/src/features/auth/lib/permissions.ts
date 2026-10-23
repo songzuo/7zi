@@ -683,7 +683,7 @@ export interface PermissionMiddlewareOptions {
 export function createPermissionMiddleware(options: PermissionMiddlewareOptions) {
   return async (ctx: ApiContext, next: () => Promise<unknown>) => {
     const { user } = ctx
-    const { resourceType, action, checkOwnership = false, allowPublic = false } = options
+    const { resourceType, action, checkOwnership: _checkOwnership = false, allowPublic = false } = options
 
     // 如果允许公开访问，直接放行
     if (allowPublic) {

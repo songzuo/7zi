@@ -12,16 +12,6 @@ import { WhisperClient } from './WhisperClient'
 import { TranscriptionStream } from './TranscriptionStream'
 
 /**
- * 浏览器原生语音识别配置
- */
-interface BrowserSTTConfig {
-  language: SupportedLanguage
-  continuous?: boolean
-  interimResults?: boolean
-  maxAlternatives?: number
-}
-
-/**
  * STTRouter - 语音转文字路由器
  */
 export class STTRouter {

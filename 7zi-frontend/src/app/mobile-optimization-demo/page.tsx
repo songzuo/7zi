@@ -21,7 +21,7 @@ export default function MobileOptimizationDemo() {
   const isMobile = useIsMobile()
   const device = useDeviceType()
   const [imageCount, setImageCount] = useState(12)
-  const [zoomLevel, setZoomLevel] = useState(1)
+  const [_zoomLevel, setZoomLevel] = useState(1)
 
   // 滑动示例
   const swipeRef = useSwipe({

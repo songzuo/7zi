@@ -102,13 +102,6 @@ export function PerformanceDashboard({
     }
   }
 
-  const getMetricTrend = (value: number, threshold: number) => {
-    if (value > threshold) {
-      return { icon: TrendingUp, color: 'text-red-500', label: 'Above threshold' }
-    }
-    return { icon: TrendingDown, color: 'text-green-500', label: 'Normal' }
-  }
-
   if (isLoading && !metrics) {
     return (
       <div className={`rounded-lg bg-zinc-900 p-6 ${className}`}>

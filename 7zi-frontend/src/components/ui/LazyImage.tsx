@@ -51,12 +51,8 @@ export interface LazyImageProps {
 }
 
 // 默认占位符
-const DEFAULT_SKELETON =
-  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3C/svg%3E'
 
 // 默认模糊占位符
-const DEFAULT_BLUR =
-  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Cfilter id="blur"%3E%3CfeGaussianBlur stdDeviation="20"/%3E%3C/filter%3E%3Crect fill="%23e5e7eb" width="400" height="300" filter="url(%23blur)"/%3E%3C/svg%3E'
 
 /**
  * LazyImage 组件
@@ -222,7 +218,7 @@ export function LazyImage({
   }, [enableTouchGestures, maxZoom, onZoom, scale])
 
   // 生成 srcSet
-  const generateSrcSet = useCallback(() => {
+  const _generateSrcSet = useCallback(() => {
     if (!srcSet) return undefined
 
     return srcSet

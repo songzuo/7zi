@@ -3,17 +3,11 @@
 import { useState, createContext, useContext, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, MessageCircle, User, Globe, Settings } from 'lucide-react'
+import { User, Globe, Settings } from 'lucide-react'
 import { HamburgerMenu } from './HamburgerMenu'
 import { BottomNav } from './BottomNav'
 
 // 移动端导航项
-const navItems = [
-  { href: '/', label: '首页', icon: Home },
-  { href: '/discover', label: '发现', icon: Compass },
-  { href: '/feedback', label: '反馈', icon: MessageCircle },
-  { href: '/profile', label: '我的', icon: User },
-]
 
 // 侧边菜单项
 const sidebarItems = [
@@ -43,36 +37,6 @@ export function useMobileNav() {
 }
 
 // 移动端导航提供者
-function MobileNavProvider({ children }: { children: React.ReactNode }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const pathname = usePathname()
-
-  // 路由变化时关闭侧边栏
-  useEffect(() => {
-    setIsSidebarOpen(false)
-  }, [pathname])
-
-  // 锁定 body 滚动
-  useEffect(() => {
-    if (isSidebarOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isSidebarOpen])
-
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
-  const closeSidebar = () => setIsSidebarOpen(false)
-
-  return (
-    <MobileNavContext.Provider value={{ isSidebarOpen, toggleSidebar, closeSidebar }}>
-      {children}
-    </MobileNavContext.Provider>
-  )
-}
 
 // 移动端布局组件
 interface MobileLayoutProps {

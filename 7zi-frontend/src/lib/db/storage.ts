@@ -351,7 +351,7 @@ export class InMemoryStorage<T = unknown> {
         }
       }
       return true
-    } catch (error) {
+    } catch (_error) {
       // 回滚 - restore full backup
       this.store.clear()
       for (const [key, item] of backup.entries()) {

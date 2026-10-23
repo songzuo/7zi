@@ -148,7 +148,7 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, withCSRF(async (re
     let body: unknown
     try {
       body = await request.json()
-    } catch (error) {
+    } catch (_error) {
       return createErrorResponse(new Error('Invalid JSON'), 400, {})
     }
 

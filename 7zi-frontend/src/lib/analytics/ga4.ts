@@ -1,6 +1,6 @@
 /**
  * Google Analytics 4 Integration
- * 
+ *
  * Provides event tracking for:
  * - page_view (automatic via GoogleAnalytics component)
  * - sign_up (registration success)
@@ -45,13 +45,10 @@ export function isGA4Configured(): boolean {
  * Get the GA Measurement Protocol API URL
  * Uses gtag.js for events via the dataLayer
  */
-function getGA4Endpoint(): string {
-  return 'https://www.googletagmanager.com/gtag/js'
-}
 
 /**
  * Track a custom GA4 event
- * 
+ *
  * @param eventName - The GA4 event name
  * @param params - Event parameters
  */

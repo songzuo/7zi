@@ -228,7 +228,7 @@ export class SmartRetriever {
   /**
    * 生成查询嵌入
    */
-  private async generateQueryEmbedding(query: string): Promise<number[]> {
+  private async generateQueryEmbedding(_query: string): Promise<number[]> {
     // 实际实现应该调用嵌入 API
     // 这里返回模拟向量
     const mockEmbedding = new Array(1536).fill(0).map(() => Math.random());
@@ -240,7 +240,7 @@ export class SmartRetriever {
   /**
    * 获取所有文档块（用于关键词搜索）
    */
-  private async getAllChunks(filters?: Record<string, any>): Promise<DocumentChunk[]> {
+  private async getAllChunks(_filters?: Record<string, any>): Promise<DocumentChunk[]> {
     // 简化实现：返回空数组
     // 实际实现需要维护完整的文档块索引
     return [];

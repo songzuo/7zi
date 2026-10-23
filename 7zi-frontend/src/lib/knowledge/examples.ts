@@ -18,7 +18,7 @@ async function basicExample() {
     // apiKey: 'your-api-key',
   };
 
-  const { vectorStore, retriever, qa, documentProcessor } = createRAGSystem(
+  const { vectorStore, retriever: _retriever, qa, documentProcessor } = createRAGSystem(
     vectorStoreConfig,
     {
       topK: 5,
@@ -242,7 +242,7 @@ async function productionExample() {
     embeddingDimension: 1536,
   };
 
-  const { vectorStore, retriever, qa } = createRAGSystem(
+  const { vectorStore, retriever: _retriever, qa } = createRAGSystem(
     vectorStoreConfig,
     {
       topK: 10,

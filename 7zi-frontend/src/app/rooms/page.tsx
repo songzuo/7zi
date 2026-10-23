@@ -66,10 +66,6 @@ export default function RoomsPage() {
   }
 
   // 处理加入房间
-  const handleJoinRoom = (room: ApiRoom) => {
-    setRoomToJoin(room)
-    setIsJoinModalOpen(true)
-  }
 
   // 处理加入成功
   const handleJoinSuccess = (room: ApiRoom) => {

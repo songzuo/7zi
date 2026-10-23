@@ -125,7 +125,7 @@ export function Dashboard() {
   }, [config.refreshInterval, loadData]);
 
   // Get stat card data from stats
-  const getStatCardData = (metricName: string, aggregation?: string): StatCardData | null => {
+  const getStatCardData = (metricName: string, _aggregation?: string): StatCardData | null => {
     if (!stats) return null;
 
     const metricDef = getMetricDefinition(metricName);

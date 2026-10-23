@@ -66,7 +66,7 @@ export class NotificationService {
         transports: ['websocket', 'polling'],
       })
       logger.debug('[NotificationService] Socket.IO initialized')
-    } catch (e) {
+    } catch (_e) {
       logger.warn('[NotificationService] Socket.IO not available')
     }
   }

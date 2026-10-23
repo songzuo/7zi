@@ -710,7 +710,7 @@ export class AutomationEngine {
   /**
    * 计算下次 cron 执行延迟（简化版）
    */
-  private calculateNextCronDelay(cron: string, timezone: string): number {
+  private calculateNextCronDelay(_cron: string, _timezone: string): number {
     // 这里使用简化实现，生产环境应使用专业库
     // 默认设置为 1 小时后
     return 60 * 60 * 1000
@@ -1028,7 +1028,7 @@ export class AutomationEngine {
   /**
    * 调用 API 动作
    */
-  private async callApiAction(action: ActionConfig, context: ExecutionContext): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  private async callApiAction(action: ActionConfig, _context: ExecutionContext): Promise<{ success: boolean; data?: unknown; error?: string }> {
     const apiConfig = action.config.api
     if (!apiConfig) {
       return { success: false, error: 'API 配置缺失' }

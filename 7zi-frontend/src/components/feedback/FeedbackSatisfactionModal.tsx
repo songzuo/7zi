@@ -20,7 +20,7 @@ interface FeedbackSatisfactionModalProps {
 
 export default function FeedbackSatisfactionModal({
   isOpen,
-  feedbackId,
+  feedbackId: _feedbackId,
   onSubmit,
   onClose,
 }: FeedbackSatisfactionModalProps) {

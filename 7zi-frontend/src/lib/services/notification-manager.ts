@@ -553,7 +553,7 @@ export class NotificationManager {
       // Validate timezone
       try {
         now.toLocaleTimeString('en-US', { timeZone: timezone })
-      } catch (tzError) {
+      } catch (_tzError) {
         logger.warn(`[NotificationManager] Invalid timezone "${timezone}", falling back to UTC`)
         timezone = 'UTC'
       }

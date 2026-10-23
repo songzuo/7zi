@@ -7,7 +7,6 @@
 import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
 
   return {
     name: '7zi Frontend - 智能体协作平台',

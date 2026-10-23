@@ -145,20 +145,6 @@ export function AlarmConfigPanel(): React.ReactElement {
     setRules(rules.filter(rule => rule.id !== id))
   }
 
-  const handleAddRule = () => {
-    const newRule: AlarmRule = {
-      id: `custom-${Date.now()}`,
-      name: 'New Alert Rule',
-      metric: 'errorRate',
-      threshold: 0.1,
-      windowMs: 5 * 60 * 1000,
-      enabled: true,
-      severity: 'medium',
-    }
-    setRules([...rules, newRule])
-    setShowAddForm(false)
-  }
-
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
@@ -185,13 +171,6 @@ export function AlarmConfigPanel(): React.ReactElement {
       default:
         return ''
     }
-  }
-
-  const formatWindow = (ms: number) => {
-    const minutes = Math.floor(ms / 60000)
-    if (minutes < 60) return `${minutes}m`
-    const hours = Math.floor(minutes / 60)
-    return `${hours}h`
   }
 
   return (

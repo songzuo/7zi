@@ -130,11 +130,6 @@ export function HistoryDataPanel(): React.ReactElement {
   }
 
   // 计算趋势
-  const calculateTrend = (current: number, previous: number): 'up' | 'down' | 'stable' => {
-    const change = ((current - previous) / previous) * 100
-    if (Math.abs(change) < 5) return 'stable'
-    return change > 0 ? 'up' : 'down'
-  }
 
   return (
     <div className="space-y-6">

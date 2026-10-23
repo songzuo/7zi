@@ -122,7 +122,7 @@ export function useAutomationRule(ruleId: string) {
  * 使用规则模板
  */
 export function useRuleTemplates() {
-  const [templates, setTemplates] = useState<AutomationRule[]>(DEFAULT_RULE_TEMPLATES)
+  const [templates] = useState<AutomationRule[]>(DEFAULT_RULE_TEMPLATES)
 
   const createFromTemplate = useCallback((templateId: string, overrides?: Partial<AutomationRule>) => {
     const template = templates.find((t) => t.id === templateId)
@@ -185,7 +185,7 @@ export function useRuleExecution() {
  * 使用规则执行历史
  */
 export function useRuleExecutionHistory(ruleId: string) {
-  const [history, setHistory] = useState<ExecutionResult[]>([])
+  const [history] = useState<ExecutionResult[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

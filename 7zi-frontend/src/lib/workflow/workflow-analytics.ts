@@ -372,7 +372,7 @@ export class WorkflowAnalytics {
    */
   private identifyBottlenecks(
     nodePerformance: NodePerformanceMetrics[],
-    statistics: ExecutionReport['statistics']
+    _statistics: ExecutionReport['statistics']
   ): PerformanceBottleneck[] {
     const bottlenecks: PerformanceBottleneck[] = []
     const thresholds = this.defaultOptions.bottleneckThresholds
@@ -435,7 +435,7 @@ export class WorkflowAnalytics {
    */
   private calculateVariance(
     node: NodePerformanceMetrics,
-    allNodes: NodePerformanceMetrics[]
+    _allNodes: NodePerformanceMetrics[]
   ): number {
     // 简化版本：使用 min 和 max 之间的差异
     const range = node.maxDuration - node.minDuration

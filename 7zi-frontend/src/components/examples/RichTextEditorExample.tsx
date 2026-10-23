@@ -27,7 +27,7 @@ export default function RichTextEditorExample() {
           </h2>
           <RichTextEditor
             value={content}
-            onChange={(value, html) => {
+            onChange={(value, _html) => {
               setContent(value)
               setMarkdown(value)
             }}

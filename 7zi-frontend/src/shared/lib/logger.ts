@@ -343,6 +343,6 @@ export const logger = new Logger()
 /**
  * 便捷函数：创建带有上下文的子 Logger
  */
-export function createLogger(context: Record<string, unknown>, level?: LogLevel): Logger {
+export function createLogger(context: Record<string, unknown>, _level?: LogLevel): Logger {
   return logger.child(context)
 }

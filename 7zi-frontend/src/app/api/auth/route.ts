@@ -34,16 +34,16 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.strict, async (request: Nex
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { username, password } = validationResult.data
+    const { username, password: _password } = validationResult.data
 
-    // 🔒 SECURITY FIX (2026-04-23): 
+    // 🔒 SECURITY FIX (2026-04-23):
     // Authentication not yet implemented - return 501 to prevent bypass
     // In production, implement proper authentication:
     // 1. Query database for user by username/email
     // 2. Use bcrypt.compare() to verify password hash
     // 3. Return 401 if user not found or password doesn't match
     console.error('[Auth] Login attempted but authentication system not configured')
-    
+
     // Log failed attempt for security audit
     await AuditLogger.logAuthEvent(AuditEventType.LOGIN_FAILED, {
       username,
@@ -79,7 +79,6 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.strict, async (request: Nex
  */
 export const PUT = withRateLimit(RATE_LIMIT_PRESETS.strict, withCSRF(async (request: NextRequest) => {
   const ipAddress = getClientIP(request)
-  const userAgent = request.headers.get('user-agent') || undefined
 
   try {
     const body = await request.json()
@@ -91,12 +90,12 @@ export const PUT = withRateLimit(RATE_LIMIT_PRESETS.strict, withCSRF(async (requ
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { username, email, password } = validationResult.data
+    const { username: _username, email: _email, password: _password } = validationResult.data
 
     // 🔒 SECURITY FIX (2026-04-23):
     // Registration not yet implemented - return 501
     console.error('[Auth] Registration attempted but system not configured')
-    
+
     await AuditLogger.logApiAccess({
       ipAddress,
       path: '/api/auth/register',
@@ -139,7 +138,7 @@ export const PATCH = withRateLimit(RATE_LIMIT_PRESETS.strict, async (request: Ne
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { token, password } = validationResult.data
+    const { token: _token, password: _password } = validationResult.data
 
     // 🔒 SECURITY FIX (2026-04-23):
     // Password reset not yet implemented - return 501

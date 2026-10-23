@@ -9,7 +9,7 @@ export interface MockTransporter {
   close: () => void
 }
 
-export function createTransport(config: any): MockTransporter {
+export function createTransport(_config: any): MockTransporter {
   return {
     sendMail: async (options: any) => {
       console.log('[Mock Nodemailer] Sending email:', options.subject)

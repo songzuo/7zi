@@ -39,7 +39,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
   const { t } = useTranslation('rooms')
   // 性能优化：使用细粒度选择器，避免不必要的重新渲染
   const updateRoom = useRoomStore(state => state.updateRoom)
-  const addMember = useRoomStore(state => state.addMember)
+  const _addMember = useRoomStore(state => state.addMember)
   const removeMember = useRoomStore(state => state.removeMember)
   const currentUserId = useRoomStore(state => state.currentUserId)
 

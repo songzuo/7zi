@@ -452,7 +452,7 @@ export class AnalysisRuleEngine {
    */
   prioritizeSuggestions(
     candidates: RootCauseCandidate[],
-    context: PerformanceContext
+    _context: PerformanceContext
   ): {
     highPriority: string[]
     mediumPriority: string[]

@@ -288,7 +288,7 @@ export const useAIChatStore = create<AIChatStore & {
               chunksPerSecond: duration > 0 ? totalChunks / duration : 0,
             })
           },
-          (usage) => {
+          (_usage) => {
             resolve()
           },
           (error) => {

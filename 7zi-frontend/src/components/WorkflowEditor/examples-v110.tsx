@@ -207,7 +207,7 @@ import { useClipboard } from '@/components/WorkflowEditor'
 
 export function ClipboardExample() {
   const { copyNodes, pasteNodes, cutNodes, hasClipboardData } = useClipboard()
-  const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([])
+  const [selectedNodeIds] = useState<string[]>([])
 
   const handleCopy = () => {
     copyNodes([], [], selectedNodeIds)

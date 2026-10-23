@@ -24,7 +24,7 @@ export default function FeedbackPage() {
   const [submittedFeedback, setSubmittedFeedback] = useState<FeedbackData | null>(null)
 
   // Simulate similar feedback check
-  const checkSimilarFeedbacks = async (title: string) => {
+  const checkSimilarFeedbacks = async (_title: string) => {
     // This would call an API in production
     return []
   }

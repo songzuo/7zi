@@ -72,8 +72,8 @@ export class DialogueTemplateEngine {
   findTemplate(
     category: TemplateCategory,
     context?: DialogueContext,
-    sentiment?: SentimentResult,
-    intent?: IntentResult
+    _sentiment?: SentimentResult,
+    _intent?: IntentResult
   ): DialogueTemplate | null {
     const candidates: DialogueTemplate[] = []
 

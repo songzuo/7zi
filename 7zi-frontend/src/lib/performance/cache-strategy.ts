@@ -120,7 +120,7 @@ export class CacheStrategyManager {
     try {
       const networkResponse = await this.fetchAndCache(request, cache, config);
       return networkResponse;
-    } catch (error) {
+    } catch (_error) {
       // Network failed, try cache
       const cachedResponse = await cache.match(request, config.matchOptions);
       if (cachedResponse) {

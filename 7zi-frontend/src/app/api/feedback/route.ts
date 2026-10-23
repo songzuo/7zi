@@ -280,7 +280,7 @@ export const PATCH = withAdmin(withCSRF(handlePATCH))
  * DELETE /api/feedback - Delete feedback
  * Requires admin authentication
  */
-async function handleDELETE(request: NextRequest, context: { user: AuthResult }) {
+async function handleDELETE(request: NextRequest, _context: { user: AuthResult }) {
   try {
     const { searchParams } = new URL(request.url)
     const feedbackId = searchParams.get('id')
@@ -309,7 +309,7 @@ export const DELETE = withAdmin(withCSRF(handleDELETE))
  * GET /api/feedback/stats - Get statistics
  * Requires admin authentication
  */
-async function handleGET_STATS(request: NextRequest, context: { user: AuthResult }) {
+async function handleGET_STATS(_request: NextRequest, _context: { user: AuthResult }) {
   try {
     // Get stats
     const stats = feedbackStorage.getStats()
@@ -329,7 +329,7 @@ export const GET_STATS = withAdmin(handleGET_STATS)
  */
 async function handlePOST_RESPONSE(request: NextRequest, context: { user: AuthResult }) {
   try {
-    const { userId, username: userName } = context.user
+    const { userId: _userId } = context.user
 
     const body = await request.json()
 
@@ -378,7 +378,7 @@ export const POST_RESPONSE = withAdmin(withCSRF(handlePOST_RESPONSE))
  * GET /api/feedback/export - Export feedbacks as CSV
  * Requires admin authentication
  */
-async function handleGET_EXPORT(request: NextRequest, context: { user: AuthResult }) {
+async function handleGET_EXPORT(request: NextRequest, _context: { user: AuthResult }) {
   try {
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') as Feedback['type'] | null

@@ -90,7 +90,7 @@ function RealtimeDashboard(): React.ReactElement {
   const [aggregatedData, setAggregatedData] = useState<AggregatedMetrics | null>(null)
   const [recentAlarms, setRecentAlarms] = useState<AlarmEvent[]>([])
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [refreshInterval, setRefreshInterval] = useState(5000)
+  const [refreshInterval] = useState(5000)
 
   useEffect(() => {
     loadData()

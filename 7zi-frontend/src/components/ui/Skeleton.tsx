@@ -60,7 +60,7 @@ export interface SkeletonTextProps extends Omit<SkeletonProps, 'children'> {
 }
 
 export const SkeletonText = memo<SkeletonTextProps>(
-  ({ className, lines = 3, height = 16, gap = 8, lastLineWidth = 70, style, ...props }) => {
+  ({ className, lines = 3, height = 16, gap = 8, lastLineWidth = 70, style, ..._props }) => {
     return (
       <div className={cn('space-y-1', className)} style={style}>
         {Array.from({ length: lines }).map((_, index) => (
@@ -92,7 +92,7 @@ export interface SkeletonAvatarProps extends Omit<SkeletonProps, 'children'> {
 }
 
 export const SkeletonAvatar = memo<SkeletonAvatarProps>(
-  ({ className, size = 40, circle = true, style, ...props }) => {
+  ({ className: _className, size = 40, circle = true, style, ...props }) => {
     return (
       <Skeleton
         className={circle ? 'rounded-full' : 'rounded'}

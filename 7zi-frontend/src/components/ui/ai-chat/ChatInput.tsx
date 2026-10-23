@@ -126,7 +126,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   }, [])
 
   const canSend = value.trim().length > 0 && !disabled && !isStreaming
-  const canStop = isStreaming && !disabled
 
   return (
     <div

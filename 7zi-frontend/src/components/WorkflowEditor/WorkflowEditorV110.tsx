@@ -106,9 +106,9 @@ function WorkflowEditorV110Inner({
   onImport,
   readOnly = false,
   maxHistorySize = 100,
-  performanceMode = false,
+  performanceMode: _performanceMode = false,
 }: WorkflowEditorV110Props) {
-  const { fitView, zoomIn, zoomOut, getNodes, getEdges, setNodes, setEdges } = useReactFlow()
+  const { fitView, zoomIn, zoomOut, getNodes: _getNodes, getEdges: _getEdges, setNodes: _setNodes, setEdges: _setEdges } = useReactFlow()
 
   // 节点和边状态
   const [nodes, setLocalNodes] = useState<Node<WorkflowNodeData>[]>(initialNodes)
@@ -119,7 +119,7 @@ function WorkflowEditorV110Inner({
   // 视图状态
   const [showMiniMap, setShowMiniMap] = useState(true)
   const [showGrid, setShowGrid] = useState(true)
-  const [gridType, setGridType] = useState<'dots' | 'lines' | 'none'>('dots')
+  const [gridType] = useState<'dots' | 'lines' | 'none'>('dots')
 
   // 面板状态
   const [showShortcutsPanel, setShowShortcutsPanel] = useState(false)

@@ -61,7 +61,6 @@ export default function RateLimitAdminPage() {
   ]
 
   const isLoading = statsLoading || healthLoading
-  const isHealthy = health?.data?.status === 'healthy'
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

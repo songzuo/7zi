@@ -235,7 +235,7 @@ export interface ResponsiveValueConfig<T> {
 }
 
 export function useResponsiveValue<T>(values: ResponsiveValueConfig<T>): T {
-  const isMobile = useIsMobile()
+  const _isMobile = useIsMobile()
   const isTablet = useIsTablet()
   const isDesktop = useIsDesktop()
   const isLargeDesktop = useIsLargeDesktop()
@@ -273,7 +273,7 @@ export interface WindowSize {
 
 export function useWindowSize(): WindowSize | null {
   const [windowSize, setWindowSize] = useState<WindowSize | null>(null)
-  const [isClient, setIsClient] = useState(false)
+  const [_isClient, setIsClient] = useState(false)
 
   useEffect(() => {
     setIsClient(true)

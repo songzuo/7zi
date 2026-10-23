@@ -83,7 +83,7 @@ export class DatabaseTracker {
   ): void {
     const sanitizedQuery = this.sanitizeQuery(query)
     const queryType = this.extractQueryType(query)
-    const table = this.extractTableName(query)
+    const _table = this.extractTableName(query)
 
     const slowQuery: SlowQuery = {
       query: sanitizedQuery,

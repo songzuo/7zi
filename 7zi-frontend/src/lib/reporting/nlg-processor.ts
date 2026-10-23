@@ -55,28 +55,6 @@ interface TextTemplate {
 /**
  * 语气风格配置
  */
-const TONE_CONFIGS: Record<ToneStyle, { prefix: string; suffix: string; style: string }> = {
-  formal: {
-    prefix: '',
-    suffix: '',
-    style: 'formal',
-  },
-  concise: {
-    prefix: '',
-    suffix: '',
-    style: 'concise',
-  },
-  detailed: {
-    prefix: '',
-    suffix: '',
-    style: 'detailed',
-  },
-  casual: {
-    prefix: '',
-    suffix: '',
-    style: 'casual',
-  },
-}
 
 /**
  * 文本模板库
@@ -276,7 +254,7 @@ export class NLGProcessor {
   /**
    * 生成建议文本
    */
-  private generateRecommendationText(data: AggregatedData): string {
+  private generateRecommendationText(_data: AggregatedData): string {
     const recommendations = {
       formal: {
         zh: '建议继续监控关键指标，定期进行数据分析。',

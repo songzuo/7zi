@@ -238,7 +238,7 @@ export class EnhancedIntentAnalyzer {
   /**
    * 检测子意图
    */
-  private detectSubIntent(content: string, category: IntentCategory): string | undefined {
+  private detectSubIntent(content: string, _category: IntentCategory): string | undefined {
     const normalized = content.toLowerCase()
 
     // 先检测子意图，不依赖 category

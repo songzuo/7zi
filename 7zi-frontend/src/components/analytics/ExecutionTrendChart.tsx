@@ -78,7 +78,7 @@ function CustomTooltip({
 function generateMockData(days: number): TrendData[] {
   const data: TrendData[] = []
   const now = new Date()
-  
+
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(now)
     date.setDate(date.getDate() - i)
@@ -87,7 +87,7 @@ function generateMockData(days: number): TrendData[] {
       value: Math.floor(Math.random() * 50) + 10
     })
   }
-  
+
   return data
 }
 
@@ -247,7 +247,7 @@ export function MiniTrendChart({
   data,
   chartType = 'line',
   height = 100,
-  className
+  className: _className
 }: {
   data: TrendData[]
   chartType?: 'line' | 'bar'
@@ -302,12 +302,12 @@ export function ComparisonTrendChart({
   // 合并数据
   const mergedData = useMemo(() => {
     if (!data || data.length === 0) return []
-    
+
     const dateSet = new Set<string>()
     data.forEach(series => {
       series.data.forEach(item => dateSet.add(item.timestamp))
     })
-    
+
     return Array.from(dateSet).sort().map(ts => {
       const point: Record<string, string | number> = { date: ts }
       data.forEach(series => {

@@ -2,7 +2,7 @@
  * Auth API Route
  *
  * 认证相关 API 端点，包含安全验证和审计日志
- * 
+ *
  * 🔒 SECURITY FIX (2026-04-23):
  * Authentication logic disabled - return 501 until properly implemented
  */
@@ -31,15 +31,15 @@ export async function POST(request: NextRequest) {
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { username, password } = validationResult.data
+    const { username, password: _password } = validationResult.data
 
-    // 🔒 SECURITY FIX (2026-04-23): 
+    // 🔒 SECURITY FIX (2026-04-23):
     // Authentication not yet implemented - return 501
     // In production, implement proper authentication:
     // 1. Query database for user by username/email
     // 2. Use bcrypt.compare() to verify password hash
     console.error('[Auth] Login attempted but authentication not configured')
-    
+
     await AuditLogger.logAuthEvent(AuditEventType.LOGIN_FAILED, {
       username,
       ipAddress,
@@ -80,7 +80,6 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   const ipAddress = getClientIP(request)
-  const userAgent = request.headers.get('user-agent') || undefined
 
   try {
     const body = await request.json()
@@ -92,12 +91,12 @@ export async function PUT(request: NextRequest) {
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { username, email, password } = validationResult.data
+    const { username: _username, email: _email, password: _password } = validationResult.data
 
     // 🔒 SECURITY FIX (2026-04-23):
     // Registration not yet implemented
     console.error('[Auth] Registration attempted but system not configured')
-    
+
     await AuditLogger.logApiAccess({
       ipAddress,
       path: '/api/auth/register',
@@ -147,7 +146,7 @@ export async function PATCH(request: NextRequest) {
       return createValidationErrorResponse(validationResult.errors)
     }
 
-    const { token, password } = validationResult.data
+    const { token: _token, password: _password } = validationResult.data
 
     // 🔒 SECURITY FIX (2026-04-23):
     // Password reset not yet implemented

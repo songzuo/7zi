@@ -60,7 +60,7 @@ export const i18nConfig: InitOptions = {
 
   // 缺失翻译键处理
   saveMissing: process.env.NODE_ENV === 'development',
-  missingKeyHandler: (lngs, ns, key, fallbackValue) => {
+  missingKeyHandler: (lngs, ns, key, _fallbackValue) => {
     if (process.env.NODE_ENV === 'development') {
       console.warn(`[i18n] Missing translation: ${ns}:${key} for ${lngs.join(', ')}`)
     }
@@ -76,7 +76,7 @@ export const i18nConfig: InitOptions = {
 }
 
 // 获取语言方向（RTL/LTR）
-export function getLanguageDirection(lng: SupportedLanguage): 'ltr' | 'rtl' {
+export function getLanguageDirection(_lng: SupportedLanguage): 'ltr' | 'rtl' {
   return 'ltr' // 中英文都是 LTR
 }
 

@@ -582,7 +582,7 @@ export class MetricsReportGenerator {
     </div>`
   }
 
-  private generateHistorySectionHtml(history: MetricsHistory): string {
+  private generateHistorySectionHtml(_history: MetricsHistory): string {
     return `
     <div class="card">
       <div class="card-header">📊 Historical Trends</div>

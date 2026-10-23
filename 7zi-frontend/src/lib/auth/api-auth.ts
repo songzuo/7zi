@@ -94,7 +94,7 @@ async function verifyJWTAuth(request: NextRequest): Promise<AuthResult> {
       role: payload.role,
       authMethod: 'jwt',
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       authenticated: false,
       error: 'Invalid or expired JWT token',

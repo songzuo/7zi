@@ -24,7 +24,7 @@ interface PreloadImageResult {
  */
 export function usePreloadImage(
   src: string,
-  options: PreloadImageOptions = {}
+  _options: PreloadImageOptions = {}
 ): PreloadImageResult {
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
@@ -97,7 +97,7 @@ export function usePreloadImages(
   const [loadedCount, setLoadedCount] = useState(0)
   const [errors, setErrors] = useState<string[]>([])
 
-  const { isLoaded: firstLoaded } = usePreloadImage(sources[0] || '', options)
+  const { isLoaded: _firstLoaded } = usePreloadImage(sources[0] || '', options)
 
   useEffect(() => {
     if (!sources.length) return

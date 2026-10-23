@@ -77,7 +77,7 @@ export default function FeedbackModal({
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
+  const [_isSaving] = useState(false)
   const [attachmentUrls, setAttachmentUrls] = useState<string[]>([])
   const [currentUrl, setCurrentUrl] = useState('')
   const [currentTag, setCurrentTag] = useState('')

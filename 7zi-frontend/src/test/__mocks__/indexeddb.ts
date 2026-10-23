@@ -1,6 +1,6 @@
 /**
  * 🚀 FakeIndexedDB 配置和工具
- * 
+ *
  * 为 IndexedDB 操作提供测试支持
  * 支持数据库隔离和清理
  */
@@ -32,14 +32,14 @@ const isolatedDatabases = new Map<string, IDBDatabase>()
 
 export const createTestDatabase = (config: IndexedDBConfig): IDBDatabase => {
   const { name } = config
-  
+
   // 如果已存在，先删除
   if (isolatedDatabases.has(name)) {
     const existing = isolatedDatabases.get(name)!
     existing.close()
     isolatedDatabases.delete(name)
   }
-  
+
   // 创建内存数据库
   const databases: Record<string, Record<string, unknown>> = {}
   const request = {
@@ -47,7 +47,7 @@ export const createTestDatabase = (config: IndexedDBConfig): IDBDatabase => {
       name,
       version: config.version,
       objectStoreNames: Object.keys(config.stores || {}),
-      createObjectStore: (storeName: string, options?: { keyPath: string }) => {
+      createObjectStore: (storeName: string, _options?: { keyPath: string }) => {
         databases[storeName] = {}
         return {
           createIndex: vi.fn(),
@@ -60,7 +60,7 @@ export const createTestDatabase = (config: IndexedDBConfig): IDBDatabase => {
         }
       },
       transaction: vi.fn(() => ({
-        objectStore: (name: string) => ({
+        objectStore: (_name: string) => ({
           add: vi.fn(),
           put: vi.fn(),
           get: vi.fn(),
@@ -74,14 +74,14 @@ export const createTestDatabase = (config: IndexedDBConfig): IDBDatabase => {
     onsuccess: null as ((event: Event) => void) | null,
     onerror: null as ((event: Event) => void) | null,
   }
-  
+
   // 模拟 open 请求成功
   setTimeout(() => {
     if (request.onsuccess) {
       request.onsuccess(new Event('success'))
     }
   }, 0)
-  
+
   isolatedDatabases.set(name, request.result as unknown as IDBDatabase)
   return request.result as unknown as IDBDatabase
 }
@@ -91,7 +91,7 @@ export const createTestDatabase = (config: IndexedDBConfig): IDBDatabase => {
 // ============================================================
 
 export const cleanupTestDatabases = () => {
-  isolatedDatabases.forEach((db, name) => {
+  isolatedDatabases.forEach((db, _name) => {
     try {
       db.close()
     } catch {
@@ -107,19 +107,19 @@ export const cleanupTestDatabases = () => {
 
 export const createIndexedDBMock = () => {
   const databases = new Map<string, Record<string, unknown>>()
-  
+
   return {
-    open: vi.fn((name: string, version?: number) => {
+    open: vi.fn((name: string, _version?: number) => {
       const store: Record<string, unknown> = {}
       databases.set(name, store)
-      
+
       return {
         result: databases.get(name),
         onsuccess: null as ((event: Event) => void) | null,
         onerror: null as ((event: Event) => void) | null,
       }
     }),
-    
+
     deleteDatabase: vi.fn((name: string) => {
       databases.delete(name)
       return {
@@ -127,7 +127,7 @@ export const createIndexedDBMock = () => {
         onerror: null as ((event: Event) => void) | null,
       }
     }),
-    
+
     databases: vi.fn(async () => {
       return Array.from(databases.keys()).map(name => ({ name }))
     }),
@@ -152,7 +152,7 @@ export const testStoreConfigs: Record<string, IndexedDBConfig> = {
       },
     },
   },
-  
+
   cache: {
     name: 'cache-db',
     version: 1,
@@ -165,7 +165,7 @@ export const testStoreConfigs: Record<string, IndexedDBConfig> = {
       },
     },
   },
-  
+
   messages: {
     name: 'messages-db',
     version: 1,
@@ -188,25 +188,25 @@ export const testStoreConfigs: Record<string, IndexedDBConfig> = {
 
 export const createVitestIndexedDBMock = () => {
   const mock = createIndexedDBMock()
-  
+
   return {
     default: mock,
     indexedDB: mock,
     IDBFactory: vi.fn(() => mock),
-    
+
     // 便捷方法
     mockInstance: mock,
     getMock: () => mock,
     resetMock: () => {
       vi.clearAllMocks()
     },
-    
+
     // 预设存储区
     createStore: (name: keyof typeof testStoreConfigs) => {
       const config = testStoreConfigs[name]
       return createTestDatabase(config)
     },
-    
+
     // 清理
     cleanup: cleanupTestDatabases,
   }
@@ -220,14 +220,14 @@ export const createVitestIndexedDBMock = () => {
 export const setupFakeIndexedDB = () => {
   // 已经在 src/test/setup.ts 中通过 'fake-indexeddb/auto' 导入
   // 这里提供额外的配置
-  
+
   return {
     // 提供清理函数
     cleanup: cleanupTestDatabases,
-    
+
     // 创建隔离数据库
     createIsolatedDB: createTestDatabase,
-    
+
     // 测试存储配置
     configs: testStoreConfigs,
   }

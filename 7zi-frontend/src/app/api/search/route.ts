@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     return authResponse
   }
 
-  const userId = request.headers.get('x-user-id')
+  const _userId = request.headers.get('x-user-id')
   const { searchParams } = new URL(request.url)
 
   const query = searchParams.get('q')
@@ -149,7 +149,7 @@ export async function SUGGESTIONS(request: NextRequest) {
     return authResponse
   }
 
-  const userId = request.headers.get('x-user-id')
+  const _userId = request.headers.get('x-user-id')
   const { searchParams } = new URL(request.url)
 
   const query = searchParams.get('q')

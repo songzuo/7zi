@@ -49,11 +49,6 @@ export interface SMSChannelConfig extends BaseChannelConfig {
   timeout?: number
 }
 
-interface SMSMessage {
-  to: string
-  message: string
-}
-
 /**
  * SMS Alert Channel
  */

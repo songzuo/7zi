@@ -272,8 +272,8 @@ export function WorkflowTemplateSelector({
     filteredTemplates,
     loading,
     error,
-    selectedCategory,
-    searchQuery,
+    selectedCategory: _selectedCategory,
+    searchQuery: _searchQuery,
     selectCategory,
     searchTemplates,
   } = useWorkflowTemplate({ autoLoad: true })

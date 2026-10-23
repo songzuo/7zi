@@ -24,7 +24,7 @@ interface NodeWrapperProps {
 /**
  * 节点包装组件 - 提供统一的选中高亮效果
  */
-export const NodeWrapper = memo(({ children, data, selected, type, colors }: NodeWrapperProps) => {
+export const NodeWrapper = memo(({ children, data, selected, type: _type, colors }: NodeWrapperProps) => {
   // 节点类型对应的颜色
   const nodeColors = colors || {
     light: selected ? '#6366F1' : '#CBD5E1',
@@ -43,19 +43,19 @@ export const NodeWrapper = memo(({ children, data, selected, type, colors }: Nod
   return (
     <div
       className={`
-        workflow-node-wrapper relative min-w-[180px] rounded-lg border-2 
+        workflow-node-wrapper relative min-w-[180px] rounded-lg border-2
         bg-white px-4 py-3 shadow-sm transition-all duration-200
         dark:bg-gray-800
-        ${selected 
-          ? 'border-indigo-500 shadow-lg ring-2 ring-indigo-300 ring-opacity-50' 
+        ${selected
+          ? 'border-indigo-500 shadow-lg ring-2 ring-indigo-300 ring-opacity-50'
           : 'border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-md'
         }
       `}
       style={{
         borderColor: selected ? '#6366F1' : nodeColors.light,
         backgroundColor: selected ? undefined : nodeColors.bg,
-        boxShadow: selected 
-          ? '0 0 20px rgba(99, 102, 241, 0.3), 0 4px 12px rgba(0, 0, 0, 0.1)' 
+        boxShadow: selected
+          ? '0 0 20px rgba(99, 102, 241, 0.3), 0 4px 12px rgba(0, 0, 0, 0.1)'
           : '0 1px 3px rgba(0, 0, 0, 0.1)',
         transform: selected ? 'scale(1.02)' : 'scale(1)',
       }}
@@ -87,8 +87,8 @@ export const NodeWrapper = memo(({ children, data, selected, type, colors }: Nod
             animation: data.executionStatus === 'running' ? 'pulse 1.5s ease-in-out infinite' : 'none',
           }}
         >
-          {data.executionStatus === 'success' ? '✓' : 
-           data.executionStatus === 'failed' ? '✗' : 
+          {data.executionStatus === 'success' ? '✓' :
+           data.executionStatus === 'failed' ? '✗' :
            data.executionStatus === 'running' ? '▶' : '○'}
         </div>
       )}
@@ -120,9 +120,9 @@ export const nodeHandleClassName = `
 /**
  * 输入句柄
  */
-export const InputHandle = memo(({ 
-  className = '', 
-  ...props 
+export const InputHandle = memo(({
+  className = '',
+  ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <Handle
     type="target"
@@ -137,9 +137,9 @@ InputHandle.displayName = 'InputHandle'
 /**
  * 输出句柄
  */
-export const OutputHandle = memo(({ 
-  className = '', 
-  ...props 
+export const OutputHandle = memo(({
+  className = '',
+  ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <Handle
     type="source"
@@ -154,9 +154,9 @@ OutputHandle.displayName = 'OutputHandle'
 /**
  * 顶部句柄（用于并行节点等）
  */
-export const TopHandle = memo(({ 
-  className = '', 
-  ...props 
+export const TopHandle = memo(({
+  className = '',
+  ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <Handle
     type="target"
@@ -171,9 +171,9 @@ TopHandle.displayName = 'TopHandle'
 /**
  * 底部句柄（用于并行节点等）
  */
-export const BottomHandle = memo(({ 
-  className = '', 
-  ...props 
+export const BottomHandle = memo(({
+  className = '',
+  ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <Handle
     type="source"
@@ -188,12 +188,12 @@ BottomHandle.displayName = 'BottomHandle'
 /**
  * 节点图标组件
  */
-export const NodeIcon = memo(({ 
-  emoji, 
-  className = '' 
-}: { 
+export const NodeIcon = memo(({
+  emoji,
+  className = ''
+}: {
   emoji: string
-  className?: string 
+  className?: string
 }) => (
   <span className={`text-xl ${className}`}>{emoji}</span>
 ))
@@ -203,12 +203,12 @@ NodeIcon.displayName = 'NodeIcon'
 /**
  * 节点标题组件
  */
-export const NodeTitle = memo(({ 
-  children, 
-  className = '' 
-}: { 
+export const NodeTitle = memo(({
+  children,
+  className = ''
+}: {
   children: ReactNode
-  className?: string 
+  className?: string
 }) => (
   <div className={`font-semibold text-gray-900 dark:text-white ${className}`}>
     {children}
@@ -220,12 +220,12 @@ NodeTitle.displayName = 'NodeTitle'
 /**
  * 节点描述组件
  */
-export const NodeDescription = memo(({ 
-  children, 
-  className = '' 
-}: { 
+export const NodeDescription = memo(({
+  children,
+  className = ''
+}: {
   children: ReactNode
-  className?: string 
+  className?: string
 }) => (
   <div className={`text-xs text-gray-500 dark:text-gray-400 ${className}`}>
     {children}
@@ -253,7 +253,7 @@ if (typeof document !== 'undefined') {
           transform: scale(1.02);
         }
       }
-      
+
       @keyframes pulse {
         0%, 100% {
           transform: scale(1);
@@ -264,11 +264,11 @@ if (typeof document !== 'undefined') {
           opacity: 0.8;
         }
       }
-      
+
       .workflow-node-wrapper {
         animation: node-appear 0.2s ease-out;
       }
-      
+
       @keyframes node-appear {
         from {
           opacity: 0;

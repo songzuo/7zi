@@ -46,7 +46,7 @@ async function getBuildInfo() {
       environment: process.env.NODE_ENV || 'unknown',
       buildTime: new Date().toISOString(),
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       version: 'unknown',
       name: 'unknown',
@@ -139,7 +139,7 @@ function evaluateHealth(systemInfo: ReturnType<typeof getSystemInfo>, responseTi
 // ============================================
 // GET 请求处理器
 // ============================================
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   const startTime = Date.now()
 
   try {
@@ -214,7 +214,7 @@ export async function HEAD() {
         'Cache-Control': `public, max-age=${HEALTH_CHECK_CONFIG.cacheTime}`,
       },
     })
-  } catch (error) {
+  } catch (_error) {
     return new NextResponse(null, {
       status: 503,
       headers: {

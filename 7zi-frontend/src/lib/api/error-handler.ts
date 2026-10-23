@@ -101,7 +101,7 @@ export function createSuccessResponse<T = unknown>(
 export function createErrorResponse(
   error: Error | ApiError,
   statusCode?: number,
-  details?: Record<string, unknown>
+  _details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
   const timestamp = new Date().toISOString()
 

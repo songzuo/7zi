@@ -7,7 +7,7 @@
  *
  * 主编辑器组件，集成 React Flow 画布、节点面板、属性面板等
  * 支持撤销/重做、键盘快捷键、自动保存
- * 
+ *
  * v1.9.1 更新:
  * - 新增循环节点 (Loop)
  * - 新增子工作流节点 (Subworkflow)
@@ -121,7 +121,7 @@ function WorkflowEditorInner({
 
   // 模板 Hook
   const { createWorkflowFromTemplate } = useWorkflowTemplate({ autoLoad: false })
-  
+
   // 剪贴板状态（用于复制/粘贴）
   const [clipboard, setClipboard] = useState<Node<WorkflowNodeData> | null>(null)
 
@@ -135,15 +135,14 @@ function WorkflowEditorInner({
 
   // 草稿管理 hook - 自动保存和恢复
   const {
-    draft,
-    isLoading: isDraftLoading,
+    draft: _draft,
     isSaving: isDraftSaving,
     hasUnsavedChanges,
     lastSavedAt,
     saveDraft,
-    loadDraft,
-    deleteDraft,
-    triggerSave,
+    loadDraft: _loadDraft,
+    deleteDraft: _deleteDraft,
+    triggerSave: _triggerSave,
     clearError,
   } = useWorkflowDraft({
     workflowId: workflowId || '',
@@ -571,7 +570,7 @@ function WorkflowEditorInner({
   }, [])
 
   return (
-    <div 
+    <div
       className="flex h-screen w-screen flex-col bg-gray-50 dark:bg-gray-900"
       tabIndex={0}
       onFocus={() => setHasFocus(true)}

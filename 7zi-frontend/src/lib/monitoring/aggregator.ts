@@ -120,7 +120,7 @@ export class MetricsAggregator {
    */
   static aggregatePercentiles(
     data: PerformanceMetric[],
-    percentiles: number[] = [50, 90, 95, 99]
+    _percentiles: number[] = [50, 90, 95, 99]
   ): PercentileResult {
     if (!data || data.length === 0) {
       return {
@@ -139,7 +139,7 @@ export class MetricsAggregator {
 
     const getPercentile = (p: number): number => {
       if (count === 1) return values[0]
-      
+
       // 使用线性插值计算百分位数
       const index = (p / 100) * (count - 1)
       const lower = Math.floor(index)
@@ -212,21 +212,21 @@ export class MetricsAggregator {
     // 计算相关系数（R）作为置信度
     const meanX = sumX / n
     const meanY = sumY / n
-    
+
     let numerator = 0
     let denomX = 0
     let denomY = 0
-    
+
     for (const point of sorted) {
       const x = (point.timestamp - baseTime) / 1000
       const y = point.value
-      
+
       numerator += (x - meanX) * (y - meanY)
       denomX += (x - meanX) ** 2
       denomY += (y - meanY) ** 2
     }
-    
-    const correlation = denomX > 0 && denomY > 0 
+
+    const correlation = denomX > 0 && denomY > 0
       ? Math.abs(numerator / Math.sqrt(denomX * denomY))
       : 0
 
@@ -238,7 +238,7 @@ export class MetricsAggregator {
     // 判断趋势方向
     // 使用变化百分比来判断是否稳定（变化小于 5% 视为稳定）
     const stabilityThreshold = 5 // 5% 的阈值
-    
+
     let direction: 'increasing' | 'decreasing' | 'stable'
     if (Math.abs(changePercent) < stabilityThreshold) {
       direction = 'stable'

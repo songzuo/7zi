@@ -223,7 +223,7 @@ export class TranscriptionStream {
   /**
    * 处理说话人变更
    */
-  private handleSpeakerChange(data: any): void {
+  private handleSpeakerChange(_data: any): void {
     this.emit({
       type: 'speaker_change',
       timestamp: Date.now(),

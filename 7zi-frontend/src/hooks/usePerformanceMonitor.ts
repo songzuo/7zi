@@ -108,7 +108,7 @@ export function usePerformanceMonitor({
   /**
    * Update time range
    */
-  const updateTimeRange = useCallback((newTimeRange: number) => {
+  const _updateTimeRange = useCallback((newTimeRange: number) => {
     setTimeRange(newTimeRange)
   }, [])
 

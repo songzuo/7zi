@@ -74,7 +74,7 @@ export function CollabProvider({
   roomId,
   userId,
   userName,
-  userAvatar,
+  userAvatar: _userAvatar,
   autoConnect = true,
   wsUrl = '/api/collab/ws',
 }: CollabProviderProps) {
@@ -98,15 +98,6 @@ export function CollabProvider({
   useEffect(() => {
     const unsubscribe = ws.onCursorMove((remoteUserId, position) => {
       // Get user info from presence or use defaults
-      const cursorState: CursorState = {
-        cursor: position,
-        user: {
-          id: remoteUserId,
-          name: `User ${remoteUserId.slice(0, 6)}`,
-          color: '#4ECDC4',
-        },
-        timestamp: Date.now(),
-      }
 
       // Update in cursors hook
       // Note: In production, we'd get the user info from presence state
@@ -117,7 +108,7 @@ export function CollabProvider({
 
   // Handle presence join
   useEffect(() => {
-    const unsubscribe = ws.onPresenceJoin((user, sessionId) => {
+    const unsubscribe = ws.onPresenceJoin((_user, _sessionId) => {
       // Update online users in cursors hook
     })
 
@@ -126,7 +117,7 @@ export function CollabProvider({
 
   // Handle presence leave
   useEffect(() => {
-    const unsubscribe = ws.onPresenceLeave((userId) => {
+    const unsubscribe = ws.onPresenceLeave((_userId) => {
       // Remove user from cursors
     })
 

@@ -461,7 +461,7 @@ export class AlertEngine {
     rule: AlertRule,
     metric: string,
     value: number,
-    context?: Record<string, unknown>
+    _context?: Record<string, unknown>
   ): Promise<boolean> {
     const { condition } = rule
 
@@ -642,7 +642,7 @@ export class AlertEngine {
   /**
    * Check if alert should be suppressed
    */
-  private async shouldSuppress(rule: AlertRule, metric: string, value: number): Promise<boolean> {
+  private async shouldSuppress(rule: AlertRule, metric: string, _value: number): Promise<boolean> {
     const { suppression } = this.config
     const now = Date.now()
 

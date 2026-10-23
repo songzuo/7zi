@@ -129,7 +129,6 @@ export class BatchRequestManager {
       // Resolve all promises with their responses
       responses.forEach((response, index) => {
         const promise = promises[index];
-        const request = requests[index];
 
         if (response.error) {
           promise.reject(new Error(response.error));

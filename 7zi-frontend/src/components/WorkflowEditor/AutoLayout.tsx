@@ -264,7 +264,7 @@ export function treeLayout(
   })
 
   // 计算每层的宽度
-  const maxNodesPerLevel = Math.max(
+  const _maxNodesPerLevel = Math.max(
     ...Object.values(nodesByLevel).map((arr) => arr.length)
   )
   const levelWidth = 300

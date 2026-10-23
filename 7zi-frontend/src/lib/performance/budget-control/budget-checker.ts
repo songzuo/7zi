@@ -202,7 +202,7 @@ export class BudgetChecker {
    * Calculate budget score
    * 计算预算分数
    */
-  private calculateScore(violations: BudgetViolation[], budget: PageBudget): number {
+  private calculateScore(violations: BudgetViolation[], _budget: PageBudget): number {
     if (violations.length === 0) {
       return 100
     }

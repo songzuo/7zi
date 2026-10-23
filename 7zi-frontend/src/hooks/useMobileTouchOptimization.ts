@@ -64,7 +64,7 @@ export function usePassiveScroll() {
         })
         window.addEventListener('test', null as any, opts)
         window.removeEventListener('test', null as any, opts)
-      } catch (e) {
+      } catch (_e) {
         // Ignore
       }
       return supports
