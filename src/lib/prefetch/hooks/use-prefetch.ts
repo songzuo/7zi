@@ -34,6 +34,72 @@ export interface PrefetchResult {
 }
 
 /**
+ * 预加载核心逻辑（与 Hook 解耦的纯函数）
+ *
+ * 抽出成独立函数的原因：`useBatchPrefetch` 需要按路径批量预加载，
+ * 而 React Hook 只能在组件顶层调用，不能在循环里调用
+ * （`react-hooks/rules-of-hooks` 报 'cannot be called inside a callback'）。
+ */
+async function performPrefetch(
+  path: string,
+  options: {
+    onComplete?: (path: string, success: boolean, duration: number) => void
+    prefetchData: boolean
+    prefetchResources: boolean
+  },
+  prefetcher: PredictivePrefetcher = globalPrefetcher
+): Promise<PrefetchResult | undefined> {
+  const { onComplete, prefetchData, prefetchResources } = options
+  const startTime = performance.now()
+
+  try {
+    // 预加载路由
+    const results = await prefetcher.prefetch([path])
+    const result = results[0]
+
+    const duration = performance.now() - startTime
+
+    if (result.success) {
+      // 预加载数据和资源
+      if (prefetchData) {
+        await prefetchRouteData(path)
+      }
+
+      if (prefetchResources) {
+        await prefetchRouteResources(path)
+      }
+    }
+
+    if (onComplete) {
+      onComplete(path, result.success, duration)
+    }
+
+    return {
+      path,
+      success: result.success,
+      duration,
+      timestamp: Date.now(),
+      error: result.error,
+    } as PrefetchResult
+  } catch (error) {
+    const duration = performance.now() - startTime
+    const result: PrefetchResult = {
+      path,
+      success: false,
+      duration,
+      timestamp: Date.now(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+
+    if (onComplete) {
+      onComplete(path, false, duration)
+    }
+
+    return result
+  }
+}
+
+/**
  * 手动预加载 Hook
  */
 export function usePrefetch(path: string, options: UsePrefetchOptions = {}) {
@@ -56,55 +122,17 @@ export function usePrefetch(path: string, options: UsePrefetchOptions = {}) {
       return
     }
 
-    const startTime = performance.now()
+    const result = await performPrefetch(
+      path,
+      { onComplete, prefetchData, prefetchResources },
+      prefetcherRef.current
+    )
 
-    try {
-      // 预加载路由
-      const results = await prefetcherRef.current.prefetch([path])
-      const result = results[0]
-
-      const duration = performance.now() - startTime
-
-      if (result.success) {
-        isPrefetchedRef.current = true
-
-        // 预加载数据和资源
-        if (prefetchData) {
-          await prefetchRouteData(path)
-        }
-
-        if (prefetchResources) {
-          await prefetchRouteResources(path)
-        }
-      }
-
-      if (onComplete) {
-        onComplete(path, result.success, duration)
-      }
-
-      return {
-        path,
-        success: result.success,
-        duration,
-        timestamp: Date.now(),
-        error: result.error,
-      } as PrefetchResult
-    } catch (error) {
-      const duration = performance.now() - startTime
-      const result: PrefetchResult = {
-        path,
-        success: false,
-        duration,
-        timestamp: Date.now(),
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
-
-      if (onComplete) {
-        onComplete(path, false, duration)
-      }
-
-      return result
+    if (result?.success) {
+      isPrefetchedRef.current = true
     }
+
+    return result
   }, [path, prefetchData, prefetchResources, onComplete])
 
   // 立即预加载
@@ -211,8 +239,14 @@ export function useBatchPrefetch(paths: string[], options: UsePrefetchOptions = 
 
       for (const path of paths) {
         if (!prefetchedRef.current.has(path)) {
-          const hook = usePrefetch(path, { ...options, trigger: 'manual' })
-          const result = await hook.prefetch()
+          // 注意：这里**不能**调用 usePrefetch —— Hook 只能在组件顶层调用，
+          // 在循环/回调里调用会违反 React Hooks 规则。
+          // 改用解耦出来的 performPrefetch 纯函数。
+          const result = await performPrefetch(path, {
+            onComplete: options.onComplete,
+            prefetchData: options.prefetchData ?? true,
+            prefetchResources: options.prefetchResources ?? true,
+          })
           if (result) {
             results.push(result)
           }
