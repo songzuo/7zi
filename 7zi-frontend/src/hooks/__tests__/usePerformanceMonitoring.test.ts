@@ -157,7 +157,7 @@ describe('useCustomMetrics', () => {
       await result.current.recordApiMetric('/api/test', 200, 200)
     })
 
-    const { monitor } = require('@/lib/monitoring')
+    const { monitor } = await import('@/lib/monitoring')
     expect(monitor.trackAPIRequest).toHaveBeenCalledWith(
       'GET',
       '/api/test',
@@ -175,7 +175,7 @@ describe('useCustomMetrics', () => {
       await result.current.recordError(testError, { context: 'test' })
     })
 
-    const { monitor } = require('@/lib/monitoring')
+    const { monitor } = await import('@/lib/monitoring')
     expect(monitor.trackError).toHaveBeenCalledWith(
       'Error',
       'Test error',
@@ -191,7 +191,7 @@ describe('useCustomMetrics', () => {
       await result.current.recordCustomMetric('test_metric', 100, 'ms', { tag: 'test' })
     })
 
-    const { monitor } = require('@/lib/monitoring')
+    const { monitor } = await import('@/lib/monitoring')
     expect(monitor.trackCustomMetric).toHaveBeenCalledWith(
       'test_metric',
       100,

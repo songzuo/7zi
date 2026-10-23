@@ -651,6 +651,15 @@ export class CollabClient {
     // Update local
     this.updateLocalNode(nodeId, changes)
 
+    // Notify listeners about the local change.
+    // Remote updates emit 'node:updated' in handleMessage(); without this the
+    // local author never receives the event for their own edit.
+    this.emit({
+      type: 'node:updated',
+      payload: { nodeId, changes },
+      timestamp: Date.now(),
+    })
+
     // Send to server
     if (this.connectionInfo.state === 'connected') {
       return this.send('doc:update', { nodeId, changes })
@@ -705,6 +714,13 @@ export class CollabClient {
 
     // Delete locally
     this.document.delete(nodeId)
+
+    // Notify listeners about the local deletion (see updateNode()).
+    this.emit({
+      type: 'node:deleted',
+      payload: { nodeId },
+      timestamp: Date.now(),
+    })
 
     // Send to server
     if (this.connectionInfo.state === 'connected') {

@@ -263,3 +263,99 @@ jobs:
           name: coverage-workflow-engine
           path: workflow-engine/backend/coverage/
           retention-days: 7
+
+  # ============================================
+  # Job 6: 7zi-backend/workflow-service Lint + Test
+  # ============================================
+  # 该子服务是独立 Node 服务（CommonJS），有自己的 package.json / package-lock.json。
+  # 之前只被 security-audit 覆盖（npm audit + uuid 版本检查），
+  # 没有任何 lint / test 门禁 —— 代码坏了 CI 不会红。
+  test-workflow-service:
+    name: 测试 (workflow-service)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            7zi-backend/workflow-service/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-workflow-service-${{ hashFiles('7zi-backend/workflow-service/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-workflow-service-
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 7zi-backend/workflow-service/package-lock.json
+
+      - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline
+        working-directory: 7zi-backend/workflow-service
+
+      # ESLint 依赖提升自 7zi-backend 根 node_modules（eslint / @eslint/js / globals
+      # 只在 7zi-backend/package.json 里声明，子服务自身不重复安装）
+      - name: 安装 ESLint（复用 7zi-backend 根依赖）
+        run: npm ci --prefer-offline
+        working-directory: 7zi-backend
+
+      - name: ESLint
+        run: npx eslint src/
+        working-directory: 7zi-backend/workflow-service
+
+      - name: Node 原生测试（node --test）
+        run: npm test
+        working-directory: 7zi-backend/workflow-service
+
+  # ============================================
+  # Job 7: 7zi-backend/websocket-service Lint + Test
+  # ============================================
+  test-websocket-service:
+    name: 测试 (websocket-service)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            7zi-backend/websocket-service/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-websocket-service-${{ hashFiles('7zi-backend/websocket-service/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-websocket-service-
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 7zi-backend/websocket-service/package-lock.json
+
+      - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline
+        working-directory: 7zi-backend/websocket-service
+
+      # ESLint 依赖提升自 7zi-backend 根 node_modules（同上）
+      - name: 安装 ESLint（复用 7zi-backend 根依赖）
+        run: npm ci --prefer-offline
+        working-directory: 7zi-backend
+
+      - name: ESLint
+        run: npx eslint src/
+        working-directory: 7zi-backend/websocket-service
+
+      - name: Node 原生测试（node --test）
+        run: npm test
+        working-directory: 7zi-backend/websocket-service

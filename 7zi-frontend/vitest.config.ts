@@ -23,6 +23,17 @@ export default defineConfig({
     globals: true,
     setupFiles: [path.resolve(__dirname, './src/test/setup.ts')],
     include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
+
+    // Playwright 端到端用例由 playwright.config.ts (testDir: ./e2e) 负责，
+    // 不能被 vitest 收集（test.describe() 在 vitest 下会直接抛错）
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
+      'tests/e2e/**',
+    ],
     fileParallelism: true,
 
     // 🚀 测试超时 (优化: 60s → 12s)

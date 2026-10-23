@@ -108,7 +108,7 @@ vi.mock('@/lib/api/error-handler', () => ({
     INTERNAL: 'INTERNAL',
     BAD_REQUEST: 'BAD_REQUEST',
   },
-})))
+}))
 
 // Import after mocking
 import { GET, POST } from '@/app/api/notifications/route'

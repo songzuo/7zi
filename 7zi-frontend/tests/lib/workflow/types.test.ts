@@ -11,7 +11,7 @@ import {
   Workflow,
   WorkflowEngine,
   WorkflowState
-} from '../src/lib/workflows/types'
+} from '@/lib/workflows/types'
 
 describe('Workflow Types - 工作流类型定义', () => {
   describe('WorkflowState', () => {

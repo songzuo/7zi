@@ -187,8 +187,7 @@ describe('ErrorBoundary', () => {
 
   it('should show error details in development mode', () => {
     // Save original and set development mode via vitest
-    const originalEnv = process.env.NODE_ENV
-    Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
+    vi.stubEnv('NODE_ENV', 'development')
 
     render(
       <ErrorBoundary>
@@ -201,13 +200,12 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('Component Stack:')).toBeInTheDocument()
 
     // Restore original
-    Object.defineProperty(process.env, 'NODE_ENV', { value: originalEnv, writable: true })
+    vi.unstubAllEnvs()
   })
 
   it('should not show error details in production mode', () => {
     // Save original and set production mode
-    const originalEnv = process.env.NODE_ENV
-    Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true })
+    vi.stubEnv('NODE_ENV', 'production')
 
     render(
       <ErrorBoundary>
@@ -218,7 +216,7 @@ describe('ErrorBoundary', () => {
     expect(screen.queryByText('Error Details')).not.toBeInTheDocument()
 
     // Restore original
-    Object.defineProperty(process.env, 'NODE_ENV', { value: originalEnv, writable: true })
+    vi.unstubAllEnvs()
   })
 })
 

@@ -118,7 +118,7 @@ describe('ErrorFallback Components', () => {
     })
 
     it('should call onRetry and resetError when retry button is clicked', async () => {
-      const { withRetry } = require('@/lib/error-reporting/retry')
+      const { withRetry } = await import('@/lib/error-reporting/retry')
       const resetError = vi.fn()
       const onRetry = vi.fn().mockResolvedValue(undefined)
 
@@ -149,7 +149,7 @@ describe('ErrorFallback Components', () => {
     })
 
     it('should show retry status and error', async () => {
-      const { withRetry } = require('@/lib/error-reporting/retry')
+      const { withRetry } = await import('@/lib/error-reporting/retry')
       const resetError = vi.fn()
 
       withRetry.mockResolvedValue({
@@ -181,7 +181,7 @@ describe('ErrorFallback Components', () => {
     })
 
     it('should show retrying state while retrying', async () => {
-      const { withRetry } = require('@/lib/error-reporting/retry')
+      const { withRetry } = await import('@/lib/error-reporting/retry')
       const resetError = vi.fn()
 
       let resolveRetry: (value: unknown) => void
@@ -301,7 +301,7 @@ describe('ErrorFallback Components', () => {
     })
 
     it('should disable buttons while retrying', async () => {
-      const { withRetry } = require('@/lib/error-reporting/retry')
+      const { withRetry } = await import('@/lib/error-reporting/retry')
 
       let resolveRetry: (value: unknown) => void
       const retryPromise = new Promise(resolve => {

@@ -9,13 +9,29 @@ import type { CollabUser, CursorPosition } from '@/features/collab/types'
 
 // Mock the websocket-manager module BEFORE importing CollabClient
 // Mock WebSocketManager class and types
+//
+// The contract below mirrors the REAL implementation
+// (src/lib/websocket/core.ts → WebSocketClient):
+//   - onStateChange(listener) → listener(state: ConnectionState, previousState)
+//   - on(event, listener)       → listener(event, data)   [two arguments]
+//   - emit(event, data)        → sends to the server, does NOT notify local
+//                                listeners; returns false while offline
+//   - getState()               → current ConnectionState
+//
+// `deliver()` is a test-only helper that simulates a frame pushed by the
+// server (the real client receives those through socket.onAny).
 vi.mock('@/lib/websocket-manager', () => {
+  let lastMockManager: MockWebSocketManager | null = null
+
   class MockWebSocketManager {
     private listeners: Map<string, Set<Function>> = new Map()
+    private stateListeners: Set<Function> = new Set()
     private state: string = 'disconnected'
-    private pendingOperations: Array<{ type: string; data: any }> = []
+    /** Frames the client sent to the server. */
+    public sent: Array<{ event: string; data: unknown }> = []
 
     constructor(private config: any) {
+      lastMockManager = this
       // Auto-connect if configured
       if (config?.autoConnect !== false) {
         // Defer connection to match real behavior
@@ -24,18 +40,15 @@ vi.mock('@/lib/websocket-manager', () => {
     }
 
     connect() {
+      const previous = this.state
       this.state = 'connected'
-      this.emit('stateChange', { state: 'connected' })
-      // Process pending operations
-      this.pendingOperations.forEach(op => {
-        this.emit('collab:message', { type: op.type, data: op.data })
-      })
-      this.pendingOperations = []
+      this.stateListeners.forEach((cb) => cb(this.state, previous))
     }
 
     disconnect() {
+      const previous = this.state
       this.state = 'disconnected'
-      this.emit('stateChange', { state: 'disconnected' })
+      this.stateListeners.forEach((cb) => cb(this.state, previous))
     }
 
     on(event: string, handler: Function): () => void {
@@ -46,24 +59,36 @@ vi.mock('@/lib/websocket-manager', () => {
       return () => this.listeners.get(event)?.delete(handler)
     }
 
-    onStateChange(callback: Function) {
-      return this.on('stateChange', callback)
+    off(event: string, handler: Function): void {
+      this.listeners.get(event)?.delete(handler)
     }
 
-    emit(event: string, payload?: any): boolean {
+    onStateChange(callback: Function): () => void {
+      this.stateListeners.add(callback)
+      return () => this.stateListeners.delete(callback)
+    }
+
+    offStateChange(callback: Function): void {
+      this.stateListeners.delete(callback)
+    }
+
+    /**
+     * Client → server. Does NOT invoke local listeners (matches the real
+     * implementation, where emit() writes to the socket).
+     */
+    emit(event: string, data?: unknown): boolean {
+      this.sent.push({ event, data })
+      return this.state === 'connected'
+    }
+
+    /**
+     * Test-only: simulate a frame pushed by the server.
+     */
+    deliver(event: string, data: unknown): void {
       const callbacks = this.listeners.get(event)
       if (callbacks) {
-        callbacks.forEach((cb) => cb(payload))
+        callbacks.forEach((cb) => cb(event, data))
       }
-      return true
-    }
-
-    send(type: string, data: any): boolean {
-      if (this.state !== 'connected') {
-        this.pendingOperations.push({ type, data })
-        return false
-      }
-      return true
     }
 
     getState() {
@@ -72,6 +97,7 @@ vi.mock('@/lib/websocket-manager', () => {
 
     destroy() {
       this.listeners.clear()
+      this.stateListeners.clear()
       this.state = 'disconnected'
     }
   }
@@ -83,12 +109,37 @@ vi.mock('@/lib/websocket-manager', () => {
       CONNECTED: 'connected',
       DISCONNECTED: 'disconnected',
       RECONNECTING: 'reconnecting',
+      ERROR: 'error',
     },
+    /**
+     * Test-only accessor for the most recently constructed mock manager, so
+     * tests can simulate server → client frames via `deliver()`.
+     */
+    __getLastMockManager: () => lastMockManager,
   }
 })
 
 // Now import CollabClient AFTER the mock is defined
 import { CollabClient } from '@/lib/collab/CollabClient'
+import { __getLastMockManager } from '@/lib/websocket-manager'
+
+type MockManager = {
+  deliver: (event: string, data: unknown) => void
+  sent: Array<{ event: string; data: unknown }>
+  getState: () => string
+}
+
+/**
+ * Access the most recently constructed mock WebSocketManager so a test can
+ * simulate a frame pushed by the server (or inspect what was sent to it).
+ */
+function getMockManager(): MockManager {
+  const manager = __getLastMockManager() as unknown as MockManager | null
+  if (!manager) {
+    throw new Error('Mock WebSocketManager has not been constructed yet')
+  }
+  return manager
+}
 
 describe('CollabClient Feature Tests', () => {
   let client: CollabClient
@@ -235,19 +286,33 @@ describe('CollabClient Feature Tests', () => {
     it('应该拒绝获取被他人锁定的节点', async () => {
       client.connect()
 
-      // 模拟被他人锁定的节点
+      // 模拟被他人锁定的节点：服务器推送一条 user-2 的 lock:acquire 帧
+      const now = Date.now()
       const lock = {
         nodeId: 'node-1',
         userId: 'user-2',
         userName: 'Other User',
-        lockedAt: Date.now(),
-        expiresAt: Date.now() + 30000,
+        lockedAt: now,
+        expiresAt: now + 30000,
       }
+
+      const wsManager = getMockManager()
+      wsManager.deliver('collab:message', {
+        type: 'lock:acquire',
+        payload: { nodeId: lock.nodeId, userId: lock.userId, userName: lock.userName },
+        timestamp: now,
+        userId: lock.userId,
+        sessionId: 'test-room',
+      })
+
+      // 客户端应当已经感知到该锁
+      expect(client.getLock('node-1')?.userId).toBe('user-2')
 
       // 尝试获取锁应该失败
       const success = await client.acquireLock('node-1')
 
       expect(success).toBe(false)
+      expect(client.hasLock('node-1')).toBe(false)
     })
 
     it('应该正确处理锁过期', async () => {

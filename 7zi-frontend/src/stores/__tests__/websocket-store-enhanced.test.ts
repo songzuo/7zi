@@ -563,7 +563,9 @@ describe('useWebSocketStore - Enhanced Tests', () => {
         result.current.sendMessage('chat', { text: 'Hello' })
       })
 
-      expect(consoleSpy).toHaveBeenCalledWith('[WebSocket] Cannot send message: not connected')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[WebSocket] Cannot send message: not connected')
+      )
 
       consoleSpy.mockRestore()
     })
