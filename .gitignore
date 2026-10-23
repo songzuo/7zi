@@ -76,6 +76,9 @@ test-*.db
 *-log.txt
 test-output*.txt
 vitest*.json
+
+# vitest 4 缓存目录
+.vitest/
 coverage-*.json
 
 # Database files
