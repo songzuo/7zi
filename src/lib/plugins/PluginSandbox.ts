@@ -87,7 +87,7 @@ export class PluginSandbox implements IPluginSandbox {
    */
   async execute<T = unknown>(
     pluginId: string,
-    code: string | Function,
+    code: string | ((...args: unknown[]) => unknown),
     context?: Record<string, unknown>
   ): Promise<T> {
     const sandbox = this.sandboxes.get(pluginId);

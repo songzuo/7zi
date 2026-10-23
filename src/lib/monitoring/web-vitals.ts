@@ -179,7 +179,7 @@ export function optimizeFID_INP() {
     // 使用 requestIdleCallback 如果可用
     const schedule = (callback: () => void) => {
       if ('requestIdleCallback' in window) {
-        ;(window as Window & { requestIdleCallback: Function }).requestIdleCallback(callback)
+        ;(window as Window & { requestIdleCallback: (cb: IdleRequestCallback) => number }).requestIdleCallback(callback)
       } else {
         setTimeout(callback, 1)
       }

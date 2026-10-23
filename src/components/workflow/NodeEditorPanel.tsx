@@ -42,7 +42,7 @@ function DeleteConfirmDialog({ isOpen, nodeName, onConfirm, onCancel }: DeleteCo
       <div className="w-96 rounded-lg bg-white p-6 shadow-xl">
         <h3 className="mb-4 text-lg font-semibold text-gray-900">确认删除节点</h3>
         <p className="mb-6 text-gray-600">
-          确定要删除节点 <span className="font-medium text-gray-900">"{nodeName}"</span> 吗？此操作无法撤销。
+          确定要删除节点 <span className="font-medium text-gray-900">&quot;{nodeName}&quot;</span> 吗？此操作无法撤销。
         </p>
         <div className="flex justify-end gap-3">
           <button

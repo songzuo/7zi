@@ -147,7 +147,6 @@ var PrometheusExporter = /** @class */ (function () {
      * 生成 HTTP 指标
      */
     PrometheusExporter.prototype.generateHttpMetrics = function () {
-        var _this = this;
         var lines = [];
         var report = (0, api_performance_1.getApiPerformanceReport)();
         // 请求总数
@@ -179,9 +178,9 @@ var PrometheusExporter = /** @class */ (function () {
             value: report.summary.slowRequests,
         }));
         // 按状态码分组的请求
-        Object.entries(report.summary.errors).forEach(function (_a) {
+        Object.entries(report.summary.errors).forEach((_a) => {
             var statusCode = _a[0], count = _a[1];
-            lines.push(_this.formatMetric({
+            lines.push(this.formatMetric({
                 name: 'http_requests_by_status_total',
                 type: 'counter',
                 help: 'Total number of HTTP requests by status code',
@@ -211,21 +210,21 @@ var PrometheusExporter = /** @class */ (function () {
             value: report.summary.minDuration / 1000,
         }));
         // 按路由分组的指标
-        Object.entries(report.routes).forEach(function (_a) {
+        Object.entries(report.routes).forEach((_a) => {
             var route = _a[0], stats = _a[1];
-            lines.push(_this.formatMetric({
+            lines.push(this.formatMetric({
                 name: 'http_requests_by_route_total',
                 type: 'counter',
                 help: 'Total number of HTTP requests by route',
                 value: stats.count,
                 labels: { route: route },
-            }), _this.formatMetric({
+            }), this.formatMetric({
                 name: 'http_request_duration_by_route_seconds',
                 type: 'gauge',
                 help: 'Average HTTP request duration by route in seconds',
                 value: stats.avgDuration / 1000,
                 labels: { route: route },
-            }), _this.formatMetric({
+            }), this.formatMetric({
                 name: 'http_error_rate_by_route',
                 type: 'gauge',
                 help: 'HTTP error rate by route (0-1)',
@@ -258,7 +257,6 @@ var PrometheusExporter = /** @class */ (function () {
      * 生成数据库指标
      */
     PrometheusExporter.prototype.generateDatabaseMetrics = function () {
-        var _this = this;
         var lines = [];
         var dbSummary = (0, db_performance_1.getQueryMetricsSummary)();
         // 查询总数
@@ -290,21 +288,21 @@ var PrometheusExporter = /** @class */ (function () {
             value: dbSummary.successRate,
         }));
         // 按操作类型分组的指标
-        Object.entries(dbSummary.byOperation).forEach(function (_a) {
+        Object.entries(dbSummary.byOperation).forEach((_a) => {
             var operation = _a[0], stats = _a[1];
-            lines.push(_this.formatMetric({
+            lines.push(this.formatMetric({
                 name: 'db_queries_by_operation_total',
                 type: 'counter',
                 help: 'Total number of database queries by operation type',
                 value: stats.count,
                 labels: { operation: operation },
-            }), _this.formatMetric({
+            }), this.formatMetric({
                 name: 'db_query_duration_by_operation_seconds',
                 type: 'gauge',
                 help: 'Average database query duration by operation type in seconds',
                 value: stats.avgDuration / 1000,
                 labels: { operation: operation },
-            }), _this.formatMetric({
+            }), this.formatMetric({
                 name: 'db_query_error_rate_by_operation',
                 type: 'gauge',
                 help: 'Database query error rate by operation type (0-1)',
@@ -357,7 +355,6 @@ var PrometheusExporter = /** @class */ (function () {
      * 格式化 Prometheus 指标
      */
     PrometheusExporter.prototype.formatMetric = function (metric) {
-        var _this = this;
         var lines = [];
         // HELP 注释
         lines.push("# HELP ".concat(metric.name, " ").concat(metric.help));
@@ -368,7 +365,7 @@ var PrometheusExporter = /** @class */ (function () {
             ? "{".concat(Object.entries(metric.labels)
                 .map(function (_a) {
                 var k = _a[0], v = _a[1];
-                return "".concat(k, "=\"").concat(_this.escapeLabelValue(v), "\"");
+                return "".concat(k, "=\"").concat(this.escapeLabelValue(v), "\"");
             })
                 .join(','), "}")
             : '';

@@ -44,7 +44,7 @@ export function formatFileSize(bytes: number, decimals: number = 1): string {
 export function formatNumber(num: number, separator: string = ','): string {
   // Handle negative numbers
   const isNegative = num < 0
-  let absNum = Math.abs(num)
+  const absNum = Math.abs(num)
   
   // Split into integer and decimal parts
   const parts = absNum.toString().split('.')

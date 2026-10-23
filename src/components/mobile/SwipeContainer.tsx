@@ -21,14 +21,14 @@ interface SwipeContainerProps {
   swipeThreshold?: number
 }
 
-export const SwipeContainer: React.FC<SwipeContainerProps> = React.memo(({
+export const SwipeContainer: React.FC<SwipeContainerProps> = React.memo(function SwipeContainerImpl({
   children,
   onSwipeLeft,
   onSwipeRight,
   className = '',
   enableSwipe = true,
   swipeThreshold = 50,
-}) => {
+}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
@@ -126,11 +126,11 @@ interface HorizontalScrollProps {
   showScrollbar?: boolean
 }
 
-export const HorizontalScroll: React.FC<HorizontalScrollProps> = React.memo(({
+export const HorizontalScroll: React.FC<HorizontalScrollProps> = React.memo(function HorizontalScrollImpl({
   children,
   className = '',
   showScrollbar = false,
-}) => {
+}) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // 鼠标滚轮转水平滚动
@@ -171,12 +171,12 @@ interface PullToRefreshProps {
   refreshThreshold?: number
 }
 
-export const PullToRefresh: React.FC<PullToRefreshProps> = React.memo(({
+export const PullToRefresh: React.FC<PullToRefreshProps> = React.memo(function PullToRefreshImpl({
   children,
   onRefresh,
   isRefreshing = false,
   refreshThreshold = 80,
-}) => {
+}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [pullDistance, setPullDistance] = useState(0)
   const [isPulling, setIsPulling] = useState(false)

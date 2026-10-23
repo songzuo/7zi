@@ -637,7 +637,7 @@ export interface PluginSandbox {
   /** Execute code in sandbox */
   execute<T = unknown>(
     pluginId: string,
-    code: string | Function,
+    code: string | ((...args: unknown[]) => unknown),
     context?: Record<string, unknown>
   ): Promise<T>;
   

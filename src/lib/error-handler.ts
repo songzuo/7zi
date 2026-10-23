@@ -271,7 +271,7 @@ export function withErrorBoundary<P extends object>(
   // This is a client-side only component - imported dynamically
   console.warn('[Error Handler] withErrorBoundary is client-side only')
   
-  return props => {
+  return function ErrorBoundaryWrapper(props: P) {
     const [error, setError] = React.useState<Error | null>(null)
 
     React.useEffect(() => {

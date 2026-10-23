@@ -254,7 +254,7 @@ export function WorkflowEditorWithDraft({
           <div className="bg-background p-6 rounded-lg shadow-xl max-w-md">
             <h3 className="text-lg font-semibold mb-2">恢复草稿</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              确定要恢复草稿 "{draftToRestore.name}" 吗？
+              确定要恢复草稿 &quot;{draftToRestore.name}&quot; 吗？
               <br />
               当前未保存的更改将会丢失。
             </p>

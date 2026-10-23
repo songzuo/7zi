@@ -517,7 +517,7 @@ export function GlobalSearch({
           {query.trim() && !isLoading && results.length === 0 && suggestions.length === 0 && (
             <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">
               <Search className="mx-auto mb-3 h-12 w-12 text-zinc-300 dark:text-zinc-600" />
-              <p>No results found for "{query}"</p>
+              <p>No results found for &quot;{query}&quot;</p>
               <p className="mt-1 text-sm">Try different keywords or filters</p>
             </div>
           )}

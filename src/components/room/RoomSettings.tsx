@@ -581,7 +581,7 @@ function DangerZone({ room, canManage, onDestroyRoom }: DangerZoneProps) {
           </div>
           {confirmDelete && (
             <div className="mt-3 text-xs text-red-600 dark:text-red-400">
-              此操作将删除房间 "{room.name}"，所有消息和数据将永久丢失
+              此操作将删除房间 &quot;{room.name}&quot;，所有消息和数据将永久丢失
             </div>
           )}
         </div>
