@@ -1,6 +1,7 @@
 # 后端测试指南（7zi-backend / Jest）
 
 **创建日期**: 2026-10-21
+**最后更新**: 2026-10-23
 **适用范围**: `7zi-backend/`（websocket + workflow-engine）
 **框架**: Jest 29 + supertest
 **相关文档**: [P1-7_WEBSOCKET_TESTS_20261021.md](../P1-7_WEBSOCKET_TESTS_20261021.md) · [ARCH_BACKEND_CONSOLIDATION_20261021.md](../ARCH_BACKEND_CONSOLIDATION_20261021.md)
@@ -28,13 +29,17 @@ npm install          # 首次需要（Node.js >= 18）
 | `npx jest --coverage` | 全量 + 覆盖率报告 | 16 suites / 342 tests，All files 94.74% |
 | `npx jest --selectProjects workflow-engine --coverage` | 仅 workflow-engine + 覆盖率 | 6 suites / 214 tests，All files 93.46% |
 | `npx jest websocket/ --coverage` | 覆盖率报告 | 输出到 `7zi-backend/coverage/` |
-| `npm run lint` | ESLint | `eslint websocket/ workflow-engine/` |
+| `npm run lint` | ESLint | `eslint websocket/ workflow-engine/`（全量 `npx eslint .` → **0 errors** / 11 warnings） |
 | `npm run dev` | nodemon 热重载两个服务 | 调试用 |
 
 > **注意**：`npm run test:workflow` 使用的是 `7zi-backend/package.json` 中的根级 jest 配置（`testMatch: **/__tests__/**/*.test.js`），
 > 只匹配 `7zi-backend/workflow-engine/__tests__/` 下的文件。
 > `workflow-engine/jest.config.js`（`testMatch: **/test/**/*.test.js`）指向的是软链接目标 `workflow-engine/backend/test/` 下的历史测试，
 > 若要跑那一套需显式指定 rootDir（见 §6）。
+>
+> 上述数字均为 2026-10-23 实测值（`npx jest --coverage` → 16 suites / 342 tests 全绿，All files 94.74%；
+> `--selectProjects websocket` → 10 suites / 128 tests，96.95%；
+> `--selectProjects workflow-engine` → 6 suites / 214 tests，93.46%）。
 
 ---
 
@@ -137,10 +142,44 @@ npm install          # 首次需要（Node.js >= 18）
 
 ### 4.2 后端 CI 门禁
 
-后端 CI 流水线：`.github/workflows/backend-ci.yml`（workflow 名 `Backend CI`）。
-`test-7zi-backend` / `test-workflow-engine` 两个 job 均执行 `npm run lint` +
-`npx jest --coverage`（阈值 lines ≥ 60%），`security-audit` job 执行
-`npm audit --omit=dev --audit-level=moderate`（moderate 及以上直接失败）。
+后端 CI 流水线：`.github/workflows/backend-ci.yml`（workflow 名 `Backend CI`）。5 个 job：
+
+| Job | 内容 |
+|-----|------|
+| `setup-7zi-backend` | `7zi-backend/node_modules` 缓存 + `npm ci` |
+| `setup-workflow-engine` | `workflow-engine/backend/node_modules` 缓存 + `npm ci` |
+| `security-audit` | 4 个子目录 `npm audit --omit=dev --audit-level=moderate`（moderate 及以上直接失败）+ uuid 声明版本断言（≥ 11.1.1） |
+| `test-7zi-backend` | `npm run lint` + `npx jest --coverage`（阈值 lines ≥ 60%）+ 上传覆盖率 artifact |
+| `test-workflow-engine` | `npm run lint` + `npx jest --coverage`（阈值 lines ≥ 60%）+ 上传覆盖率 artifact |
+
+- 触发：`push` / `pull_request` 到 `main` / `develop`（path 过滤 `7zi-backend/**`、`workflow-engine/backend/**`）+ `workflow_dispatch`
+- Node `'22'`；`permissions: contents: read`（最小权限）；`concurrency` 取消同 ref 过期运行
+- 本地等价验证：`npm ci` → `npm run lint` → `npx jest --coverage` → `npm audit --omit=dev`
+- ⚠️ 该 workflow **尚未在真实 GitHub Actions 上跑过首次运行**，首次推送后建议观察一次
+
+### 4.3 依赖安全状态（2026-10-23 实测）
+
+- `uuid` 在 `7zi-backend/`、`7zi-backend/workflow-service/`、`7zi-backend/websocket-service/`、
+  `workflow-engine/backend/` 四处依赖声明统一为 `^11.1.1`
+- `npm audit --omit=dev --audit-level=moderate` 四处均为 **`found 0 vulnerabilities`**
+- `workflow-engine/backend` 另通过 `express` → `^4.22.3` + `overrides.qs: ^6.16.1` 修复 `qs` 漏洞链
+
+### 4.4 后端 ESLint 现状（2026-10-23 实测）
+
+`cd 7zi-backend && npx eslint .` → **0 errors / 11 warnings**（exit 0）。
+
+11 条 warning 全部是未使用参数（`no-unused-vars`），集中在
+`workflow-service/test/engine.test.js` 与 `websocket-service/**`，不是错误。
+
+本轮修复的 2 处 **`no-dupe-keys` 真 Bug**（同一响应体两个字段写在同一个 key 上，后者静默覆盖前者）：
+
+| 位置 | 原状 | 修复后 |
+|------|------|--------|
+| `7zi-backend/websocket/lib/server.js` `getStats()` | `rooms` 同时表示数量与数组 | `roomCount`（数量）+ `rooms`（数组）；`/health` 同步补 `roomCount` |
+| `7zi-backend/websocket-service/src/index.js` `/stats` | 同上 | `roomCount: rooms.length` + `rooms`（数组） |
+
+> ⚠️ 修改统计接口的响应结构时，务必同步更新 `websocket/__tests__/server-lib.test.js`
+> 与 `websocket-service/test/integration.test.js` 中的断言。
 
 ---
 
@@ -249,6 +288,7 @@ describe('server integration', () => {
 | workflow-engine 测试结束提示 "A worker process has failed to exit gracefully" | 测试存在未清理的定时器 / socket 句柄 | 已存在（非致命，不影响断言结果）；根治需在各测试的 `afterAll` 中 `unref()` 定时器或关闭 socket |
 | 覆盖率报告只统计 websocket | 根级 `collectCoverageFrom` 只含 `<rootDir>/websocket/lib/**/*.js` | 需分 project 统计：`npx jest --selectProjects workflow-engine --coverage` |
 | `jest websocket/` 报 "no tests found" | 测试不在 `__tests__/` 下 | 检查文件位置与命名 |
+| `7zi-backend/workflow-service` / `websocket-service` 各自的 `npm test` 报 `EADDRINUSE` 或进程不退出 | 子服务测试启动时真实 listen 固定端口（3001 / 3002），与本机已有服务冲突；runner 也未正确收敛子进程退出码 | 属于 T70 修复范围，**当前仍未修复**；本地跑这些子服务测试前先确认端口未被占用 |
 
 ---
 
@@ -256,6 +296,8 @@ describe('server integration', () => {
 
 - [ ] `cd 7zi-backend && npm run test` 全绿
 - [ ] `npx jest websocket/ --coverage` lines ≥ 60%
+- [ ] `npx eslint .` 无 error
+- [ ] `npm audit --omit=dev --audit-level=moderate` 无 moderate 及以上漏洞
 - [ ] 新测试放在 `__tests__/` 内且文件名以 `.test.js` 结尾
 - [ ] 未使用生产端口、未访问外网、未新增依赖
 - [ ] 所有 `afterAll` 已清理 server / 定时器，无 "failed to exit gracefully" 警告
@@ -271,7 +313,9 @@ describe('server integration', () => {
 | [ARCH_BACKEND_CONSOLIDATION_20261021.md](../ARCH_BACKEND_CONSOLIDATION_20261021.md) | 后端目录整合方案、迁移映射表、端口分配 |
 | [7zi-backend/README.md](../7zi-backend/README.md) | 后端服务使用说明 |
 | [docs/TEST_STRATEGY.md](./TEST_STRATEGY.md) | 前端测试策略（Vitest） |
+| [T47_BACKEND_CI_COVERAGE_UUID_20261023.md](../T47_BACKEND_CI_COVERAGE_UUID_20261023.md) | 后端 CI 门禁 / 覆盖率 0% → 93.46% / uuid 漏洞治理报告 |
+| [T68_BACKEND_LINT_CLEANUP_20261023.md](../T68_BACKEND_LINT_CLEANUP_20261023.md) | 后端 ESLint 清理报告（43 → 11 warnings） |
 
 ---
 
-*最后更新: 2026-10-21*
+*最后更新: 2026-10-23*

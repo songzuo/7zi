@@ -1,7 +1,7 @@
 # 部署指南 - Deployment Guide
 
-> 📅 最后更新：2026-04-17
-> 📦 当前版本：v1.14.1
+> 📅 最后更新：2026-10-23
+> 📦 当前版本：根级 `package.json` v1.14.2 / `7zi-frontend/package.json` v1.14.1（Next.js 16.4.2）
 > 🎯 目标：实现 <10 分钟的零停机部署
 
 ## 目录
@@ -98,23 +98,54 @@ graph LR
 
 - Push 到 `main` 或 `develop` 分支
 - Pull Request 到 `main` 或 `develop` 分支
+- 手动 `workflow_dispatch`（可选择跳过测试 / 环境 / 部署策略）
 
 **执行步骤**:
 
 | 步骤              | 描述                | 超时  | 缓存                          |
 | ----------------- | ------------------- | ----- | ----------------------------- |
 | Lint & Type Check | ESLint + TypeScript | 5min  | ✅ node_modules               |
-| Unit Tests        | Vitest + Coverage   | 5min  | ✅ node_modules               |
+| Unit Tests        | Vitest + Coverage   | 5min  | ✅ node_modules（4 分片）     |
 | Build             | Turbopack 构建      | 10min | ✅ node_modules + .next/cache |
 | E2E Tests         | Playwright          | 10min | ✅ node_modules               |
-| Security Scan     | npm audit + Snyk    | 5min  | ✅ node_modules               |
+| Security Scan     | npm audit           | 5min  | ✅ node_modules               |
 
-### CD 流程 (cd-blue-green.yml)
+> 实际 job 名为 `changes` / `setup` / `security` / `lint` / `typecheck` / `test-unit`（4 分片）/
+> `build` / `test-e2e` / `docker` / `pre-deploy` / `deploy-staging` / `deploy-production` / `summary`。
+> 注意 `security` job 的 `npm audit --audit-level=moderate || true` **不会阻断构建**（`|| true`），
+> 真正的硬门禁在后端专用的 `backend-ci.yml`（见下）。
+
+### 后端 CI 门禁 (backend-ci.yml)
+
+后端服务 `7zi-backend/` + `workflow-engine/backend/` 有**独立的硬门禁** workflow
+`.github/workflows/backend-ci.yml`（workflow 名 `Backend CI`），前端 `ci.yml` 不覆盖后端。
+
+| Job | 门禁内容 | 是否阻断 |
+|-----|---------|---------|
+| `setup-7zi-backend` | `npm ci` + node_modules 缓存 | — |
+| `setup-workflow-engine` | `npm ci` + node_modules 缓存 | — |
+| `security-audit` | 4 个子目录 `npm audit --omit=dev --audit-level=moderate` + uuid 版本断言（≥ 11.1.1） | ✅ 阻断 |
+| `test-7zi-backend` | `npm run lint` + `npx jest --coverage`（lines ≥ 60%） | ✅ 阻断 |
+| `test-workflow-engine` | `npm run lint` + `npx jest --coverage`（lines ≥ 60%） | ✅ 阻断 |
+
+- 触发：`push` / `pull_request` 到 `main` / `develop`（path 过滤 `7zi-backend/**`、
+  `workflow-engine/backend/**`）+ `workflow_dispatch`
+- Node `'22'`，`permissions: contents: read`，`concurrency` 取消同 ref 过期运行
+- 本地等价验证：`npm ci` → `npm run lint` → `npx jest --coverage` → `npm audit --omit=dev`
+- ⚠️ 尚未在真实 GitHub Actions 上跑过首次运行，首次推送后建议观察一次
+
+### CD 流程（集成在 `ci.yml` 的 deploy jobs）
+
+> ⚠️ 历史上此处描述的是独立 workflow `cd-blue-green.yml`，**该文件在仓库中已不存在**。
+> 现在的部署步骤直接内嵌在 `ci.yml`（workflow 名 `CI/CD Pipeline`）的 `deploy-staging` /
+> `deploy-production` 两个 job 中。
 
 **触发条件**:
 
-- Push 到 `main` 分支
-- 手动触发
+| Job | 触发条件 |
+|-----|---------|
+| `deploy-staging` | `push` 到 `main`（`github.event_name == 'push'`） |
+| `deploy-production` | `workflow_dispatch` + `inputs.environment == 'production'` + `github.ref == 'refs/heads/main'` |
 
 **执行步骤**:
 
@@ -125,6 +156,8 @@ graph LR
 | Health Check | 健康检查               | 2min  | 30次重试   |
 | Smoke Tests  | 冒烟测试               | 5min  | Playwright |
 | Performance  | 性能检查               | 5min  | Lighthouse |
+
+> 镜像部署阶段使用 SSH 密钥认证（`secrets.SSH_PRIVATE_KEY`），不再使用密码认证。
 
 ---
 
@@ -154,9 +187,9 @@ git push origin main
 **方法 1: GitHub Actions 手动触发**
 
 1. 访问 Actions 页面
-2. 选择 "CD (Blue-Green)" workflow
+2. 选择 **"CI/CD Pipeline"** workflow（当前仓库**没有**独立的 "CD (Blue-Green)" workflow）
 3. 点击 "Run workflow"
-4. 选择环境和选项
+4. `environment` 选 `staging` 或 `production`，`deploy-strategy` 选 `blue-green` / `rolling`
 5. 点击 "Run workflow"
 
 **方法 2: SSH 到服务器执行**
@@ -166,27 +199,38 @@ git push origin main
 ssh root@7zi.com
 
 # 进入项目目录
-cd /root/7zi-frontend
+cd /opt/7zi-frontend
 
-# 执行蓝绿部署
-./scripts/deploy/blue-green-deploy.sh auto ghcr.io/[owner]/7zi-frontend:latest
+# 执行蓝绿部署（deploy.sh 用子命令而非位置参数）
+./deploy.sh deploy
 ```
+
+> 仓库根目录的 `deploy.sh`（v3.0）是当前的主部署脚本，用法为
+> `ENVIRONMENT=<dev|staging|production> ./deploy.sh <命令>`，
+> 命令包括 `deploy` / `rollback [version]` / `rollback-quick` / `status` / `logs` /
+> `health` / `backups` / `history` / `cleanup` / `check`。
 
 ### 快速部署
 
 ```bash
-# 跳过部分验证，快速部署
-./scripts/deploy/quick-deploy.sh production ghcr.io/[owner]/7zi-frontend:latest true
+# 跳过部分验证的快速部署
+ENVIRONMENT=production ./deploy.sh deploy
 ```
 
 ### 部署脚本列表
 
-| 脚本                   | 用途           | 示例                                   |
-| ---------------------- | -------------- | -------------------------------------- |
-| `blue-green-deploy.sh` | 蓝绿部署主脚本 | `./blue-green-deploy.sh auto [image]`  |
-| `verify-deploy.sh`     | 部署验证       | `./verify-deploy.sh production`        |
-| `rollback.sh`          | 回滚操作       | `./rollback.sh`                        |
-| `quick-deploy.sh`      | 快速部署       | `./quick-deploy.sh production [image]` |
+| 脚本                                | 用途                     | 示例                                     |
+| ----------------------------------- | ------------------------ | ---------------------------------------- |
+| `deploy.sh`（仓库根目录）           | 统一部署 / 回滚 / 状态   | `ENVIRONMENT=production ./deploy.sh deploy` |
+| `docker-deploy.sh`（仓库根目录）   | Docker 容器部署         | `./docker-deploy.sh`                     |
+| `deploy-scripts/deploy-docker.sh`   | 自建 Docker 部署方案    | `./deploy-scripts/deploy-docker.sh`      |
+| `deploy-scripts/deploy-nginx.sh`    | Nginx 配置部署          | `./deploy-scripts/deploy-nginx.sh`       |
+| `deploy-scripts/deploy-rsync.sh`    | rsync 同步部署          | `./deploy-scripts/deploy-rsync.sh`       |
+| `deploy-scripts/setup-git-hook-server.sh` | Git Hook 自动部署 | `./deploy-scripts/setup-git-hook-server.sh` |
+
+> ⚠️ 旧版本文档提到的 `scripts/deploy/blue-green-deploy.sh`、`verify-deploy.sh`、
+> `rollback.sh`、`quick-deploy.sh` **均已不存在**（`scripts/deploy/` 目录不存在），
+> 请改用上表中的实际脚本。
 
 ---
 
@@ -202,28 +246,21 @@ cd /root/7zi-frontend
 
 ### 手动回滚
 
-**方法 1: 使用回滚脚本**
+**方法 1: 使用 `deploy.sh`**
 
 ```bash
 # SSH 到服务器
 ssh root@7zi.com
 
-# 执行回滚
-cd /root/7zi-frontend
-./scripts/deploy/rollback.sh
+# 回滚（快速回滚 = 蓝绿槽位切换）
+cd /opt/7zi-frontend
+./deploy.sh rollback-quick
 
-# 系统会提示确认
-# Are you sure you want to rollback? (yes/no): yes
+# 回滚到指定版本
+./deploy.sh rollback v20250122-143022
 ```
 
-**方法 2: 强制回滚**
-
-```bash
-# 跳过确认
-./scripts/deploy/rollback.sh --force
-```
-
-**方法 3: 手动操作**
+**方法 2: 手动操作**
 
 ```bash
 # 1. 停止当前容器
@@ -381,15 +418,19 @@ journalctl -u docker -f
 
 ```bash
 # 使用 Turbopack 构建
-npm run build
+npm run build:turbo
 
 # package.json
 {
   "scripts": {
-    "build": "NODE_ENV=production next build --turbo"
+    "build": "NODE_ENV=production next build",
+    "build:turbo": "NODE_ENV=production TURBOPACK=1 next build --turbopack"
   }
 }
 ```
+
+> 注意：`npm run build` 本身**不是** Turbopack（Next 16 下 Turbopack 已是默认，但脚本仍显式区分）。
+> CI（`ci.yml` 的 `build` job）执行的是 `npm run build`。
 
 **效果**: 构建速度提升 3-5x
 
@@ -463,13 +504,22 @@ jobs:
 # 应用健康检查
 curl https://7zi.com/api/health
 
-# 预期响应
+# 预期响应（src/app/api/health/route.ts）
 {
-  "status": "ok",
-  "version": "1.3.0",
-  "uptime": 3600
+  "status": "healthy",
+  "timestamp": "2026-01-01T00:00:00.000Z",
+  "uptime": 3600,
+  "version": "1.0.6",
+  "checks": {
+    "memory": { "status": "ok", "used": 0, "limit": 0 },
+    "node": { "status": "ok", "version": "v22.x.x" }
+  }
 }
 ```
+
+> `status` 取值为 `healthy` / `unhealthy`（内存使用超阈值时为 `unhealthy`）；
+> `version` 来自 `process.env.npm_package_version` / `APP_VERSION`，缺省回落 `1.0.6`。
+> 另有 `/api/health/ready`、`/api/health/live`、`/api/health/detailed` 三个子端点。
 
 ### 监控指标
 
