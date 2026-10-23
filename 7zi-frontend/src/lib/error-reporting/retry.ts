@@ -188,10 +188,14 @@ export async function withRetry<T>(
       }
 
       // 检查是否应该重试
+      // 注意：一旦调用方提供了自定义 `shouldRetry`，它就**独占**判定权 ——
+      // 否则它返回 false 时会被下面的默认规则（'Error' 在 DEFAULT_RETRYABLE_ERRORS 里）
+      // 覆盖掉，导致"自定义不可重试"完全失效。
       const canRetry = attempt < maxAttempts && (
-        (shouldRetry && shouldRetry(lastError, attempt)) ||
-        isRetryableError(lastError, retryableErrors) ||
-        isRetryableNetworkError(lastError)
+        shouldRetry
+          ? shouldRetry(lastError, attempt)
+          : (isRetryableError(lastError, retryableErrors) ||
+             isRetryableNetworkError(lastError))
       )
 
       if (!canRetry) {
@@ -295,9 +299,11 @@ export function withRetrySync<T>(
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
 
+      // 同 withRetry：自定义 shouldRetry 独占判定权
       const canRetry = attempt < maxAttempts && (
-        (shouldRetry && shouldRetry(lastError, attempt)) ||
-        isRetryableError(lastError, retryableErrors)
+        shouldRetry
+          ? shouldRetry(lastError, attempt)
+          : isRetryableError(lastError, retryableErrors)
       )
 
       if (!canRetry) {
@@ -472,6 +478,9 @@ export function createRetryableFunction<T extends (...args: unknown[]) => Promis
 
 /**
  * 重试装饰器
+ *
+ * 注意：装饰后的方法**保持原方法的返回值类型** —— 失败时抛出最后一次错误，
+ * 而不是把内部的 `RetryResult` 泄漏给调用方（否则被装饰方法的签名会被悄悄改变）。
  */
 export function retry<T extends (...args: unknown[]) => Promise<unknown>>(
   options: RetryOptions<T> = {}
@@ -483,8 +492,14 @@ export function retry<T extends (...args: unknown[]) => Promise<unknown>>(
   ): PropertyDescriptor {
     const originalMethod = descriptor.value as T
 
-    descriptor.value = function (this: unknown, ...args: Parameters<T>) {
-      return withRetry(() => originalMethod.apply(this, args), options)
+    descriptor.value = async function (this: unknown, ...args: Parameters<T>) {
+      const result = await withRetry(() => originalMethod.apply(this, args), options)
+
+      if (!result.success) {
+        throw result.error ?? new Error(`${String(propertyKey)} failed after ${result.attempts} attempt(s)`)
+      }
+
+      return result.data as Awaited<ReturnType<T>>
     } as unknown as T
 
     return descriptor
