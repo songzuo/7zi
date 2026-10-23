@@ -9,6 +9,7 @@
 | 根 `tsc --noEmit` | **0 errors** |
 | 7zi-frontend `eslint .` | **0 errors** / 88 warnings |
 | 7zi-backend `eslint .` | **0 errors** / 0 warnings |
+| 根 `eslint .`（CI 门禁实际命令） | **0 errors** / 1767 warnings，**140 秒**（修复前 15+ 分钟） |
 
 ### 本轮提交（源码全部入库，工作区仅剩文档/报告）
 - `3254d4838e` 根级 src/ ESLint 错误清零 + 恢复被清空的 eslint.config.mjs
