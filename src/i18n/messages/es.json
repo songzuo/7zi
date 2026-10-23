@@ -468,7 +468,20 @@
   },
   "dashboard": {
     "title": "Panel de Control",
-    "description": "Panel de proyectos - Ver el progreso y datos del proyecto"
+    "description": "Panel de proyectos - Ver el progreso y datos del proyecto",
+    "titleShort": "Panel",
+    "autoRefresh": "Actualización automática",
+    "updated": "Actualizado",
+    "refresh": "Actualizar",
+    "stats": "Estadísticas",
+    "quickActions": "Acciones rápidas",
+    "recentActivity": "Actividad reciente",
+    "members": "Miembros del equipo",
+    "working": "Trabajando",
+    "busy": "Ocupado",
+    "idle": "Inactivo",
+    "offline": "Desconectado",
+    "footer": "Con tecnología de 7zi Studio"
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. Todos los derechos reservados.",

@@ -464,7 +464,20 @@
   },
   "dashboard": {
     "title": "Dashboard - 7zi Studio",
-    "description": "Projekt-Dashboard - Projektfortschritt und Daten anzeigen"
+    "description": "Projekt-Dashboard - Projektfortschritt und Daten anzeigen",
+    "titleShort": "Dashboard",
+    "autoRefresh": "Automatisch aktualisieren",
+    "updated": "Aktualisiert",
+    "refresh": "Aktualisieren",
+    "stats": "Statistiken",
+    "quickActions": "Schnellaktionen",
+    "recentActivity": "Letzte Aktivitäten",
+    "members": "Teammitglieder",
+    "working": "Bei der Arbeit",
+    "busy": "Beschäftigt",
+    "idle": "Untätig",
+    "offline": "Offline",
+    "footer": "Unterstützt von 7zi Studio"
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. Alle Rechte vorbehalten.",

@@ -1,6 +1,10 @@
 @import 'tailwindcss';
 @import './animations.css';
 
+/* Keep Markdown examples out of Tailwind's automatic class scan. */
+@source not '../../docs';
+@source not '../../memory';
+
 /* ============================================
    THEME CSS VARIABLES
    ============================================ */

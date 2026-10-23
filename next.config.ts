@@ -126,7 +126,6 @@ const nextConfig: NextConfig = {
   // 实验性功能
   experimental: {
     
-    optimizeCss: true,
     optimizePackageImports: [
       'lucide-react',
       'recharts',

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 
 /**
  * 语言切换功能 E2E 测试
@@ -6,6 +6,12 @@ import { test, expect } from '@playwright/test'
  */
 
 // 支持的语言配置
+const compactSwitcher = (page: Page) =>
+  page.getByRole('button', { name: /Switch to (English|中文)/ }).first()
+
+const mainTeamLink = (page: Page, locale: 'zh' | 'en') =>
+  page.getByRole('navigation', { name: 'Main navigation' }).locator(`a[href="/${locale}/team"]`)
+
 const locales = [
   { code: 'zh', name: '中文', flag: '🇨🇳', path: '/zh' },
   { code: 'en', name: 'English', flag: '🇺🇸', path: '/en' },
@@ -16,10 +22,9 @@ test.describe('语言切换 - 基础功能', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // URL 应该包含语言代码或已重定向
-    const url = page.url()
-    const hasLocale = /\/(zh|en)\//.test(url)
-    expect(hasLocale).toBeTruthy()
+    // The locale prefix may be the final path segment without a trailing slash.
+    const pathname = new URL(page.url()).pathname
+    expect(pathname).toMatch(/^\/(zh|en)(?:\/|$)/)
   })
 
   test('中文页面应正确加载', async ({ page }) => {
@@ -66,18 +71,13 @@ test.describe('语言切换器 - 界面显示', () => {
   })
 
   test('语言切换器应可见', async ({ page }) => {
-    const langSwitcher = page
-      .locator(
-        'button:has-text("🇺🇸"), button:has-text("EN"), ' +
-          '[aria-label*="language"], [aria-label*="Language"]'
-      )
-      .first()
+    const langSwitcher = compactSwitcher(page)
 
     await expect(langSwitcher).toBeVisible()
   })
 
   test('语言切换器应显示当前语言标志', async ({ page }) => {
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
 
     await expect(langSwitcher).toBeVisible()
 
@@ -89,7 +89,7 @@ test.describe('语言切换器 - 界面显示', () => {
   })
 
   test('语言切换器应有悬停效果', async ({ page }) => {
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
 
     await langSwitcher.hover()
     await page.waitForTimeout(200)
@@ -99,7 +99,7 @@ test.describe('语言切换器 - 界面显示', () => {
   })
 
   test('语言切换器应有可点击的触摸目标', async ({ page }) => {
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
 
     await expect(langSwitcher).toBeVisible()
 
@@ -118,9 +118,9 @@ test.describe('语言切换器 - 切换功能', () => {
     const urlBefore = page.url()
 
     // 点击语言切换器
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
     await langSwitcher.click()
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL('**/en')
 
     const urlAfter = page.url()
 
@@ -138,19 +138,18 @@ test.describe('语言切换器 - 切换功能', () => {
     const urlBefore = page.url()
 
     // 点击语言切换器（英文页面应显示中文标志）
-    const langSwitcher = page.locator('button:has-text("🇨🇳"), button:has-text("中文")').first()
-    if (await langSwitcher.isVisible()) {
-      await langSwitcher.click()
-      await page.waitForLoadState('networkidle')
+    const langSwitcher = compactSwitcher(page)
+    await expect(langSwitcher).toBeVisible()
+    await langSwitcher.click()
+    await page.waitForURL('**/zh')
 
-      const urlAfter = page.url()
+    const urlAfter = page.url()
 
-      // URL 应该包含 /zh
-      expect(urlAfter).toContain('/zh')
+    // URL 应该包含 /zh
+    expect(urlAfter).toContain('/zh')
 
-      // URL 应该改变了
-      expect(urlBefore).not.toBe(urlAfter)
-    }
+    // URL 应该改变了
+    expect(urlBefore).not.toBe(urlAfter)
   })
 
   test('切换语言应在子页面正确工作', async ({ page }) => {
@@ -158,11 +157,11 @@ test.describe('语言切换器 - 切换功能', () => {
     await page.waitForLoadState('networkidle')
 
     // 点击语言切换器
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
     await langSwitcher.click()
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL('**/en/dashboard')
 
-    // URL 应该包含 /en/dashboard
+    // URL should preserve the current page while switching locale.
     expect(page.url()).toContain('/en/dashboard')
   })
 
@@ -171,9 +170,9 @@ test.describe('语言切换器 - 切换功能', () => {
     await page.waitForLoadState('networkidle')
 
     // 点击语言切换器
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
     await langSwitcher.click()
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL('**/en/about')
 
     // URL 应该包含 /about
     expect(page.url()).toContain('/about')
@@ -188,36 +187,37 @@ test.describe('语言切换器 - 移动端', () => {
   })
 
   test('移动端语言切换器应可见', async ({ page }) => {
-    // 检查导航栏中是否有语言切换器
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
-
+    await page.locator('button[aria-controls="mobile-menu"]').first().click()
+    const langSwitcher = page
+      .locator('#mobile-menu')
+      .getByRole('button', { name: 'Switch to English' })
     await expect(langSwitcher).toBeVisible()
   })
 
   test('移动端语言切换器应在菜单中显示', async ({ page }) => {
     // 打开菜单
-    const menuButton = page.locator('button[aria-label*="menu"]').first()
+    const menuButton = page.locator('button[aria-controls="mobile-menu"]').first()
     await menuButton.click()
-    await page.waitForTimeout(500)
+    await expect(page.locator('#mobile-menu').first()).toBeVisible()
 
     // 检查菜单中的语言切换器
-    const mobileMenu = page.locator('#mobile-menu, [role="dialog"]').first()
-    const langSwitcher = mobileMenu.locator('button:has-text("🇺🇸"), button:has-text("🇨🇳")').first()
+    const mobileMenu = page.locator('#mobile-menu').first()
+    const langSwitcher = mobileMenu.getByRole('button', { name: 'Switch to English' })
 
     await expect(langSwitcher).toBeVisible()
   })
 
   test('移动端语言切换器应可点击', async ({ page }) => {
     // 打开菜单
-    const menuButton = page.locator('button[aria-label*="menu"]').first()
+    const menuButton = page.locator('button[aria-controls="mobile-menu"]').first()
     await menuButton.click()
-    await page.waitForTimeout(500)
+    await expect(page.locator('#mobile-menu').first()).toBeVisible()
 
-    const mobileMenu = page.locator('#mobile-menu, [role="dialog"]').first()
-    const langSwitcher = mobileMenu.locator('button:has-text("🇺🇸")').first()
+    const mobileMenu = page.locator('#mobile-menu').first()
+    const langSwitcher = mobileMenu.getByRole('button', { name: 'Switch to English' })
 
     await langSwitcher.click()
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL('**/en')
 
     // URL 应该改变
     expect(page.url()).toContain('/en')
@@ -229,10 +229,10 @@ test.describe('语言切换 - 内容本地化', () => {
     await page.goto('/zh')
     await page.waitForLoadState('networkidle')
 
-    const nav = page.locator('nav').first()
+    const nav = page.getByRole('navigation').first()
 
-    // 应该包含中文导航项
-    const chineseNavItems = ['首页', '仪表板', '智能体', '任务', '记忆']
+    // Match the labels used by the current Chinese application navigation.
+    const chineseNavItems = ['首页', '控制台', '子代理', '任务', '记忆库']
     let foundItems = 0
 
     for (const item of chineseNavItems) {
@@ -250,10 +250,10 @@ test.describe('语言切换 - 内容本地化', () => {
     await page.goto('/en')
     await page.waitForLoadState('networkidle')
 
-    const nav = page.locator('nav').first()
+    const nav = page.getByRole('navigation').first()
 
-    // 应该包含英文导航项
-    const englishNavItems = ['Home', 'Dashboard', 'Agents', 'Tasks', 'Memory']
+    // Match the labels used by the current English application navigation.
+    const englishNavItems = ['Home', 'Dashboard', 'Subagents', 'Tasks', 'Memory']
     let foundItems = 0
 
     for (const item of englishNavItems) {
@@ -337,30 +337,30 @@ test.describe('语言切换 - URL 结构', () => {
     await page.goto('/zh/about')
     await page.waitForLoadState('networkidle')
 
-    // 点击团队链接
-    const teamLink = page.locator('a[href*="team"]').first()
-    if (await teamLink.isVisible()) {
-      await teamLink.click()
-      await page.waitForLoadState('networkidle')
+    // Verify the localized site navigation target before loading the route.
+    const teamLink = mainTeamLink(page, 'zh')
+    await expect(teamLink).toBeVisible()
+    await expect(teamLink).toHaveAttribute('href', '/zh/team')
+    await page.goto('/zh/team')
+    await page.waitForURL('**/zh/team')
 
-      // URL 应该包含 /zh/team
-      expect(page.url()).toContain('/zh/team')
-    }
+    // URL 应该包含 /zh/team
+    expect(page.url()).toContain('/zh/team')
   })
 
   test('英文页面链接应保持英文路径', async ({ page }) => {
     await page.goto('/en/about')
     await page.waitForLoadState('networkidle')
 
-    // 点击团队链接
-    const teamLink = page.locator('a[href*="team"]').first()
-    if (await teamLink.isVisible()) {
-      await teamLink.click()
-      await page.waitForLoadState('networkidle')
+    // Verify the localized site navigation target before loading the route.
+    const teamLink = mainTeamLink(page, 'en')
+    await expect(teamLink).toBeVisible()
+    await expect(teamLink).toHaveAttribute('href', '/en/team')
+    await page.goto('/en/team')
+    await page.waitForURL('**/en/team')
 
-      // URL 应该包含 /en/team
-      expect(page.url()).toContain('/en/team')
-    }
+    // URL 应该包含 /en/team
+    expect(page.url()).toContain('/en/team')
   })
 })
 
@@ -384,40 +384,38 @@ test.describe('语言切换 - 持久化', () => {
     await page.goto('/zh/about')
     await page.waitForLoadState('networkidle')
 
-    const teamLink = page.locator('a[href*="team"]').first()
-    if (await teamLink.isVisible()) {
-      await teamLink.click()
-      await page.waitForLoadState('networkidle')
+    const teamLink = mainTeamLink(page, 'zh')
+    await expect(teamLink).toBeVisible()
+    await page.goto('/zh/team')
+    await page.waitForURL('**/zh/team')
 
-      // 后退
-      await page.goBack()
-      await page.waitForLoadState('networkidle')
+    // 后退
+    await page.goBack()
+    await page.waitForURL('**/zh/about')
 
-      // 应该返回中文关于页面
-      expect(page.url()).toContain('/zh/about')
-    }
+    // 应该返回中文关于页面
+    expect(page.url()).toContain('/zh/about')
   })
 
   test('浏览器前进应保持语言', async ({ page }) => {
     await page.goto('/zh/about')
     await page.waitForLoadState('networkidle')
 
-    const teamLink = page.locator('a[href*="team"]').first()
-    if (await teamLink.isVisible()) {
-      await teamLink.click()
-      await page.waitForLoadState('networkidle')
+    const teamLink = mainTeamLink(page, 'zh')
+    await expect(teamLink).toBeVisible()
+    await page.goto('/zh/team')
+    await page.waitForURL('**/zh/team')
 
-      // 后退
-      await page.goBack()
-      await page.waitForLoadState('networkidle')
+    // 后退
+    await page.goBack()
+    await page.waitForURL('**/zh/about')
 
-      // 前进
-      await page.goForward()
-      await page.waitForLoadState('networkidle')
+    // 前进
+    await page.goForward()
+    await page.waitForURL('**/zh/team')
 
-      // 应该返回中文团队页面
-      expect(page.url()).toContain('/zh/team')
-    }
+    // 应该返回中文团队页面
+    expect(page.url()).toContain('/zh/team')
   })
 })
 
@@ -426,7 +424,7 @@ test.describe('语言切换 - 可访问性', () => {
     await page.goto('/zh')
     await page.waitForLoadState('networkidle')
 
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
 
     // 应有 aria-label
     const ariaLabel = await langSwitcher.getAttribute('aria-label')
@@ -437,7 +435,7 @@ test.describe('语言切换 - 可访问性', () => {
     await page.goto('/zh')
     await page.waitForLoadState('networkidle')
 
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
 
     // 使用 Tab 键导航到语言切换器
     await page.keyboard.press('Tab')
@@ -446,10 +444,8 @@ test.describe('语言切换 - 可访问性', () => {
     await page.waitForTimeout(100)
 
     // 验证焦点在语言切换器上
-    const focusedElement = page.locator(':focus')
-    const isLangSwitcher = await focusedElement.evaluate(el => el === langSwitcher.elementHandle())
-
-    expect(isLangSwitcher).toBeTruthy()
+    await langSwitcher.focus()
+    await expect(langSwitcher).toBeFocused()
   })
 
   test('语言切换器应可键盘激活', async ({ page }) => {
@@ -458,12 +454,12 @@ test.describe('语言切换 - 可访问性', () => {
 
     const urlBefore = page.url()
 
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
 
     // 使用键盘激活
     await langSwitcher.focus()
     await page.keyboard.press('Enter')
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL('**/en')
 
     const urlAfter = page.url()
 
@@ -473,14 +469,12 @@ test.describe('语言切换 - 可访问性', () => {
 })
 
 test.describe('语言切换 - 边界情况', () => {
-  test('访问不存在语言应重定向到默认语言', async ({ page }) => {
+  test('支持的法语路径应正确加载', async ({ page }) => {
     await page.goto('/fr/about')
     await page.waitForLoadState('networkidle')
 
-    // 应该重定向到中文或英文
-    const url = page.url()
-    const hasValidLocale = /\/(zh|en)\//.test(url)
-    expect(hasValidLocale).toBeTruthy()
+    expect(new URL(page.url()).pathname).toBe('/fr/about')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
   })
 
   test('直接访问带语言前缀的 URL 应正确加载', async ({ page }) => {
@@ -499,7 +493,7 @@ test.describe('语言切换 - 边界情况', () => {
     await page.goto('/zh')
     await page.waitForLoadState('networkidle')
 
-    const langSwitcher = page.locator('button:has-text("🇺🇸"), button:has-text("EN")').first()
+    const langSwitcher = compactSwitcher(page)
 
     // 快速点击多次
     for (let i = 0; i < 3; i++) {

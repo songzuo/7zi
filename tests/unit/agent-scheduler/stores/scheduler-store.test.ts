@@ -4,7 +4,13 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useSchedulerStore } from '@/lib/agents/scheduler/stores/scheduler-store'
+import { act, renderHook } from '@testing-library/react'
+import { useShallow } from 'zustand/react/shallow'
+import {
+  selectOverdueTasks,
+  selectUrgentTasks,
+  useSchedulerStore,
+} from '@/lib/agents/scheduler/stores/scheduler-store'
 import { Task, createTask } from '@/lib/agents/scheduler/models/task-model'
 
 // Note: Zustand stores are designed for React and require React context
@@ -226,5 +232,28 @@ describe('SchedulerStore', () => {
       const selector = selectTasksByAgent('agent1')
       expect(typeof selector).toBe('function')
     })
+  })
+})
+
+
+describe('derived selector stability', () => {
+  it('keeps urgent and overdue task snapshots stable across unrelated updates', () => {
+    const originalTaskId = useSchedulerStore.getState().selectedTaskId
+    const { result, unmount } = renderHook(() => ({
+      urgentTasks: useSchedulerStore(useShallow(selectUrgentTasks)),
+      overdueTasks: useSchedulerStore(useShallow(selectOverdueTasks)),
+    }))
+    const initialResult = result.current
+
+    act(() => {
+      useSchedulerStore.setState({ selectedTaskId: '__unrelated-update__' })
+    })
+
+    expect(result.current).toBe(initialResult)
+
+    act(() => {
+      useSchedulerStore.setState({ selectedTaskId: originalTaskId })
+    })
+    unmount()
   })
 })
