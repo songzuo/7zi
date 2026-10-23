@@ -143,6 +143,32 @@ ls docs/ | wc -l                          # 应为 305
 ```
 **提交前务必看 diff 规模** —— 18 万行删除绝不该静默提交进去。
 
+## 2026-10-23 20:55 北京时间 — 代码门禁现状
+
+### ✅ 后端 lint 双配置全绿（T71）
+`7zi-backend` 下两套 flat config 并存是隐患：`eslint.config.js`（ESLint 9 自动选中）
+与 `eslint.config.mjs`（死配置）的 `caughtErrorsIgnorePattern` 不一致，
+`catch (_error) {}` 在默认配置不报、在 `.mjs` 下必报 → CI 一旦切配置就浮现。
+修法：改用 ES2019 **可选 catch 绑定** `catch {`，语义等价且两套配置下无条件豁免。
+零 `eslint-disable`、零配置改动。
+验证：`npx eslint workflow-service/src workflow-engine websocket` → exit 0；
+`--config eslint.config.mjs` 同范围 → exit 0。
+
+### 仓库结构已收敛
+`7zi-frontend/` 已并入主仓，`src/` 与 `7zi-frontend/src/` 副本问题自然消解。
+前端 retry 测试从 **246s → 3.8s**（`f2a4fdc944` 修 3 个真 Bug + 重写测试）。
+
+### 并发教训（本日两次）
+1. 子代理的"清理"提交会**静默回退**已修好的 ESLint 配置 —— 提交前必须排除已修复文件。
+2. `vitest` 报 11 failed 可能是**竞态**：跑测试期间并发 agent 提交了修复，重跑即 21/21 全绿。
+   **看到失败先确认是否有人在同时改**，再判定是不是真 bug。
+3. 提交时严格按路径 `git add`，避免把其他 agent 的在途改动卷进来。
+
+### 遗留
+- 全仓 `npx eslint .` 剩余 11 warnings 全在 `websocket-service/` 与 `workflow-service/test/`。
+- `workflow-engine/websocket-integration-example.js` 是显式 ignore 的示例片段，
+  `--no-ignore` 会出 16 个 `no-undef`，属 intentional ignore，不建议动。
+
 ## 已知遗留（需用户决策，勿擅自处理）
 - git 历史中可能仍残留旧 token —— 彻底清除需重写历史 + 强制推送
 - 仓库内 7.5 万个 node_modules 文件 —— 清理需重写历史
