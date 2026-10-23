@@ -430,7 +430,10 @@ export class AuditLogger {
       const entry = auditStorage.get(key)
       if (!entry) continue
 
-      if (entry.timestamp < cutoffDate) {
+      // 用 `<=` 而非 `<`：当日志与 cutoff 落在**同一毫秒**时（例如刚写入就
+      // 调用 cleanup(0)），`<` 会因"相等"而漏删，导致清理结果依赖时钟精度 ——
+      // 表现为该用例偶发失败。用 `<=` 使"保留 N 天"的边界语义确定。
+      if (entry.timestamp <= cutoffDate) {
         auditStorage.delete(key)
         cleaned++
       }
