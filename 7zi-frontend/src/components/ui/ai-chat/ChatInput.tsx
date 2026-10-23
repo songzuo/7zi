@@ -116,11 +116,15 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   }, [value])
 
-  // 恢复草稿
+  // 恢复草稿（仅在挂载时执行一次；用 ref 固定初始值，
+  // 避免后续 value/onChange 变化时重复恢复并覆盖用户输入）
+  const initialValueRef = useRef(value)
+  const onChangeRef = useRef(onChange)
+
   useEffect(() => {
     const draft = localStorage.getItem('ai-chat-draft')
-    if (draft && !value) {
-      onChange(draft)
+    if (draft && !initialValueRef.current) {
+      onChangeRef.current(draft)
       localStorage.removeItem('ai-chat-draft')
     }
   }, [])

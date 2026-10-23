@@ -1,13 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Zap, Shield, Users, BarChart3, ChevronDown, Star, CheckCircle2 } from 'lucide-react'
 
 // Animation hook for fade-in on scroll
-function useIntersectionObserver(options = {}) {
+function useIntersectionObserver(options: IntersectionObserverInit = {}) {
   const [isVisible, setIsVisible] = useState(false)
   const [ref, setRef] = useState<HTMLElement | null>(null)
+  // options 由调用方以内联对象传入，用 ref 固定最新值，
+  // 避免每次渲染因对象字面量变化而重建 IntersectionObserver
+  const optionsRef = useRef(options)
+
+  useEffect(() => {
+    optionsRef.current = options
+  }, [options])
 
   useEffect(() => {
     if (!ref) return
@@ -18,7 +25,7 @@ function useIntersectionObserver(options = {}) {
           observer.disconnect()
         }
       },
-      { threshold: 0.1, ...options }
+      { threshold: 0.1, ...optionsRef.current }
     )
     observer.observe(ref)
     return () => observer.disconnect()

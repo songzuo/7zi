@@ -297,7 +297,7 @@ export function useErrorBoundaryReset(resetKeys?: Array<string | number>): () =>
     if (resetKeys) {
       forceUpdate()
     }
-  }, resetKeys)
+  }, [resetKeys])
 
   return () => forceUpdate()
 }

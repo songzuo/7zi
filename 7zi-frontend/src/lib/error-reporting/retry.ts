@@ -8,7 +8,7 @@ import { logger } from '../logger'
 /**
  * 重试选项
  */
-export interface RetryOptions<T = unknown> {
+export interface RetryOptions {
   /**
    * 最大重试次数
    * @default 3
@@ -140,7 +140,7 @@ const DEFAULT_RETRYABLE_STATUS_CODES = [
  */
 export async function withRetry<T>(
   operation: () => Promise<T>,
-  options: RetryOptions<T> = {}
+  options: RetryOptions = {}
 ): Promise<RetryResult<T>> {
   const startTime = Date.now()
 
@@ -262,7 +262,7 @@ export async function withRetry<T>(
  */
 export function withRetrySync<T>(
   operation: () => T,
-  options: RetryOptions<T> = {}
+  options: RetryOptions = {}
 ): RetryResult<T> {
   const startTime = Date.now()
 
@@ -471,7 +471,7 @@ function runAbortable<T>(
  */
 export function createRetryableFunction<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
-  options: RetryOptions<T> = {}
+  options: RetryOptions = {}
 ): T {
   return ((...args: Parameters<T>) => withRetry(() => fn(...args), options)) as T
 }
@@ -483,7 +483,7 @@ export function createRetryableFunction<T extends (...args: unknown[]) => Promis
  * 而不是把内部的 `RetryResult` 泄漏给调用方（否则被装饰方法的签名会被悄悄改变）。
  */
 export function retry<T extends (...args: unknown[]) => Promise<unknown>>(
-  options: RetryOptions<T> = {}
+  options: RetryOptions = {}
 ): MethodDecorator {
   return function (
     target: unknown,
@@ -546,7 +546,7 @@ export interface UseRetryState<T> {
  */
 export function createRetryState<T>(
   operation: () => Promise<T>,
-  options: RetryOptions<T> = {}
+  options: RetryOptions = {}
 ): UseRetryState<T> {
   let attempt = 0
   let isRetrying = false

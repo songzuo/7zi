@@ -5,7 +5,7 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/Button'
 import { RoomCard } from './RoomCard'
 import { roomsClient } from '@/lib/api/rooms/client'
@@ -63,7 +63,7 @@ export const RoomList: React.FC<RoomListProps> = ({ onRoomSelect, onCreateRoom, 
   const [error, setError] = useState<string | null>(null)
 
   // 加载房间列表
-  const loadRooms = async () => {
+  const loadRooms = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -75,11 +75,11 @@ export const RoomList: React.FC<RoomListProps> = ({ onRoomSelect, onCreateRoom, 
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
 
   useEffect(() => {
     loadRooms()
-  }, [filter])
+  }, [loadRooms])
 
   // 搜索处理
   const handleSearch = (query: string) => {

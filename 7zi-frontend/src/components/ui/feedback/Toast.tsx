@@ -136,6 +136,13 @@ function Toast({
   const [isLeaving, setIsLeaving] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
 
+  const handleClose = useCallback(() => {
+    setIsLeaving(true)
+    setTimeout(() => {
+      onClose()
+    }, 300)
+  }, [onClose])
+
   useEffect(() => {
     // Animation in
     requestAnimationFrame(() => {
@@ -185,14 +192,7 @@ function Toast({
         }
       }
     }
-  }, [autoClose, autoCloseDelay, id])
-
-  const handleClose = useCallback(() => {
-    setIsLeaving(true)
-    setTimeout(() => {
-      onClose()
-    }, 300)
-  }, [onClose])
+  }, [autoClose, autoCloseDelay, id, handleClose])
 
   const styles = typeStyles[type]
 

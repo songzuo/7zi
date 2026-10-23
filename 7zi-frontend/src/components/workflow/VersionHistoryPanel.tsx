@@ -59,11 +59,7 @@ export function VersionHistoryPanel({
   const [showDiff, setShowDiff] = useState(false)
 
   // Load versions and branches
-  useEffect(() => {
-    loadData()
-  }, [workflowId])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -80,7 +76,11 @@ export function VersionHistoryPanel({
     } finally {
       setLoading(false)
     }
-  }
+  }, [workflowId])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   // Handle version selection for diff
   const handleVersionSelect = useCallback(

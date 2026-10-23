@@ -408,6 +408,21 @@ export function RichTextEditor({
     }
   }, [])
 
+  // 处理内容变化
+  const handleChange = useCallback(() => {
+    if (!editorRef.current || readOnly) return
+
+    const html = editorRef.current.innerHTML
+    const text = editorRef.current.innerText || ''
+
+    let markdownValue = text
+    if (enableMarkdown) {
+      markdownValue = MarkdownConverter.htmlToMarkdown(html)
+    }
+
+    onChange?.(markdownValue, html)
+  }, [readOnly, enableMarkdown, onChange])
+
   // 执行编辑命令
   const executeCommand = useCallback((command: string, value?: string) => {
     if (!editorRef.current || readOnly) return
@@ -459,22 +474,7 @@ export function RichTextEditor({
 
     // 触发变化回调
     handleChange()
-  }, [readOnly, updateHistory])
-
-  // 处理内容变化
-  const handleChange = useCallback(() => {
-    if (!editorRef.current || readOnly) return
-
-    const html = editorRef.current.innerHTML
-    const text = editorRef.current.innerText || ''
-
-    let markdownValue = text
-    if (enableMarkdown) {
-      markdownValue = MarkdownConverter.htmlToMarkdown(html)
-    }
-
-    onChange?.(markdownValue, html)
-  }, [readOnly, enableMarkdown, onChange])
+  }, [readOnly, updateHistory, handleChange])
 
   // 处理粘贴事件
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
@@ -551,10 +551,17 @@ export function RichTextEditor({
     handleChange()
   }, [readOnly, updateHistory, handleChange])
 
-  // 初始化内容
+  // 初始化内容（仅在挂载时执行一次；使用 ref 固定初始值，
+  // 避免后续 value 变化时覆盖用户已编辑的内容）
+  const initialValueRef = useRef(value)
+  const initialEnableMarkdownRef = useRef(enableMarkdown)
+
   useEffect(() => {
-    if (editorRef.current && value) {
-      const html = enableMarkdown ? MarkdownConverter.markdownToHtml(value) : value
+    const initialValue = initialValueRef.current
+    if (editorRef.current && initialValue) {
+      const html = initialEnableMarkdownRef.current
+        ? MarkdownConverter.markdownToHtml(initialValue)
+        : initialValue
       editorRef.current.innerHTML = html
       setHistory([{ html, cursorPosition: null }])
       setHistoryIndex(0)

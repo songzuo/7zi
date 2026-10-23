@@ -137,6 +137,17 @@ function ToastProvider({
   }
 
   /**
+   * Remove a toast by ID
+   */
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => {
+      const updated = prev.filter(t => t.id !== id)
+      // Update positions
+      return updated.map((t, index) => ({ ...t, position: index }))
+    })
+  }, [])
+
+  /**
    * Add a new toast
    */
   const addToast = useCallback(
@@ -166,19 +177,8 @@ function ToastProvider({
 
       return id
     },
-    [maxToasts, toasts.length]
+    [maxToasts, toasts.length, removeToast]
   )
-
-  /**
-   * Remove a toast by ID
-   */
-  const removeToast = useCallback((id: string) => {
-    setToasts(prev => {
-      const updated = prev.filter(t => t.id !== id)
-      // Update positions
-      return updated.map((t, index) => ({ ...t, position: index }))
-    })
-  }, [])
 
   /**
    * Remove all toasts

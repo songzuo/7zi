@@ -92,22 +92,6 @@ export default function ScreenshotAnnotation({
   const imageRef = useRef<HTMLImageElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Load image
-  useEffect(() => {
-    if (selectedImage && imageRef.current && canvasRef.current) {
-      const canvas = canvasRef.current
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-
-      const img = imageRef.current
-      canvas.width = img.naturalWidth
-      canvas.height = img.naturalHeight
-
-      ctx.drawImage(img, 0, 0)
-      renderAnnotations(ctx)
-    }
-  }, [selectedImage, annotations, zoom])
-
   // Render annotations
   const renderAnnotations = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -153,6 +137,22 @@ export default function ScreenshotAnnotation({
     },
     [annotations, zoom]
   )
+
+  // Load image
+  useEffect(() => {
+    if (selectedImage && imageRef.current && canvasRef.current) {
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+
+      const img = imageRef.current
+      canvas.width = img.naturalWidth
+      canvas.height = img.naturalHeight
+
+      ctx.drawImage(img, 0, 0)
+      renderAnnotations(ctx)
+    }
+  }, [selectedImage, annotations, zoom, renderAnnotations])
 
   // Save to history
   const saveToHistory = useCallback(() => {

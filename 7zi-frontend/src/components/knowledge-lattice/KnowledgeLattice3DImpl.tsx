@@ -29,12 +29,13 @@ export function KnowledgeLattice3DImpl({ nodes = [] }: KnowledgeLattice3DImplPro
   }
 
   useEffect(() => {
+    // 提前捕获 DOM 节点引用，避免 cleanup 时 ref.current 已变化
+    const container = containerRef.current
     return () => {
       // Cleanup
       if (frameIdRef.current) {
         cancelAnimationFrame(frameIdRef.current)
       }
-      const container = containerRef.current
       if (container) {
         const canvas = container.querySelector('canvas')
         if (canvas) {

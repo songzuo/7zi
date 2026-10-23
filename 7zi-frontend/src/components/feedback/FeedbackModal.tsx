@@ -11,7 +11,7 @@
 
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -92,6 +92,20 @@ export default function FeedbackModal({
     }
   }, [initialData])
 
+  // 保存草稿到 localStorage
+  const saveDraft = useCallback(() => {
+    try {
+      const dataToSave = {
+        ...feedback,
+        url: currentUrl,
+        attachments: attachmentUrls,
+      }
+      localStorage.setItem('feedback-draft', JSON.stringify(dataToSave))
+    } catch (error) {
+      console.error('Failed to save draft:', error)
+    }
+  }, [feedback, currentUrl, attachmentUrls])
+
   // Auto-save draft
   useEffect(() => {
     if (!isOpen) return
@@ -101,7 +115,7 @@ export default function FeedbackModal({
     }, 30000) // Save every 30 seconds
 
     return () => clearInterval(timer)
-  }, [feedback, isOpen])
+  }, [saveDraft, isOpen])
 
   // Load draft from localStorage
   useEffect(() => {
@@ -119,19 +133,6 @@ export default function FeedbackModal({
       }
     }
   }, [isOpen, initialData])
-
-  const saveDraft = () => {
-    try {
-      const dataToSave = {
-        ...feedback,
-        url: currentUrl,
-        attachments: attachmentUrls,
-      }
-      localStorage.setItem('feedback-draft', JSON.stringify(dataToSave))
-    } catch (error) {
-      console.error('Failed to save draft:', error)
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

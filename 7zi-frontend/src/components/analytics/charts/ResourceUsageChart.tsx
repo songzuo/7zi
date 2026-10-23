@@ -20,6 +20,16 @@ export interface ResourceUsageChartProps {
 }
 
 /**
+ * 资源类型 → 指标字段映射（模块级常量，useMemo 可安全作为依赖）
+ */
+const DATA_KEY_MAP = {
+  cpu: 'cpuUsage',
+  memory: 'memoryUsage',
+  disk: 'diskUsage',
+  network: 'networkUsage',
+} as const
+
+/**
  * Format timestamp for X axis
  */
 function formatTimestamp(timestamp: string): string {
@@ -158,13 +168,6 @@ export function MiniResourceChart({
   type: 'cpu' | 'memory' | 'disk' | 'network'
   height?: number
 }) {
-  const dataKeyMap = {
-    cpu: 'cpuUsage',
-    memory: 'memoryUsage',
-    disk: 'diskUsage',
-    network: 'networkUsage',
-  }
-
   const colorMap = {
     cpu: 'hsl(var(--primary))',
     memory: 'hsl(var(--secondary))',
@@ -173,7 +176,7 @@ export function MiniResourceChart({
   }
 
   const chartData = useMemo(() => {
-    const key = dataKeyMap[type as keyof typeof dataKeyMap]
+    const key = DATA_KEY_MAP[type as keyof typeof DATA_KEY_MAP]
     return data.map(item => ({
       value: (item as unknown as Record<string, unknown>)[key],
     }))

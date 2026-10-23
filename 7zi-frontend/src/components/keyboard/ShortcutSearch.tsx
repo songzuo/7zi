@@ -38,6 +38,18 @@ export default function ShortcutSearch({
     setSelectedIndex(0);
   }, [isOpen, searchQuery]);
 
+  // Handle shortcut selection
+  const handleShortcutSelect = useCallback(
+    (shortcut: Shortcut) => {
+      if (shortcut.enabled !== false) {
+        shortcut.action();
+        onShortcutTriggered?.(shortcut);
+      }
+      onClose?.();
+    },
+    [onShortcutTriggered, onClose]
+  );
+
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -66,7 +78,7 @@ export default function ShortcutSearch({
           break;
       }
     },
-    [isOpen, filteredShortcuts, selectedIndex, onClose]
+    [isOpen, filteredShortcuts, selectedIndex, onClose, handleShortcutSelect]
   );
 
   useEffect(() => {
@@ -75,15 +87,6 @@ export default function ShortcutSearch({
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
   }, [isOpen, handleKeyDown]);
-
-  // Handle shortcut selection
-  const handleShortcutSelect = (shortcut: Shortcut) => {
-    if (shortcut.enabled !== false) {
-      shortcut.action();
-      onShortcutTriggered?.(shortcut);
-    }
-    onClose?.();
-  };
 
   // Group shortcuts by category
   const groupedShortcuts = filteredShortcuts.reduce((acc, shortcut) => {

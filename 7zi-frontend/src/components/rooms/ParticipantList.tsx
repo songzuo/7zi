@@ -5,7 +5,7 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/Button'
 import { roomsClient } from '@/lib/api/rooms/client'
 import type { RoomParticipant, RoomParticipantRole } from '@/lib/api/rooms/types'
@@ -53,7 +53,7 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
   const [error, setError] = useState<string | null>(null)
 
   // 加载参与者列表
-  const loadParticipants = async () => {
+  const loadParticipants = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -65,11 +65,11 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
     } finally {
       setLoading(false)
     }
-  }
+  }, [roomId])
 
   useEffect(() => {
     loadParticipants()
-  }, [roomId])
+  }, [loadParticipants])
 
   // 修改角色
   const handleRoleChange = async (participantId: string, newRole: RoomParticipantRole) => {

@@ -653,6 +653,7 @@ function WorkflowEditorV110Inner({
     showShortcutsPanel,
     clipboard,
     saveToHistory,
+    edges,
   ])
 
   // ============================================

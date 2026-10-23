@@ -69,6 +69,14 @@ function NotificationToast({
   const [isVisible, setIsVisible] = useState(false)
   const [isLeaving, setIsLeaving] = useState(false)
 
+  const handleClose = useCallback(() => {
+    setIsLeaving(true)
+    onMarkRead(notification.id)
+    setTimeout(() => {
+      onClose()
+    }, 300)
+  }, [notification.id, onMarkRead, onClose])
+
   useEffect(() => {
     // Animation in
     requestAnimationFrame(() => setIsVisible(true))
@@ -81,15 +89,7 @@ function NotificationToast({
 
       return () => clearTimeout(timer)
     }
-  }, [autoHide, autoHideDelay, notification.id])
-
-  const handleClose = useCallback(() => {
-    setIsLeaving(true)
-    onMarkRead(notification.id)
-    setTimeout(() => {
-      onClose()
-    }, 300)
-  }, [notification.id, onMarkRead, onClose])
+  }, [autoHide, autoHideDelay, notification.id, handleClose])
 
   return (
     <div

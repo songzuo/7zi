@@ -218,76 +218,77 @@ export function CustomSaveExample() {
   )
 }
 
+// 简单聊天机器人工作流（模块级常量，避免每次渲染重建导致 useCallback 依赖不稳定）
+const CHAT_BOT_WORKFLOW: {
+  nodes: Node<WorkflowNodeData>[]
+  edges: Edge<WorkflowEdgeData>[]
+} = {
+  nodes: [
+    {
+      id: 'start',
+      type: 'start',
+      position: { x: 100, y: 200 },
+      data: { id: 'start', type: 'start', label: '开始', config: {} },
+    },
+    {
+      id: 'human-input',
+      type: 'wait',
+      position: { x: 300, y: 200 },
+      data: {
+        id: 'human-input',
+        type: 'wait',
+        label: '等待输入',
+        config: { waitType: 'event', waitForEvent: 'user.message' },
+      },
+    },
+    {
+      id: 'agent',
+      type: 'agent',
+      position: { x: 500, y: 200 },
+      data: {
+        id: 'agent',
+        type: 'agent',
+        label: 'AI 回复',
+        config: { agentType: 'chat', timeout: 30000 },
+      },
+    },
+    {
+      id: 'condition',
+      type: 'condition',
+      position: { x: 700, y: 200 },
+      data: {
+        id: 'condition',
+        type: 'condition',
+        label: '继续?',
+        config: { condition: 'outputs.continue === true' },
+      },
+    },
+    {
+      id: 'end',
+      type: 'end',
+      position: { x: 900, y: 200 },
+      data: { id: 'end', type: 'end', label: '结束', config: {} },
+    },
+  ],
+  edges: [
+    { id: 'e1', source: 'start', target: 'human-input' },
+    { id: 'e2', source: 'human-input', target: 'agent' },
+    { id: 'e3', source: 'agent', target: 'condition' },
+    { id: 'e4', source: 'condition', target: 'end' },
+  ],
+}
+
+
 /**
  * 示例 5: 工作流模板
  */
 export function WorkflowTemplates() {
-  // 简单聊天机器人工作流
-  const chatBotWorkflow: {
-    nodes: Node<WorkflowNodeData>[]
-    edges: Edge<WorkflowEdgeData>[]
-  } = {
-    nodes: [
-      {
-        id: 'start',
-        type: 'start',
-        position: { x: 100, y: 200 },
-        data: { id: 'start', type: 'start', label: '开始', config: {} },
-      },
-      {
-        id: 'human-input',
-        type: 'wait',
-        position: { x: 300, y: 200 },
-        data: {
-          id: 'human-input',
-          type: 'wait',
-          label: '等待输入',
-          config: { waitType: 'event', waitForEvent: 'user.message' },
-        },
-      },
-      {
-        id: 'agent',
-        type: 'agent',
-        position: { x: 500, y: 200 },
-        data: {
-          id: 'agent',
-          type: 'agent',
-          label: 'AI 回复',
-          config: { agentType: 'chat', timeout: 30000 },
-        },
-      },
-      {
-        id: 'condition',
-        type: 'condition',
-        position: { x: 700, y: 200 },
-        data: {
-          id: 'condition',
-          type: 'condition',
-          label: '继续?',
-          config: { condition: 'outputs.continue === true' },
-        },
-      },
-      {
-        id: 'end',
-        type: 'end',
-        position: { x: 900, y: 200 },
-        data: { id: 'end', type: 'end', label: '结束', config: {} },
-      },
-    ],
-    edges: [
-      { id: 'e1', source: 'start', target: 'human-input' },
-      { id: 'e2', source: 'human-input', target: 'agent' },
-      { id: 'e3', source: 'agent', target: 'condition' },
-      { id: 'e4', source: 'condition', target: 'end' },
-    ],
-  }
-
-  const [nodes, setNodes] = useState<Node<WorkflowNodeData>[]>(chatBotWorkflow.nodes)
-  const [edges, setEdges] = useState<Edge<WorkflowEdgeData>[]>(chatBotWorkflow.edges)
+  const [nodes, setNodes] = useState<Node<WorkflowNodeData>[]>(CHAT_BOT_WORKFLOW.nodes)
+  const [edges, setEdges] = useState<Edge<WorkflowEdgeData>[]>(CHAT_BOT_WORKFLOW.edges)
 
   const loadTemplate = useCallback(() => {
-    setNodes(chatBotWorkflow.nodes)
-    setEdges(chatBotWorkflow.edges)
+    setNodes(CHAT_BOT_WORKFLOW.nodes)
+    setEdges(CHAT_BOT_WORKFLOW.edges)
   }, [])
 
   return (

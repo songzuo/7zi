@@ -44,7 +44,7 @@ export function useTemplateList() {
     }
   }, [])
 
-  const stats = useMemo(() => getTemplateStats(), [templates])
+  const stats = useMemo(() => getTemplateStats(), [])
 
   const refetch = useCallback(() => {
     setLoading(true)

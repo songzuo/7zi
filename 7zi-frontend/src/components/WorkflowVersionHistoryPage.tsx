@@ -8,7 +8,7 @@
  * @version 1.12.0
  */
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import {
@@ -47,7 +47,7 @@ export function WorkflowVersionHistoryPage({
   const [pageSize] = useState(10)
 
   // Fetch version history
-  const fetchHistory = async (pageNum: number = page) => {
+  const fetchHistory = useCallback(async (pageNum: number = page) => {
     try {
       setLoading(true)
       setError(null)
@@ -67,7 +67,7 @@ export function WorkflowVersionHistoryPage({
     } finally {
       setLoading(false)
     }
-  }
+  }, [workflowId, pageSize, page])
 
   // Rollback to a specific version
   const handleRollback = async (versionId: string, version: string) => {
@@ -136,7 +136,7 @@ export function WorkflowVersionHistoryPage({
   // Load initial data
   useEffect(() => {
     fetchHistory()
-  }, [workflowId])
+  }, [fetchHistory])
 
   // ============================================
   // Render
