@@ -27,7 +27,7 @@ const { spawn } = require('child_process')
 let ioClient = null
 try {
   ioClient = require('socket.io-client')
-} catch (_error) {
+} catch {
   ioClient = null
 }
 

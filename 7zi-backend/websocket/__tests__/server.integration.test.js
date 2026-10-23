@@ -20,7 +20,7 @@ const jwt = require('jsonwebtoken')
 let ioClient = null
 try {
   ioClient = require('socket.io-client')
-} catch (_error) {
+} catch {
   ioClient = null
 }
 
