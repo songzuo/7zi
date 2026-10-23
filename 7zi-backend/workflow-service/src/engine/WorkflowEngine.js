@@ -250,34 +250,129 @@ class WorkflowEngine extends EventEmitter {
   /**
    * 安全表达式求值
    */
-  safeEval(expression, context) {
-    // 简单的条件表达式求值
-    // 支持: ${variable}, ${output.field}, 比较运算符
-    const resolved = expression.replace(/\$\{([^}]+)\}/g, (match, path) => {
-      return this.resolvePath(path.trim(), context);
+  safeEval(expression, context = {}) {
+    if (typeof expression !== 'string') return false;
+
+    const trimmed = expression.trim();
+    if (!trimmed) return false;
+
+    const substituted = trimmed.replace(/\$\{([^}]+)\}/g, (match, rawPath) => {
+      const path = rawPath.trim();
+
+      // ${true} / ${false} / ${null} 等字面量关键字
+      if (/^(true|false|null|undefined)$/i.test(path)) {
+        return path.toLowerCase();
+      }
+
+      // 路径格式非法（如 'a..b' / '.a' / 'a.'）——这属于表达式书写错误，
+      // 必须抛出让 evaluateCondition 捕获并 emit 'condition:error'。
+      // 若静默替换成 undefined，调用方无法区分"条件为 false"与"条件写错了"。
+      if (path.split('.').some(part => part === '')) {
+        throw new SyntaxError(`Invalid placeholder path: ${path}`);
+      }
+
+      const value = this.resolveConditionValue(path, context);
+      return this.toLiteral(value);
     });
-    
-    // 基本比较运算
-    if (resolved.includes('==')) return eval(resolved);
-    if (resolved.includes('!=')) return eval(resolved);
-    if (resolved.includes('>')) return eval(resolved);
-    if (resolved.includes('<')) return eval(resolved);
-    
-    return Boolean(resolved);
+
+    try {
+      const scope = this.buildEvalScope(context);
+      // eslint-disable-next-line no-new-func
+      const fn = new Function('scope', `with (scope) { return (${substituted}); }`);
+      return Boolean(fn(scope));
+    } catch (error) {
+      // 求值失败（表达式语法错误等）必须向上暴露，
+      // evaluateCondition 依赖这个异常来 emit 'condition:error'。
+      // 直接吞掉会让调用方无法区分"条件为 false"和"条件求值出错"。
+      throw error;
+    }
+  }
+
+  /**
+   * 解析条件中引用的值
+   * 优先在上下文根对象查找，找不到时回退到 execution.variables
+   */
+  resolveConditionValue(path, context) {
+    let value = this.resolvePath(path, context);
+
+    if (
+      value === undefined &&
+      context &&
+      context.variables &&
+      typeof context.variables === 'object'
+    ) {
+      value = this.resolvePath(path, context.variables);
+    }
+
+    return value;
+  }
+
+  /**
+   * 将值转换为 JS 字面量，避免变量内容被当作代码执行
+   */
+  toLiteral(value) {
+    if (value === undefined) return 'undefined';
+    if (value === null) return 'null';
+
+    switch (typeof value) {
+      case 'string':
+        return JSON.stringify(value);
+      case 'number':
+      case 'boolean':
+        return String(value);
+      case 'object':
+        try {
+          return JSON.stringify(value);
+        } catch (error) {
+          return 'undefined';
+        }
+      default:
+        return 'undefined';
+    }
+  }
+
+  /**
+   * 构建求值作用域
+   * 上下文键优先，其次是 output 的扁平化键（便于 branch === 'valid' 这类写法）
+   */
+  buildEvalScope(context) {
+    const scope = {};
+
+    if (context && typeof context === 'object') {
+      for (const [key, value] of Object.entries(context)) {
+        scope[key] = value;
+      }
+
+      const output = context.output;
+      if (output && typeof output === 'object' && !Array.isArray(output)) {
+        for (const [key, value] of Object.entries(output)) {
+          if (!(key in scope)) scope[key] = value;
+        }
+      }
+    }
+
+    return scope;
   }
 
   /**
    * 解析路径
+   * 支持点号路径 (a.b.c) 与数组下标 (a[0].b)
    */
   resolvePath(path, context) {
-    const parts = path.split('.');
+    if (typeof path !== 'string') return undefined;
+
+    const segments = path
+      .replace(/\[(\d+)\]/g, '.$1')
+      .split('.')
+      .filter(part => part !== '');
+
     let value = context;
-    
-    for (const part of parts) {
+
+    for (const part of segments) {
       if (value === null || value === undefined) return undefined;
       value = value[part];
     }
-    
+
     return value;
   }
 
