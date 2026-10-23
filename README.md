@@ -865,6 +865,7 @@ EMAIL_ALERTING_ENABLED=true
 
 | 版本       | 日期       | 主要更新                                                                                                                                                                |
 | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **未发布** | 2026-10-24 (T86) | 🐛 `0ad99bb99e` CollabClient 防御性丢弃非法协作消息（collab-client 19 failed → 15 failed）、🐛 `db6d4a1a94` 抽出 `performPrefetch` 纯函数修 rules-of-hooks 违反、🐛 `399351b6cc` 审计日志过期清理边界 `<` → `<=`、🧹 `3254d4838e` 根级 `src/` ESLint 错误清零 + 恢复被清空的 `eslint.config.mjs`、📄 文档同步 T69–T86 + 新建主人决策清单 `DECISION_PENDING_20261024.md` |
 | **未发布** | 2026-10-24 | 🧹 代码质量门禁全清：后端 ESLint 0 errors / 0 warnings、前端 `7zi-frontend/src` ESLint 0 errors / 0 warnings、根级 `src/` TS 0 errors、🧪 后端 Jest 16 套件 / 342 用例全绿、前端 error-reporting 4 文件 / 89 用例全绿、🐛 `retry.ts` 3 个真 Bug 修复（Duration 245s → 3.8s）、📄 文档同步 T69–T76 |
 | **未发布** | 2026-10-23 | 🚦 后端 CI 门禁落地（`.github/workflows/backend-ci.yml`：lint + jest + 覆盖率阈值 + npm audit 门禁）、🐛 workflow-engine 覆盖率 0% → 93.46%（改用 `coverageProvider: v8`）、🛡️ uuid 9.0.1 → 11.1.1（4 个子目录，生产依赖 0 漏洞）、🐛 修复 2 处 `no-dupe-keys` 真 Bug、🧹 前端 lint warnings 312 → 24、后端 ESLint 0 errors、🔧 根级 `src/` 36 个 TS 错误清零 |
 | **未发布** | 2026-10-21 | 🔒 P0-3 nodemailer 服务端化（`/api/email`）、🏗️ 后端目录整合（`7zi-backend/`）+ websocket/workflow 服务独立化、🧪 后端 Jest 测试 111 用例全绿（WS 行覆盖率 95.2%）、🔍 依赖/TODO 审计、🔧 前端 TS 错误治理 |
@@ -1439,8 +1440,10 @@ npm run test:e2e
 > 覆盖、`@retry` 装饰器泄漏内部 `RetryResult`、未使用的泛型参数）。
 > 详见 `T76_ERROR_REPORTING_TESTS.md`。
 >
-> ❗ 当前唯一已知失败：`7zi-frontend/tests/features/collab-client.test.ts`
-> → **19 failed / 19 passed + 2 Unhandled Rejection**（2026-10-24 实测，归属 T77 修复）。
+> ✅ `7zi-frontend/tests/features/collab-client.test.ts` 已全绿：
+> 00:08 为「19 failed / 19 passed + 2 Unhandled Rejection」→ 05:39 为「15 failed / 23 passed」
+> （提交 `0ad99bb99e`，`CollabClient.handleMessage` 新增 `isValidCollabMessage` 类型守卫）
+> → **05:55 实测「38 passed (38)」全绿**，Duration 3.82s（归 T82 修复，见 `T82_COLLAB_CLIENT_FIX.md`）。
 
 ### 运行测试（后端 / Jest）
 
@@ -1496,15 +1499,25 @@ npx jest --selectProjects workflow-engine --coverage
 - 本地等价验证：`npm ci` → `npm run lint` → `npx jest --coverage` → `npm audit --omit=dev`
 - 尚未在真实 GitHub Actions 上跑过首次运行，首次推送后建议观察一次
 
-### 代码质量现状（2026-10-24 实测）
+> ⚠️ **实际覆盖范围（2026-10-24 05:40 实读 `backend-ci.yml` 确认）**：
+> 门禁**只**覆盖 `7zi-backend/`（根，含其 `jest.projects` 的 websocket + workflow-engine 两个 project）
+> 与 `workflow-engine/backend/`。
+> **`7zi-backend/websocket-service/` 与 `7zi-backend/workflow-service/` 两个子服务没有独立的
+> lint / test job** —— 尽管两者 `package.json` 都定义了 `"lint": "eslint src/"` 与
+> `"test": "node test/run.js"`，CI 并未调用。这是一处**真实覆盖缺口**。
+> 仓库 `.github/workflows/` 下共 9 个 workflow 配置。
+
+### 代码质量现状（2026-10-24 05:38–05:52 实测）
 
 | 范围 | 命令 | 结果 |
 |------|------|------|
-| 后端 | `cd 7zi-backend && npx eslint .` | ✅ **0 errors / 0 warnings**（exit 0） |
-| 前端 | `cd 7zi-frontend && npx eslint src` | ✅ **0 errors / 0 warnings**（exit 0） |
+| 后端 | `cd 7zi-backend && npx eslint .` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
+| 前端 | `cd 7zi-frontend && npx eslint src` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
+| 根级 `src/` lint | `npx eslint src` | ✅ **0 errors / 1630 warnings**（exit 0） |
 | 根级 `src/` 类型 | `npx tsc --noEmit` | ✅ **0 errors**（exit 0） |
-| 后端测试 | `cd 7zi-backend && npx jest` | ✅ **16 套件 / 342 用例 全绿** |
+| 后端测试 | `cd 7zi-backend && npx jest` | ✅ **16 套件 / 342 用例 全绿**，15.3s（附 worker 未优雅退出提示，见遗留） |
 | 前端 error-reporting | `cd 7zi-frontend && npx vitest run src/lib/error-reporting` | ✅ **4 文件 / 89 用例 全绿**（4.81s） |
+| 前端 collab-client | `cd 7zi-frontend && npx vitest run tests/features/collab-client.test.ts` | ✅ **38 passed (38)**（05:55 实测；05:39 时为 15 failed / 23 passed，已由 T82 修复） |
 | 后端依赖 | `npm audit --omit=dev`（4 个子目录） | **0 vulnerabilities** |
 | 前端依赖 | `uuid` 已统一升级至 `^11.1.1` | 生产依赖无 moderate 及以上漏洞 |
 
@@ -1517,13 +1530,16 @@ npx jest --selectProjects workflow-engine --coverage
 > 的统计接口原先把「房间数量」与「房间数组」写在同一个 `rooms` 键上，后者静默覆盖前者；
 > 现改为 `roomCount`（数量）+ `rooms`（数组）。
 
-### ❗ 当前遗留（2026-10-24 实测，均未修复）
+### ❗ 当前遗留（2026-10-24 05:38–05:52 实测，均未修复）
 
 | 遗留项 | 实测结果 | 归属 |
 |---|---|---|
-| `7zi-frontend/tests/features/collab-client.test.ts` | ❌ 19 failed / 19 passed + 2 Unhandled Rejection（`CollabClient.send` → `MockWebSocketManager.emit`，疑为 `handleMessage` 读 `undefined` message 的 `message.type`） | T77 |
-| （已清零） | 根级 `npx eslint src` 原 21 error / 1630 warnings，提交 `3254d4838e` 后为 **0 error / 1630 warnings**；根 `eslint.config.mjs` 曾被截断为 0 字节导致根级 lint 失效，已恢复并修正 `react-hooks` 插件重复注册 | ✅ 已完成 |
+| `7zi-frontend/tests/features/collab-client.test.ts` | ✅ **38 passed (38)**（05:55 实测）。此前 19 failed → 15 failed → 全绿（`0ad99bb99e` 类型守卫 + T82 修复） | ✅ 已完成 |
+| 根级 `npx eslint src` | ✅ **0 error / 1625 warnings**（提交 `3254d4838e` 后归零；根 `eslint.config.mjs` 曾被截断为 0 字节导致根级 lint 失效，已恢复并修正 `react-hooks` 插件重复注册） | ✅ 已完成 |
+| 后端 CI 覆盖缺口 | `backend-ci.yml` 只覆盖 `7zi-backend/` 根与 `workflow-engine/backend/`；**`websocket-service/` 与 `workflow-service/` 两个子服务无独立 lint/test job** | 待派单 |
+| 后端 Jest worker | `npx jest` 全部通过，但输出 `A worker process has failed to exit gracefully`（疑似 teardown 泄漏） | 待验证 |
 | 后端 CI workflow | 尚未在真实 GitHub Actions 上跑过首次运行，首次推送后建议观察一次 | — |
+| 本地 vs 远程 | 本地 `main` **领先 `origin/main` 30 个提交**（`origin/main` = `17cf105a92`，2026-10-23 00:44），另有 5 个已修改文件 + 1 个未跟踪文件未 push | 待主人拍板 |
 
 ---
 

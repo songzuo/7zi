@@ -7,6 +7,120 @@
 
 ---
 
+## [未发布] / 2026-10-24（T86 同步）
+
+> 本段落由 T86（📚 咨询师）补记，日期 **2026-10-24 05:38–05:52 (Asia/Shanghai)**。
+> 复现命令与原始输出见 `T86_DOCS_SYNC.md`。T69–T79 的成果条目见下方同日期段落（未改写）。
+
+### 🧹 T80–T86 区间实际发生的改动
+
+- **`3254d4838e` 根级 `src/` ESLint 错误清零 + 恢复被清空的 `eslint.config.mjs`**
+  - 根 `eslint.config.mjs` 在仓库结构收敛时被截断为 0 字节 → 根级 lint 完全失效
+    （52 个误报 + 遍历 `.next/standalone` / `xunshi-inspector` 需 15+ 分钟）
+  - 本次从 `beb4132d77` 恢复配置，修正 `react-hooks` 插件重复注册
+    （`Cannot redefine plugin "react-hooks"`），补充 `'**/.next/**'` / `'**/standalone/**'` /
+    `'xunshi-inspector/**'` 忽略规则
+  - 根 `src/` 21 个 error 全部真实修复（`react/display-name` ×2、`react/no-unescaped-entities` ×4、
+    `no-unsafe-function-type`、`prefer-const`），**未使用 `eslint-disable` / `@ts-ignore`**
+- **`0ad99bb99e` CollabClient 防御性丢弃非法协作消息 + 搜索建议中英双语补齐**
+  - `CollabClient.handleMessage` 原先直接读 `message.type`，畸形帧（`undefined` / `null` / 非对象 / 缺 `type`）
+    会抛异常并逃逸成 Unhandled Rejection；现新增 `isValidCollabMessage` 类型守卫，
+    非法消息降级为 warn 日志后丢弃，`timestamp` 兜底为 `Date.now()`
+  - `search/suggestions`：`MOCK_WORKFLOWS` / `MOCK_TASKS` / `MOCK_NODES` 补 `text` 字段，
+    `POPULAR_SEARCHES` 补英文关键词，中英文输入都能命中
+  - 验证（提交信息记录）：`CollabClient.test.ts` 18/18、`notification-init.test.ts` + `suggestions.spec.ts` 44/44
+- **`db6d4a1a94` 抽出 `performPrefetch` 纯函数，修掉循环内调用 Hook**
+  - `useBatchPrefetch` 原在 `for` 循环里调用 `usePrefetch(path, ...)`，违反 rules-of-hooks
+    且每次循环创建新 Hook 实例；现抽出与 Hook 解耦的 `performPrefetch` 纯函数，Hook 与批量预取共用同一实现
+  - 该提交自带说明：prefetch 测试的 9 个失败为**存量**（`git stash` 干净树对照，失败用例完全一致）
+- **`399351b6cc` 审计日志过期清理的边界条件 `<` → `<=`**
+  - 原 `entry.timestamp < cutoffDate` 在「日志与 cutoff 落在同一毫秒」时会漏删，表现为用例**偶发失败**；
+    改用 `<=` 使「保留 N 天」边界语义确定
+- **`91f3e7c9d1` 修正部署脚本源站 IP 并移除明文密码**（历史提交，本轮未改动）
+- **T81 部署就绪度只读审查**（`T81_DEPLOY_READINESS.md`，2026-10-24 00:08）：全程只读，
+  未部署 / 未 commit / 未 push / 未改线上文件。结论为「🟡 有条件就绪」，
+  3 个高危未决问题已汇总进 `DECISION_PENDING_20261024.md`
+- **T82–T85（本轮并行，报告已落地并收录）**：
+  - `T82_COLLAB_CLIENT_FIX.md` —— `collab-client.test.ts` mock 重写以对齐真实
+    `WebSocketClient` 契约（`onStateChange` 单参 / `on` 双参 / `emit` 只发服务端不通知本地），
+    并补 `CollabClient` 两个真 bug：`updateNode()` 本地修改后未 emit `node:updated`、
+    `deleteNode()` 未 emit `node:deleted`（本地作者收不到自己的事件）
+  - `T85_FRONTEND_TEST_AUDIT.md` —— 前端测试套件健康普查，227 失败用例的五类分解
+  - `T86_DOCS_SYNC.md` —— 本段落
+- **前端测试基建修复**（已入库）：`vitest.config.ts` 排除 `tests/e2e/**`
+  （Playwright 用例被 vitest 收集会直接抛错）；`notifications.test.ts` 去掉多余右括号
+  （原为整文件解析崩溃，104 个用例从未执行）；`mobile-components.test.ts` → `.tsx`；
+  `types.test.ts` 相对路径 → `@/` 别名；`ErrorFallback` / `usePerformanceMonitoring`
+  的 ESM 下 `require()` 无法解析 `@/` 别名
+- **`f1fd650ddf` 更正 `prometheus.js` 的处理方式**：该文件是 tsc 从同名 `.ts` 编译出的
+  ES5 产物，里面的 `var _this = this` 是 **tsc 对箭头函数的正确降级**，不是死代码。
+  已撤销手工改动，改为在 `eslint.config.mjs` 中忽略该编译产物
+  （已核对两文件 8 个方法 + 2 个导出完全一致）
+
+### 📊 2026-10-24 05:38–05:52 实测基线（T86 亲跑）
+
+| 检查项 | 命令 | 结果 |
+|---|---|---|
+| 前端 collab-client | `cd 7zi-frontend && npx vitest run tests/features/collab-client.test.ts` | ✅ **38 passed (38)**，Duration 3.82s（05:55 实测） |
+| 后端 ESLint | `cd 7zi-backend && npx eslint .` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
+| 前端 ESLint | `cd 7zi-frontend && npx eslint src` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
+| 根级 ESLint | `npx eslint src` | ✅ **0 errors / 1630 warnings**，exit 0 |
+| 后端 Jest | `cd 7zi-backend && npx jest` | ✅ **16 套件 / 342 用例全绿**，15.3s |
+| 根级 TS | `npx tsc --noEmit` | ✅ 0 error（沿用 00:2x 记录，本轮未复跑） |
+
+- collab-client 相比 T79 记录的「19 failed / 19 passed + 2 Unhandled Rejection」
+  → 05:39 的「15 failed / 23 passed」→ **05:55 的「38 passed (38)」全绿**
+  （`0ad99bb99e` 类型守卫 + T82 修复，见 `T82_COLLAB_CLIENT_FIX.md`）
+- 后端 Jest 输出附带 `A worker process has failed to exit gracefully` 提示（worker 强制退出），
+  测试本身全绿，但存在 teardown 泄漏迹象 —— 属**遗留观察项**，未复现为失败
+
+### 🔴 CI 门禁实测（2026-10-24 06:30，主管本地逐 job 复现）
+
+| Workflow | Job | 实测 |
+|---|---|---|
+| `ci.yml` | `lint` | ✅ exit 0 / 1767 warnings / 140 秒 |
+| `ci.yml` | `typecheck` | ✅ exit 0 |
+| `ci.yml` | `test-unit` | ❌ **exit 1 — 211 失败 / 5588 通过 / 32 跳过（5831 总数），387 秒** |
+| `backend-ci.yml` | `security-audit` | ✅ 4/4 子目录 npm audit 0 漏洞；uuid 均 `^11.1.1` |
+| `backend-ci.yml` | `test-7zi-backend` | ✅ 16/16 套件、342/342 用例，覆盖率 91%+（门槛 60%） |
+| `backend-ci.yml` | `test-workflow-engine` | ✅ 6/6 套件、214/214 用例，覆盖率 88.85%（门槛 60%） |
+
+**后端 CI 全绿；前端 `test-unit` 必然红。** 211 个失败用例的五类分解见
+`T85_FRONTEND_TEST_AUDIT.md`（断言过时 ~120 / 手势基建 40 / 导入解析 3 文件 / 超时 1 /
+解析收集 5 文件已修）。
+
+**耗时风险**：`ci.yml` 的 `test-unit` 是 4 分片并行、每片 10 分钟超时；
+慢测试集中在 `VisualWorkflowOrchestrator.test.ts`（62.6s）、
+`edge-cases-supplement.test.ts`（75.6s）、`workflow-execution.integration.test.ts`（22.8s），
+均为真实 `setTimeout` 等待，建议改 fake timer。
+
+### 🚧 CI 门禁覆盖缺口（T86 实读 `.github/workflows/backend-ci.yml` 确认）
+
+- `backend-ci.yml` 的 path 过滤与 job 工作目录为 `7zi-backend/**` 与 `workflow-engine/backend/**`，
+  共 5 个 job（`setup-7zi-backend` / `setup-workflow-engine` / `security-audit` /
+  `test-7zi-backend` / `test-workflow-engine`）
+- ✅ **该覆盖缺口已补上**：新增 `test-workflow-service` / `test-websocket-service` 两个 job
+  （`backend-ci.yml`），各带 `npm ci` + ESLint + 测试 + 覆盖率上传；
+  同时为两个子服务各补一份 `eslint.config.js`，消除双 flat config 隐患
+- 仓库 `.github/workflows/` 下共 9 个 workflow 配置
+
+### 📄 T86 产出
+
+- 新建 **`DECISION_PENDING_20261024.md`**：把散落在 `STAGE_REPORT_20261023.md` 与
+  `T81_DEPLOY_READINESS.md` 的未决问题汇总成一份待主人拍板的清单
+- 更新 `README.md`：只同步与现状不符的部分（CI 实际覆盖范围、测试命令口径、当前遗留数字）
+- 更新 `HEARTBEAT.md`：补上 05:38 的真实基线数字
+
+### ❗ 当前遗留（T86 复测后）
+
+- `7zi-frontend/tests/features/collab-client.test.ts`：**38 passed (38) 全绿**（05:55 实测；05:39 时为 15 failed / 23 passed，已由 T82 修复）
+- 后端 CI 未覆盖 `websocket-service` / `workflow-service` 两个子服务
+- `git` 本地领先 `origin/main` **30 个提交**（`origin/main` = `17cf105a92`，2026-10-23 00:44），
+  工作区另有 5 个已修改文件 + 1 个未跟踪文件，**尚未 push**
+- 后端 Jest worker 存在「未优雅退出」提示
+
+---
+
 ## [未发布] / 2026-10-24
 
 > 本段落由 T79 补记。所有数字均为 **2026-10-24 00:08–00:20 (Asia/Shanghai) 实测复现**，
