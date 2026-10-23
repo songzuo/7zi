@@ -1,8 +1,8 @@
 # HEARTBEAT - 持续工作调度
 
-## 最后检查: 2026-10-24 00:40 (Beijing)
+## 最后检查: 2026-10-24 00:50 (Beijing)
 
-### ✅ 代码门禁全绿
+### ✅ 四道门禁全绿（主管独立复跑，全部 exit 0）
 | 门禁 | 结果 |
 |---|---|
 | 根 `eslint src` | **0 errors** / 1630 warnings |
@@ -10,16 +10,26 @@
 | 7zi-frontend `eslint .` | **0 errors** / 88 warnings |
 | 7zi-backend `eslint .` | **0 errors** / 0 warnings |
 
-提交：`3254d4838e` 根级 src/ ESLint 错误清零 + 恢复被清空的 eslint.config.mjs
-（配置在结构收敛时被截断为 0 字节，根级 lint 完全失效）
+### 本轮提交（源码全部入库，工作区仅剩文档/报告）
+- `3254d4838e` 根级 src/ ESLint 错误清零 + 恢复被清空的 eslint.config.mjs
+- `0ad99bb99e` CollabClient 防御性丢弃非法帧 + 搜索建议中英双语补齐
+- `db6d4a1a94` 抽出 performPrefetch 纯函数，修掉循环内调用 Hook
+- `888be49974` 心跳更新
+
+### 关键判断记录
+- `monitoring/prometheus.js` 是**编译产物但被 Next 优先加载**（.js 先于 .ts）。
+  原 `_this`→`this` 改法在 `forEach(function(){})` 回调里 this 为 undefined，
+  运行时会 TypeError。已改为箭头函数（与 .ts 源码一致），
+  `this` 词法绑定回实例，`node --check` + 最小复现验证过。
+- prefetch 测试 9 个失败已用 `git stash` 干净树对照，确认**存量非本次引入**。
 
 ### ⚠️ 部署链路 3 个高危未决（详见 T81_DEPLOY_READINESS.md）
-1. **源站内存仅剩 339MB / 97% 占用** → 绝对不能在 198.44.179.155 上跑 `next build`
-2. **`deploy.sh` 健康检查打 `localhost:3000`，但 3000 无服务**（实际在 3001/28080）
+1. 源站内存仅剩 339MB / 97% 占用 → 不能在 198.44.179.155 上跑 `next build`
+2. `deploy.sh` 健康检查打 `localhost:3000`，但 3000 无服务（实际 3001/28080）
    → 会误判失败并自动回滚
-3. **`/opt/7zi-frontend` 与本地不同源**（服务器 HEAD `d523bcb1` vs 本地 `a1914975fb`，
+3. `/opt/7zi-frontend` 与本地不同源（服务器 HEAD `d523bcb1` vs 本地，
    服务器另有 55 个未提交改动）→ rsync `--delete` 有不可逆丢失风险
-4. **bot5.szspd.cn SSH 密码与 key 全部被拒** → 测试环境无法做部署前验证
+4. bot5.szspd.cn SSH 密码与 key 全部被拒 → 测试环境无法验证
 
 ### 待主人拍板
 1. 部署目标：bot5 还是 /opt/7zi-frontend 容器？
