@@ -32,7 +32,7 @@ export interface TypedObjectStore<T> {
 /**
  * 类型安全的 IndexedDB 索引接口
  */
-export interface TypedIndex<T> {
+export interface TypedIndex {
   openCursor(range: IDBKeyRange): IDBRequest<IDBCursorWithValue | null>
 }
 

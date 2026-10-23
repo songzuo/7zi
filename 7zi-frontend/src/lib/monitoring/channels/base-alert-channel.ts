@@ -378,10 +378,8 @@ export abstract class BaseAlertChannel implements AlertChannel {
    */
   protected async sendWithRetry(alert: Alert): Promise<void> {
     let lastError: Error | undefined
-    let attempts = 0
 
     for (let i = 0; i <= this.retryConfig.maxRetries; i++) {
-      attempts++
 
       try {
         await this.sendInternal(alert)

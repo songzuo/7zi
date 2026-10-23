@@ -98,7 +98,6 @@ const initialState = {
  * 限制大小防止内存泄漏
  */
 const permissionCheckCache = new Map<string, PermissionCheckResult>()
-const MAX_CACHE_SIZE = 500
 
 /**
  * 添加缓存条目，带大小限制

@@ -190,13 +190,6 @@ export class SlackChannel implements NotificationChannel {
       },
     });
 
-    // 颜色条（通过 divider 分隔前的 context 实现）
-    const severityColors: Record<string, string> = {
-      info: '#36a64f',
-      warning: '#ff9800',
-      error: '#f44336',
-      critical: '#9c27b0',
-    };
 
     // 内容块
     blocks.push({

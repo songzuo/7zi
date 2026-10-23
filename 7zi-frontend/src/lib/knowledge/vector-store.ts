@@ -163,7 +163,7 @@ export class WeaviateVectorStore implements IVectorStore {
   async search(
     queryEmbedding: number[],
     topK: number,
-    filters?: Record<string, any>
+    _filters?: Record<string, any>
   ): Promise<VectorSearchResult[]> {
     if (!this.initialized) await this.initialize();
 

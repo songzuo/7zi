@@ -96,7 +96,7 @@ export function CollabProvider({
 
   // Handle cursor moves from WebSocket
   useEffect(() => {
-    const unsubscribe = ws.onCursorMove((remoteUserId, position) => {
+    const unsubscribe = ws.onCursorMove((_remoteUserId, _position) => {
       // Get user info from presence or use defaults
 
       // Update in cursors hook

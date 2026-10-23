@@ -50,7 +50,7 @@ interface UseAutoSaveOptions {
 /**
  * 自动保存结果
  */
-interface UseAutoSaveResult<T> {
+interface UseAutoSaveResult {
   isSaving: boolean
   lastSavedAt: number | null
   draftId: string | null
@@ -199,7 +199,7 @@ export function useAutoSave<T = unknown>(
   type: DraftType,
   data: T | null,
   options: UseAutoSaveOptions = {}
-): UseAutoSaveResult<T> {
+): UseAutoSaveResult {
   const { debounceMs = 2000, ttl, onSave, onError } = options
 
   const [isSaving, setIsSaving] = useState(false)

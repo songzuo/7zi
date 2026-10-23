@@ -189,7 +189,6 @@ export class MetricsAggregator {
     let sumY = 0
     let sumXY = 0
     let sumX2 = 0
-    let sumY2 = 0
 
     // 使用相对时间（秒）以避免大数值问题
     const baseTime = sorted[0].timestamp
@@ -202,7 +201,6 @@ export class MetricsAggregator {
       sumY += y
       sumXY += x * y
       sumX2 += x * x
-      sumY2 += y * y
     }
 
     // 计算斜率

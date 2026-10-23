@@ -157,7 +157,7 @@ export class EvomapGateway {
 
   // ==================== HTTP 请求核心 ====================
 
-  private async request<T = Record<string, unknown>>(
+  private async request(
     endpoint: string,
     data?: unknown,
     method: 'GET' | 'POST' = 'POST'

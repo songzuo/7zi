@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { AlertTriangle, Zap, Activity, TrendingUp, TrendingDown, RefreshCw, Trash2 } from 'lucide-react'
+import { AlertTriangle, Zap, Activity, TrendingDown, RefreshCw, Trash2 } from 'lucide-react'
 import { monitor, AggregatedMetrics, AlarmEvent, getMonitoringConfig } from '@/lib/monitoring'
 import { initBrowserTracking } from '@/lib/monitoring/utils'
 

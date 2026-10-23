@@ -352,7 +352,7 @@ export class STTRouter {
    */
   async destroy(): Promise<void> {
     const providerEntries = Array.from(this.providers.entries())
-    for (const [provider, client] of providerEntries) {
+    for (const [, client] of providerEntries) {
       if (client && typeof client.destroy === 'function') {
         await client.destroy()
       }
