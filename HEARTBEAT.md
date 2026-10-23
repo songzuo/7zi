@@ -1,11 +1,34 @@
-# HEARTBEAT.md
+# HEARTBEAT - 持续工作调度
 
-# OpenClaw相关任务前必读
+## 最后检查: 2026-10-24 00:40 (Beijing)
 
-在执行任何OpenClaw配置相关任务之前，请先阅读:
-- openclaw-knowledge-base.md (本机的OpenClaw知识库)
+### ✅ 代码门禁全绿
+| 门禁 | 结果 |
+|---|---|
+| 根 `eslint src` | **0 errors** / 1630 warnings |
+| 根 `tsc --noEmit` | **0 errors** |
+| 7zi-frontend `eslint .` | **0 errors** / 88 warnings |
+| 7zi-backend `eslint .` | **0 errors** / 0 warnings |
 
-这样可以确保使用最新的配置格式和最佳实践，避免使用过时的大模型知识。
+提交：`3254d4838e` 根级 src/ ESLint 错误清零 + 恢复被清空的 eslint.config.mjs
+（配置在结构收敛时被截断为 0 字节，根级 lint 完全失效）
+
+### ⚠️ 部署链路 3 个高危未决（详见 T81_DEPLOY_READINESS.md）
+1. **源站内存仅剩 339MB / 97% 占用** → 绝对不能在 198.44.179.155 上跑 `next build`
+2. **`deploy.sh` 健康检查打 `localhost:3000`，但 3000 无服务**（实际在 3001/28080）
+   → 会误判失败并自动回滚
+3. **`/opt/7zi-frontend` 与本地不同源**（服务器 HEAD `d523bcb1` vs 本地 `a1914975fb`，
+   服务器另有 55 个未提交改动）→ rsync `--delete` 有不可逆丢失风险
+4. **bot5.szspd.cn SSH 密码与 key 全部被拒** → 测试环境无法做部署前验证
+
+### 待主人拍板
+1. 部署目标：bot5 还是 /opt/7zi-frontend 容器？
+2. rsync 还是服务器 git pull（55 个 dirty 改动归属）？
+3. 是否允许本地/CI 构建镜像推源站（源站内存不足）？
+4. bot5 的正确凭据？
+5. git 历史明文密码是否重写 / GitHub PAT 是否轮换？
+
+---
 
 ---
 
@@ -143,31 +166,31 @@ ls docs/ | wc -l                          # 应为 305
 ```
 **提交前务必看 diff 规模** —— 18 万行删除绝不该静默提交进去。
 
-## 2026-10-23 20:55 北京时间 — 代码门禁现状
+## 16. 插件加载失败排查手册（2026-10-23 实战）
+每次 `openclaw plugins list` 里状态是 `error`，或启动刷
+`plugin id mismatch (manifest uses "X", entry hints "Y")`，按这三条查：
 
-### ✅ 后端 lint 双配置全绿（T71）
-`7zi-backend` 下两套 flat config 并存是隐患：`eslint.config.js`（ESLint 9 自动选中）
-与 `eslint.config.mjs`（死配置）的 `caughtErrorsIgnorePattern` 不一致，
-`catch (_error) {}` 在默认配置不报、在 `.mjs` 下必报 → CI 一旦切配置就浮现。
-修法：改用 ES2019 **可选 catch 绑定** `catch {`，语义等价且两套配置下无条件豁免。
-零 `eslint-disable`、零配置改动。
-验证：`npx eslint workflow-service/src workflow-engine websocket` → exit 0；
-`--config eslint.config.mjs` 同范围 → exit 0。
+1. **目录结构**：插件必须是 `/root/.openclaw/extensions/<插件名>/` 独立目录，
+   里面放 `index.ts` + `package.json` + `openclaw.plugin.json`。
+   文件直接躺在 `extensions/` 根目录下会被当成单文件插件，idHint 变成 "index" → id mismatch。
+2. **SDK 子路径**：新版 OpenClaw 把 `plugin-sdk` 拆成几十个子路径，
+   主入口 `openclaw/plugin-sdk` 只剩很少的导出。
+   - `createDedupeCache` / `readRequestBodyWithLimit` / `isRequestBodyLimitError` / `withFileLock` → `plugin-sdk/infra-runtime`
+   - `normalizeE164` → `plugin-sdk/text-runtime`
+   - `defineChannelPluginEntry` → `plugin-sdk/core`
+   用 `grep -c '<符号名>' dist/plugin-sdk/<子路径>.js` 确认符号在哪个文件。
+3. **registerHttpRoute 必须带 auth**：`{ path, handler, auth: "plugin" }`，
+   缺了 doctor 会报 `http route registration missing or invalid auth`。
 
-### 仓库结构已收敛
-`7zi-frontend/` 已并入主仓，`src/` 与 `7zi-frontend/src/` 副本问题自然消解。
-前端 retry 测试从 **246s → 3.8s**（`f2a4fdc944` 修 3 个真 Bug + 重写测试）。
+依赖装不上时（如 `Cannot find module '@sinclair/typebox'`）：本机 `extensions/node_modules`
+里可能有 743 个**空目录**（历史遗留），`npm install` 会报 `edgesOut` 错误。
+绕法：`ln -s <openclaw>/node_modules/@sinclair/typebox extensions/node_modules/@sinclair/typebox`。
 
-### 并发教训（本日两次）
-1. 子代理的"清理"提交会**静默回退**已修好的 ESLint 配置 —— 提交前必须排除已修复文件。
-2. `vitest` 报 11 failed 可能是**竞态**：跑测试期间并发 agent 提交了修复，重跑即 21/21 全绿。
-   **看到失败先确认是否有人在同时改**，再判定是不是真 bug。
-3. 提交时严格按路径 `git add`，避免把其他 agent 的在途改动卷进来。
-
-### 遗留
-- 全仓 `npx eslint .` 剩余 11 warnings 全在 `websocket-service/` 与 `workflow-service/test/`。
-- `workflow-engine/websocket-integration-example.js` 是显式 ignore 的示例片段，
-  `--no-ignore` 会出 16 个 `no-undef`，属 intentional ignore，不建议动。
+## 17. OpenClaw 升级注意（2026-10-23）
+- 本机 Node 22.22.0，**不能**升到 OpenClaw 2026.10.x（要求 Node >=24.22.1）
+- 可升到的 2026.3.x 系列无 Node 版本限制，已升到 **2026.3.24**
+- 升级前备份 `~/.openclaw/openclaw.json` 和 `~/.openclaw/cron/jobs.json`
+- 升完务必跑 `openclaw plugins list` + `openclaw doctor --non-interactive` 验证
 
 ## 已知遗留（需用户决策，勿擅自处理）
 - git 历史中可能仍残留旧 token —— 彻底清除需重写历史 + 强制推送
