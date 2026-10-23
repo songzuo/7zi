@@ -5,7 +5,7 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -51,11 +51,19 @@ export function HistoryDataPanel(): React.ReactElement {
   const [exportData, setExportData] = useState<string>('')
   const [showExport, setShowExport] = useState(false)
 
-  useEffect(() => {
-    loadData()
-  }, [timeRange, metricType])
+  const prepareExportData = useCallback((data: PerformanceMetric[]) => {
+    const headers = ['Timestamp', 'Type', 'Name', 'Value', 'Unit']
+    const rows = data.map(m => [
+      new Date(m.timestamp).toISOString(),
+      m.type,
+      m.name,
+      m.value.toString(),
+      m.unit,
+    ])
+    setExportData([headers.join(','), ...rows.map(r => r.join(','))].join('\n'))
+  }, [])
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true)
     try {
       const filter: MetricFilter = {
@@ -79,19 +87,11 @@ export function HistoryDataPanel(): React.ReactElement {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [timeRange, metricType, prepareExportData])
 
-  const prepareExportData = (data: PerformanceMetric[]) => {
-    const headers = ['Timestamp', 'Type', 'Name', 'Value', 'Unit']
-    const rows = data.map(m => [
-      new Date(m.timestamp).toISOString(),
-      m.type,
-      m.name,
-      m.value.toString(),
-      m.unit,
-    ])
-    setExportData([headers.join(','), ...rows.map(r => r.join(','))].join('\n'))
-  }
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleExport = () => {
     const blob = new Blob([exportData], { type: 'text/csv' })
