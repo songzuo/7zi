@@ -217,7 +217,7 @@ describe('lib/server', () => {
   test('closing the http server stops the internal intervals', async () => {
     const logger = createRecordingLogger()
     build({ logger })
-    const port = await listen(httpServer)
+    await listen(httpServer)
 
     await new Promise(resolve => httpServer.close(resolve))
     httpServer = null

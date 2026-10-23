@@ -23,7 +23,6 @@ function loadServer(env = {}) {
     LOG_LEVEL: 'error',
     ...env,
   }
-  // eslint-disable-next-line global-require
   return require(ENTRY)
 }
 

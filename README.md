@@ -865,6 +865,7 @@ EMAIL_ALERTING_ENABLED=true
 
 | 版本       | 日期       | 主要更新                                                                                                                                                                |
 | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **未发布** | 2026-10-23 | 🚦 后端 CI 门禁落地（`.github/workflows/backend-ci.yml`：lint + jest + 覆盖率阈值 + npm audit 门禁）、🐛 workflow-engine 覆盖率 0% → 93.46%（改用 `coverageProvider: v8`）、🛡️ uuid 9.0.1 → 11.1.1（4 个子目录，生产依赖 0 漏洞）、🧹 前端 lint warnings 312 → 25、🔧 根级 `src/` 36 个 TS 错误清零 |
 | **未发布** | 2026-10-21 | 🔒 P0-3 nodemailer 服务端化（`/api/email`）、🏗️ 后端目录整合（`7zi-backend/`）+ websocket/workflow 服务独立化、🧪 后端 Jest 测试 111 用例全绿（WS 行覆盖率 95.2%）、🔍 依赖/TODO 审计、🔧 前端 TS 错误治理 |
 | **v1.14.4** | 2026-10-19 | 🔒 Server Action 部署修复、vite 依赖更新 (8.0.12→8.3.4 修复安全漏洞)、ws 依赖更新、新增 API 路由测试                                                            |
 | **v1.14.3** | 2026-05-10 | 📊 代码质量深度审查 (540 TypeScript 错误分析)、安全漏洞修复 (serialize-javascript RCE, xlsx ReDoS)、测试策略文档更新                                                    |
@@ -1434,7 +1435,7 @@ npm run test
 # 等价写法（直接调用 Jest）
 npx jest
 
-# 仅 WebSocket 服务（110 个用例，行覆盖率 95.2%）
+# 仅 WebSocket 服务（10 套件 / 128 用例，行覆盖率 96.95%）
 npm run test:websocket
 
 # 仅工作流引擎
@@ -1442,10 +1443,37 @@ npm run test:workflow
 
 # 覆盖率报告（输出到 7zi-backend/coverage/）
 npx jest websocket/ --coverage
+
+# 全量 + 覆盖率（16 套件 / 342 用例，All files 94.74%）
+npx jest --coverage
+
+# 仅 workflow-engine project（6 套件 / 214 用例，All files 93.46%）
+npx jest --selectProjects workflow-engine --coverage
 ```
 
 > 覆盖率阈值：**lines ≥ 60%**（`coverageThreshold.global.lines`）。
+> 覆盖率 provider：`coverageProvider: "v8"`（Node 原生 V8 覆盖率）。
+> ⚠️ 历史上用 babel coverage provider 时，workflow-engine 位于 `7zi-backend` cwd 之外会被
+> `babel-plugin-istanbul` 跳过插桩，导致覆盖率恒为 0%；改用 `v8` 后已修复。
 > 详见 [`docs/BACKEND_TESTING_GUIDE.md`](./docs/BACKEND_TESTING_GUIDE.md)。
+
+### 后端 CI 门禁
+
+后端 CI 流水线位于 **`.github/workflows/backend-ci.yml`**（workflow 名 `Backend CI`），
+在 `main` / `develop` 的 push 与 PR（path 过滤 `7zi-backend/**`、`workflow-engine/backend/**`）
+以及手动 `workflow_dispatch` 时触发。
+
+| Job | 门禁内容 |
+|-----|---------|
+| `setup-7zi-backend` | `7zi-backend/node_modules` 缓存 + `npm ci` |
+| `setup-workflow-engine` | `workflow-engine/backend/node_modules` 缓存 + `npm ci` |
+| `security-audit` | 4 个子目录 `npm audit --omit=dev --audit-level=moderate`（moderate 及以上直接失败）+ uuid 声明版本断言（≥ 11.1.1） |
+| `test-7zi-backend` | `npm run lint` + `npx jest --coverage`（lines ≥ 60% 阈值）+ 上传覆盖率 artifact |
+| `test-workflow-engine` | `npm run lint` + `npx jest --coverage`（lines ≥ 60% 阈值）+ 上传覆盖率 artifact |
+
+- Node `'22'`，`permissions: contents: read`（最小权限），`concurrency` 取消同 ref 过期运行
+- 本地等价验证：`npm ci` → `npm run lint` → `npx jest --coverage` → `npm audit --omit=dev`
+- 尚未在真实 GitHub Actions 上跑过首次运行，首次推送后建议观察一次
 
 ---
 

@@ -7,7 +7,55 @@
 
 ---
 
-## [未发布] / 2026-10-21
+## [未发布] / 2026-10-23
+
+### 🆕 CI / 门禁
+
+- **后端 CI 流水线落地（`.github/workflows/backend-ci.yml`，提交 `05e0f30285`）**
+  - 此前后端**只有前端 `ci.yml`，无任何后端门禁**；本轮新增独立 `Backend CI` workflow
+  - 5 个 job：`setup-7zi-backend` / `setup-workflow-engine`（node_modules 缓存 + `npm ci`）、`security-audit`、`test-7zi-backend`、`test-workflow-engine`
+  - 门禁内容：`npm run lint` + `npx jest --coverage`（覆盖率阈值 `lines ≥ 60%`）+ `npm audit --omit=dev --audit-level=moderate`（moderate 及以上直接失败）+ uuid 声明版本断言（≥ 11.1.1）
+  - 触发条件：`push` / `pull_request` 到 `main` / `develop`（path 过滤后端目录）+ `workflow_dispatch`；`permissions: contents: read`（最小权限）；`concurrency` 取消同 ref 过期运行；Node `'22'`
+
+### 🐛 覆盖率修复
+
+- **workflow-engine 覆盖率 0% → 93.46%**
+  - 现象：`cd 7zi-backend && npx jest --selectProjects workflow-engine --coverage` 输出 `All files 0%`，而 `cd workflow-engine/backend && npx jest --coverage` 为 88.24%
+  - **真实根因（与最初假设不同）**：路径解析其实是对的（`--showConfig` 已确认）。问题在 `babel-plugin-istanbul` 的默认过滤 —— 它会跳过 `process.cwd()` 之外的文件，而 workflow-engine 源码位于 `7zi-backend` cwd 之外（`../workflow-engine/backend/`），因此**根本不插桩**；`coveragePathIgnorePatterns` 只能"加白名单排除"，无法反选 cwd 之外的文件
+  - 修复：jest 改用 `coverageProvider: "v8"`（Node 原生 V8 覆盖率，不经过 babel 插桩过滤）
+  - 复测：`--selectProjects workflow-engine --coverage` → **All files 93.46%**；全量 `npx jest --coverage` → **16 套件 / 342 用例全绿，All files 94.74%**
+  - 详见 `T47_BACKEND_CI_COVERAGE_UUID_20261023.md`
+
+### 🛡️ 安全 / 依赖
+
+- **uuid 9.0.1 → 11.1.1（4 个子目录）**
+  - `7zi-backend/`、`7zi-backend/workflow-service/`、`7zi-backend/websocket-service/`、`workflow-engine/backend/` 的 `package.json` 依赖声明统一为 `^11.1.1`，lockfile 同步更新
+  - uuid v11 为双包（ESM + CJS），本仓库全部用法为 `require('uuid')` 取 `v4`，实测无需改动源码
+  - `npm audit --omit=dev` 结果：`7zi-backend` / `workflow-engine/backend` / `workflow-service` / `websocket-service` **全部 0 vulnerabilities**（此前 `uuid<11.1.1` 为 moderate）
+  - `workflow-engine/backend` 另修复 `qs` 漏洞链：`express` 4.18.2 → `^4.22.3` + `overrides.qs: ^6.16.1`
+
+### 🔧 工程配置
+
+- **`workflow-engine/backend/src/eslint.config.mjs`（新增）** — 该目录原本**没有任何 ESLint 配置**，`npm run lint` 之前直接报错退出码 2；现为 flat config（`no-undef: error` + `no-unused-vars: warn` + `no-empty: warn`），当前 0 error / 0 warning
+- **`7zi-backend/package.json`** — `collectCoverageFrom` 改为 `<rootDir>` 绝对形式；新增 `coverageProvider: "v8"`；`testTimeout` 提升至 20000
+
+### 🧹 前端代码质量
+
+- **前端 ESLint warnings 312 → 37 → 25**（`cd 7zi-frontend && npx eslint src`，0 errors）
+  - 312 基线：`no-unused-vars` 288 + `exhaustive-deps` 24
+  - 中间态 37：`react-hooks/exhaustive-deps` 为主
+  - 当前 25：`react-hooks/exhaustive-deps` 24 + `@typescript-eslint/no-unused-vars` 1
+  - 未使用批量 `eslint-disable` / `// @ts-ignore` 绕过
+- **根级 `src/` 36 个 TypeScript 错误清零**（提交 `4f72fa7fec`）：`email-config.ts` 的 `SMTP_DEBUG` 改为从 `process.env` 读取（根因：解构默认值覆盖了环境变量）、`query-builder.ts` 补索引签名、多个文件补缺失类型导入与可选字段
+- **前端 `next` 16.3.8 → 16.4.2**
+
+### 🧪 测试
+
+- **后端 Jest 全量稳定**：16 套件 / 342 用例全绿（`cd 7zi-backend && npx jest --coverage`）
+- **WebSocket 项目实测**：10 套件 / 128 用例全绿，行覆盖率 **96.95%**
+- ⚠️ **前端 `error-reporting` vitest 仍存在问题**（T48 半成品 + T50 在修）：`retry.test.ts` 用 fake timers 但仍真实等待 ~1.1s/次，实测 300s 超时未结束（exit 124）；`withRetry` 的 `AbortSignal` 取消语义、`sleepSync` 在 fake timers 下的忙等死循环正在修复中
+
+## [未发布 · 2026-10-21 批次] / 2026-10-21
 
 ### 🔧 类型错误治理（TypeScript）
 

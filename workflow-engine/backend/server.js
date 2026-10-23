@@ -9,7 +9,7 @@ const WorkflowEngine = require('./src/engine/WorkflowEngine');
 const {
   StartExecutor, EndExecutor, TaskExecutor, ConditionExecutor,
   LoopExecutor, ParallelExecutor, SubflowExecutor, DelayExecutor,
-  HttpExecutor, AiExecutor, TransformExecutor
+  HttpExecutor, TransformExecutor
 } = require('./src/engine/executors');
 
 const app = express();

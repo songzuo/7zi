@@ -243,7 +243,7 @@ async function runTests() {
 
   await new Promise(resolve => setTimeout(resolve, 500))
 
-  for (const { client, user } of clients) {
+  for (const { client } of clients) {
     client.emit('cursor:move', {
       roomId: TEST_ROOM_ID,
       position: Math.floor(Math.random() * 100),
@@ -252,8 +252,8 @@ async function runTests() {
 
   await new Promise(resolve => setTimeout(resolve, 1000))
 
-  let totalCursorUpdates = Object.values(cursorUpdatesReceived).reduce((a, b) => a + b, 0)
-  let expectedCursorUpdates = TEST_USERS.length * (TEST_USERS.length - 1)
+  const totalCursorUpdates = Object.values(cursorUpdatesReceived).reduce((a, b) => a + b, 0)
+  const expectedCursorUpdates = TEST_USERS.length * (TEST_USERS.length - 1)
 
   logTest(
     'Cursor Tracking',
@@ -279,7 +279,7 @@ async function runTests() {
 
   await new Promise(resolve => setTimeout(resolve, 500))
 
-  for (const { client, user } of clients) {
+  for (const { client } of clients) {
     client.emit('presence:typing', {
       roomId: TEST_ROOM_ID,
       isTyping: true,
@@ -288,8 +288,8 @@ async function runTests() {
 
   await new Promise(resolve => setTimeout(resolve, 1000))
 
-  let totalTypingUpdates = Object.values(typingUpdatesReceived).reduce((a, b) => a + b, 0)
-  let expectedTypingUpdates = TEST_USERS.length * (TEST_USERS.length - 1)
+  const totalTypingUpdates = Object.values(typingUpdatesReceived).reduce((a, b) => a + b, 0)
+  const expectedTypingUpdates = TEST_USERS.length * (TEST_USERS.length - 1)
 
   logTest(
     'Typing Indicators',

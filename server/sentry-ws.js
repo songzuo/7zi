@@ -54,7 +54,7 @@ function init() {
     ],
 
     // Filter sensitive data
-    beforeSend(event, hint) {
+    beforeSend(event, _hint) {
       // Remove auth headers
       if (event.request?.headers) {
         delete event.request.headers.authorization

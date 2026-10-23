@@ -7,7 +7,7 @@ class BaseExecutor {
     this.type = type;
   }
 
-  async execute(node, execution, input) {
+  async execute(_node, _execution, _input) {
     throw new Error('execute() must be implemented by subclass');
   }
 }
@@ -20,7 +20,7 @@ class StartExecutor extends BaseExecutor {
     super('start');
   }
 
-  async execute(node, execution, input) {
+  async execute(_node, _execution, _input) {
     return { started: true, timestamp: new Date().toISOString() };
   }
 }
@@ -33,7 +33,7 @@ class EndExecutor extends BaseExecutor {
     super('end');
   }
 
-  async execute(node, execution, input) {
+  async execute(_node, _execution, _input) {
     return { completed: true, timestamp: new Date().toISOString() };
   }
 }
@@ -46,7 +46,7 @@ class TaskExecutor extends BaseExecutor {
     super('task');
   }
 
-  async execute(node, execution, input) {
+  async execute(node, _execution, _input) {
     const { action, params } = node.data;
     
     // 模拟任务执行
@@ -174,7 +174,7 @@ class ParallelExecutor extends BaseExecutor {
     super('parallel');
   }
 
-  async execute(node, execution, input) {
+  async execute(node, _execution, _input) {
     const { branches } = node.data;
     
     // 标记为并行执行
@@ -224,7 +224,7 @@ class DelayExecutor extends BaseExecutor {
     super('delay');
   }
 
-  async execute(node, execution, input) {
+  async execute(node, _execution, _input) {
     const { duration, unit = 'seconds' } = node.data;
     
     let ms = duration;
@@ -258,7 +258,7 @@ class HttpExecutor extends BaseExecutor {
     super('http');
   }
 
-  async execute(node, execution, input) {
+  async execute(node, _execution, _input) {
     const { url, method = 'GET', headers = {}, body } = node.data;
     
     try {
@@ -353,7 +353,7 @@ class TransformExecutor extends BaseExecutor {
     return result;
   }
 
-  async applyTransform(transform, data, execution) {
+  async applyTransform(transform, data, _execution) {
     const { type, config } = transform;
 
     switch (type) {

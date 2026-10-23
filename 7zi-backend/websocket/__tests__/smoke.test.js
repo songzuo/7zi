@@ -26,7 +26,6 @@ const { spawn } = require('child_process')
 // socket.io-client is provided by the workspace root install (hoisted).
 let ioClient = null
 try {
-  // eslint-disable-next-line global-require
   ioClient = require('socket.io-client')
 } catch (_error) {
   ioClient = null

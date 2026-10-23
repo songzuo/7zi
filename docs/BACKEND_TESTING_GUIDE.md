@@ -22,9 +22,11 @@ npm install          # 首次需要（Node.js >= 18）
 
 | 命令 | 作用 | 当前结果 |
 |------|------|---------|
-| `npm run test` | 依次跑 websocket + workflow-engine | **10 suites / 111 tests 全绿** |
-| `npm run test:websocket` | 仅 WebSocket 服务 | 9 suites / 110 tests，行覆盖率 95.2% |
-| `npm run test:workflow` | 仅 workflow-engine | 1 suite（`__tests__/basic.test.js`） |
+| `npm run test` | 依次跑 websocket + workflow-engine | **16 suites / 342 tests 全绿**（10 + 6） |
+| `npm run test:websocket` | 仅 WebSocket 服务 | 10 suites / 128 tests，行覆盖率 96.95% |
+| `npm run test:workflow` | 仅 workflow-engine | 6 suites / 214 tests，行覆盖率 93.46% |
+| `npx jest --coverage` | 全量 + 覆盖率报告 | 16 suites / 342 tests，All files 94.74% |
+| `npx jest --selectProjects workflow-engine --coverage` | 仅 workflow-engine + 覆盖率 | 6 suites / 214 tests，All files 93.46% |
 | `npx jest websocket/ --coverage` | 覆盖率报告 | 输出到 `7zi-backend/coverage/` |
 | `npm run lint` | ESLint | `eslint websocket/ workflow-engine/` |
 | `npm run dev` | nodemon 热重载两个服务 | 调试用 |
@@ -81,31 +83,64 @@ npm install          # 首次需要（Node.js >= 18）
 
 ## 4. 覆盖率配置与阈值
 
-根级 `7zi-backend/package.json` 中的 jest 配置：
+根级 `7zi-backend/package.json` 中的 jest 配置（**2026-10-23 已更新为多 project 结构**）：
 
 ```json
 {
   "jest": {
-    "testEnvironment": "node",
-    "testMatch": ["**/__tests__/**/*.test.js"],
-    "collectCoverageFrom": ["websocket/lib/**/*.js"],
-    "coverageDirectory": "<rootDir>/coverage",
-    "coverageThreshold": { "global": { "lines": 60 } },
+    "projects": [
+      {
+        "displayName": "websocket",
+        "rootDir": "<rootDir>",
+        "testMatch": ["<rootDir>/websocket/__tests__/**/*.test.js"],
+        "collectCoverageFrom": ["<rootDir>/websocket/lib/**/*.js"],
+        "coverageDirectory": "<rootDir>/coverage",
+        "coverageThreshold": { "global": { "lines": 60 } }
+      },
+      {
+        "displayName": "workflow-engine",
+        "rootDir": "<rootDir>/../workflow-engine/backend",
+        "collectCoverageFrom": [
+          "<rootDir>/src/engine/**/*.js",
+          "<rootDir>/server.js",
+          "<rootDir>/websocket/**/*.js"
+        ],
+        "coverageDirectory": "<rootDir>/coverage",
+        "coverageThreshold": { "global": { "lines": 60 } }
+      }
+    ],
+    "coverageProvider": "v8",
     "testTimeout": 20000
   }
 }
 ```
 
-| 指标 | 阈值 | 当前实际（websocket） |
-|------|------|----------------------|
-| **lines** | **≥ 60%** | **95.2%** |
-| statements | 无硬阈值 | 94.78% |
-| functions | 无硬阈值 | 98.03% |
-| branches | 无硬阈值 | 83.57% |
-
-`workflow-engine/jest.config.js` 同样设置 `coverageThreshold.global.lines = 60`。
+| 指标 | 阈值 | 当前实际（websocket） | 当前实际（workflow-engine） |
+|------|------|----------------------|------------------------------|
+| **lines** | **≥ 60%** | **96.95%** | **93.46%** |
+| statements | 无硬阈值 | 96.95% | 90.44% |
+| functions | 无硬阈值 | 89.22% | 85.1% |
+| branches | 无硬阈值 | 95.91% | 93.46% |
 
 > 阈值不达标时 Jest 会以非 0 退出码失败，可直接接入 CI 作为门禁。
+
+### 4.1 为什么必须用 `coverageProvider: "v8"`
+
+历史坑：使用默认的 babel coverage provider 时，
+`babel-plugin-istanbul` 会跳过 `process.cwd()` 之外的文件
+（判断逻辑为 `if (!this.filename.startsWith(process.cwd())) return`）。
+`workflow-engine` 的源码位于 `7zi-backend` 的 cwd 之外（`../workflow-engine/backend/`），
+因此**根本不插桩**，`npx jest --selectProjects workflow-engine --coverage` 恒为 `All files 0%`。
+
+改用 Node 原生 V8 覆盖率（`coverageProvider: "v8"`）后不再经过 babel 插桩过滤，
+覆盖率恢复正常（93.46%）。**不要回退到 babel provider。**
+
+### 4.2 后端 CI 门禁
+
+后端 CI 流水线：`.github/workflows/backend-ci.yml`（workflow 名 `Backend CI`）。
+`test-7zi-backend` / `test-workflow-engine` 两个 job 均执行 `npm run lint` +
+`npx jest --coverage`（阈值 lines ≥ 60%），`security-audit` job 执行
+`npm audit --omit=dev --audit-level=moderate`（moderate 及以上直接失败）。
 
 ---
 
@@ -210,8 +245,9 @@ describe('server integration', () => {
 | 现象 | 原因 | 处理 |
 |------|------|------|
 | `npm run test:workflow` 只跑 1 个 suite | 根级 jest `testMatch` 只认 `__tests__/` | 历史测试在 `workflow-engine/backend/test/`（软链接目标），需显式指定：<br>`npx jest --config workflow-engine/jest.config.js --rootDir ../workflow-engine/backend` |
-| 该命令有 1 个用例失败 | `test/engine/resumeAndCheckpoint.test.js` 的 `executeNextNodes` 条件分支 | **已知缺陷**，待修复后重新纳入 CI；勿在未修复时声称 workflow-engine 全绿 |
-| 覆盖率报告只统计 websocket | `collectCoverageFrom: ["websocket/lib/**/*.js"]` | 需要统计 workflow-engine 时用其独立 config |
+| `npx jest --selectProjects workflow-engine --coverage` 显示 `All files 0%` | 使用了 babel coverage provider，且 workflow-engine 在 cwd 之外不被插桩 | 设置 `coverageProvider: "v8"`（已修复，见 §4.1） |
+| workflow-engine 测试结束提示 "A worker process has failed to exit gracefully" | 测试存在未清理的定时器 / socket 句柄 | 已存在（非致命，不影响断言结果）；根治需在各测试的 `afterAll` 中 `unref()` 定时器或关闭 socket |
+| 覆盖率报告只统计 websocket | 根级 `collectCoverageFrom` 只含 `<rootDir>/websocket/lib/**/*.js` | 需分 project 统计：`npx jest --selectProjects workflow-engine --coverage` |
 | `jest websocket/` 报 "no tests found" | 测试不在 `__tests__/` 下 | 检查文件位置与命名 |
 
 ---

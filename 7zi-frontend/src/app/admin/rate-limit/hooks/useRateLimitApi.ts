@@ -352,8 +352,8 @@ export function useRequestLogs(limit = 100) {
     try {
       setLoading(true)
       // This would call the logs API endpoint
-      // For now, return mock data
-      setLogs([
+      // For now, return mock data (trimmed to the requested limit)
+      const mockLogs: RateLimitLog[] = [
         {
           id: '1',
           timestamp: new Date().toISOString(),
@@ -379,7 +379,8 @@ export function useRequestLogs(limit = 100) {
           limit: 10,
           retryAfter: 30,
         },
-      ])
+      ]
+      setLogs(mockLogs.slice(0, limit))
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch logs'))

@@ -116,7 +116,7 @@ class WorkflowEngine extends EventEmitter {
   /**
    * 执行单个节点
    */
-  async executeNode(execution, nodeId, input = {}) {
+  async executeNode(execution, nodeId, input = {}, attempt = 0) {
     const workflow = this.workflows.get(execution.workflowId);
     const node = workflow.nodes.find(n => n.id === nodeId);
     
@@ -129,7 +129,7 @@ class WorkflowEngine extends EventEmitter {
       status: 'running',
       startTime: new Date().toISOString(),
       input,
-      retryCount: 0
+      retryCount: attempt
     };
 
     execution.nodeExecutions.push(nodeExecution);
@@ -150,12 +150,15 @@ class WorkflowEngine extends EventEmitter {
       return output;
     } catch (error) {
       // 失败重试
-      if (node.retry && nodeExecution.retryCount < node.retry.maxAttempts) {
-        nodeExecution.retryCount++;
-        this.emit('node:retry', { execution, node, attempt: nodeExecution.retryCount });
-        
-        await this.delay(this.calculateBackoff(node.retry, nodeExecution.retryCount));
-        return this.executeNode(execution, nodeId, input);
+      // 注意：attempt 必须跨递归调用传递，否则每次递归都会重新计数，
+      // 导致 maxAttempts 永远达不到上限（无限重试，测试进程挂死）。
+      if (node.retry && attempt < node.retry.maxAttempts) {
+        const nextAttempt = attempt + 1;
+        nodeExecution.retryCount = nextAttempt;
+        this.emit('node:retry', { execution, node, attempt: nextAttempt });
+
+        await this.delay(this.calculateBackoff(node.retry, nextAttempt));
+        return this.executeNode(execution, nodeId, input, nextAttempt);
       }
 
       nodeExecution.status = 'failed';
@@ -183,11 +186,18 @@ class WorkflowEngine extends EventEmitter {
 
     // 超时控制
     const timeout = node.timeout || this.config.defaultTimeout;
-    
-    return Promise.race([
-      executor.execute(node, execution, input),
-      this.createTimeoutPromise(timeout)
-    ]);
+
+    const timeoutPromise = this.createTimeoutPromise(timeout);
+
+    try {
+      return await Promise.race([
+        executor.execute(node, execution, input),
+        timeoutPromise
+      ]);
+    } finally {
+      // 竞速结束后必须清掉超时定时器，否则它会一直把事件循环撑住（进程无法退出）
+      timeoutPromise.cancel();
+    }
   }
 
   /**
@@ -398,9 +408,24 @@ class WorkflowEngine extends EventEmitter {
    * 创建超时 Promise
    */
   createTimeoutPromise(seconds) {
-    return new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Execution timeout')), seconds * 1000);
+    let timer = null;
+
+    const promise = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Execution timeout')), seconds * 1000);
+      // 定时器默认会阻止进程退出，这里主动 unref，
+      // 保证即使调用方忘记 cancel，测试进程也能正常结束。
+      if (typeof timer.unref === 'function') timer.unref();
     });
+
+    // 允许调用方在竞速结束后立即清理定时器
+    promise.cancel = () => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
+
+    return promise;
   }
 
   /**

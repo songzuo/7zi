@@ -33,6 +33,11 @@ lerna-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
+# Real (non-example) env files must never be tracked
+.env.*
+!.env.example
+!.env.*.example
+!.env.docker.example
 # Secret credentials (never commit)
 .env.secrets
 .env.secrets.*
@@ -127,3 +132,16 @@ src/lib/agents.backup/
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Release archives (build artifacts, not source)
+*.tar.gz
+*.tgz
+*.zip
+
+# Private keys / certificates
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519

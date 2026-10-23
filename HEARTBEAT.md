@@ -1,39 +1,3 @@
-# HEARTBEAT - 持续工作调度
-
-## 最后检查: 2026-10-23 16:20 (Beijing)
-
-### ✅ 四道门禁全绿（全部经主管独立复跑）
-| 门禁 | 结果 |
-|---|---|
-| 根 `eslint .` | **exit 0** |
-| 根 `tsc -p tsconfig.json` | **exit 0** |
-| 7zi-frontend `npm run lint` | **exit 0** |
-| 7zi-frontend `tsc` | **exit 0** |
-
-工作区已清空（`git status` 无输出）。
-
-### 本轮关键：并发 agent 反复回退我的修复
-- `0d2d5a728`（清理提交）把 `eslint.config.mjs` 与 `src/` 修复一起回退，
-  导致 `no-explicit-any` 重新启用（369 错误）、`exhaustive-deps` 重新变 off
-- `6b72f2fbf` 再次回退
-- 主管两次从 `b708ca4b4` / `a5e623db7` 恢复并**重新提交**，配置已固化在 HEAD
-- 教训：子代理的"清理"提交必须**排除**已修复文件，否则会静默回退成果
-
-### 提交
-- `2ae2c17b7` 恢复被误回退的根级 ESLint 配置（no-explicit-any/require-imports off、
-  exhaustive-deps warn、ban-ts-comment 允许 ts-nocheck、忽略嵌套子项目）
-- `a5e623db7` 修复根级 src/ 的 36 个 TS 错误
-
-### 待主人决策
-1. **git 历史仍含明文密码**（10+ commit）— 重写历史需批准
-2. **GitHub PAT 建议轮换**
-3. **`.env.secrets` 密码统一**（短版 / 带 `$ZZ` 长版均可登录）
-4. **三份前端副本是否收敛**（`src/`、`7zi-frontend/src/`、`/root/7zi-project/src/`）
-5. **后端目录重复清理**（T31 报告：websocket-service/ workflow-service/ 是零引用实验目录，
-   需确认删除与 Docker 能力取舍）
-
----
-
 # HEARTBEAT.md
 
 # OpenClaw相关任务前必读

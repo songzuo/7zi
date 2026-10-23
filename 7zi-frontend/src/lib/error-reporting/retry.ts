@@ -164,8 +164,8 @@ export async function withRetry<T>(
 
   for (let attempt = 1; attempt <= maxAttempts; signal?.throwIfAborted(), attempt++) {
     try {
-      // 执行操作
-      const data = await operation()
+      // 执行操作（支持在操作挂起期间被 AbortSignal 取消）
+      const data = await runAbortable(operation, signal)
 
       // 成功
       const totalTime = Date.now() - startTime
@@ -181,6 +181,11 @@ export async function withRetry<T>(
       }
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
+
+      // 取消信号触发时必须向上抛出 AbortError，而不是当成普通失败返回
+      if (isAbortError(lastError) || signal?.aborted) {
+        throw lastError
+      }
 
       // 检查是否应该重试
       const canRetry = attempt < maxAttempts && (
@@ -336,6 +341,13 @@ export function withRetrySync<T>(
 }
 
 /**
+ * 检查是否为 AbortError
+ */
+function isAbortError(error: Error): boolean {
+  return error.name === 'AbortError'
+}
+
+/**
  * 检查错误是否可重试
  */
 export function isRetryableError(error: Error, retryableErrors: string[]): boolean {
@@ -391,12 +403,61 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
 
 /**
  * 睡眠（同步）
+ *
+ * 注意：不能用 `Date.now()` 做忙等 —— 在 Vitest fake timers 下 `Date.now()` 是被冻结的，
+ * 忙等会变成**死循环**（worker 永不退出）。这里改用 `Atomics.wait`：
+ * 它基于真实时钟阻塞，即使 `Date`/`performance` 被 mock 也能正确返回。
  */
 function sleepSync(ms: number): void {
-  const end = Date.now() + ms
-  while (Date.now() < end) {
-    // busy wait
+  if (ms <= 0) return
+
+  // SharedArrayBuffer 在部分环境不可用，退化为不可用时直接返回
+  if (typeof SharedArrayBuffer === 'undefined') return
+
+  try {
+    const sab = new SharedArrayBuffer(4)
+    const arr = new Int32Array(sab)
+    Atomics.wait(arr, 0, 0, ms)
+  } catch {
+    // 某些沙箱环境禁用 SharedArrayBuffer，静默忽略等待
   }
+}
+
+/**
+ * 执行操作，并允许在操作挂起期间被 AbortSignal 取消。
+ *
+ * 原始实现直接 `await operation()`，若操作永不 resolve，
+ * `signal.abort()` 无法中断 Promise，导致调用方永久挂起。
+ */
+function runAbortable<T>(
+  operation: () => Promise<T>,
+  signal?: AbortSignal
+): Promise<T> {
+  if (!signal) return operation()
+
+  // 已经中止 → 立刻拒绝
+  if (signal.aborted) {
+    return Promise.reject(new DOMException('Aborted', 'AbortError'))
+  }
+
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => {
+      reject(new DOMException('Aborted', 'AbortError'))
+    }
+
+    signal.addEventListener('abort', onAbort, { once: true })
+
+    operation().then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort)
+        resolve(value)
+      },
+      (error) => {
+        signal.removeEventListener('abort', onAbort)
+        reject(error)
+      }
+    )
+  })
 }
 
 /**

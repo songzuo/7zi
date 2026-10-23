@@ -25,7 +25,7 @@ const WorkflowEngine = require('./engine/WorkflowEngine');
 const {
   StartExecutor, EndExecutor, TaskExecutor, ConditionExecutor,
   LoopExecutor, ParallelExecutor, SubflowExecutor, DelayExecutor,
-  HttpExecutor, AiExecutor, TransformExecutor
+  HttpExecutor, TransformExecutor
 } = require('./engine/executors');
 
 // ============================================================================
@@ -690,7 +690,7 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason, _promise) => {
   logger.error('Unhandled rejection', { reason });
 });
 
