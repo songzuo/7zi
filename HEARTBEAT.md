@@ -292,3 +292,38 @@ bot2 `:00` / bot4 `:15` / bot6 `:30` / bot3 `:45` / bot5 `*/5`
 - `f1fd650ddf` —— **更正 `prometheus.js` 的处理方式**。该文件是 tsc 从同名 `.ts`
   编译出的 ES5 产物，里面的 `var _this = this` 是 **tsc 对箭头函数的正确降级**，
   不是死代码。已撤销手工改动，改为在 `eslint.config.mjs` 中忽略该编译产物。
+
+---
+
+# 🔴 生产部署拓扑实测（T91，2026-10-24 10:30，SSH 只读实测源站）
+
+**`deploy.sh` 假设的 Docker 蓝绿拓扑在生产上根本不存在。**
+
+| 项 | 生产实况 |
+|---|---|
+| Docker 容器 | 12 个，**全是 `octo-*`**（另一个产品），**无 7zi-frontend** |
+| PM2 进程 | 5 个，**无 7zi-frontend**；`/var/www/7zi`、`/opt/7zi-frontend` 均无进程在跑 |
+| `7zi.com` 首页 | nginx 托管的**纯静态站** `/var/www/erhu-brand/china-for-free`（无 `.next`） |
+| `/api/health` | nginx → `127.0.0.1:3001` → `/data/web/marriage` 的 tsx server（**另一项目**） |
+| 3002 | `next-server (v15.5.15)` @ `/data/var/www/new-7zi-site`（服务 ai/export 子域） |
+| `anti-v2` | **stopped ↺10** —— 未处理的上线故障 |
+| RAM | **97.3%** —— 不能 `next build` |
+| 健康接口真实响应 | `{"status":"ok"}` —— **不是 `healthy`** |
+
+## deploy.sh 的三处硬伤
+1. `get_compose_file()` production 分支指向**不存在**的 `docker-compose.zero-downtime.yml`
+2. 蓝绿 service `7zi-frontend-blue` / `-green` 在生产和现有 compose 文件里**都不存在**
+3. `/works` 路由在 `src/app` 下**不存在**
+
+## 🔴 生产服务器同样内嵌明文 PAT
+`/var/www/7zi/.git/config` 的 remote URL 里有一个**仍有效**的 GitHub PAT
+（与本地 botmem 历史里发现的是同一个）。已在报告中脱敏。
+**必须吊销**，且吊销后同步修 remote URL。
+
+## 新增待拍板 4 条
+1. 部署目标是 `/var/www/7zi`（在跑 git，19 dirty）还是 `/opt/7zi-frontend`（不在进程表）？
+2. 服务器 `git pull` + build + PM2 切换，还是本地构建 rsync？
+3. 补齐 compose 文件，还是把 `deploy.sh` 改成 PM2 路线？
+4. `anti-v2` 反复崩溃是否一并处理？
+
+完整报告：`T91_PRODUCTION_TOPOLOGY.md`
