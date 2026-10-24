@@ -275,17 +275,12 @@ class WorkflowEngine extends EventEmitter {
       return this.toLiteral(value);
     });
 
-    try {
-      const scope = this.buildEvalScope(context);
-      // eslint-disable-next-line no-new-func
-      const fn = new Function('scope', `with (scope) { return (${substituted}); }`);
-      return Boolean(fn(scope));
-    } catch (error) {
-      // 求值失败（表达式语法错误等）必须向上暴露，
-      // evaluateCondition 依赖这个异常来 emit 'condition:error'。
-      // 直接吞掉会让调用方无法区分"条件为 false"和"条件求值出错"。
-      throw error;
-    }
+    // 求值失败（表达式语法错误等）直接向上抛——
+    // evaluateCondition 依赖这个异常来 emit 'condition:error'。
+    // 在这里吞掉会让调用方无法区分"条件为 false"和"条件求值出错"。
+    const scope = this.buildEvalScope(context);
+    const fn = new Function('scope', `with (scope) { return (${substituted}); }`);
+    return Boolean(fn(scope));
   }
 
   /**
@@ -323,7 +318,7 @@ class WorkflowEngine extends EventEmitter {
       case 'object':
         try {
           return JSON.stringify(value);
-        } catch (error) {
+        } catch {
           return 'undefined';
         }
       default:

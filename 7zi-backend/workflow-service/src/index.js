@@ -68,7 +68,9 @@ const app = express();
 
 // Middleware
 app.use(cors({ origin: CORS_ORIGIN }));
-app.use(bodyParser.json());
+// 默认 100kb 上限会把合法的大工作流（上百节点）挡成 413，
+// 放宽到 10mb；超出仍会返回 413，属于有意的保护。
+app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Request logging in debug mode
@@ -116,7 +118,9 @@ app.post('/api/workflows', (req, res) => {
   try {
     const workflow = req.body;
     workflow.id = workflow.id || generateId();
-    workflow.version = workflow.version || '1.0.0';
+    // 注意：不要在这里给 version 兜底。
+    // 引擎的 validateWorkflow 要求 version 必填，HTTP 层若提前默认成 '1.0.0'，
+    // 会让"缺 version 应返回 400"的契约失效（引擎永远收不到缺失的 version）。
     workflow.createdAt = new Date().toISOString();
     workflow.updatedAt = new Date().toISOString();
 

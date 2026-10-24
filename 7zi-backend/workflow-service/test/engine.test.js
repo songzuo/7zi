@@ -380,7 +380,9 @@ describe('WorkflowEngine', () => {
     engine.registerExecutor('start', makeMockExecutor())
     engine.registerExecutor('task', {
       execute: async (node) => {
-        if (node.id === 'fork') return {}
+        // fork 节点必须返回 { parallel: true } 才会走并行分支
+        // （与 executors/index.js 的 ParallelExecutor 行为一致）
+        if (node.id === 'fork') return { parallel: true, branches: ['branch_a', 'branch_b'] }
         running++
         maxRunning = Math.max(maxRunning, running)
         await new Promise((r) => setTimeout(r, 20))
@@ -600,7 +602,10 @@ describe('WorkflowEngine', () => {
       nodes: [{ id: 'task_1', type: 'task', data: {} }],
       edges: [],
     }
-    engine.registerWorkflow(wf)
+    // registerWorkflow 会先跑 validateWorkflow，对缺 start 节点的工作流直接抛错。
+    // 本用例要验证的是 runExecution 自身的防御性检查，
+    // 所以绕过注册校验，直接塞进 workflows 表。
+    engine.workflows.set(wf.id, wf)
     engine.registerExecutor('task', makeMockExecutor())
 
     const { v4: uuidv4 } = require('uuid')
