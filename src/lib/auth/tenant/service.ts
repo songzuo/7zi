@@ -28,6 +28,7 @@ import type {
 } from './types'
 import type { TenantMemberRole } from '../../tenant/types'
 import { verifyPassword, getUserByEmail, getUserById, createUserToken, updateLastLogin } from '../repository'
+import { verifyPasswordWithDummyHash } from '../password'
 import { UserStatus } from '../types'
 
 /**
@@ -42,6 +43,11 @@ export class TenantAuthService {
       // 1. 查找用户
       const user = await getUserByEmail(request.email)
       if (!user) {
+        // Perform a dummy password verification so the response time matches
+        // the "account exists but wrong password" path (user enumeration
+        // timing side channel). The result is intentionally discarded.
+        verifyPasswordWithDummyHash(request.password)
+
         return {
           success: false,
           error: 'Invalid email or password',

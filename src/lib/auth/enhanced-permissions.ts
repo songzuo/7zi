@@ -107,12 +107,17 @@ export async function initializePermissionTables(): Promise<void> {
       conditions TEXT,
       granted_by TEXT NOT NULL,
       granted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      expires_at TEXT,
-      INDEX idx_user_resource (user_id, resource),
-      INDEX idx_agent_resource (agent_id, resource),
-      INDEX idx_role_resource (role_id, resource),
-      INDEX idx_resource_id (resource_id)
+      expires_at TEXT
     )
+  `)
+
+  // Indexes must be created with their own statement: inline `INDEX ...`
+  // definitions are not valid SQLite syntax.
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_user_resource ON resource_permissions(user_id, resource);
+    CREATE INDEX IF NOT EXISTS idx_agent_resource ON resource_permissions(agent_id, resource);
+    CREATE INDEX IF NOT EXISTS idx_role_resource ON resource_permissions(role_id, resource);
+    CREATE INDEX IF NOT EXISTS idx_resource_id ON resource_permissions(resource_id);
   `)
 
   // Permission inheritance rules table
@@ -124,10 +129,13 @@ export async function initializePermissionTables(): Promise<void> {
       inherit_permissions INTEGER NOT NULL DEFAULT 1,
       additional_permissions TEXT,
       exclude_permissions TEXT,
-      priority INTEGER NOT NULL DEFAULT 0,
-      INDEX idx_parent_role (parent_role),
-      INDEX idx_child_role (child_role)
+      priority INTEGER NOT NULL DEFAULT 0
     )
+  `)
+
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_parent_role ON permission_inheritance(parent_role);
+    CREATE INDEX IF NOT EXISTS idx_child_role ON permission_inheritance(child_role);
   `)
 
   // Default inheritance rules

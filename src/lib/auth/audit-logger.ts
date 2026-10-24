@@ -99,13 +99,18 @@ export async function initializeAuditLogTable(): Promise<void> {
       details TEXT,
       timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       session_id TEXT,
-      request_id TEXT,
-      INDEX idx_event_type (event_type),
-      INDEX idx_user_id (user_id),
-      INDEX idx_agent_id (agent_id),
-      INDEX idx_timestamp (timestamp),
-      INDEX idx_severity (severity)
+      request_id TEXT
     )
+  `)
+
+  // Indexes must be created with their own statement: inline `INDEX ...`
+  // definitions are not valid SQLite syntax.
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_event_type ON auth_audit_log(event_type);
+    CREATE INDEX IF NOT EXISTS idx_user_id ON auth_audit_log(user_id);
+    CREATE INDEX IF NOT EXISTS idx_agent_id ON auth_audit_log(agent_id);
+    CREATE INDEX IF NOT EXISTS idx_timestamp ON auth_audit_log(timestamp);
+    CREATE INDEX IF NOT EXISTS idx_severity ON auth_audit_log(severity);
   `)
 }
 
@@ -253,7 +258,7 @@ export async function queryAuditLogs(params: {
   const stmt = db.prepare(`
     SELECT * FROM auth_audit_log 
     ${whereClause}
-    ORDER BY timestamp DESC
+    ORDER BY timestamp DESC, rowid DESC
     ${limitClause}
     ${offsetClause}
   `)

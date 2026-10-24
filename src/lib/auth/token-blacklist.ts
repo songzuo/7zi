@@ -48,11 +48,16 @@ export async function initializeBlacklistTable(): Promise<void> {
       blacklisted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       expires_at TEXT NOT NULL,
       ip_address TEXT,
-      user_agent TEXT,
-      INDEX idx_token_hash (token_hash),
-      INDEX idx_user_id (user_id),
-      INDEX idx_expires_at (expires_at)
+      user_agent TEXT
     )
+  `)
+
+  // Indexes must be created with their own statement: inline `INDEX ...`
+  // definitions are not valid SQLite syntax.
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_token_hash ON token_blacklist(token_hash);
+    CREATE INDEX IF NOT EXISTS idx_user_id ON token_blacklist(user_id);
+    CREATE INDEX IF NOT EXISTS idx_expires_at ON token_blacklist(expires_at);
   `)
 }
 

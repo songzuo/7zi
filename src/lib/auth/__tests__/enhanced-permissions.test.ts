@@ -2,7 +2,7 @@
  * Enhanced Permissions Tests
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   grantPermission,
   revokePermission,
@@ -14,6 +14,16 @@ import {
   PermissionAction,
   initializePermissionTables,
 } from '../enhanced-permissions'
+import { getDatabaseAsync } from '../../db'
+
+// The global test setup replaces `src/lib/db` with a simplified SQL executor
+// that ignores generic WHERE clauses (expired rows were therefore never
+// filtered out). This suite uses a private in-memory SQLite database so the
+// expiry / scoping rules of the production code are genuinely exercised.
+vi.mock('@/lib/db/index', async () => {
+  const { createAuthTestDbModule } = await import('./helpers/auth-test-db')
+  return createAuthTestDbModule()
+})
 
 describe('Enhanced Permissions Service', () => {
   const testUserId = 'user_perm_test'
@@ -23,6 +33,9 @@ describe('Enhanced Permissions Service', () => {
 
   beforeEach(async () => {
     await initializePermissionTables()
+    // Per-test isolation: every test starts from an empty permission table.
+    const db = await getDatabaseAsync()
+    db.exec('DELETE FROM resource_permissions')
   })
 
   describe('grantPermission', () => {
@@ -214,13 +227,6 @@ describe('Enhanced Permissions Service', () => {
         action: PermissionAction.READ,
         grantedBy,
       })
-
-      await grantPermission({
-        userId: testUserId,
-        resource: PermissionResource.PROJECT,
-        action: PermissionAction.MANAGE,
-        grantedBy,
-      })
     })
 
     it('should allow permission when granted', async () => {
@@ -246,6 +252,14 @@ describe('Enhanced Permissions Service', () => {
     })
 
     it('should allow MANAGE permission for all actions', async () => {
+      // A resource-wide MANAGE grant (no resourceId) covers every action.
+      await grantPermission({
+        userId: testUserId,
+        resource: PermissionResource.PROJECT,
+        action: PermissionAction.MANAGE,
+        grantedBy,
+      })
+
       const result = await checkPermission({
         userId: testUserId,
         resource: PermissionResource.PROJECT,
@@ -256,6 +270,9 @@ describe('Enhanced Permissions Service', () => {
     })
 
     it('should check resource-specific permissions', async () => {
+      // NOTE: the resource-wide MANAGE grant lives in the test above. Here the
+      // only PROJECT permission is scoped to a single resourceId, so access to
+      // a different resourceId of the same resource must be denied.
       await grantPermission({
         userId: testUserId,
         resource: PermissionResource.PROJECT,

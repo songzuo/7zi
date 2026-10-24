@@ -107,11 +107,38 @@ const SQL_INJECTION_PATTERNS = [
 ]
 
 /**
- * Dangerous SQL functions
+ * Dangerous SQL functions.
+ *
+ * These are matched with a case-insensitive **word boundary** regex instead
+ * of a naive `includes()` substring check. The substring approach produced
+ * both false positives (`system` contains `SYS`, `copyright` contains `COPY`)
+ * and false negatives (`xp_cmdshell` / `sp_` / `fn_` / `LOAD_FILE` are
+ * lowercase in the table while the input was upper-cased before comparison,
+ * so they could never match).
  */
-const DANGEROUS_FUNCTIONS = [
+const DANGEROUS_FUNCTION_PATTERNS: RegExp[] = [
+  /\bEXEC(?:UTE)?\b/i,
+  /\bxp_cmdshell\b/i,
+  /\bsp_\w+/i,
+  /\bfn_\w+/i,
+  /\bLOAD_FILE\b/i,
+  /\bINTO\s+OUTFILE\b/i,
+  /\bINTO\s+DUMPFILE\b/i,
+  /\bPG_READ_FILE\b/i,
+  /\bPG_WRITE_FILE\b/i,
+  /\bCOPY\b/i,
+  /\bSYS\b/i,
+  /\bINFORMATION_SCHEMA\b/i,
+  /\bMYSQL\b/i,
+  /\bPG_\w+/i,
+]
+
+/**
+ * Human readable names for the dangerous function patterns (used in the
+ * detection report).
+ */
+const DANGEROUS_FUNCTION_NAMES = [
   'EXEC',
-  'EXECUTE',
   'xp_cmdshell',
   'sp_',
   'fn_',
@@ -162,11 +189,13 @@ export function checkSQLInjection(
     }
   }
 
-  // Check for dangerous function calls
-  const upperInput = input.toUpperCase()
-  for (const func of DANGEROUS_FUNCTIONS) {
-    if (upperInput.includes(func)) {
-      detectedPatterns.push(`Dangerous function: ${func}`)
+  // Check for dangerous function calls (case-insensitive, word-boundary
+  // aware — see DANGEROUS_FUNCTION_PATTERNS).
+  for (const [index, pattern] of DANGEROUS_FUNCTION_PATTERNS.entries()) {
+    if (pattern.test(input)) {
+      detectedPatterns.push(
+        `Dangerous function: ${DANGEROUS_FUNCTION_NAMES[index] ?? pattern.source}`
+      )
 
       if (maxSeverity === 'low') {
         maxSeverity = 'medium'

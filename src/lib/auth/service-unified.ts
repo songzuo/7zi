@@ -34,6 +34,7 @@ import {
   deletePasswordResetToken,
   verifyPassword,
 } from './repository'
+import { verifyPasswordWithDummyHash } from './password'
 import { logger } from '../logger'
 import { UnifiedAppError, isUnifiedError } from '../errors/unified-error'
 import { ErrorCodes } from '../errors/unified-types'
@@ -164,6 +165,9 @@ export async function loginUser(request: {
   // Find user by email
   const user = await getUserByEmail(request.email)
   if (!user) {
+    // Dummy verification to keep the response time equal to the "account
+    // exists but wrong password" path (user enumeration timing side channel).
+    verifyPasswordWithDummyHash(request.password)
     throw UnifiedAppError.unauthorized('Invalid email or password')
   }
 

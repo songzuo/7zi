@@ -23,6 +23,11 @@ export interface SensitiveField {
   maskType?: 'full' | 'partial' | 'hash'
 }
 
+export interface ValuePattern {
+  pattern: RegExp
+  type: 'email' | 'phone' | 'ssn' | 'credit-card' | 'api-key' | 'password' | 'token' | 'custom'
+}
+
 // ============================================================================
 // Default Configuration
 // ============================================================================
@@ -38,7 +43,16 @@ const DEFAULT_CONFIG: Required<SanitizationConfig> = {
 /**
  * Default sensitive field patterns
  */
-const SENSITIVE_PATTERNS: SensitiveField[] = [
+/**
+ * Default sensitive field patterns.
+ *
+ * NOTE: the order matters — `isSensitiveField()` returns the **first** match.
+ * Generic patterns (`/token/i`, `/api[_-]?key/i`) must come *after* the more
+ * specific ones (`/refresh[_-]?token/i`, `/access[_-]?key/i`, …), otherwise a
+ * specific credential like `refreshToken` would be downgraded to a partial
+ * mask by the generic rule.
+ */
+const DEFAULT_SENSITIVE_PATTERNS: SensitiveField[] = [
   // Credentials
   {
     pattern: /password/i,
@@ -51,12 +65,27 @@ const SENSITIVE_PATTERNS: SensitiveField[] = [
     maskType: 'full',
   },
   {
+    pattern: /refresh[_-]?token/i,
+    type: 'token',
+    maskType: 'full',
+  },
+  {
+    pattern: /access[_-]?key/i,
+    type: 'api-key',
+    maskType: 'full',
+  },
+  {
+    pattern: /private[_-]?key/i,
+    type: 'api-key',
+    maskType: 'full',
+  },
+  {
     pattern: /api[_-]?key/i,
     type: 'api-key',
     maskType: 'partial',
   },
   {
-    pattern: /token/i,
+    pattern: /session[_-]?id/i,
     type: 'token',
     maskType: 'partial',
   },
@@ -71,22 +100,8 @@ const SENSITIVE_PATTERNS: SensitiveField[] = [
     maskType: 'partial',
   },
   {
-    pattern: /private[_-]?key/i,
-    type: 'api-key',
-    maskType: 'full',
-  },
-  {
-    pattern: /access[_-]?key/i,
-    type: 'api-key',
-    maskType: 'full',
-  },
-  {
-    pattern: /refresh[_-]?token/i,
-    type: 'token',
-    maskType: 'full',
-  },
-  {
-    pattern: /session[_-]?id/i,
+    // Generic token — must stay AFTER every more specific token pattern.
+    pattern: /token/i,
     type: 'token',
     maskType: 'partial',
   },
@@ -129,7 +144,7 @@ const SENSITIVE_PATTERNS: SensitiveField[] = [
 /**
  * Regex patterns for detecting sensitive values
  */
-const VALUE_PATTERNS = [
+const DEFAULT_VALUE_PATTERNS: ValuePattern[] = [
   // Email
   {
     pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
@@ -161,6 +176,15 @@ const VALUE_PATTERNS = [
     type: 'token' as const,
   },
 ]
+
+/**
+ * Live (mutable) copies of the default patterns.
+ *
+ * `addSensitivePattern()` / `addValuePattern()` mutate these arrays, and
+ * `resetPatterns()` restores them from the defaults.
+ */
+let SENSITIVE_PATTERNS: SensitiveField[] = [...DEFAULT_SENSITIVE_PATTERNS]
+let VALUE_PATTERNS: ValuePattern[] = [...DEFAULT_VALUE_PATTERNS]
 
 // ============================================================================
 // Masking Functions
@@ -249,16 +273,20 @@ export function maskPhone(phone: string, config: SanitizationConfig = {}): strin
  * @returns Masked card
  */
 export function maskCreditCard(card: string, config: SanitizationConfig = {}): string {
+  const finalConfig = { ...DEFAULT_CONFIG, ...config }
   const digits = card.replace(/\D/g, '')
 
-  if (digits.length < 4) {
-    return DEFAULT_CONFIG.maskChar.repeat(DEFAULT_CONFIG.maskLength)
+  // Fewer than 8 digits cannot be partially masked (there would be no room
+  // for the masked middle section) — mask the whole value instead of
+  // throwing a RangeError from String.repeat() with a negative count.
+  if (digits.length < 8) {
+    return finalConfig.maskChar.repeat(finalConfig.maskLength)
   }
 
   // Keep first 4 and last 4 digits
   const firstFour = digits.slice(0, 4)
   const lastFour = digits.slice(-4)
-  const masked = DEFAULT_CONFIG.maskChar.repeat(digits.length - 8)
+  const masked = finalConfig.maskChar.repeat(Math.max(0, digits.length - 8))
 
   return `${firstFour}${masked}${lastFour}`
 }
@@ -413,7 +441,21 @@ export function sanitizeObject(
   const sanitized: Record<string, unknown> = {}
 
   for (const [key, value] of Object.entries(obj)) {
-    sanitized[key] = sanitizeValue(key, sanitizeObject(value, config, depth + 1), config)
+    // Idempotency: the previous implementation ran the value through
+    // `sanitizeObject()` (value-pattern scan) AND then through
+    // `sanitizeValue()` (which scans the value again for non-sensitive
+    // fields), so an email like `john@example.com` was masked twice
+    // (`j*******@example.com`) and sanitizing the same object twice gave
+    // different results.
+    //
+    // Now the two strategies are mutually exclusive:
+    //   - sensitive field name -> field-based masking only (no value scan)
+    //   - other field name      -> value-pattern scan only (no field masking)
+    if (isSensitiveField(key)) {
+      sanitized[key] = sanitizeValue(key, value, config)
+    } else {
+      sanitized[key] = sanitizeObject(value, config, depth + 1)
+    }
   }
 
   return sanitized
@@ -544,31 +586,14 @@ export function addValuePattern(
 
 /**
  * Reset patterns to defaults (for testing)
+ *
+ * Both the sensitive-field patterns and the value patterns are restored
+ * completely — the previous implementation only restored 4 of the 13 field
+ * patterns (email/phone/ssn/credit-card/… were silently dropped) and left
+ * custom value patterns in place, so calling this function once permanently
+ * disabled PII redaction.
  */
 export function resetPatterns(): void {
-  SENSITIVE_PATTERNS.length = 0
-  SENSITIVE_PATTERNS.push(
-    ...[
-      {
-        pattern: /password/i,
-        type: 'password' as const,
-        maskType: 'full' as const,
-      },
-      {
-        pattern: /secret/i,
-        type: 'api-key' as const,
-        maskType: 'full' as const,
-      },
-      {
-        pattern: /api[_-]?key/i,
-        type: 'api-key' as const,
-        maskType: 'partial' as const,
-      },
-      {
-        pattern: /token/i,
-        type: 'token' as const,
-        maskType: 'partial' as const,
-      },
-    ]
-  )
+  SENSITIVE_PATTERNS = [...DEFAULT_SENSITIVE_PATTERNS]
+  VALUE_PATTERNS = [...DEFAULT_VALUE_PATTERNS]
 }

@@ -38,6 +38,7 @@ import {
   deletePasswordResetToken,
   verifyPassword,
 } from './repository'
+import { verifyPasswordWithDummyHash } from './password'
 import { logger } from '../logger'
 
 /**
@@ -178,7 +179,13 @@ export async function loginUser(
     // Find user by email
     const user = await getUserByEmail(request.email)
     if (!user) {
-      logger.info('Login failed: user not found', { email: request.email })
+      // Perform a dummy password verification so that the response time of a
+      // login attempt for a non-existent account matches the response time of
+      // a login attempt for an existing account with a wrong password.
+      // The result is meaningless and is intentionally discarded.
+      verifyPasswordWithDummyHash(request.password)
+
+      logger.info('Login failed: invalid credentials', { email: request.email })
       return {
         success: false,
         error: 'Invalid email or password',
@@ -187,6 +194,11 @@ export async function loginUser(
 
     // Check user status
     if (user.status !== UserStatus.ACTIVE) {
+      // Keep the timing of this branch comparable with the other failure
+      // branches (the account exists, so it is not user enumeration by
+      // itself, but the response time should not leak the state either).
+      verifyPasswordWithDummyHash(request.password)
+
       logger.info('Login failed: user not active', { userId: user.id, status: user.status })
       return {
         success: false,
@@ -197,7 +209,9 @@ export async function loginUser(
     // Verify password
     const isPasswordValid = verifyPassword(request.password, user.password)
     if (!isPasswordValid) {
-      logger.info('Login failed: invalid password', { userId: user.id })
+      // Same log message and context as the "unknown account" branch so that
+      // server-side logs cannot be used to tell the two cases apart either.
+      logger.info('Login failed: invalid credentials', { email: request.email })
       return {
         success: false,
         error: 'Invalid email or password',

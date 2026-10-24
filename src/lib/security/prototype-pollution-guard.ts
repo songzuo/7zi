@@ -40,7 +40,11 @@ export function sanitizeObjectFromPrototypePollution<T extends Record<string, un
   ]
 
   for (const key of maliciousKeys) {
-    if (key in result) {
+    // `hasOwnProperty` instead of `in`: the `in` operator walks the
+    // prototype chain, so `constructor` / `prototype` (which always exist on
+    // Object.prototype) would be reported as "removed" on every single
+    // object even though they are not own properties.
+    if (Object.prototype.hasOwnProperty.call(result, key)) {
       console.warn(`[Security] Removed malicious key: ${key}`)
       delete result[key]
     }
@@ -100,16 +104,33 @@ export function safeParseJSON<T>(json: string): T | null {
 
 /**
  * 检测对象是否被污染
+ *
+ * NOTE: the previous implementation used the `in` operator, which walks the
+ * prototype chain — `constructor` and `prototype` always exist on every
+ * plain object, so `isPolluted({})` returned `true` for literally every
+ * object and the check was meaningless. Only *own* properties are inspected
+ * here.
  */
 export function isPolluted(obj: unknown): boolean {
   if (!obj || typeof obj !== 'object') {
     return false
   }
 
+  const target = obj as Record<string, unknown>
+
+  // `__proto__` is an accessor on Object.prototype — it is never an own
+  // property, so it has to be checked via the prototype identity.
+  if (
+    Object.getPrototypeOf(target) !== Object.prototype &&
+    Object.getPrototypeOf(target) !== null
+  ) {
+    return true
+  }
+
   const maliciousKeys = ['__proto__', 'constructor', 'prototype']
 
   for (const key of maliciousKeys) {
-    if (key in (obj as Record<string, unknown>)) {
+    if (Object.prototype.hasOwnProperty.call(target, key)) {
       return true
     }
   }
@@ -161,7 +182,16 @@ export function safeMerge<T extends object>(target: T, source: Partial<T>): T {
   return result as T
 }
 
-// 自动启用原型保护
-if (typeof window !== 'undefined') {
+/**
+ * 显式启用原型保护
+ *
+ * 之前这个模块在 import 时就自动调用 `protectPrototype()`，而
+ * `Object.freeze(Object.prototype)` 是**不可逆**的全局副作用：
+ * 任何依赖扩展 Object.prototype 的代码（polyfill、mock 库、测试断言库）
+ * 之后都会静默失败或抛错。
+ *
+ * 现在改为由应用入口显式调用一次。
+ */
+export function initPrototypeProtection(): void {
   protectPrototype()
 }

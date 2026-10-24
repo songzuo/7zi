@@ -2,7 +2,7 @@
  * Audit Logger Tests
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   logAuditEvent,
   queryAuditLogs,
@@ -13,6 +13,16 @@ import {
   AuditSeverity,
   initializeAuditLogTable,
 } from '../audit-logger'
+import { getDatabaseAsync } from '../../db'
+
+// The global test setup replaces `src/lib/db` with a simplified SQL executor
+// that ignores generic WHERE / IN / literal OFFSET clauses. The audit logger
+// relies on all of them, so this suite opts into a real (in-memory) SQLite
+// database, private to this test file.
+vi.mock('@/lib/db/index', async () => {
+  const { createAuthTestDbModule } = await import('./helpers/auth-test-db')
+  return createAuthTestDbModule()
+})
 
 describe('Audit Logger Service', () => {
   const testUserId = 'user_audit_test'
@@ -22,6 +32,9 @@ describe('Audit Logger Service', () => {
 
   beforeEach(async () => {
     await initializeAuditLogTable()
+    // Per-test isolation: start every test from an empty audit log table.
+    const db = await getDatabaseAsync()
+    db.exec('DELETE FROM auth_audit_log')
   })
 
   describe('logAuditEvent', () => {

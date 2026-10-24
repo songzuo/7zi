@@ -2,7 +2,7 @@
  * Token Blacklist Service Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   blacklistToken,
   isTokenBlacklisted,
@@ -14,6 +14,15 @@ import {
   initializeBlacklistTable,
 } from '../token-blacklist'
 import { getDatabaseAsync } from '../../db'
+
+// The global test setup replaces `src/lib/db` with a simplified SQL executor
+// that ignores generic WHERE clauses (it therefore returns the first row of a
+// table no matter which token/user was queried). The blacklist service needs
+// real filtering, so this suite uses a private in-memory SQLite database.
+vi.mock('@/lib/db/index', async () => {
+  const { createAuthTestDbModule } = await import('./helpers/auth-test-db')
+  return createAuthTestDbModule()
+})
 
 describe('Token Blacklist Service', () => {
   const testUserId = 'user_test123'

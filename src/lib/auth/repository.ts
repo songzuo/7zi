@@ -12,24 +12,36 @@ import {
   UpdateUserRequest,
 } from './types'
 import { Role } from '@/lib/permissions/types'
-import * as crypto from 'crypto'
+import crypto from 'crypto'
+import {
+  hashPassword,
+  verifyPassword,
+  verifyPasswordWithDummyHash,
+  timingSafeCompareHex,
+  DUMMY_PASSWORD_HASH,
+  DUMMY_PASSWORD_SALT,
+  PBKDF2_ITERATIONS,
+  PBKDF2_KEY_LENGTH,
+  PBKDF2_DIGEST,
+} from './password'
 
 /**
- * Hash password
+ * Password hashing helpers.
+ *
+ * The implementations live in `./password` so that the real verification path
+ * and the dummy verification path (used to defeat user-enumeration timing
+ * side channels) are guaranteed to use the exact same KDF work factor.
  */
-export function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString('hex')
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex')
-  return `${salt}:${hash}`
-}
-
-/**
- * Verify password
- */
-export function verifyPassword(password: string, hashedPassword: string): boolean {
-  const [salt, hash] = hashedPassword.split(':')
-  const verifyHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex')
-  return hash === verifyHash
+export {
+  hashPassword,
+  verifyPassword,
+  verifyPasswordWithDummyHash,
+  timingSafeCompareHex,
+  DUMMY_PASSWORD_HASH,
+  DUMMY_PASSWORD_SALT,
+  PBKDF2_ITERATIONS,
+  PBKDF2_KEY_LENGTH,
+  PBKDF2_DIGEST,
 }
 
 /**
