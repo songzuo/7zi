@@ -1,51 +1,5 @@
 # HEARTBEAT.md
 
-## 当前基线（2026-10-24 05:38–05:52，T86 实测）
-
-| 检查项 | 命令 | 结果 |
-|---|---|---|
-| 前端 ESLint（`7zi-frontend/src`） | `cd 7zi-frontend && npx eslint src` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
-| 后端 ESLint | `cd 7zi-backend && npx eslint .` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
-| 根级 ESLint | `npx eslint src` | ✅ **0 errors / 1625 warnings**（exit 0） |
-| 后端 Jest | `cd 7zi-backend && npx jest` | ✅ **16 套件 / 342 用例全绿**，15.3s |
-| 后端 Jest worker | 同上 | ⚠️ 输出 `A worker process has failed to exit gracefully`（测试全绿，但疑似 teardown 泄漏，**待验证**） |
-| 前端 collab-client | `cd 7zi-frontend && npx vitest run tests/features/collab-client.test.ts` | ✅ **38 passed (38)**，Duration 3.82s（05:55 实测；05:39 时为 15 failed / 23 passed，已由 T82 修复） |
-
-### 后端 CI 实际覆盖范围
-- `.github/workflows/` 共 **9 个** workflow 配置
-- `backend-ci.yml` 5 个 job，**只**覆盖 `7zi-backend/`（根）与 `workflow-engine/backend/`
-- **尚未覆盖** `7zi-backend/websocket-service/` 与 `7zi-backend/workflow-service/`
-  （两者 `package.json` 都有 `lint` / `test` 脚本，CI 未调用）→ 真实覆盖缺口
-- 真实 GitHub Actions 上的**首次运行尚未发生**
-
-### Git 状态（05:40 实测）
-- 本地 `main` **领先 `origin/main` 30 个提交**（`origin/main` = `17cf105a92`，2026-10-23 00:44）
-- 工作区：**5 个已修改文件**（`HEARTBEAT.md` / `eslint.config.mjs` / `memory/claw-mesh-state.json` /
-  `src/lib/monitoring/prometheus.js` / `state/tasks.json`）+ 1 个未跟踪文件（`DEV_TASKS_20261024_0537.md`）
-- 全部改动**未 push**
-
-### 关键判断记录
-- ⚠️ **更正先前的一处误判**（提交 `f1fd650ddf`）：
-  `src/lib/monitoring/prometheus.js` 是 tsc 从同名 `.ts` 编译出的 ES5 产物
-  （含 `__awaiter`/`__generator`/`__spreadArray` 等 tsc helper）。
-  里面的 `var _this = this` 是 **tsc 对 `.ts` 箭头函数的正确降级**，不是死代码；
-  手工改成 `this` 会改坏与 `.ts` 的对应关系，且下次编译即被覆盖。
-  已核对两文件方法集与导出完全一致（8 个方法 + 2 个导出）。
-  **处理方式：撤销手工改动，在 `eslint.config.mjs` 中忽略该编译产物。**
-- prefetch 测试的 9 个失败已用 `git stash` 干净树对照，确认**存量非本次引入**。
-- prefetch 测试的 9 个失败已用 `git stash` 干净树对照，确认**存量非本次引入**。
-- 裸 `curl` 打 `https://7zi.com/` 返回 403 是 **Cloudflare/WAF 拦 curl UA**，不是站点故障；
-  所有健康检查/监控脚本必须带浏览器 UA。
-
-### 集群 SSH 实测（05:44）
-| 节点 | 结果 |
-|---|---|
-| bot3 | ❌ `Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password)` |
-| bot4 | ❌ 同上 |
-| bot5 | ✅ 用 `~/.ssh/id_bot6_ed25519` 可登录（hostname = `ecm-cd59`）；但 `crontab -l` 显示同步为 **`*/5 * * * *`**（每 5 分钟） |
-
----
-
 # OpenClaw相关任务前必读
 
 在执行任何OpenClaw配置相关任务之前，请先阅读:
@@ -215,58 +169,85 @@ ls docs/ | wc -l                          # 应为 305
 - 升级前备份 `~/.openclaw/openclaw.json` 和 `~/.openclaw/cron/jobs.json`
 - 升完务必跑 `openclaw plugins list` + `openclaw doctor --non-interactive` 验证
 
-## 已知遗留（需用户决策，勿擅自处理）
-> 📄 **完整决策清单见 [`DECISION_PENDING_20261024.md`](./DECISION_PENDING_20261024.md)（15 条，D1–D15）**。
-> 以下为速览（2026-10-24 05:40 实测口径）：
+## 18. 脱敏 sed 会误伤标识符（2026-10-23 踩过，务必检查）
+`claw-mesh-sync.sh` 原来用 `s/sk[_]_[A-Za-z0-9]*/[已移除]/g` 做全仓库脱敏。
+`sk_` 匹配到了 **`di`sk[_]_**`usage`、`**ta**sk[_]_**` 里面去 →
+`disk_usage` → `di[已移除]`，`task` → `ta[已移除]`。
+**17 个 shell 脚本的变量名被改坏，脚本直接语法错误，而且损坏被提交进了共享仓库。**
 
+正确写法（用连字符 + 长度下限 + 左侧边界）：
+```bash
+sed -i -E -e 's/(^|[^A-Za-z0-9_])gh[p]_[A-Za-z0-9]{20,}/\1[已移除]/g' \
+           -e 's/(^|[^A-Za-z0-9_])sk-[A-Za-z0-9_-]{20,}/\1[已移除]/g'
+```
+**自查命令**（改完脱敏逻辑必跑）：
+```bash
+grep -rnE '[A-Za-z0-9_]+\[已移除\]' --include='*.sh' .   # 应为空
+```
+⚠️ `\b` 没用 —— `_` 是单词字符，`\bsk_` 匹配不到 `disk_usage` 里的 `sk_`。
+
+## 19. 共享仓库里有明文 API 密钥（2026-10-24 处置，勿擅自重写历史）
+扫描发现 4 个文件含**真实可用**的 API 密钥（Coze / MiniMax / 第三方端点）：
+`7zi.com/memory/2026-07-30.md`、`bot6/memory/2026-05-04-security.md`、
+`bot6/memory/picoclaw-debug-20260331.md`、
+`xunshi-inspector/memory/cluster-confidential-knowledge-base.md`。
+
+- ✅ 工作区已脱敏（`fa0c20ac17`）
+- ⚠️ **git 历史里仍在** —— 彻底清除要重写历史 + 强制推送，**需主人决策**
+- ⚠️ **这些 key 应视为已泄露，建议在服务端轮换**
+
+区分真 key 与普通标识符（熵值 + 长度）见 `memory/2026-10-24.md` 的脚本。
+
+## 20. 文档里的字面量 token 模式要写成 `gh[p]_`（2026-10-24 教训）
+节点上仍跑着旧版脱敏脚本 `s/gh[p]_[A-Za-z0-9]*/[已移除]/g`。
+文档里若直接写 `gh[p]_[A-Za-z0-9]{20,}` 这种字面量模式，**会被旧脚本当成真 token 替换掉**。
+→ 文档里统一写 `gh[p]_` / `sk[_]_`（正则语义等价，旧脚本匹配不到）。
+→ 涉及 HEARTBEAT.md / MEMORY.md / memory/*.md / docs/CLAW-MESH-HANDOVER.md。
+
+## 21. 仓库改了 ≠ 节点生效（2026-10-24 踩过）
+`claw-mesh-deploy/README.md` 明确写着「改动需要手动部署到各节点」。
+2026-10-24 修好了仓库里的 `claw-mesh-deploy/scripts/claw-mesh-sync.sh`，
+**但 bot6 仍在跑旧脚本并继续破坏仓库**。
+→ 修完同步脚本，**必须逐节点确认本地副本已更新**（SSH 上去 grep 一下 pattern）。
+
+## 22. 7zi.com 源站 165.99.43.61 SSH 超时（2026-10-23 起）
+SSH Connection timed out（7zi.com 域名解析到 CF IP，22 端口 Network unreachable）。
+→ `scripts/health-check.sh` 的 Nginx / PM2 / Docker / 磁盘 / 内存 检查全部失败，
+  **这不是脚本 bug，是真实的源站不可达**。
+→ TOOLS.md 里记的 7zi.com IP 可能已过期，需要重新确认源站地址。
+
+## 23. 节点互相写对方目录 —— `git add -A` 是元凶（2026-10-24 定位）
+
+**症状**：bot5 的同步提交里混进了 `bot2/memory/2026-10-24.md` 的改动；
+bot6 的提交里也混进了 `bot2/` 的文件。看起来像"节点在乱写别人"。
+
+**根因（两层）**：
+1. live 脚本的脱敏是**全仓库** `grep -rl` + `sed -i`（含 `botN/` 别人的目录）。
+   节点 A 的 sed 会把节点 B 的文件改写（`sk_` pattern 还会误伤标识符）。
+2. `git add -A` 把**整个工作副本**的改动都暂存 —— 包括刚被别的节点 sed 改坏的 `bot2/`。
+
+→ 修法（已落地）：`git add "$MACHINE_NAME"/` 只暂存本节点目录；
+  全仓库 sed 排除 `--exclude-dir=bot2..bot6`；
+  提交前加不变量校验：每个 `botN/` 内 state.machine 必须等于目录名，否则中止提交。
+
+**排查手法**（可复用）：
+```bash
+# 看某个提交实际改了哪些目录
+git show <sha> --name-only --format='' | grep -oE '^bot[0-9]+/' | sort -u
+# 对比提交自称的节点
+git log --format='%h|%s' | grep 'Claw-Mesh 同步' | \
+  while IFS='|' read c s; do echo "$c $(echo "$s" | sed 's/:.*//')"; done
+```
+**教训**：共享仓库里"谁在写谁"必须看**提交实际改了哪些路径**，
+不能只看 commit message 里的节点名 —— message 是脚本自报的，可以撒谎。
+
+## 已知遗留（需用户决策，勿擅自处理）
 - git 历史中可能仍残留旧 token —— 彻底清除需重写历史 + 强制推送
-  （实测：**`songzuo/botmem` 历史中有 1 个真实形态的 `ghp_` PAT**；`songzuo/7zi` 历史只查到占位符。
-  详见 D1）
 - 仓库内 7.5 万个 node_modules 文件 —— 清理需重写历史
-  （实测口径修正：**工作树已干净（HEAD 树 0 个）**，node_modules 只残留在 git **历史**里 ——
-  botmem 58,986 个唯一路径 / `.git` 241M；7zi 9,782 个 / `.git` 361M。详见 D7）
 - bot5 每 5 分钟推送一次，频率高于其他节点
-  （实测确认：`crontab -l` 为 `*/5 * * * * /root/.openclaw/cron/claw-mesh-sync.sh`。详见 D6）
 - **跨节点 SSH 从 bot4 全部被拒**（bot4 → bot2/3/5/6 `Permission denied (publickey)`）。
   需在其它节点把 bot4 的公钥加进 `~/.ssh/authorized_keys`。
   bot4 公钥指纹：`selfadm-bot4 SHA256:HVsRFkhJH6LJBZsPD3XbDVtyoHO45Ow3sjVx64NTtQM`
 
 ## 推送时间（已错峰，勿改成同一时刻）
 bot2 `:00` / bot4 `:15` / bot6 `:30` / bot3 `:45` / bot5 `*/5`
-
-> ⚠️ 另注：**OpenClaw 侧 cron 的"挤在整点"归因不成立** —— `~/.openclaw/cron/jobs.json` 的表达式
-> 已错峰（08:00 / 08:07 / 08:17 / 08:37 / 09:23）。cron 大面积 rate limit 失败的根因更可能是
-> **模型提供商只剩 minimax 一家可用**（coze 500 / custom1 401 / volcengine 404 实测），
-> 详见 D4 / D5。
-
-## 🔴 CI 门禁实测结论（2026-10-24 06:30，主管亲自本地复现）
-
-| Workflow | Job | 实测结果 |
-|---|---|---|
-| `ci.yml` | `lint`（`npm run lint` = `eslint .`） | ✅ **exit 0** / 1767 warnings / 140 秒 |
-| `ci.yml` | `typecheck`（`tsc --noEmit`） | ✅ **exit 0** |
-| `ci.yml` | `test-unit`（`vitest --shard=N/4`） | ❌ **exit 1** — 全量 5831 用例中 **211 失败 / 5588 通过 / 32 跳过**，耗时 387 秒 |
-| `backend-ci.yml` | `security-audit`（4 子目录 npm audit + uuid ≥ 11.1.1） | ✅ 4/4 全绿，uuid 均为 `^11.1.1` |
-| `backend-ci.yml` | `test-7zi-backend`（lint + jest --coverage） | ✅ 16/16 套件、342/342 用例，覆盖率 91%+（门槛 60%） |
-| `backend-ci.yml` | `test-workflow-engine`（lint + jest --coverage） | ✅ 6/6 套件、214/214 用例，覆盖率 88.85%（门槛 60%） |
-| `backend-ci.yml` | `test-workflow-service` / `test-websocket-service` | ✅ **本轮新增**（此前这两个子服务无 lint/test 门禁） |
-
-**结论：后端 CI 全绿；前端 CI 的 `test-unit` 必然红。**
-
-### 前端 211 个失败用例分类（详见 `T85_FRONTEND_TEST_AUDIT.md`）
-
-| 类别 | 用例数 | 性质 | 处置建议 |
-|---|---|---|---|
-| 断言过时（产品行为已演进，测试期望没跟上） | ~120 | **测试错** | 改测试期望，逐条核对产品新行为 |
-| 手势/触摸事件未触发 | 40 | **基建错** | jsdom 未实现 TouchEvent 构造，需注入 Touch 对象 |
-| 导入/模块解析失败 | 3 文件 | **基建错** | `supertest` 未安装；vi.mock 工厂引用顶层变量触发 hoist 报错 |
-| 超时 | 1 | 基建错 | 双击检测用真实 setTimeout，fake timer 未推进 |
-| 解析/收集配置错误 | 5 文件 | ✅ 本轮已修复入库 | — |
-
-### CI 耗时风险
-- `ci.yml` 的 `test-unit` 是 **4 分片并行**，每片 10 分钟超时
-- 本机 4 核、load average 常驻 9~14（多代理并发），分片耗时会被显著放大
-- 慢测试集中：`VisualWorkflowOrchestrator.test.ts`（62.6s）、
-  `edge-cases-supplement.test.ts`（75.6s）、`workflow-execution.integration.test.ts`（22.8s），
-  均为**真实 setTimeout 等待**（1~5 秒/用例），建议改 fake timer
-
