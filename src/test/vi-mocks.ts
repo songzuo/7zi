@@ -240,6 +240,41 @@ dbTables.set('users', [])
 dbTables.set('user_tokens', [])
 dbTables.set('password_reset_tokens', [])
 
+// plans 种子数据（对齐 src/lib/db/migrations/001_multi_tenant.sql 的真实 seed）。
+// 少了它，BillingService.getPlan() 恒返回 null → createOrUpdateSubscription
+// 直接抛 'Plan not found'，配额检查也无从谈起。
+// 注意 limits 的键名是 snake_case —— 与真实 seed 保持一致，
+// 由 billing/service.ts 的 normalizeLimits() 负责归一到 camelCase。
+dbTables.set('plans', [
+  {
+    id: 'plan_starter',
+    name: 'Starter',
+    type: 'subscription',
+    price_monthly: 99,
+    price_yearly: 990,
+    features: JSON.stringify({ agents: 5, workflows: 10, storage: 10, support: 'email' }),
+    limits: JSON.stringify({ ai_calls: 1000, workflow_runs: 100, storage_gb: 10 }),
+  },
+  {
+    id: 'plan_professional',
+    name: 'Professional',
+    type: 'subscription',
+    price_monthly: 299,
+    price_yearly: 2990,
+    features: JSON.stringify({ agents: 50, workflows: 100, storage: 100, support: 'priority' }),
+    limits: JSON.stringify({ ai_calls: 10000, workflow_runs: 1000, storage_gb: 100 }),
+  },
+  {
+    id: 'plan_enterprise',
+    name: 'Enterprise',
+    type: 'subscription',
+    price_monthly: 999,
+    price_yearly: 9990,
+    features: JSON.stringify({ agents: 'unlimited', workflows: 'unlimited', storage: 'unlimited', support: '24/7' }),
+    limits: JSON.stringify({ ai_calls: 'unlimited', workflow_runs: 'unlimited', storage_gb: 'unlimited' }),
+  },
+])
+
 // Helper: Get or create table
 function getTable(tableName: string): DbRow[] {
   if (!dbTables.has(tableName)) {
@@ -293,9 +328,16 @@ function parseInsertColumns(sql: string): string[] | null {
 }
 
 function parseUpdateSets(sql: string): string[] | null {
-  const match = sql.match(/SET\s+(.+?)\s+WHERE/i)
+  // 必须带 s 标志（dotAll）：生产代码的 UPDATE 是多行模板字符串，
+  // 例如
+  //   UPDATE subscriptions
+  //   SET plan_id = ?, status = ?, ...
+  //   WHERE id = ?
+  // 不带 s 时 `.` 不跨行，SET 段根本匹配不上 → 整条 UPDATE 被静默跳过
+  // （changes: 0），表现为「更新没生效」。
+  const match = sql.match(/SET\s+(.+?)\s+WHERE/is)
   if (!match) return null
-  return match[1].split(',').map(part => part.trim())
+  return match[1].split(',').map(part => part.trim().replace(/\s+/g, ' '))
 }
 
 /**
@@ -331,6 +373,11 @@ function rowMatchesConditions(row: DbRow, conditions: Array<{column: string, ope
   for (const cond of conditions) {
     const rowValue: unknown = row[cond.column]
     const paramValue: unknown = params[cond.paramIndex]
+
+    // 行里根本没有该列时（例如 INSERT 没写 recorded_at，而查询按它过滤），
+    // 直接判不匹配。原先会把 undefined 丢进比较运算，既可能抛错，
+    // 也可能因 NaN 语义产生"看起来通过"的假象。
+    if (rowValue === undefined || rowValue === null) return false
 
     switch (cond.operator) {
       case '=':
@@ -382,7 +429,22 @@ function executeAll(sql: string, params?: unknown[]): DbRow[] {
     const workflowId = params?.[paramIndex++] as string
     results = results.filter(row => row.workflow_id === workflowId)
   }
-  
+
+  // 通用 WHERE 处理。
+  // 之前只特判了 workflow_id，其余 `WHERE col = ?` 条件被完全忽略 ——
+  // 例如 `SELECT * FROM plans WHERE id = ?` 会返回表里第一行，
+  // 表现为「按 id 查不到 / 查到别人」。
+  // workflow_id 分支已消费掉第 0 个参数，因此这里的 paramIndex 要相应后移。
+  const whereConditions = parseWhereClause(sql)
+  if (whereConditions.length > 0 && params && params.length > 0) {
+    const offset = whereWorkflowMatch ? 1 : 0
+    const shifted = whereConditions.map(cond => ({
+      ...cond,
+      paramIndex: cond.paramIndex + offset,
+    }))
+    results = results.filter(row => rowMatchesConditions(row, shifted, params))
+  }
+
   // Handle ORDER BY
   if (normalizedSql.includes('ORDER BY')) {
     if (normalizedSql.includes('VERSION_NUMBER DESC')) {
@@ -429,6 +491,75 @@ function executeAll(sql: string, params?: unknown[]): DbRow[] {
       offset = (params?.[localWhereConditions.length + 1] as number) || 0
     }
     results = results.slice(offset, offset + limit)
+  }
+
+  // Handle aggregate projections: SUM(x) / AVG(x) / COUNT(x)
+  // 之前只支持 COUNT(*)，导致 `SELECT resource_type, SUM(quantity) ...`
+  // 这类用量统计查询返回原始行，聚合字段全是 undefined。
+  if (/\b(SUM|AVG)\s*\(/i.test(sql) && /\bAS\s+/i.test(sql)) {
+    // 必须带 s 标志（dotAll）：生产代码的聚合查询是多行模板字符串，
+    // 例如 SELECT a, SUM(x) as y, AVG(z) as w FROM t 会被拆成多行，
+    // 不带 s 时 "." 不跨行，
+    // SELECT 段匹配失败 → 直接返回原始行，聚合字段全是 undefined。
+    const aggregateMatch = sql.match(
+      /SELECT\s+(.+?)\s+FROM\s+(\w+)/is
+    )
+    if (aggregateMatch) {
+      const selectPart = aggregateMatch[1]
+
+      // 支持一条 SELECT 里同时出现多个聚合函数：
+      //   SELECT resource_type, SUM(quantity) as total_quantity,
+      //          AVG(unit_cost) as unit_cost, SUM(total_cost) as total_cost
+      const aggregateSpecs: Array<{ func: string; column: string; alias: string }> = []
+      const aggRegex = /\b(SUM|AVG|COUNT)\s*\(\s*(\w+)\s*\)(?:\s+AS\s+(\w+))?/gi
+      let aggMatch
+      while ((aggMatch = aggRegex.exec(selectPart)) !== null) {
+        const func = aggMatch[1].toUpperCase()
+        const column = aggMatch[2]
+        const alias = aggMatch[3] ?? `${func.toLowerCase()}_${column}`
+        aggregateSpecs.push({ func, column, alias })
+      }
+
+      if (aggregateSpecs.length > 0) {
+        // 第一个非聚合列作为分组列
+        const groupMatch = selectPart.match(/^\s*(\w+)/)
+        const groupColumn = groupMatch ? groupMatch[1] : ''
+
+        const groups = new Map<string, DbRow & { __sums: Map<string, number>; __counts: Map<string, number> }>()
+
+        for (const row of results) {
+          const key = groupColumn ? String(row[groupColumn] ?? '') : ''
+          let entry = groups.get(key)
+          if (!entry) {
+            entry = { __sums: new Map(), __counts: new Map() } as never
+            if (groupColumn) (entry as DbRow)[groupColumn] = key
+            groups.set(key, entry)
+          }
+          for (const spec of aggregateSpecs) {
+            const value = Number(row[spec.column] ?? 0) || 0
+            entry.__sums.set(spec.column, (entry.__sums.get(spec.column) ?? 0) + value)
+            entry.__counts.set(spec.column, (entry.__counts.get(spec.column) ?? 0) + 1)
+          }
+        }
+
+        return [...groups.entries()].map(([key, entry]) => {
+          const projected: DbRow = {}
+          if (groupColumn) projected[groupColumn] = key
+          for (const spec of aggregateSpecs) {
+            const sum = entry.__sums.get(spec.column) ?? 0
+            const count = entry.__counts.get(spec.column) ?? 0
+            if (spec.func === 'SUM') {
+              projected[spec.alias] = sum
+            } else if (spec.func === 'AVG') {
+              projected[spec.alias] = count > 0 ? sum / count : 0
+            } else {
+              projected[spec.alias] = count
+            }
+          }
+          return projected
+        })
+      }
+    }
   }
 
   return results
@@ -480,6 +611,19 @@ function executeRun(sql: string, params: unknown[]): DatabaseResult {
     if (!newRow.id) {
       newRow.id = generateId(tableName)
     }
+
+    // 真实数据库会为 created_at / updated_at / recorded_at 补默认值
+    // （见 src/lib/db/migrations/001_multi_tenant.sql 的
+    //  `recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP`）。
+    // 替身之前不补，导致：
+    //  - `ORDER BY created_at DESC LIMIT 1` 排序完全随机
+    //    （billing 的 getSubscription() 更新后仍返回旧行）
+    //  - `WHERE recorded_at >= ?` 把行全部过滤掉
+    //    （billing 的 getMonthlyUsage() 恒返回空数组）
+    const nowIso = new Date().toISOString()
+    if (!newRow.created_at) newRow.created_at = nowIso
+    if (!newRow.updated_at) newRow.updated_at = nowIso
+    if (!newRow.recorded_at) newRow.recorded_at = nowIso
 
     table.push(newRow)
 
@@ -554,7 +698,7 @@ const mockDb: DatabaseConnection = {
   rollback: vi.fn(),
   isInTransaction: vi.fn().mockReturnValue(false),
 
-  exec: vi.fn((sql: string) => {
+  exec: vi.fn((sql: string, params?: unknown[]) => {
     // Handle CREATE TABLE
     if (sql.toUpperCase().includes('CREATE TABLE')) {
       const match = sql.match(/CREATE TABLE\s+(\w+)/i)
@@ -564,8 +708,14 @@ const mockDb: DatabaseConnection = {
           dbTables.set(tableName, [])
         }
       }
+      return { changes: 0, lastInsertRowid: 1 }
     }
-    return { changes: 1, lastInsertRowid: 1 }
+
+    // 其余语句（INSERT / UPDATE / DELETE）必须真正落到 dbTables 上。
+    // 之前这里无条件返回 { changes: 1 } 且不写表，导致业务代码
+    // `await db.exec('INSERT INTO ...')` 之后 SELECT 不到任何行，
+    // 表现为"创建成功但读回来是 null"这类假象。
+    return executeRun(sql, params || [])
   }),
 
   prepare: vi.fn((sql: string) => {
@@ -703,6 +853,10 @@ vi.mock('../lib/logger', () => ({
 }))
 
 vi.mock('../lib/db/index', () => ({
+  // `db` 是 src/lib/db/index.ts 的具名导出（`export const db = getDatabase()`）。
+  // 业务代码普遍 `import { db } from '../db'`，少了这一项会让整个模块在
+  // import 期就抛 "No 'db' export is defined on the mock"，测试全部 0 用例。
+  db: mockDb,
   getDatabaseAsync: vi.fn().mockResolvedValue(mockDb),
   getDatabase: vi.fn().mockReturnValue(mockDb),
   initializeDatabase: vi.fn().mockReturnValue(mockDb),
@@ -716,7 +870,13 @@ vi.mock('../lib/db/index', () => ({
 }))
 
 // Mock the direct connection module (used by version-service.test.ts)
-vi.mock('../lib/db/connection', () => ({
+//
+// 必须用 '@/lib/db/connection' 而不是 '../lib/db/connection'：
+// 两者在 vitest 里是**不同的模块 ID**（别名解析 vs 相对路径解析），
+// 用相对路径会导致业务代码里的 `await import('@/lib/db/connection')`
+// 拿到的是**真实模块** —— 动态 import 不会命中相对路径的 mock，
+// 于是测试连到真实 SQLite，报 "no such table: xxx"。
+vi.mock('@/lib/db/connection', () => ({
   getDatabaseAsync: vi.fn().mockResolvedValue(mockDb),
   getDatabase: vi.fn().mockReturnValue(mockDb),
   initializeDatabase: vi.fn().mockReturnValue(mockDb),
@@ -1115,4 +1275,38 @@ beforeEach(() => {
   // Auth test tables
   dbTables.set('token_blacklist', [])
   dbTables.set('audit_logs', [])
+
+  // clearAllTables() 会清空所有表，因此 plans 的种子数据必须在这里补回，
+  // 否则每个用例开始时 plans 表都是空的 →
+  // BillingService.getPlan() 恒返回 null → 'Plan not found'。
+  // 种子内容与 src/lib/db/migrations/001_multi_tenant.sql 保持一致。
+  dbTables.set('plans', [
+    {
+      id: 'plan_starter',
+      name: 'Starter',
+      type: 'subscription',
+      price_monthly: 99,
+      price_yearly: 990,
+      features: JSON.stringify({ agents: 5, workflows: 10, storage: 10, support: 'email' }),
+      limits: JSON.stringify({ ai_calls: 1000, workflow_runs: 100, storage_gb: 10 }),
+    },
+    {
+      id: 'plan_professional',
+      name: 'Professional',
+      type: 'subscription',
+      price_monthly: 299,
+      price_yearly: 2990,
+      features: JSON.stringify({ agents: 50, workflows: 100, storage: 100, support: 'priority' }),
+      limits: JSON.stringify({ ai_calls: 10000, workflow_runs: 1000, storage_gb: 100 }),
+    },
+    {
+      id: 'plan_enterprise',
+      name: 'Enterprise',
+      type: 'subscription',
+      price_monthly: 999,
+      price_yearly: 9990,
+      features: JSON.stringify({ agents: 'unlimited', workflows: 'unlimited', storage: 'unlimited', support: '24/7' }),
+      limits: JSON.stringify({ ai_calls: 'unlimited', workflow_runs: 'unlimited', storage_gb: 'unlimited' }),
+    },
+  ])
 })
