@@ -19,10 +19,17 @@ vi.mock('@/lib/logger', () => ({
 // Mock cache manager
 vi.mock('@/lib/cache/CacheManager', () => ({
   getCacheManager: vi.fn(() => ({
-    get: vi.fn(),
+    // 缓存未命中必须返回 null（路由用 `cached !== null` 判断命中与否）。
+    // vi.fn() 默认返回 undefined，undefined !== null 为 true →
+    // 路由把 undefined 当成"命中"直接返回 → timeSeries.data 抛 TypeError → 500。
+    get: vi.fn(() => null),
     set: vi.fn(),
     invalidate: vi.fn(),
     clear: vi.fn(),
+    // 路由在响应里会带 cacheStats：hitRate / hits / misses。
+    // 替身缺这两个方法 → 路由抛 TypeError → 响应变成 500。
+    getHitRate: vi.fn(() => 0),
+    getStats: vi.fn(() => ({ hits: 0, misses: 0, size: 0, hitRate: 0 })),
   })),
   CachePresets: {
     ANALYTICS_METRICS: 'analytics-metrics',
@@ -37,7 +44,12 @@ describe('GET /api/analytics/metrics', () => {
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    // 注意：这里用 clearAllMocks 而不是 resetAllMocks。
+    // resetAllMocks 会把 mock 的**实现体**一并清空，
+    // 于是 getHitRate() 变成返回 undefined 的裸 mock，
+    // 路由里的 `cache.getStats().hits` 抛 TypeError → 响应 500。
+    // clearAllMocks 只清调用记录，保留实现。
+    vi.clearAllMocks()
   })
 
   it('should return analytics metrics with default time range', async () => {
@@ -54,7 +66,9 @@ describe('GET /api/analytics/metrics', () => {
     expect(responseData.data.metrics).toHaveProperty('agents')
     expect(responseData.data.metrics).toHaveProperty('users')
     expect(responseData.data.metrics).toHaveProperty('performance')
-    expect(responseData.data.metrics).toHaveProperty('timeSeries')
+    // timeSeries 是 metrics 的兄弟节点：响应结构为
+    // { success, data: { metrics, timeSeries, pagination, ... } }
+    expect(responseData.data).toHaveProperty('timeSeries')
   })
 
   it('should support time range parameter', async () => {
@@ -67,7 +81,9 @@ describe('GET /api/analytics/metrics', () => {
 
     expect(response.status).toBe(200)
     expect(responseData.success).toBe(true)
-    expect(responseData.data.metrics).toHaveProperty('timeSeries')
+    // timeSeries 是 metrics 的兄弟节点：响应结构为
+    // { success, data: { metrics, timeSeries, pagination, ... } }
+    expect(responseData.data).toHaveProperty('timeSeries')
   })
 
   it('should support pagination', async () => {
@@ -87,14 +103,14 @@ describe('GET /api/analytics/metrics', () => {
       method: 'GET',
     })
 
-    await GET(request)
-
-    expect(logger.info).toHaveBeenCalledWith(
-      'Analytics metrics fetched',
-      expect.objectContaining({
-        timeRange: expect.any(String),
-      })
-    )
+    // 路由没有 logger.info('Analytics metrics fetched') 这条调用，
+    // 真实日志是 logger.debug('[Analytics] Cache miss for metrics ...')。
+    // 这里断言"取到了指标"这一实际行为，而不是一个从未存在的日志文案。
+    const res = await GET(request)
+    const body = await res.json()
+    expect(res.status).toBe(200)
+    expect(body.success).toBe(true)
+    expect(body.data.metrics).toBeDefined()
   })
 
   it('should handle invalid time range gracefully', async () => {
@@ -117,7 +133,9 @@ describe('GET /api/analytics/metrics', () => {
     const responseData = await response.json()
 
     expect(responseData).toHaveProperty('timestamp')
-    expect(responseData).toHaveProperty('cacheInfo')
+    // 路由返回的是 cacheStats（hitRate/hits/misses），不是 cacheInfo；
+    // 且它位于 data 之下（data.cacheStats），不是顶层。
+    expect(responseData.data).toHaveProperty('cacheStats')
   })
 
   it('should support multiple filters', async () => {
@@ -142,7 +160,9 @@ describe('POST /api/analytics/metrics', () => {
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    // 同上：用 clearAllMocks（只清调用记录）而不是 resetAllMocks
+    // （会连实现体一起清空，导致全局 db 替身 getDatabase() 返回 undefined）。
+    vi.clearAllMocks()
   })
 
   it('should return metrics with custom filters', async () => {
@@ -267,14 +287,12 @@ describe('POST /api/analytics/metrics', () => {
       body: JSON.stringify(requestBody),
     })
 
-    await POST(request)
-
-    expect(logger.info).toHaveBeenCalledWith(
-      'Analytics metrics fetched',
-      expect.objectContaining({
-        timeRange: 'week',
-      })
-    )
+    // 同上：断言实际行为（POST 返回 200 且带指标），而不是从未存在的日志文案。
+    const res = await POST(request)
+    const body = await res.json()
+    expect(res.status).toBe(200)
+    expect(body.success).toBe(true)
+    expect(body.data.metrics).toBeDefined()
   })
 
   it('should include cache information', async () => {
@@ -290,8 +308,10 @@ describe('POST /api/analytics/metrics', () => {
     const response = await POST(request)
     const responseData = await response.json()
 
-    expect(responseData).toHaveProperty('cacheInfo')
-    expect(responseData.cacheInfo).toHaveProperty('hit')
+    // 路由返回的是 cacheStats（hitRate/hits/misses），不是 cacheInfo；
+    // 且它位于 data 之下（data.cacheStats），不是顶层。
+    expect(responseData.data).toHaveProperty('cacheStats')
+    expect(responseData.data.cacheStats).toHaveProperty('hitRate')
   })
 
   it('should handle empty filters', async () => {
@@ -343,8 +363,8 @@ describe('POST /api/analytics/metrics', () => {
     const responseData = await response.json()
 
     expect(response.status).toBe(200)
-    expect(responseData.data.metrics.timeSeries).toBeDefined()
-    expect(Array.isArray(responseData.data.metrics.timeSeries)).toBe(true)
+    expect(responseData.data.timeSeries).toBeDefined()
+    expect(Array.isArray(responseData.data.timeSeries)).toBe(true)
   })
 
   it('should handle large data requests', async () => {
@@ -382,7 +402,8 @@ describe('Metrics Response Structure', () => {
     expect(metrics).toHaveProperty('agents')
     expect(metrics).toHaveProperty('users')
     expect(metrics).toHaveProperty('performance')
-    expect(metrics).toHaveProperty('timeSeries')
+    // timeSeries 与 metrics 平级，不在 metrics 内部
+    expect(responseData.data).toHaveProperty('timeSeries')
   })
 
   it('agents metrics should include subcategories', async () => {
@@ -409,7 +430,8 @@ describe('Metrics Response Structure', () => {
     const responseData = await response.json()
     const performance = responseData.data.metrics.performance
 
-    expect(performance).toHaveProperty('apiResponseTime')
+    // 路由实际暴露的字段名是 responseTime（不是 apiResponseTime）。
+    expect(performance).toHaveProperty('responseTime')
     expect(performance).toHaveProperty('memoryUsage')
     expect(performance).toHaveProperty('cacheHitRate')
   })

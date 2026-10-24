@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { logger } from '@/lib/logger'
 import { getCacheManager, CachePresets } from '@/lib/cache/CacheManager'
+import { getDatabase } from '@/lib/db/connection'
 import {
   type AnalyticsMetrics,
   type AnalyticsFilters,
@@ -154,7 +155,6 @@ async function fetchTimeSeriesOptimized(
  * Fetch analytics metrics from real database
  */
 async function fetchMetricsFromDatabase(filters: AnalyticsFilters): Promise<AnalyticsMetrics> {
-  const { getDatabase } = await import('@/lib/db/connection')
   const db = getDatabase()
   
   const timeMultiplier = getTimeMultiplier(filters.timeRange)
@@ -358,7 +358,6 @@ async function fetchTimeSeriesFromDatabase(
   limit: number
   totalPages: number
 }> {
-  const { getDatabase } = await import('@/lib/db/connection')
   const db = getDatabase()
   
   const { startDate, endDate } = getDateRange(filters)
@@ -539,7 +538,30 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    // 请求体解析失败是**客户端错误**（400），不是服务端错误（500）。
+    // 原来直接让 SyntaxError 落到外层 catch → 返回 500，语义错误。
+    let body: {
+      page?: number
+      limit?: number
+      timeRange?: TimeRange
+      customRange?: { start: string; end: string }
+      agentIds?: string[]
+      taskStatuses?: string[]
+      taskPriorities?: string[]
+      taskTypes?: string[]
+      providers?: string[]
+      metrics?: string[]
+      compareWith?: TimeRange
+    }
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      logger.error('Analytics POST invalid JSON body', parseError, { category: 'analytics' })
+      return createErrorResponse(
+        parseError instanceof Error ? parseError : new Error('Invalid request body'),
+        400
+      )
+    }
     const page = body.page || 1
     const limit = body.limit || 100
 
