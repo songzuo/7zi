@@ -58,7 +58,7 @@ describe('useSwipe - Basic Swipe Detection', () => {
     await waitFor(() => expect(result.current.current).toBe(element))
 
     fireEvent.touchStart(element, { touches: [createTouch(100, 100)] })
-    fireEvent.touchEnd(element, { touches: [createTouch(200, 100)] })
+    fireEvent.touchEnd(element, { touches: [createTouch(200, 100)], changedTouches: [createTouch(200, 100)] })
 
     expect(handlers.onRight).toHaveBeenCalled()
   })
@@ -76,7 +76,7 @@ describe('useSwipe - Basic Swipe Detection', () => {
     await waitFor(() => expect(result.current.current).toBe(element))
 
     fireEvent.touchStart(element, { touches: [createTouch(200, 100)] })
-    fireEvent.touchEnd(element, { touches: [createTouch(100, 100)] })
+    fireEvent.touchEnd(element, { touches: [createTouch(100, 100)], changedTouches: [createTouch(100, 100)] })
 
     expect(handlers.onLeft).toHaveBeenCalled()
   })

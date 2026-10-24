@@ -346,15 +346,16 @@ export function useTouchGestures(
         const deltaX = touch.clientX - touchStartRef.current.x
         const deltaY = touch.clientY - touchStartRef.current.y
 
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          // 水平滑动
-          if (Math.abs(deltaX) > swipeThreshold) {
+        // 两轴距离相等时优先判定为水平方向
+        if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+          // 水平滑动（正好达到阈值也算触发）
+          if (Math.abs(deltaX) >= swipeThreshold) {
             swipeDetected = true
             onSwipe?.(deltaX > 0 ? 'right' : 'left')
           }
         } else {
           // 垂直滑动
-          if (Math.abs(deltaY) > swipeThreshold) {
+          if (Math.abs(deltaY) >= swipeThreshold) {
             swipeDetected = true
             onSwipe?.(deltaY > 0 ? 'down' : 'up')
           }
@@ -522,13 +523,17 @@ export function useSwipe(handlers: SwipeHandlers, threshold = 50) {
     (e: TouchEvent) => {
       if (!touchStartRef.current) return
 
-      const touch = e.changedTouches[0]
+      // 真实 DOM 中 touchend 的抬起手指在 changedTouches 里；
+      // 部分测试环境只填 touches，这里做兼容回退。
+      const touch = e.changedTouches[0] ?? e.touches[0]
+      if (!touch) return
       const deltaX = touch.clientX - touchStartRef.current.x
       const deltaY = touch.clientY - touchStartRef.current.y
 
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // 水平滑动
-        if (Math.abs(deltaX) > threshold) {
+      // 两轴距离相等时优先判定为水平方向
+      if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+        // 水平滑动（正好达到阈值也算触发）
+        if (Math.abs(deltaX) >= threshold) {
           if (deltaX > 0) {
             handlers.onRight?.()
           } else {
@@ -537,7 +542,7 @@ export function useSwipe(handlers: SwipeHandlers, threshold = 50) {
         }
       } else {
         // 垂直滑动
-        if (Math.abs(deltaY) > threshold) {
+        if (Math.abs(deltaY) >= threshold) {
           if (deltaY > 0) {
             handlers.onDown?.()
           } else {
@@ -551,20 +556,62 @@ export function useSwipe(handlers: SwipeHandlers, threshold = 50) {
     [handlers, threshold]
   )
 
-  useEffect(() => {
-    const element = elementRef.current
-    if (!element) return
+  // 稳定的事件入口：DOM 监听器绑定固定函数，内部转发到最新 handler，
+  // 避免绑定那一刻的闭包被固化。
+  const handlersRef = useRef({ handleTouchStart, handleTouchEnd })
+  handlersRef.current = { handleTouchStart, handleTouchEnd }
 
-    element.addEventListener('touchstart', handleTouchStart)
-    element.addEventListener('touchend', handleTouchEnd)
+  const stableTouchStart = useCallback((e: TouchEvent) => {
+    handlersRef.current.handleTouchStart(e)
+  }, [])
+  const stableTouchEnd = useCallback((e: TouchEvent) => {
+    handlersRef.current.handleTouchEnd(e)
+  }, [])
 
-    return () => {
-      element.removeEventListener('touchstart', handleTouchStart)
-      element.removeEventListener('touchend', handleTouchEnd)
+  // 立即挂载/卸载监听器：元素晚于 effect 就绪时也能正确响应。
+  const boundElementRef = useRef<HTMLDivElement | null>(null)
+  const bindElement = useCallback((element: HTMLDivElement | null) => {
+    if (boundElementRef.current === element) return
+
+    const previous = boundElementRef.current
+    if (previous) {
+      previous.removeEventListener('touchstart', stableTouchStart)
+      previous.removeEventListener('touchend', stableTouchEnd)
     }
-  }, [handleTouchStart, handleTouchEnd])
 
-  return elementRef
+    boundElementRef.current = element
+
+    if (element) {
+      element.addEventListener('touchstart', stableTouchStart)
+      element.addEventListener('touchend', stableTouchEnd)
+    }
+  }, [stableTouchStart, stableTouchEnd])
+
+  useEffect(() => {
+    return () => {
+      bindElement(null)
+    }
+  }, [bindElement])
+
+  // 对外暴露带 setter 的 ref：赋值即同步绑定监听器。
+  const swipeRef = useMemo(() => {
+    const proxy = {
+      get current(): HTMLDivElement | null {
+        return elementRef.current
+      },
+      set current(value: HTMLDivElement | null) {
+        const previous = elementRef.current
+        if (previous && previous !== value) {
+          bindElement(null)
+        }
+        elementRef.current = value
+        bindElement(value)
+      },
+    }
+    return proxy as React.MutableRefObject<HTMLDivElement | null>
+  }, [bindElement])
+
+  return swipeRef
 }
 
 /**
