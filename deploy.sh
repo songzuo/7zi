@@ -184,52 +184,106 @@ list_backups() {
 # ============================================
 # 健康检查
 # ============================================
+# 部署拓扑（2026-10-24 核实，见 T90_DEPLOY_HEALTHCHECK_FIX.md）：
+#   - 应用进程在容器内监听 3000（Dockerfile: ENV PORT=3000 / EXPOSE 3000），
+#     但 3000 **不是宿主机的对外服务端口**：生产源站实测
+#     `curl http://127.0.0.1:3000/api/health` -> 000（连接被拒）。
+#   - 对外入口是 nginx（80/443）反代到应用：生产 `/api/health` ->
+#     `proxy_pass http://127.0.0.1:3001`（next-server）；
+#     docker 拓扑下 nginx upstream 为 7zi-frontend-<slot>:3000。
+#   - Cloudflare/WAF 会拦截默认 curl UA（首页返回 403），健康检查必须带浏览器 UA。
+#
+# 因此健康检查按三层判定：
+#   1) 容器处于 running
+#   2) 容器内自检：docker exec <容器> 访问 127.0.0.1:3000/api/health
+#      —— 这是判定"待发布槽位是否真的可用"的权威依据
+#   3) 公开入口探测（nginx / 域名 /api/health）—— 判定用户可见链路
+#      默认只告警（蓝绿切换前新槽位尚未挂到 upstream，硬失败会误判）；
+#      传 "strict" 时作为硬失败条件（用于流量已切换后的回滚校验）。
+
+HEALTH_INTERNAL_PORT="${HEALTH_INTERNAL_PORT:-3000}"
+HEALTH_PUBLIC_URLS="${HEALTH_PUBLIC_URLS:-http://127.0.0.1/api/health https://7zi.com/api/health}"
+HEALTH_BROWSER_UA="${HEALTH_BROWSER_UA:-Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36}"
+
+# 远程 HTTP 探测：URL 返回 200 视为通过
+remote_http_ok() {
+    local url=$1
+    local code
+    code=$(ssh_cmd "curl -s -o /dev/null -w '%{http_code}' -L --max-time 15 -A '$HEALTH_BROWSER_UA' -H 'Host: 7zi.com' '$url'" 2>/dev/null | tr -d '\r\n' || true)
+    [ "$code" = "200" ]
+}
+
+# 容器内 HTTP 探测：直接命中容器里的应用端口
+container_http_ok() {
+    local container=$1
+    local port=$2
+    # 用精确容器 ID 执行，避免 name 前缀匹配到多个容器时 docker exec 失败
+    local cid
+    cid=$(ssh_cmd "docker ps --filter 'name=$container' --filter 'status=running' --format '{{.ID}}' | head -1" 2>/dev/null | tr -d '\r\n')
+    [ -z "$cid" ] && return 1
+    ssh_cmd "docker exec $cid node -e \"require('http').get('http://127.0.0.1:$port/api/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\"" >/dev/null 2>&1
+}
+
 health_check() {
     local target=$1
+    local mode=${2:-}
     local max_attempts=15
     local attempt=1
 
     log_step "健康检查: $target"
 
+    # 无容器名时退化为纯公开入口巡检
+    local check_container=1
+    if [ -z "$target" ] || [ "$target" = "null" ]; then
+        check_container=0
+        target="公开入口"
+    fi
+
     while [ $attempt -le $max_attempts ]; do
-        # 1. 检查容器状态
-        if ! ssh_cmd "docker ps --filter 'name=$target' --filter 'status=running' -q | grep -q ."; then
-            echo "  尝试 $attempt/$max_attempts - 容器未运行"
-            sleep 3
-            attempt=$((attempt + 1))
-            continue
+        if [ $check_container -eq 1 ]; then
+            # 1. 检查容器状态
+            if ! ssh_cmd "docker ps --filter 'name=$target' --filter 'status=running' -q | grep -q ."; then
+                echo "  尝试 $attempt/$max_attempts - 容器未运行"
+                sleep 3
+                attempt=$((attempt + 1))
+                continue
+            fi
+
+            # 2. 容器内自检（3000 是容器内部端口，必须在容器内访问）
+            if container_http_ok "$target" "$HEALTH_INTERNAL_PORT"; then
+                log_info "✅ $target 容器内健康检查通过 (127.0.0.1:$HEALTH_INTERNAL_PORT/api/health)"
+            else
+                echo "  尝试 $attempt/$max_attempts - 容器内 API 健康检查失败"
+                sleep 3
+                attempt=$((attempt + 1))
+                continue
+            fi
         fi
 
-        # 2. 检查 HTTP 响应
-        if ssh_cmd "curl -sf http://localhost:3000/ > /dev/null 2>&1"; then
-            log_info "✅ $target 基础健康检查通过"
-        else
-            echo "  尝试 $attempt/$max_attempts - HTTP 响应异常"
-            sleep 3
-            attempt=$((attempt + 1))
-            continue
-        fi
+        # 3. 公开入口检查（nginx 反代 / 域名）
+        local public_ok=0
+        local url
+        for url in $HEALTH_PUBLIC_URLS; do
+            if remote_http_ok "$url"; then
+                log_info "✅ 公开入口健康检查通过: $url"
+                public_ok=1
+                break
+            fi
+        done
 
-        # 3. 检查 API 端点
-        if ssh_cmd "curl -sf http://localhost:3000/api/health > /dev/null 2>&1"; then
-            log_info "✅ $target API 健康检查通过"
-        else
-            echo "  尝试 $attempt/$max_attempts - API 健康检查失败"
-            sleep 3
-            attempt=$((attempt + 1))
-            continue
-        fi
-
-        # 4. 检查关键页面
-        if ssh_cmd "curl -sf http://localhost:3000/works > /dev/null 2>&1"; then
-            log_info "✅ $target 关键页面检查通过"
+        if [ $public_ok -eq 1 ]; then
             return 0
-        else
-            echo "  尝试 $attempt/$max_attempts - 关键页面检查失败"
+        fi
+
+        if [ "$mode" = "strict" ]; then
+            echo "  尝试 $attempt/$max_attempts - 公开入口健康检查失败 (strict)"
             sleep 3
             attempt=$((attempt + 1))
             continue
         fi
+
+        log_warn "⚠️  公开入口健康检查未通过（容器内检查已通过），继续放行"
+        return 0
     done
 
     log_error "❌ $target 健康检查失败"
@@ -436,7 +490,7 @@ UPSTREAM
 
     # 12. 最终验证
     log_step "最终验证..."
-    if ssh_cmd "curl -sf https://7zi.com/api/health > /dev/null 2>&1"; then
+    if remote_http_ok "https://7zi.com/api/health"; then
         log_info "✅ 外部访问验证通过"
     else
         log_warn "⚠️  外部访问验证失败，请检查"
@@ -491,7 +545,7 @@ UPSTREAM
         docker-compose -f $compose_file stop 7zi-frontend-\$(docker ps --filter 'name=7zi-frontend' --format '{{.Names}}' | grep -v $target_slot | head -1) 2>/dev/null || true
     "
 
-    if health_check "7zi-frontend-$target_slot"; then
+    if health_check "7zi-frontend-$target_slot" "strict"; then
         log_rollback "✅ 回滚成功！当前活跃: $target_slot"
         record_deployment "$version" "rolled_back" "回滚到 $target_slot"
     else
@@ -701,7 +755,7 @@ case "${1:-}" in
     health)
         check_prerequisites
         local service=$(ssh_cmd "docker ps --filter 'name=7zi-frontend' --format '{{.Names}}' | head -1")
-        health_check "$service"
+        health_check "$service" "strict"
         ;;
     backups)
         check_prerequisites

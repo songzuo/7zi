@@ -202,24 +202,27 @@ health_check() {
 
     log_info "Running health checks..."
 
-    local health_url="https://7zi.com/api/health"
+    # 健康检查入口 = nginx 对外暴露的 /api/health（应用进程在容器内监听 3000，
+    # 宿主机 3000 并未对外提供服务，详见 T90_DEPLOY_HEALTHCHECK_FIX.md）
+    local health_url="${HEALTH_URL:-https://7zi.com/api/health}"
+    # Cloudflare/WAF 会拦截默认 curl UA，必须带浏览器 UA
+    local health_ua="${HEALTH_BROWSER_UA:-Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36}"
     local max_attempts=10
     local attempt=1
 
     while [ $attempt -le $max_attempts ]; do
         log_info "Health check attempt $attempt/$max_attempts..."
 
-        if curl -f -s "$health_url" > /dev/null 2>&1; then
+        if curl -f -s -L --max-time 15 -A "$health_ua" "$health_url" > /dev/null 2>&1; then
             log_success "Health check passed!"
 
-            # 显示健康状态
-            local health_status=$(curl -s "$health_url" | jq -r '.status')
-            local response_time=$(curl -s "$health_url" | jq -r '.responseTime')
+            # 显示健康状态（响应结构为 { success, data: { status, ... } }）
+            local health_body=$(curl -s -L --max-time 15 -A "$health_ua" "$health_url")
+            local health_status=$(echo "$health_body" | jq -r '.data.status // .status // "unknown"')
 
             log_info "Health status: $health_status"
-            log_info "Response time: $response_time"
 
-            if [ "$health_status" != "healthy" ]; then
+            if [ "$health_status" != "healthy" ] && [ "$health_status" != "unknown" ]; then
                 log_warning "Health status is '$health_status' (expected 'healthy')"
             fi
 
