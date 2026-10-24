@@ -151,7 +151,18 @@ function getContentType(format: ExportFormat): string {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    // 请求体解析失败是**客户端错误**（400），不是服务端错误（500）。
+    // 与 metrics 端点同源问题，一并显式捕获。
+    let body: Partial<ExportOptions>
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      logger.error('Analytics export invalid JSON body', parseError, { category: 'analytics' })
+      return createErrorResponse(
+        parseError instanceof Error ? parseError : new Error('Invalid request body'),
+        400
+      )
+    }
     const {
       format = 'csv',
       data,
@@ -159,7 +170,7 @@ export async function POST(request: NextRequest) {
       includeHeaders = true,
       filters,
       dateRange,
-    }: ExportOptions = body
+    }: Partial<ExportOptions> = body
 
     // Validate format
     if (!['csv', 'xlsx', 'json'].includes(format)) {
