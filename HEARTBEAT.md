@@ -327,3 +327,84 @@ bot2 `:00` / bot4 `:15` / bot6 `:30` / bot3 `:45` / bot5 `*/5`
 4. `anti-v2` 反复崩溃是否一并处理？
 
 完整报告：`T91_PRODUCTION_TOPOLOGY.md`
+
+---
+
+# 🔴 前端双树分叉 —— CI 跑的是根级，修复却落在嵌套树（T97，2026-10-24）
+
+**这是本轮最容易被骗的地方，改前端前必须先确认改的是哪棵树。**
+
+| | 根级 `src/` + `tests/` | 嵌套 `7zi-frontend/src/` |
+|---|---|---|
+| 版本 | 1.14.2 | 1.14.1 |
+| CI `test-unit` 跑谁 | ✅ **跑这棵树**（根 `vitest.config.ts` include `src/**`、`tests/**`） | ❌ 从未在根 CI 跑过 |
+| 实际发布 | ✅ `deploy.sh` rsync 整仓 + 根 `Dockerfile` `COPY . .` | ❌ 不发布 |
+| 文件数 | 1883 | 982 |
+
+**同名文件 121 个，内容分叉 116 个（95.9%），只有 5 个一致。**
+
+## 后果
+2026-06-01 以来触碰 `7zi-frontend/src` 的 **35 个 commit 中，31 个（88.6%）只改了非发布树**；
+同期根级 `src/` 只收到 7 个 commit。→ **"修好了"不等于"CI 变绿"。**
+
+## 已踩的坑（务必记住）
+- `6bc88ab75f` / `cb56fd87bb`（useTouchGestures / useSwipe 手势修复）
+  改的是**嵌套树**，根级 CI **一行都跑不到**。
+- `e475608a72`（auth 501 契约对齐）同理 —— 根级是真实 `loginUser` 实现，
+  没有 501 短路，"501 契约"模型在根级**不适用**。
+- `d2328ff110` 声称做了 3 处安全修复，实际 `git show --numstat` 里**源码改动 = 0**
+  （只改了 `DEV_TASKS_*.md` / `state/tasks.json`）。修复**从未进入任何树**。
+
+## 强制前置检查（派单时必须写进任务书）
+```bash
+# 1. 确认目标树
+ls src/hooks/useSwipeGestures.ts 2>/dev/null && echo "→ 根级（发布树）"
+ls 7zi-frontend/src/hooks/useTouchGestures.ts 2>/dev/null && echo "→ 嵌套树（非发布）"
+# 2. 确认 import 路径归属
+grep -rn "from '@/" src/ | grep 7zi-frontend   # 应为空
+```
+
+## 推荐收敛方案（待主人拍板，勿擅自执行）
+- **SSOT = 根级 `src/` + `tests/`**
+- Phase 0（零成本）：子代理任务书写死 `src/` 前缀 + pre-flight 断言
+- Phase 1：`git mv 7zi-frontend 7zi-frontend.legacy`（可逆、不丢历史）
+- Phase 2：13 个根级缺失模块差异化回迁（`lib/automation/`、`components/WorkflowEditor/` 优先）
+- Phase 3：`d2328ff110` 的安全修复真正落到根级 `src/app/api/auth/login/route.ts`
+- **symlink 方案不推荐**（git 不跟踪 symlink 目标、Windows runner 需 `symlinks: true`）
+
+## 🔴 移除嵌套树前必查（R7 高危）
+根级 `tests/` 有 **6 个文件 13 处 import 指向嵌套树**：
+`tests/automation/**`（4 个）、`tests/components/WorkflowEditor/AutoLayout.test.tsx`、
+`tests/integration/alert-system-edge-cases.test.ts`。
+其中 `performance-monitoring/alerting/*` **在嵌套树里也已不存在**
+（实际路径是 `lib/performance/alerting/`）→ 这些测试**现在就是断链的**。
+→ 移除前必须先改指根级，否则**立即编译失败**。
+
+完整报告：`T97_FRONTEND_TREE_DEDUP_AUDIT.md`（470 行）
+
+---
+
+# 🛠️ 本轮已落地的手势修复（嵌套树，2026-10-24）
+
+`6bc88ab75f` / `cb56fd87bb`，`useTouchGestures.test.ts` 52/52、`useSwipe.test.ts` 25/25。
+
+**真实产品缺陷（不只是测试问题）：**
+1. 双指缩放比例分母写成 `touches[0].clientX - touches[0].clientX + 1`，**恒等于 1**
+   → 双指缩放完全失效。改为 touchstart 记录初始双指间距。
+2. 滑动命中阈值后**仍会额外触发 `onTap`**，一次手势被算成两种。
+3. DOM 监听器直接绑定 `handleTouchStart/Move/End`，**绑定那一刻的闭包被固化**
+   → handler 依赖的 state（如 `scale`）永远停在初值。改为稳定转发函数。
+4. 原实现只在 `useEffect` 里读 `elementRef.current`，元素晚于 effect 就绪时
+   **监听永远绑不上**。改为 ref setter 中同步挂载/卸载。
+5. 阈值判定 `>` 应为 `>=`（正好等于阈值不触发）；两轴等距应优先水平方向。
+6. `touchend` 的抬起手指在真实 DOM 中位于 `changedTouches`，
+   原实现只读 `changedTouches[0]`，只填 `touches` 的环境直接失效。
+   改为 `e.changedTouches[0] ?? e.touches[0]`。
+
+**新增公开 API：** `setScale(scale)`（与 `resetState` 对称的程序化缩放接口）
+
+**测试基建坑（下次别再踩）：**
+- `result.current.gestureState = {...}` **改不了 hook 内部 state**（那只是返回值快照）
+- `vi.advanceTimersByTime()` 必须包在 `act()` 里，否则 React 不刷新 state
+- fake timers 下 `waitFor` 不推进定时器 → 12s 超时；改同步断言
+- `fireEvent.touchEnd` 只填 `touches` 不填 `changedTouches`，需手动补
