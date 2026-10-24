@@ -56,7 +56,9 @@ describe('Auth API - POST /api/auth (登录)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
-  it('应该成功登录有效凭据', async () => {
+  it('应该在认证系统未配置时返回 501 而非放行', async () => {
+    // 认证尚未实现（2026-04-24 的安全修复）：路由必须返回 501 拒绝一切登录请求，
+    // 以防任何人绕过鉴权。绝不能返回 200。
     const request = new NextRequest('http://localhost:3000/api/auth', {
       method: 'POST',
       body: JSON.stringify({ username: 'admin', password: 'password123' }),
@@ -65,13 +67,9 @@ describe('Auth API - POST /api/auth (登录)', () => {
     const response = await POST(request)
     const data = await response.json()
 
-    expect(response.status).toBe(200)
-    expect(data.success).toBe(true)
-    expect(data.data).toEqual({
-      id: 'user-123',
-      username: 'admin',
-      email: 'admin@example.com',
-    })
+    expect(response.status).toBe(501)
+    expect(data.success).toBe(false)
+    expect(data.data).toBeUndefined()
   })
 
   it('应该拒绝无效凭据', async () => {
@@ -83,9 +81,9 @@ describe('Auth API - POST /api/auth (登录)', () => {
     const response = await POST(request)
     const data = await response.json()
 
-    expect(response.status).toBe(401)
+    // 认证未配置时，统一返回 501（不区分凭据是否有效，避免账号枚举）
+    expect(response.status).toBe(501)
     expect(data.success).toBe(false)
-    expect(data.error.message).toBe('用户名或密码错误')
   })
 
   it('应该拒绝缺少用户名的请求', async () => {
@@ -131,7 +129,8 @@ describe('Auth API - POST /api/auth (登录)', () => {
 })
 
 describe('Auth API - PUT /api/auth (注册)', () => {
-  it('应该成功注册新用户', async () => {
+  it('应该在认证系统未配置时拒绝注册', async () => {
+    // 注册同样未实现（2026-04-24 安全修复），必须返回 501 而非真的建号
     const request = new NextRequest('http://localhost:3000/api/auth', {
       method: 'PUT',
       body: JSON.stringify({
@@ -145,9 +144,8 @@ describe('Auth API - PUT /api/auth (注册)', () => {
     const response = await PUT(request)
     const data = await response.json()
 
-    expect(response.status).toBe(201)
-    expect(data.success).toBe(true)
-    expect(data.data.message).toBe('注册成功')
+    expect(response.status).toBe(501)
+    expect(data.success).toBe(false)
   })
 
   it('应该拒绝无效的邮箱格式', async () => {
@@ -202,7 +200,8 @@ describe('Auth API - PUT /api/auth (注册)', () => {
 })
 
 describe('Auth API - PATCH /api/auth (重置密码)', () => {
-  it('应该成功重置密码', async () => {
+  it('应该在认证系统未配置时拒绝密码重置', async () => {
+    // 密码重置同样未实现（2026-04-24 安全修复），必须返回 501
     const request = new NextRequest('http://localhost:3000/api/auth', {
       method: 'PATCH',
       body: JSON.stringify({
@@ -215,9 +214,8 @@ describe('Auth API - PATCH /api/auth (重置密码)', () => {
     const response = await PATCH(request)
     const data = await response.json()
 
-    expect(response.status).toBe(200)
-    expect(data.success).toBe(true)
-    expect(data.data.message).toBe('密码重置成功')
+    expect(response.status).toBe(501)
+    expect(data.success).toBe(false)
   })
 
   it('应该拒绝缺少 token', async () => {
