@@ -311,16 +311,21 @@ export class TenantService {
       [userId, TenantMemberStatus.ACTIVE]
     )
 
-    const tenants = await Promise.all(
-      rows.map((row: { tenant_id: string; role: string }) => this.getTenant(row.tenant_id))
+    // 逐行取租户并保留与 rows 一一对应的 role。
+    // 之前先 filter 掉 null 再用 rows[index] 取 role，一旦有租户查不到，
+    // 后续租户的角色就会张冠李戴（索引错位）。
+    const resolved = await Promise.all(
+      rows.map(async (row: { tenant_id: string; role: string }) => {
+        const tenant = await this.getTenant(row.tenant_id)
+        if (!tenant) return null
+        return {
+          ...tenant,
+          role: row.role as TenantMemberRole,
+        }
+      })
     )
 
-    return tenants
-      .filter((t): t is Tenant => t !== null)
-      .map((tenant: Tenant, index: number) => ({
-        ...tenant,
-        role: rows[index].role as TenantMemberRole,
-      }))
+    return resolved.filter((t): t is Tenant & { role: TenantMemberRole } => t !== null)
   }
 
   /**

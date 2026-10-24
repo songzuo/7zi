@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { tenantService } from '../tenant/service'
 import { TenantMemberStatus, TenantQuota } from '../tenant/types'
 import { logger } from '../logger'
+import { resolveIdentity } from './identity'
 
 /**
  * 租户上下文
@@ -117,14 +118,18 @@ export function requirePermission(resource: string, action: string) {
       )
     }
     
-    const userId = request.headers.get('x-user-id')
+    // 身份必须来自已验证的 token（或显式开启的受信代理头），
+    // 不能直接信任客户端可伪造的 x-user-id 请求头。
+    const identity = await resolveIdentity(request, tenantRequest.tenantContext.tenantId)
     
-    if (!userId) {
+    if (!identity) {
       return NextResponse.json(
         { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
         { status: 401 }
       )
     }
+    
+    const userId = identity.userId
     
     try {
       const context = await tenantService.getTenantContext(userId, tenantRequest.tenantContext.tenantId)
@@ -137,8 +142,17 @@ export function requirePermission(resource: string, action: string) {
       }
       
       // 检查权限
+      //
+      // 注意：`perm_${resource}_write` 只能在 action 本身是写操作时兜底。
+      // 之前无条件放行，导致持有 `perm_tenant_write` 的用户可以执行
+      // `requirePermission('tenant', 'delete')`（src/app/api/v1/tenants/route.ts）
+      // 从而删除租户。写权限不应隐含删除权限。
+      const WRITE_ACTIONS = new Set(['create', 'update', 'write', 'edit'])
+      const isWriteAction = WRITE_ACTIONS.has(action)
       const hasPermission = context.permissions.some(
-        p => p === `perm_${resource}_${action}` || p === `perm_${resource}_write`
+        p =>
+          p === `perm_${resource}_${action}` ||
+          (isWriteAction && p === `perm_${resource}_write`)
       )
       
       if (!hasPermission) {
@@ -186,14 +200,18 @@ export function requireRole(...allowedRoles: string[]) {
       )
     }
     
-    const userId = request.headers.get('x-user-id')
+    // 身份必须来自已验证的 token（或显式开启的受信代理头），
+    // 不能直接信任客户端可伪造的 x-user-id 请求头。
+    const identity = await resolveIdentity(request, tenantRequest.tenantContext.tenantId)
     
-    if (!userId) {
+    if (!identity) {
       return NextResponse.json(
         { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
         { status: 401 }
       )
     }
+    
+    const userId = identity.userId
     
     try {
       const member = await tenantService.getTenantContext(userId, tenantRequest.tenantContext.tenantId)

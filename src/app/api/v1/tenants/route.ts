@@ -12,6 +12,7 @@ import {
   CreateTenantRequest,
 } from '@/lib/tenant/types'
 import { requirePermission } from '@/lib/tenant/middleware'
+import { requireIdentity } from '@/lib/tenant/identity'
 
 /**
  * GET /api/v1/tenants
@@ -23,8 +24,9 @@ export async function GET(request: NextRequest) {
     const permissionCheck = await requirePermission('tenant', 'read')(request)
     if (permissionCheck) return permissionCheck
     
-    const userId = request.headers.get('x-user-id') || ''
-    const tenants = await tenantService.listUserTenants(userId)
+    const identity = await requireIdentity(request)
+    if (identity instanceof NextResponse) return identity
+    const tenants = await tenantService.listUserTenants(identity.userId)
     
     return NextResponse.json({
       success: true,
@@ -45,14 +47,9 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id')
-    
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
-        { status: 401 }
-      )
-    }
+    const identity = await requireIdentity(request)
+    if (identity instanceof NextResponse) return identity
+    const userId = identity.userId
     
     const body = await request.json()
     
@@ -150,7 +147,9 @@ export async function PUT_TENANT(
     const permissionCheck = await requirePermission('tenant', 'write')(request)
     if (permissionCheck) return permissionCheck
     
-    const userId = request.headers.get('x-user-id') || ''
+    const identity = await requireIdentity(request)
+    if (identity instanceof NextResponse) return identity
+    const userId = identity.userId
     const body = await request.json()
     
     // 获取旧值
@@ -196,7 +195,9 @@ export async function DELETE_TENANT(
     const permissionCheck = await requirePermission('tenant', 'delete')(request)
     if (permissionCheck) return permissionCheck
     
-    const userId = request.headers.get('x-user-id') || ''
+    const identity = await requireIdentity(request)
+    if (identity instanceof NextResponse) return identity
+    const userId = identity.userId
     
     // 获取旧值
     const oldTenant = await tenantService.getTenant(params.id)

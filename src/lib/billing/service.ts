@@ -158,6 +158,41 @@ function generateId(prefix: string = ''): string {
 /**
  * 计费服务类
  */
+/**
+ * 配额键名归一化
+ *
+ * 数据库 seed 里 plans.limits 用的是 snake_case
+ * （`{"ai_calls": 1000, "workflow_runs": 100, "storage_gb": 10}`，见
+ * src/lib/db/migrations/001_multi_tenant.sql），而 Plan.limits 的类型声明
+ * 与 getLimitKey() 用的是 camelCase（aiCalls / workflowRuns / storageGB）。
+ * 两者之间原本没有转换，导致 `plan.limits['aiCalls']` 恒为 undefined，
+ * `checkUsageLimit` 里 `used >= undefined` 恒为 false —— 配额检查形同虚设。
+ *
+ * 这里在解析 JSON 时把两种命名都归一到 camelCase，使类型声明与运行时行为一致。
+ */
+const LIMIT_KEY_ALIASES: Record<string, keyof Plan['limits']> = {
+  aiCalls: 'aiCalls',
+  ai_calls: 'aiCalls',
+  workflowRuns: 'workflowRuns',
+  workflow_runs: 'workflowRuns',
+  storageGB: 'storageGB',
+  storage_gb: 'storageGB',
+}
+
+function normalizeLimits(raw: unknown): Plan['limits'] {
+  const source = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+  const normalized: Partial<Plan['limits']> = {}
+
+  for (const [key, value] of Object.entries(source)) {
+    const canonical = LIMIT_KEY_ALIASES[key]
+    if (canonical) {
+      normalized[canonical] = value as Plan['limits'][typeof canonical]
+    }
+  }
+
+  return normalized as Plan['limits']
+}
+
 export class BillingService {
   /**
    * 用量单价配置
@@ -191,7 +226,7 @@ export class BillingService {
       priceMonthly: row.price_monthly,
       priceYearly: row.price_yearly,
       features: JSON.parse(row.features || '{}'),
-      limits: JSON.parse(row.limits || '{}'),
+      limits: normalizeLimits(JSON.parse(row.limits || '{}')),
     }
   }
 
@@ -216,7 +251,7 @@ export class BillingService {
       priceMonthly: row.price_monthly,
       priceYearly: row.price_yearly,
       features: JSON.parse(row.features || '{}'),
-      limits: JSON.parse(row.limits || '{}'),
+      limits: normalizeLimits(JSON.parse(row.limits || '{}')),
     }))
   }
 

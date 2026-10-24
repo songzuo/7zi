@@ -400,10 +400,17 @@ export async function checkUserPermission(
     if (!context) return false
 
     const permission = `perm_${resource}_${action}`
+    //
+    // `perm_${resource}_write` 只应在 action 本身是写操作时兜底；无条件放行
+    // 会让持有写权限的用户获得删除等更高危操作。
+    // `perm_*_*` 是通配符（超级权限），保持原语义不变。
+    const WRITE_ACTIONS = new Set(['create', 'update', 'write', 'edit'])
+    const isWriteAction = WRITE_ACTIONS.has(action)
     return context.permissions.some(
-      p => p === permission || 
-           p === `perm_${resource}_write` ||
-           p === `perm_*_*`
+      p =>
+        p === permission ||
+        (isWriteAction && p === `perm_${resource}_write`) ||
+        p === `perm_*_*`
     )
   } catch (error) {
     logger.error('Permission check failed', { userId, tenantId, resource, action, error })
