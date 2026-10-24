@@ -15,7 +15,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 import { useTouchGestures, useSwipe, usePinchToZoom } from '../useTouchGestures'
 import type { TouchGestureOptions, TouchGestureHandlers, SwipeHandlers, PinchToZoomOptions } from '../useTouchGestures'
 
@@ -152,7 +152,7 @@ describe('useTouchGestures - Zoom Gestures', () => {
     vi.restoreAllMocks()
   })
 
-  it('should toggle zoom on double-tap (1 <-> 2)', async () => {
+  it('should toggle zoom on double-tap (1 <-> 2)', () => {
     const onZoom = vi.fn()
     const { result } = renderHook(() =>
       useTouchGestures({ enableZoom: true }, { onZoom })
@@ -167,7 +167,9 @@ describe('useTouchGestures - Zoom Gestures', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(50)
+    act(() => {
+      vi.advanceTimersByTime(50)
+    })
 
     // Second tap (double-tap)
     act(() => {
@@ -175,9 +177,7 @@ describe('useTouchGestures - Zoom Gestures', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    await waitFor(() => {
-      expect(result.current.gestureState.scale).toBe(2)
-    })
+    expect(result.current.gestureState.scale).toBe(2)
 
     // Third tap (should reset)
     act(() => {
@@ -185,16 +185,16 @@ describe('useTouchGestures - Zoom Gestures', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(50)
+    act(() => {
+      vi.advanceTimersByTime(50)
+    })
 
     act(() => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
-    await waitFor(() => {
-      expect(result.current.gestureState.scale).toBe(1)
-    })
+    expect(result.current.gestureState.scale).toBe(1)
   })
 
   it('should zoom in with pinch gesture', () => {
@@ -239,7 +239,7 @@ describe('useTouchGestures - Zoom Gestures', () => {
 
     // Start with scale 2
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 2 }
+      result.current.setScale(2)
     })
 
     // Start pinch (distance 200)
@@ -272,7 +272,7 @@ describe('useTouchGestures - Zoom Gestures', () => {
     result.current.gestureRef.current = element
 
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 2 }
+      result.current.setScale(2)
     })
 
     // Try to zoom beyond max
@@ -304,7 +304,7 @@ describe('useTouchGestures - Zoom Gestures', () => {
     result.current.gestureRef.current = element
 
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 1 }
+      result.current.setScale(1)
     })
 
     // Try to zoom below min
@@ -341,7 +341,9 @@ describe('useTouchGestures - Zoom Gestures', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(50)
+    act(() => {
+      vi.advanceTimersByTime(50)
+    })
 
     act(() => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
@@ -365,7 +367,9 @@ describe('useTouchGestures - Zoom Gestures', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(50)
+    act(() => {
+      vi.advanceTimersByTime(50)
+    })
 
     act(() => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
@@ -454,7 +458,7 @@ describe('useTouchGestures - Drag Gestures', () => {
 
     // Set initial scale
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 2 }
+      result.current.setScale(2)
     })
 
     // Start drag
@@ -483,7 +487,7 @@ describe('useTouchGestures - Drag Gestures', () => {
     result.current.gestureRef.current = element
 
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 2 }
+      result.current.setScale(2)
     })
 
     act(() => {
@@ -508,7 +512,7 @@ describe('useTouchGestures - Drag Gestures', () => {
     result.current.gestureRef.current = element
 
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 2 }
+      result.current.setScale(2)
     })
 
     act(() => {
@@ -534,7 +538,7 @@ describe('useTouchGestures - Drag Gestures', () => {
     result.current.gestureRef.current = element
 
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 2 }
+      result.current.setScale(2)
     })
 
     act(() => {
@@ -560,7 +564,7 @@ describe('useTouchGestures - Drag Gestures', () => {
     result.current.gestureRef.current = element
 
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 2 }
+      result.current.setScale(2)
     })
 
     act(() => {
@@ -585,7 +589,7 @@ describe('useTouchGestures - Drag Gestures', () => {
     result.current.gestureRef.current = element
 
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 2 }
+      result.current.setScale(2)
     })
 
     expect(result.current.gestureState.isDragging).toBe(false)
@@ -635,7 +639,7 @@ describe('useTouchGestures - Drag Gestures', () => {
     result.current.gestureRef.current = element
 
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 2 }
+      result.current.setScale(2)
     })
 
     // Start drag
@@ -803,19 +807,23 @@ describe('useTouchGestures - Swipe Gestures', () => {
     const element = document.createElement('div')
     result.current.gestureRef.current = element
 
-    // Set dragging state
+    // 先放大，进入可拖拽状态
     act(() => {
-      result.current.gestureState = {
-        ...result.current.gestureState,
-        scale: 2,
-        isDragging: true,
-      }
+      result.current.setScale(2)
     })
 
+    // 真实拖拽手势：移动后进入 isDragging
     act(() => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
+
+    act(() => {
+      const touchEvent = createTouchEvent('touchmove', [createTouch(200, 100)])
+      element.dispatchEvent(touchEvent)
+    })
+
+    expect(result.current.gestureState.isDragging).toBe(true)
 
     act(() => {
       const touchEvent = createTouchEvent('touchend', [createTouch(200, 100)])
@@ -834,18 +842,24 @@ describe('useTouchGestures - Swipe Gestures', () => {
     const element = document.createElement('div')
     result.current.gestureRef.current = element
 
-    // Set zooming state
+    // 先通过双指手势进入 isZooming
     act(() => {
-      result.current.gestureState = {
-        ...result.current.gestureState,
-        isZooming: true,
-      }
+      const touchEvent = createTouchEvent('touchstart', [
+        createTouch(100, 100, 0),
+        createTouch(200, 100, 1),
+      ])
+      element.dispatchEvent(touchEvent)
     })
 
     act(() => {
-      const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
+      const touchEvent = createTouchEvent('touchmove', [
+        createTouch(100, 100, 0),
+        createTouch(300, 100, 1),
+      ])
       element.dispatchEvent(touchEvent)
     })
+
+    expect(result.current.gestureState.isZooming).toBe(true)
 
     act(() => {
       const touchEvent = createTouchEvent('touchend', [createTouch(200, 100)])
@@ -880,7 +894,9 @@ describe('useTouchGestures - Long Press', () => {
     })
 
     // Fast-forward past longPressDelay
-    vi.advanceTimersByTime(500)
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
 
     expect(result.current.gestureState.isLongPressing).toBe(true)
     expect(onLongPress).toHaveBeenCalled()
@@ -906,7 +922,9 @@ describe('useTouchGestures - Long Press', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(500)
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
 
     expect(result.current.gestureState.isLongPressing).toBe(false)
     expect(onLongPress).not.toHaveBeenCalled()
@@ -932,7 +950,9 @@ describe('useTouchGestures - Long Press', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(500)
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
 
     expect(result.current.gestureState.isLongPressing).toBe(false)
     expect(onLongPress).not.toHaveBeenCalled()
@@ -954,7 +974,9 @@ describe('useTouchGestures - Long Press', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(500)
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
 
     expect(result.current.gestureState.isLongPressing).toBe(true)
   })
@@ -973,11 +995,15 @@ describe('useTouchGestures - Long Press', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(500)
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
 
     expect(onLongPress).not.toHaveBeenCalled()
 
-    vi.advanceTimersByTime(500)
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
 
     expect(onLongPress).toHaveBeenCalled()
   })
@@ -996,7 +1022,9 @@ describe('useTouchGestures - Long Press', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(500)
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
 
     act(() => {
       const touchEvent = createTouchEvent('touchend', [createTouch(100, 100)])
@@ -1035,7 +1063,9 @@ describe('useTouchGestures - Tap / Double Tap', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(50)
+    act(() => {
+      vi.advanceTimersByTime(50)
+    })
 
     expect(onTap).toHaveBeenCalled()
   })
@@ -1055,7 +1085,9 @@ describe('useTouchGestures - Tap / Double Tap', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(100)
+    act(() => {
+      vi.advanceTimersByTime(100)
+    })
 
     // Second tap (within 300ms)
     act(() => {
@@ -1082,7 +1114,9 @@ describe('useTouchGestures - Tap / Double Tap', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(400) // Wait 400ms
+    act(() => {
+      vi.advanceTimersByTime(400)
+    }) // Wait 400ms
 
     // Second tap (after 300ms threshold)
     act(() => {
@@ -1110,7 +1144,9 @@ describe('useTouchGestures - Tap / Double Tap', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(100)
+    act(() => {
+      vi.advanceTimersByTime(100)
+    })
 
     // Second tap
     act(() => {
@@ -1137,7 +1173,9 @@ describe('useTouchGestures - Tap / Double Tap', () => {
       element.dispatchEvent(touchEvent)
     })
 
-    vi.advanceTimersByTime(500)
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
 
     act(() => {
       const touchEvent = createTouchEvent('touchend', [createTouch(100, 100)])
@@ -1198,7 +1236,7 @@ describe('useTouchGestures - Edge Cases', () => {
     result.current.gestureRef.current = element
 
     act(() => {
-      result.current.gestureState = { ...result.current.gestureState, scale: 3 }
+      result.current.setScale(3)
     })
 
     // Try to force scale beyond max

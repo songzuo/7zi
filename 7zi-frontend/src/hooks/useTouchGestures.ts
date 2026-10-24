@@ -13,7 +13,8 @@
 
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import type React from 'react'
 
 export interface TouchGestureOptions {
   /**
@@ -173,6 +174,8 @@ export function useTouchGestures(
   const lastTapRef = useRef<number>(0)
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null)
   const isTouchingRef = useRef(false)
+  // 双指手势开始时的初始间距（用于计算缩放比例）
+  const initialPinchDistanceRef = useRef<number | null>(null)
 
   // 重置状态
   const resetState = useCallback(() => {
@@ -202,6 +205,16 @@ export function useTouchGestures(
         translateX: state.translateX,
         translateY: state.translateY,
         touches: e.touches.length,
+      }
+
+      // 双指手势：记录初始间距，作为缩放比例的计算基准
+      if (e.touches.length === 2) {
+        initialPinchDistanceRef.current = Math.hypot(
+          e.touches[1].clientX - e.touches[0].clientX,
+          e.touches[1].clientY - e.touches[0].clientY
+        )
+      } else {
+        initialPinchDistanceRef.current = null
       }
 
       // 长按检测
@@ -260,17 +273,13 @@ export function useTouchGestures(
           touch2.clientY - touch1.clientY
         )
 
-        // 计算缩放比例
+        // 计算缩放比例：当前间距 / 初始间距 * 起始缩放
+        // 原来的分母写成 touches[0] 与自身的差值（clientX - clientX + 1），
+        // 恒等于 1，导致缩放比例永远是起始缩放，双指缩放完全失效。
+        const initialDistance = initialPinchDistanceRef.current ?? currentDistance
+        const ratio = initialDistance > 0 ? currentDistance / initialDistance : 1
         const newScale = Math.min(
-          Math.max(
-            (currentDistance /
-              Math.hypot(
-                e.touches[0].clientX - e.touches[0].clientX + 1,
-                e.touches[0].clientY - e.touches[0].clientY + 1
-              )) *
-              touchStartRef.current.scale,
-            minZoom
-          ),
+          Math.max(ratio * touchStartRef.current.scale, minZoom),
           maxZoom
         )
 
@@ -326,6 +335,7 @@ export function useTouchGestures(
       }
 
       // 滑动检测
+      let swipeDetected = false
       if (
         enableSwipe &&
         !state.isDragging &&
@@ -339,21 +349,25 @@ export function useTouchGestures(
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
           // 水平滑动
           if (Math.abs(deltaX) > swipeThreshold) {
+            swipeDetected = true
             onSwipe?.(deltaX > 0 ? 'right' : 'left')
           }
         } else {
           // 垂直滑动
           if (Math.abs(deltaY) > swipeThreshold) {
+            swipeDetected = true
             onSwipe?.(deltaY > 0 ? 'down' : 'up')
           }
         }
       }
 
       // 点击检测（没有发生其他手势）
+      // 滑动已经构成一次独立手势，不能同时再算作点击。
       if (
         !state.isDragging &&
         !state.isZooming &&
         !state.isLongPressing &&
+        !swipeDetected &&
         touchStartRef.current.touches === 1
       ) {
         onTap?.()
@@ -381,32 +395,92 @@ export function useTouchGestures(
     ]
   )
 
-  // 绑定事件监听器
-  useEffect(() => {
-    const element = elementRef.current
+  // 始终指向最新的 handler，保证挂载/卸载时不会用到过期闭包
+  const handlersRef = useRef({
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+  })
+  handlersRef.current = { handleTouchStart, handleTouchMove, handleTouchEnd }
+
+  // 稳定的事件入口：DOM 监听器始终绑定这三个函数，
+  // 内部再转发到最新的 handler。若直接绑定 handleTouchStart 等，
+  // 绑定那一刻的闭包会被固化，handler 依赖的 state（例如 scale）永远停留在初值。
+  const stableTouchStart = useCallback((e: TouchEvent) => {
+    handlersRef.current.handleTouchStart(e)
+  }, [])
+  const stableTouchMove = useCallback((e: TouchEvent) => {
+    handlersRef.current.handleTouchMove(e)
+  }, [])
+  const stableTouchEnd = useCallback((e: TouchEvent) => {
+    handlersRef.current.handleTouchEnd(e)
+  }, [])
+
+  // 挂载/卸载监听器。抽成独立函数以便在 ref 被赋值时同步调用，
+  // 不依赖 React 提交顺序，也不依赖后续的状态更新是否被 flush。
+  const attachListeners = useCallback((element: HTMLDivElement | null) => {
     if (!element) return
+    element.addEventListener('touchstart', stableTouchStart, { passive: false })
+    element.addEventListener('touchmove', stableTouchMove, { passive: false })
+    element.addEventListener('touchend', stableTouchEnd)
+    element.addEventListener('touchcancel', stableTouchEnd)
+  }, [stableTouchStart, stableTouchMove, stableTouchEnd])
 
-    element.addEventListener('touchstart', handleTouchStart, { passive: false })
-    element.addEventListener('touchmove', handleTouchMove, { passive: false })
-    element.addEventListener('touchend', handleTouchEnd)
-    element.addEventListener('touchcancel', handleTouchEnd)
+  const detachListeners = useCallback((element: HTMLDivElement | null) => {
+    if (!element) return
+    element.removeEventListener('touchstart', stableTouchStart)
+    element.removeEventListener('touchmove', stableTouchMove)
+    element.removeEventListener('touchend', stableTouchEnd)
+    element.removeEventListener('touchcancel', stableTouchEnd)
 
-    return () => {
-      element.removeEventListener('touchstart', handleTouchStart)
-      element.removeEventListener('touchmove', handleTouchMove)
-      element.removeEventListener('touchend', handleTouchEnd)
-      element.removeEventListener('touchcancel', handleTouchEnd)
-
-      if (longPressTimerRef.current) {
-        clearTimeout(longPressTimerRef.current)
-      }
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current)
+      longPressTimerRef.current = null
     }
-  }, [handleTouchStart, handleTouchMove, handleTouchEnd])
+  }, [stableTouchStart, stableTouchMove, stableTouchEnd])
+
+  // 卸载时清理监听器
+  useEffect(() => {
+    return () => {
+      detachListeners(elementRef.current)
+    }
+  }, [detachListeners])
+
+  // 对外暴露的 ref。原生 RefObject 只在 React 提交 DOM 之后才写入 .current，
+  // 若元素在 effect 之后才就绪（条件渲染、测试中手动赋值），监听器将永远绑不上。
+  // 这里用 getter/setter 代理把赋值转成一次 state 更新，驱动上面的 effect 重跑。
+  const gestureRef = useMemo(() => {
+    const proxy = {
+      get current(): HTMLDivElement | null {
+        return elementRef.current
+      },
+      set current(value: HTMLDivElement | null) {
+        const previous = elementRef.current
+        if (previous && previous !== value) {
+          detachListeners(previous)
+        }
+        elementRef.current = value
+        if (value) {
+          attachListeners(value)
+        }
+      },
+    }
+    return proxy as React.MutableRefObject<HTMLDivElement | null>
+  }, [attachListeners, detachListeners])
+
+  // 程序化设置缩放比例（与 resetState 对称的公开能力）
+  const setScale = useCallback((scale: number) => {
+    setState(prev => ({
+      ...prev,
+      scale: Math.min(Math.max(scale, minZoom), maxZoom),
+    }))
+  }, [minZoom, maxZoom])
 
   return {
     gestureState: state,
-    gestureRef: elementRef,
+    gestureRef,
     resetState,
+    setScale,
   }
 }
 
