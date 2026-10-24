@@ -121,6 +121,219 @@
 
 ---
 
+## [未发布] / 2026-10-25（T115 文档同步）
+
+> 本段落由 **T115（📚 咨询师）** 补记，日期 **2026-10-25 (Asia/Shanghai)**。
+> 记录 T103–T112 这一批此前未在 CHANGELOG 体现的成果；**全部条目均以 `git log` / 提交内
+> `--numstat` / 已落地报告 md / 实际 diff 核实**，未核实的一律不写。
+> 同步动作：HEARTBEAT.md 恢复被整段误删的 157 行实测结论（见下方「HEARTBEAT.md 恢复」）。
+
+### 🐛 安全修复（`e52333a7b5`，发布树根级 `src/`）
+
+> `fix(auth): 修复登录时序侧信道 + 8 项安全脱敏缺陷 + SQLite 索引语法错误`
+> T99 / T100 / T102 / T103 的合并产出，全部落在**发布树**（根 `src/`）。
+
+- **T99 登录时序侧信道**：新增 `src/lib/auth/password.ts` 抽出密码原语，真实路径与
+  dummy 路径共用同一组常量（PBKDF2_ITERATIONS=10000 / keylen=64 / sha512），摘要比较
+  统一走 `crypto.timingSafeEqual`（长度不等安全返回 false）；`repository.ts` / `service.ts` /
+  `tenant/service.ts` / `service-unified.ts` 的「用户不存在」分支改为执行 dummy 校验并
+  丢弃结果，两条失败分支日志统一为 `'Login failed: invalid credentials'`，
+  「账号未激活」分支补等量计算堵旁路。
+  实测：真实路径 **22.9ms** vs dummy 路径 **19.7ms**（原未知账号路径 ~0.1ms）。
+  新增 `login-timing.test.ts`（5 例：消息一致 / dummy 被调用 / 迭代数一致 / 耗时不量级差异）。
+- **T100 + T102 安全脱敏 8 项缺陷**（新增 3 个测试文件共 120 例）：
+  `resetPatterns()` 把 `SENSITIVE_PATTERNS` 重置成缩减集致 PII 模式永久丢失；
+  `isSensitiveField` 顺序匹配让通用 `/token/i` 抢先命中、`refreshToken` 只做 partial 掩码
+  → 改为精确匹配优先、`refreshToken` 走 full 脱敏；`maskCreditCard` 忽略传入 config 且
+  4–7 位卡号因 `repeat(负数)` 抛 RangeError；`sanitizeObject` 对字符串值二次脱敏导致
+  结果不幂等；SQL 危险函数用子串匹配造成 `system`/`copyright` 误报、小写条目
+  (`xp_cmdshell`/`sp_`/`fn_`) 因输入已转大写而永远漏报 → 改为词边界 + 大小写无关；
+  `isPolluted` 用 `in` 判原型链导致任意普通对象都返回 true → 改为仅检查自有属性；
+  `prototype-pollution-guard` 在模块顶层 import 即冻结 `Object.prototype` → 改为惰性冻结。
+- **T103 SQLite 索引语法（真 Bug）**：`audit-logger.ts` / `token-blacklist.ts` /
+  `enhanced-permissions.ts` 三处的 `CREATE TABLE` 内联 `INDEX idx_xxx (...)` 不是合法
+  SQLite 语法，初始化必然抛错 → 改为独立 `CREATE INDEX IF NOT EXISTS` 语句；
+  `queryAuditLogs` 补 `ORDER BY rowid DESC`，使分页在同秒记录间稳定。
+- **验证（主管复跑）**：`npx tsc --noEmit` 0 errors；
+  `npx vitest run src/lib/auth/ src/lib/security/` → **16 files / 484 passed**；
+  3 个 security 测试文件 → **9 files / 264 passed**，0 失败。
+
+### 🧪 测试基建修复
+
+- **`babfbfbcc8`** —— `fix(test): 修复 draft-storage 测试挂起，单文件 354s → 2.6s`
+  - 单文件耗时 354 秒，一个文件就足以撑爆 CI `test-unit` 的 10 分钟分片上限
+    （`timeout-minutes: 10`），是 CI 分片超时的元凶之一。
+  - 根因：mock 的 request 对象只有 `onsuccess: null`，赋值后再没人触发；
+    storage 内部 `request.onsuccess = () => resolve()` 之后 Promise 永远挂起，
+    每个用例都要等到 vitest 超时才失败。
+  - 修复：新增 `createAutoRequest()`（getter/setter 在 `onsuccess` 被赋值时立即回调）；
+    mock 的 db 对象补 `close()`（否则 `afterEach` 的 `storage.close()` 抛 TypeError，
+    整个 describe 块全部判失败）；`afterEach` 的 `clearAllDrafts()` 加 1s 竞态兜底。
+  - 结果：`src/lib/storage/__tests__/draft-storage.test.ts`
+    **8 failed | 1 passed, 354.30s → 9 passed, 2.59s**。
+- **`ba3206b382`** —— `fix(test): 修复根级 tests/api-integration 的 4 处测试基建问题`
+  - `cache-api.spec.ts`：重复 import `beforeEach`（语法错误）+ 用单调计数器代替 `Date.now()`，
+    避免毫秒精度下两次 refetch 时间戳相等
+  - `auth.integration.test.ts`：`server.listen()` 放在 `beforeEach` 里会被反复调用 → 改为 `beforeAll` 一次
+  - `alerts.integration.test.ts` / `performance.integration.test.ts`：同类修复
+  - 验证：4 个文件 **106/106 通过**（60 + 46），exit 0
+- **`e475608a72`** —— `fix(auth-test): 对齐 501 安全契约，修正 4 个过时断言`
+  - `/api/auth` 的 501 是 2026-04-24（`d95557324e`）加的**刻意安全修复**
+    （认证未实现时必须拒绝一切登录/注册/重置请求，以防绕过鉴权）；
+    而测试文件写于 2026-04-08（`51a0593069`），断言的还是旧的「应该成功登录/注册/重置」行为
+  - 改法：不实现认证（那是另一件事），而是把断言对齐安全契约 —— 断言返回 501、
+    `success=false`、不返回用户数据；「无效凭据」用例改为断言 501 而非 401，
+    避免泄露「凭据是否有效」的信息（防账号枚举）。验证 **12/12 通过**。
+
+### 🎣 手势缺陷修复（`6bc88ab75f` / `cb56fd87bb`，⚠️ 落在**嵌套树**）
+
+- **`6bc88ab75f`** —— `fix(hooks): 修复 useTouchGestures 手势缺陷，52/52 测试通过`
+  - 产品缺陷：双指缩放比例分母写成 `touches[0]` 与自身的差值（`clientX - clientX + 1`），
+    **恒等于 1**，导致双指缩放完全失效 → 改为 touchstart 记录初始双指间距；
+    滑动命中阈值后仍会额外触发 `onTap`（一次手势被算成两种）→ 滑动判定排除点击；
+    DOM 监听器直接绑定 `handleTouchStart/Move/End`，绑定那一刻的闭包被固化，
+    handler 依赖的 state（如 `scale`）永远停留在初值 → 改为稳定转发函数；
+    原实现只在 `useEffect` 里读 `elementRef.current`，元素晚于 effect 就绪时监听永远绑不上
+    → 改为 ref setter 中同步挂载/卸载
+  - 新增公开 API：`setScale(scale)`（与 `resetState` 对称的程序化缩放接口）
+  - 改动路径：`7zi-frontend/src/hooks/useTouchGestures.ts`（+102 / -28）
+- **`cb56fd87bb`** —— `fix(hooks): 修复 useSwipe 滑动手势缺陷，25/25 测试通过`
+  - 阈值判定用 `>` 而非 `>=`（正好等于阈值不触发）；两轴距离相等时优先判定为水平方向；
+    `touchend` 的抬起手指在真实 DOM 中位于 `changedTouches`，原实现只读 `changedTouches[0]`，
+    只填 `touches` 的环境直接失效 → 改为 `e.changedTouches[0] ?? e.touches[0]`
+  - 结果：`useSwipe.test.ts` **16 failed | 9 passed → 25 passed**，
+    `useTouchGestures.test.ts` 52 passed（回归确认）
+- **⚠️ 归属提醒**：这两个提交改的是**嵌套树** `7zi-frontend/src/hooks/**`，
+  **根级 CI 的 `test-unit` 跑不到这棵树** —— 「修好了」不等于「CI 变绿」。
+  详见 HEARTBEAT.md 的 T97 双树分叉段落。
+
+### 🧹 工程卫生（`e1ad4621a6`）
+
+- `chore(state): tasks.json 瘦身 975KB → 6.9KB + 归档 741 条已完成任务`
+- `state/tasks.json`：34,299 行 / 975 KB / 746 条 → **245 行 / 6.9 KB / 5 条未完结**（-99.3%）
+- 新增 `state/tasks.archive.json`：**800 条**归档记录，status 改 `archived` 并保留
+  `original_status` / `archived_at` 字段
+- 顺带修掉原文件本身的重复 id（秒级时间戳撞号）：`system-monitoring-1792476001` 与
+  `-1792497602` 各有 2 条，保留生命周期最靠前的记录，重复项改 id 为 `#superseded-N` 后归档
+- 验证（主管复跑）：main ids=5 unique=5 | archive ids=800 unique=800 | overlap=0 |
+  archived 798 / superseded 2
+- 备注：main 中仍有 3 条 `completed`，是调度器在瘦身脚本跑完后追加的运行时数据，
+  下次跑归档脚本即归位
+
+### 🚧 T112 CI 门禁（`.github/workflows/backend-ci.yml`）
+
+> 决策项 **D14**，报告 `T112_CI_GATE.md`，结论 **Partial**。
+
+- **path 过滤补齐**：`push` / `pull_request` 触发条件显式列出两个独立子服务目录
+  `7zi-backend/websocket-service/**` 与 `7zi-backend/workflow-service/**`，
+  保证其自身变更必定触发对应 job
+- **构建校验步骤**：为 `test-workflow-service` 与 `test-websocket-service` 两个 job
+  各补一段「构建校验（依赖树 + 语法）」—— ①`npm ls --omit=dev` 生产依赖树可完整解析
+  ②`find src -name '*.js' | xargs -n1 node --check` 全部源文件语法合法
+  ③`test -f src/index.js` 入口文件存在（两服务均为 CommonJS，无编译产物）
+- **顺带修复**：`7zi-backend/workflow-service` 的 `body-parser` `^1.20.2 → ^1.20.9`
+  （含 lockfile 同步），修复 GHSA-27r3-jxmh-p828（high / DoS），
+  使该子服务的 `security-audit` 门禁由红转绿
+- **⚠️ 遗留 L1（高）**：`7zi-backend` **根目录** `package.json` 仍声明 `body-parser: ^1.20.2`，
+  lockfile 解析为 1.20.8，同样命中 GHSA-27r3-jxmh-p828；`security-audit` job 对
+  7zi-backend 根执行 `npm audit --omit=dev --audit-level=moderate` **当前 exit=1**，
+  整个 `Backend CI` workflow 因此仍会红。根 `7zi-backend/package.json` 不在 T112
+  授权改动范围内，故未改 —— 需单独派单做同样的 patch bump。
+
+### 📄 报告文件索引
+
+| 报告 | 对应任务 |
+|---|---|
+| `T100_SECURITY_TESTS.md` | T100 —— `src/lib/security/` 三个零覆盖模块补齐单元测试 |
+| `T101_FRONTEND_TREE_SSOT.md` | T101 —— 双前端树 SSOT 收敛说明 |
+| `T103_AUTH_TEST_FIX.md` | T103 —— `src/lib/auth/` 11 条历史遗留测试失败清零 |
+| `T112_CI_GATE.md` | T112 —— 后端 CI 盲区补齐（决策项 D14） |
+
+### 🩹 HEARTBEAT.md 恢复（本次同步的一部分）
+
+- 工作区相对 HEAD 有 **-157 行**未提交删除：文件末尾两大段**已完成的实测结论**被整段丢弃
+  （提交 `c3d4e22f7d` 重排 HEARTBEAT.md 时造成）。
+- 恢复方式：`git show HEAD:HEARTBEAT.md` 取回原文（`sed -n '254,410p'`），
+  **原样追加**回文件末尾当前结束处之后，**未重写、未润色**；
+  当前文件已有内容全部保留（只增不删）。
+- 恢复的内容清单（4 段）：
+  1. `# 7zi 项目 CI 门禁状态（2026-10-24 10:30，主管逐 job 复跑）` ——
+     后端 CI 全绿表 + 前端 CI `test-unit` 211 失败的五类分解 +
+     本轮关键修复（`8a3a6f2fc0` safeEval 回移加固、`c196ebb030` deploy.sh 健康检查改容器内自检、
+     `f1fd650ddf` prometheus.js 更正）
+  2. `# 🔴 生产部署拓扑实测（T91，2026-10-24 10:30，SSH 只读实测源站）` ——
+     生产 Docker 容器全是 `octo-*` 无 7zi-frontend、PM2 无 7zi-frontend、
+     7zi.com 是 nginx 静态站、`anti-v2` 服务 stopped↺、RAM 97.3%、
+     健康接口返回 `{"status":"ok"}` 而非 `healthy`；
+     deploy.sh 三处硬伤 + **生产服务器 git remote 内嵌明文 PAT 待吊销**（须吊销并同步修 remote URL）
+  3. `# 🔴 前端双树分叉 —— CI 跑的是根级，修复却落在嵌套树（T97，2026-10-24）` ——
+     双树对照表 + 移除嵌套树前必查（R7 高危）+ SSOT 收敛方案（待主人拍板）
+  4. `# 🛠️ 本轮已落地的手势修复（嵌套树，2026-10-24）` —— 6 项真实产品缺陷 + 测试基建坑
+- 验证：`git diff --stat HEAD -- HEARTBEAT.md` → 删除行数由 157 降为 **0**，
+  无任何现存内容被删改（现为纯新增，无一行删除）。
+
+> 待拍板项见 `DECISION_PENDING_20261024.md`
+
+---
+
+## [未发布] / 2026-10-24 ~ 2026-10-25（T87–T110 补记，由 T111 同步）
+
+> 本段落由 **T111（📚 咨询师）** 补记，补的是 T104 / T106 未产出的文档缺口，日期 **2026-10-25 00:10–00:24 (Asia/Shanghai)**。
+> 任务描述来源：`DEV_TASKS_20261024_{0602,1004,1023,1540,1545,2012,2037}.md`、`DEV_TASKS_20261025_0009.md`，
+> 以及工作区根目录 `T9x_*.md` / `T10x_*.md` 报告。
+> **标注「待验证」的条目 = 报告缺失或提交未落地，本段只记录派单原文口径，不补写未经证实的细节。**
+> 同步动作：HEARTBEAT.md 回迁 76 行（见下一节说明）、新增 `MISSING_COMMIT_MIGRATION.md` 失配 commit 回迁清单（只出清单，未执行任何 git 操作）。
+
+### 📌 T87–T110 任务条目
+
+| 任务 | 日期 | 类型 | 一句话摘要 | 改动范围 |
+|---|---|---|---|---|
+| **T87** | 2026-10-24 | 🐛 缺陷修复（测试基建） | 触摸/滑动手势簇 ~43 失败（jsdom 缺 TouchEvent + fake timer 未 flush）待修 | `src/hooks/**`、`tests/setup.ts`、`7zi-frontend/src/hooks/**`（无独立报告，改动由 T92 承接） |
+| **T88** | 2026-10-24 | 🐛 契约对齐 | API 集成测试契约漂移 ~55 失败（notifications / a2a-jsonrpc）待修 | `tests/api-integration/**`（无独立报告，改动由 T93 承接） |
+| **T89** | 2026-10-24 | 🧹 质量治理 | 断言过时 + 结构化日志改造未同步 ~25 失败待修 | `src/lib/validation/**`、`src/lib/performance/alerting/**`（无报告、无对应提交 → **未完成，待验证**） |
+| **T90** | 2026-10-24 | 🐛 部署缺陷修复 | `deploy.sh` 健康检查打 3000 端口 → 部署必然误判回滚，改为容器内自检 + 三层判定 | `deploy.sh`、`7zi-frontend/deploy.sh`；提交 `c196ebb030` / `394475735d` / `b2b2540ff3`；报告 `T90_DEPLOY_HEALTHCHECK_FIX.md` |
+| **T91** | 2026-10-24 | 🔍 只读审计（生产拓扑） | 源站只读实测：`deploy.sh` 假设的 Docker 蓝绿拓扑在生产根本不存在 | 只读（未改线上文件）；报告 `T91_PRODUCTION_TOPOLOGY.md`；提交 `e3f9f08c8b`。注：派单原文为「凭据泄露普查」，实际落地为生产部署拓扑实测 |
+| **T92** | 2026-10-24 | 🐛 缺陷修复（手势簇） | 修复 useTouchGestures / useSwipe 的 6 项真实缺陷（双指缩放比例恒等于 1、滑动额外触发 onTap、DOM 监听闭包固化、阈值 `>` 应为 `>=`、只读 `changedTouches` 等） | **嵌套树** `7zi-frontend/src/hooks/**`（`useTouchGestures.test.ts` 52/52、`useSwipe.test.ts` 25/25）；提交 `6bc88ab75f` / `cb56fd87bb` —— 未进入发布树，根级 CI 跑不到 |
+| **T93** | 2026-10-24 | 🐛 契约对齐（API 集成测试） | 修复根级 `tests/api-integration` 的 4 处测试基建问题 | `tests/api-integration/{alerts.integration,auth.integration,cache-api.spec,performance.integration}.test.ts`；提交 `ba3206b382` |
+| **T94** | 2026-10-24 | 🧹 质量治理 | 断言过时 + 结构化日志改造未同步 ~25 失败待修 | `src/lib/validation/**`、`src/lib/performance/alerting/**`（无报告、无对应提交 → **未完成，待验证**） |
+| **T95** | 2026-10-24 | 🔐 安全修复 | 关闭登录接口用户枚举 oracle + 修复 sanitizeHtml XSS 绕过 | `src/lib/auth/**`、`src/app/api/auth/**`；`d2328ff110` **源码改动 = 0**（只改 `DEV_TASKS_*.md` / `state/tasks.json`），真实修复随 `e52333a7b5` 入库 |
+| **T96** | 2026-10-24 | 🧪 CI 覆盖审计 | 审计并补强后端 4 个服务的测试 / CI 真实覆盖缺口 | `7zi-backend/**`、`workflow-engine/**`、`.github/workflows/backend-ci.yml`（`T96_*.md` 报告缺失；`workflow-service` / `websocket-service` 两个 job 的落地情况 → **待验证**） |
+| **T97** | 2026-10-24 | 📐 只读审计（双前端树） | 双前端树对照：同名文件 121 个、分叉 116 个，CI 跑根级而修复落在嵌套树 | 只写报告 `T97_FRONTEND_TREE_DEDUP_AUDIT.md`（470 行）+ HEARTBEAT 段落；提交 `f15cd19a62` |
+| **T98** | 2026-10-24 | 🧹 工程卫生 | `state/tasks.json` 975KB → 6.9KB，剥离 741 条已完成任务噪音并归档 | `.gitignore`、`state/tasks.json`、`state/tasks.archive.json`；提交 `c10bd84d79` + `e1ad4621a6`；报告 `T98_STATE_TASKS_JSON_NOISE.md` |
+| **T99** | 2026-10-24 | 🐛 安全修复（时序侧信道） | 登录接口在「用户不存在」分支执行等价 pbkdf2，抹平响应时间差、消除账号枚举 oracle | `src/lib/auth/{repository,service}.ts` + `src/lib/auth/__tests__/login-timing.test.ts`；提交 `e52333a7b5`；报告 `T99_AUTH_TIMING_FIX.md` |
+| **T100** | 2026-10-24 | 🧪 测试编写 | 为 `src/lib/security/` 三个零覆盖安全模块补齐单元测试（123 用例全绿） | 新建 `src/lib/security/__tests__/{log-sanitizer,sql-injection,prototype-pollution-guard}.test.ts`（**禁改生产代码**）；提交 `e52333a7b5`；报告 `T100_SECURITY_TESTS.md` |
+| **T101** | 2026-10-24 | 🧹 工程卫生 + 文档 | `state/tasks.json` 瘦身归档 + 双前端树 SSOT 收敛说明 | `state/tasks.json`、`state/tasks.archive.json`、`.gitignore`、新建 `T101_FRONTEND_TREE_SSOT.md` / `T101_HYGIENE_SSOT.md`；提交 `e1ad4621a6` |
+| **T102** | 2026-10-24 | 🐛 安全修复（8 项缺陷） | 派单声明：`src/lib/security/` 三模块 8 项已确认缺陷（resetPatterns 丢模式 / refreshToken 抢先匹配 / maskCreditCard 忽略 config + RangeError / sanitizeObject 不幂等 / SQL 注入误报漏报 / isPolluted 恒 true / import 即冻结 Object.prototype 等）+ 5 条 TS 错误归零 | `src/lib/security/**`（含 `__tests__/`）；**报告 `T102_*.md` 缺失**，改动已随 `e52333a7b5` 入库 → **待验证** |
+| **T103** | 2026-10-24 | 🧪 测试修复 | `src/lib/auth/` 11 条历史遗留测试失败清零（逐条判定「测试过时 / 生产 bug / 隔离问题」） | `src/lib/auth/__tests__/`（8 文件 / 115 用例全绿）；提交 `e52333a7b5`；报告 `T103_AUTH_TEST_FIX.md` |
+| **T104** | 2026-10-24 | 📝 文档更新 | 失配 commit 回迁清单 + HEARTBEAT 回迁 + CHANGELOG 补记 | `CHANGELOG.md`、`HEARTBEAT.md`、新建根目录 md —— **未产出**，由 T111 补做 |
+| **T105** | 2026-10-24 | 🐛 安全验收 | 收尾 T102：逐项核对 8 项安全缺陷落地、清 `src/lib/security` 残留 TS 错误、查调用方兼容性 | `src/lib/security/**`；派发后 session aborted，**零报告 → 待验证**（后续由 T110 重新派发） |
+| **T106** | 2026-10-24 | 📝 文档更新 | 补做 T104（HEARTBEAT 回迁 + CHANGELOG 补记 + 失配清单） | `CHANGELOG.md`、`HEARTBEAT.md`、新建 md；派发后 aborted，**零报告 → 待验证**（实际由 T111 承接） |
+| **T107** | 2026-10-24 | 🚧 CI 门禁 | 补齐后端 CI 盲区：`websocket-service` / `workflow-service` 两个 job + path 过滤（决策项 D14） | `.github/workflows/`、两个子服务目录；派发后 aborted，**零报告 → 待验证**（后续由 T112 重新派发） |
+| **T108** | 2026-10-24 | 🧪 测试基建 | 强化全局替身 `src/test/vi-mocks.ts` 的弱 SQL 执行器（WHERE / IN / OFFSET / ORDER BY 最小支持） | `src/test/**`；派发后 aborted，**零报告 → 待验证**（后续由 T113 重新派发） |
+| **T109** | 2026-10-24 | 💰 审计 + 修复 | `src/lib/billing/` + `src/lib/tenant/` 零测试覆盖区审计（精度 / 幂等 / 跨租户隔离 / 事务边界） | `src/lib/billing/**`、`src/lib/tenant/**`；派发后 aborted，**零报告 → 待验证**（后续由 T114 重新派发） |
+| **T110** | 2026-10-25 | 🐛 安全验收 | 收尾 T102 的安全验收（8 项缺陷逐条核对 + 残留 TS 错误 + 调用方兼容性） | `src/lib/security/**`；00:09 派发，**尚无报告 → 待验证** |
+
+### 🩹 HEARTBEAT.md 回迁（本次同步的一部分）
+
+- 被误删的内容来自提交 `c3d4e22f7d`（2026-10-24 10:16「心跳更新 — 后端 CI 全绿 …」）：
+  该提交在重排 HEARTBEAT.md 时**整段丢弃**了两块历史基线，直到本次才被找回。
+- 回迁内容（合计 **76 行**，与 T104 派单记录的行数一致）：
+  1. `## 当前基线（2026-10-24 05:38–05:52，T86 实测）` —— 前端 / 后端 / 根级 ESLint、后端 Jest、
+     collab-client 测试、集群 SSH 实测等基线表（**45 行**，置于文首「OpenClaw 相关任务前必读」之前）
+  2. `## 🔴 CI 门禁实测结论（2026-10-24 06:30，主管亲自本地复现）` —— 7 个 CI job 实测结果表 +
+     前端 211 失败用例五类分解 + CI 耗时风险（**31 行**，置于「推送时间」之后）
+- 回迁方式：`git show c3d4e22f7d^:HEARTBEAT.md` 取回原文逐行回填，
+  **未整体覆盖**现版本，现版本新增的段落（T91 / T97 / 手势修复等）全部保留。
+- 验证：`git diff --stat -- HEARTBEAT.md` → `1 file changed, 76 insertions(+)`（纯新增，0 删除）。
+
+### 📎 失配 commit 回迁清单
+
+见工作区根目录 `MISSING_COMMIT_MIGRATION.md`：
+本地 `main` 领先 `origin/main` **55 个 commit**，其中按「是否在任一报告 / CHANGELOG 中被记录」逐条核对后，
+列出**未出现记录**的 commit 及其回迁建议（SKIP / MIGRATE / UNKNOWN 判定 + 依据）。
+**该文件只出清单，未执行任何 git 操作**（无 add / commit / push / 历史重写）。
+
+
 ## [未发布] / 2026-10-24
 
 > 本段落由 T79 补记。所有数字均为 **2026-10-24 00:08–00:20 (Asia/Shanghai) 实测复现**，

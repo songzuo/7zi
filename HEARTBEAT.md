@@ -1,5 +1,50 @@
 # HEARTBEAT.md
 
+## 当前基线（2026-10-24 05:38–05:52，T86 实测）
+
+| 检查项 | 命令 | 结果 |
+|---|---|---|
+| 前端 ESLint（`7zi-frontend/src`） | `cd 7zi-frontend && npx eslint src` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
+| 后端 ESLint | `cd 7zi-backend && npx eslint .` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
+| 根级 ESLint | `npx eslint src` | ✅ **0 errors / 1625 warnings**（exit 0） |
+| 后端 Jest | `cd 7zi-backend && npx jest` | ✅ **16 套件 / 342 用例全绿**，15.3s |
+| 后端 Jest worker | 同上 | ⚠️ 输出 `A worker process has failed to exit gracefully`（测试全绿，但疑似 teardown 泄漏，**待验证**） |
+| 前端 collab-client | `cd 7zi-frontend && npx vitest run tests/features/collab-client.test.ts` | ✅ **38 passed (38)**，Duration 3.82s（05:55 实测；05:39 时为 15 failed / 23 passed，已由 T82 修复） |
+
+### 后端 CI 实际覆盖范围
+- `.github/workflows/` 共 **9 个** workflow 配置
+- `backend-ci.yml` 5 个 job，**只**覆盖 `7zi-backend/`（根）与 `workflow-engine/backend/`
+- **尚未覆盖** `7zi-backend/websocket-service/` 与 `7zi-backend/workflow-service/`
+  （两者 `package.json` 都有 `lint` / `test` 脚本，CI 未调用）→ 真实覆盖缺口
+- 真实 GitHub Actions 上的**首次运行尚未发生**
+
+### Git 状态（05:40 实测）
+- 本地 `main` **领先 `origin/main` 30 个提交**（`origin/main` = `17cf105a92`，2026-10-23 00:44）
+- 工作区：**5 个已修改文件**（`HEARTBEAT.md` / `eslint.config.mjs` / `memory/claw-mesh-state.json` /
+  `src/lib/monitoring/prometheus.js` / `state/tasks.json`）+ 1 个未跟踪文件（`DEV_TASKS_20261024_0537.md`）
+- 全部改动**未 push**
+
+### 关键判断记录
+- ⚠️ **更正先前的一处误判**（提交 `f1fd650ddf`）：
+  `src/lib/monitoring/prometheus.js` 是 tsc 从同名 `.ts` 编译出的 ES5 产物
+  （含 `__awaiter`/`__generator`/`__spreadArray` 等 tsc helper）。
+  里面的 `var _this = this` 是 **tsc 对 `.ts` 箭头函数的正确降级**，不是死代码；
+  手工改成 `this` 会改坏与 `.ts` 的对应关系，且下次编译即被覆盖。
+  已核对两文件方法集与导出完全一致（8 个方法 + 2 个导出）。
+  **处理方式：撤销手工改动，在 `eslint.config.mjs` 中忽略该编译产物。**
+- prefetch 测试的 9 个失败已用 `git stash` 干净树对照，确认**存量非本次引入**。
+- prefetch 测试的 9 个失败已用 `git stash` 干净树对照，确认**存量非本次引入**。
+- 裸 `curl` 打 `https://7zi.com/` 返回 403 是 **Cloudflare/WAF 拦 curl UA**，不是站点故障；
+  所有健康检查/监控脚本必须带浏览器 UA。
+
+### 集群 SSH 实测（05:44）
+| 节点 | 结果 |
+|---|---|
+| bot3 | ❌ `Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password)` |
+| bot4 | ❌ 同上 |
+| bot5 | ✅ 用 `~/.ssh/id_bot6_ed25519` 可登录（hostname = `ecm-cd59`）；但 `crontab -l` 显示同步为 **`*/5 * * * *`**（每 5 分钟） |
+
+---
 # OpenClaw相关任务前必读
 
 在执行任何OpenClaw配置相关任务之前，请先阅读:
@@ -251,6 +296,37 @@ git log --format='%h|%s' | grep 'Claw-Mesh 同步' | \
 
 ## 推送时间（已错峰，勿改成同一时刻）
 bot2 `:00` / bot4 `:15` / bot6 `:30` / bot3 `:45` / bot5 `*/5`
+
+## 🔴 CI 门禁实测结论（2026-10-24 06:30，主管亲自本地复现）
+
+| Workflow | Job | 实测结果 |
+|---|---|---|
+| `ci.yml` | `lint`（`npm run lint` = `eslint .`） | ✅ **exit 0** / 1767 warnings / 140 秒 |
+| `ci.yml` | `typecheck`（`tsc --noEmit`） | ✅ **exit 0** |
+| `ci.yml` | `test-unit`（`vitest --shard=N/4`） | ❌ **exit 1** — 全量 5831 用例中 **211 失败 / 5588 通过 / 32 跳过**，耗时 387 秒 |
+| `backend-ci.yml` | `security-audit`（4 子目录 npm audit + uuid ≥ 11.1.1） | ✅ 4/4 全绿，uuid 均为 `^11.1.1` |
+| `backend-ci.yml` | `test-7zi-backend`（lint + jest --coverage） | ✅ 16/16 套件、342/342 用例，覆盖率 91%+（门槛 60%） |
+| `backend-ci.yml` | `test-workflow-engine`（lint + jest --coverage） | ✅ 6/6 套件、214/214 用例，覆盖率 88.85%（门槛 60%） |
+| `backend-ci.yml` | `test-workflow-service` / `test-websocket-service` | ✅ **本轮新增**（此前这两个子服务无 lint/test 门禁） |
+
+**结论：后端 CI 全绿；前端 CI 的 `test-unit` 必然红。**
+
+### 前端 211 个失败用例分类（详见 `T85_FRONTEND_TEST_AUDIT.md`）
+
+| 类别 | 用例数 | 性质 | 处置建议 |
+|---|---|---|---|
+| 断言过时（产品行为已演进，测试期望没跟上） | ~120 | **测试错** | 改测试期望，逐条核对产品新行为 |
+| 手势/触摸事件未触发 | 40 | **基建错** | jsdom 未实现 TouchEvent 构造，需注入 Touch 对象 |
+| 导入/模块解析失败 | 3 文件 | **基建错** | `supertest` 未安装；vi.mock 工厂引用顶层变量触发 hoist 报错 |
+| 超时 | 1 | 基建错 | 双击检测用真实 setTimeout，fake timer 未推进 |
+| 解析/收集配置错误 | 5 文件 | ✅ 本轮已修复入库 | — |
+
+### CI 耗时风险
+- `ci.yml` 的 `test-unit` 是 **4 分片并行**，每片 10 分钟超时
+- 本机 4 核、load average 常驻 9~14（多代理并发），分片耗时会被显著放大
+- 慢测试集中：`VisualWorkflowOrchestrator.test.ts`（62.6s）、
+  `edge-cases-supplement.test.ts`（75.6s）、`workflow-execution.integration.test.ts`（22.8s），
+  均为**真实 setTimeout 等待**（1~5 秒/用例），建议改 fake timer
 
 ---
 
