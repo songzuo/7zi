@@ -3,7 +3,7 @@
  * @description Tests for /api/performance/metrics and /api/metrics/performance endpoints
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, afterEach } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 describe('/api/performance/metrics - Integration Tests', () => {
@@ -178,8 +178,11 @@ describe('/api/performance/metrics - Integration Tests', () => {
 })
 
 describe('/api/metrics/performance - Integration Tests', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     server.listen()
+  })
+
+  beforeEach(() => {
     mockData.resetAll()
   })
 

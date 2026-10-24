@@ -9,7 +9,7 @@
  * @see https://nextjs.org/docs/app/api-reference/functions/refresh
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // Mock Next.js cache functions
 vi.mock('next/cache', () => ({
@@ -27,11 +27,19 @@ import { updateTag, refresh, unstable_cache, revalidatePath } from 'next/cache'
 
 let mockCacheStore = new Map<string, { data: unknown; timestamp: number; tags: string[] }>()
 let mockCalls: { function: string; args: unknown[] }[] = []
+// Monotonic counter instead of Date.now() so successive refetches are always
+// strictly distinguishable (Date.now() has ms resolution and can tie).
+let mockClock = 0
+const nextTimestamp = () => {
+  mockClock += 1
+  return mockClock
+}
 
 beforeEach(() => {
   // Clear cache before each test
   mockCacheStore.clear()
   mockCalls = []
+  mockClock = 0
 
   // Mock updateTag implementation
   vi.mocked(updateTag).mockImplementation(async (tag: string) => {
@@ -47,8 +55,9 @@ beforeEach(() => {
   // Mock refresh implementation
   vi.mocked(refresh).mockImplementation(async () => {
     mockCalls.push({ function: 'refresh', args: [] })
-    // refresh() should trigger revalidation of stale cache
-    // For testing, we simulate the effect
+    // refresh() revalidates cached data: drop every entry so the next call
+    // re-executes the wrapped function.
+    mockCacheStore.clear()
   })
 
   vi.mocked(revalidatePath).mockImplementation(async (path: string) => {
@@ -58,7 +67,10 @@ beforeEach(() => {
   vi.mocked(unstable_cache).mockImplementation(
     (fn: (...args: unknown[]) => unknown, tags: string[]) => {
       return async (...args: unknown[]) => {
-        const cacheKey = `${fn.name || 'anonymous'}-${JSON.stringify(args)}`
+        // Cache key must include the tag set, mirroring Next.js semantics where
+        // two unstable_cache wrappers over the same fn but different tags are
+        // distinct cache entries.
+        const cacheKey = `${fn.name || 'anonymous'}-${(tags || []).join(',')}-${args.map(a => (a === undefined ? '__undefined__' : JSON.stringify(a))).join('|')}`
         const cached = mockCacheStore.get(cacheKey)
 
         if (cached) {
@@ -68,7 +80,7 @@ beforeEach(() => {
         const result = await fn(...args)
         mockCacheStore.set(cacheKey, {
           data: result,
-          timestamp: Date.now(),
+          timestamp: nextTimestamp(),
           tags: tags || [],
         })
 
@@ -92,7 +104,7 @@ async function simulateDataFetch(
   return {
     id: userId,
     name: `User ${userId}`,
-    timestamp: Date.now(),
+    timestamp: nextTimestamp(),
   }
 }
 

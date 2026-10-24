@@ -175,7 +175,60 @@ const alertHandlers = [
     })
   }),
 
-  // Edge Cases
+  // PUT /api/alerts/rules/:id - Update an alert rule
+  http.put('http://localhost:3000/api/alerts/rules/:id', async ({ request, params }) => {
+    const body = await request.json()
+    const ruleId = String(params.id)
+
+    if (ruleId === 'non-existent') {
+      return HttpResponse.json(
+        { success: false, error: { message: 'Alert rule not found' } },
+        { status: 404 }
+      )
+    }
+
+    if (!body.name) {
+      return HttpResponse.json(
+        { success: false, error: { message: 'name is required' } },
+        { status: 400 }
+      )
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        rule: {
+          id: ruleId,
+          name: body.name,
+          metricType: body.metricType || 'CPU',
+          condition: body.condition || '>',
+          threshold: body.threshold ?? 75,
+          duration: body.duration ?? 300,
+          severity: body.severity || 'warning',
+          channels: body.channels || ['email'],
+        },
+      },
+    })
+  }),
+
+  // DELETE /api/alerts/rules/:id - Delete an alert rule
+  http.delete('http://localhost:3000/api/alerts/rules/:id', ({ params }) => {
+    const ruleId = String(params.id)
+
+    if (ruleId === 'non-existent') {
+      return HttpResponse.json(
+        { success: false, error: { message: 'Alert rule not found' } },
+        { status: 404 }
+      )
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: { deleted: true, id: ruleId },
+    })
+  }),
+]
+
 const alertsServer = setupServer(...alertHandlers)
 
 // ============================================
