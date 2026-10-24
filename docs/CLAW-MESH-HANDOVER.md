@@ -51,7 +51,7 @@ for m in bot3 bot4; do ssh root@$m.szspd.cn "iptables -L INPUT -n --line-numbers
 
 # 6. 凭据泄露
 for m in bot3 bot4 bot5 bot6; do
-  ssh root@$m.szspd.cn "grep -rlE '[已移除][A-Za-z0-9]{20,}' /root/.openclaw/cron/ | grep -v git-credential"
+  ssh root@$m.szspd.cn "grep -rlE 'gh[p]_[A-Za-z0-9]{20,}' /root/.openclaw/cron/ | grep -v git-credential"
 done
 # 应为空
 
