@@ -754,7 +754,8 @@ case "${1:-}" in
         ;;
     health)
         check_prerequisites
-        local service=$(ssh_cmd "docker ps --filter 'name=7zi-frontend' --format '{{.Names}}' | head -1")
+        # 注意：此处位于 case 分支（非函数体内），不能用 local
+        service=$(ssh_cmd "docker ps --filter 'name=7zi-frontend' --format '{{.Names}}' | head -1")
         health_check "$service" "strict"
         ;;
     backups)
