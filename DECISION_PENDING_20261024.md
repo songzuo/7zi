@@ -407,7 +407,19 @@ bot5 是**唯一**非整点/15 分节奏的节点，频率是其它节点的 **6
 **建议方案**：跑一次预取回归（或补一个断言两者共用同一实例的测试）。
 **默认不处理的后果**：预取静默失效 → 首屏加载变慢 → 表现为"性能回退"，难定位。
 
-### D14 · 后端 CI 未覆盖 `websocket-service` / `workflow-service`
+### ✅ D14 · 后端 CI 未覆盖 `websocket-service` / `workflow-service` —— 已解决
+
+> **状态：已由 T112 修复并由主管提交（`9295d821df`）。** 下列内容保留作决策留痕。
+> - `backend-ci.yml` 的 path 过滤已显式列出两个子服务目录
+> - 两个 CommonJS 服务各加一道「构建校验」（生产依赖树可解析 + `node --check`
+>   全源文件语法合法 + 入口文件存在）
+> - 同批把三处 `body-parser` 从 1.20.2 升到 1.20.9（GHSA-27r3-jxmh-p828），
+>   修掉让 CI 审计门禁失败的 high 级漏洞 —— 见 `e00c13e4e6`
+> - **仍需主人确认**：是否批准在真实 GitHub Actions 上首跑验证
+
+<details><summary>原始问题描述</summary>
+
+### D14-原始 · 后端 CI 未覆盖 `websocket-service` / `workflow-service`
 
 **问题**：实测 `.github/workflows/backend-ci.yml` 的 path 过滤与 job 工作目录只有
 `7zi-backend/`（根）与 `workflow-engine/backend/`；两个子服务虽有 `lint` / `test` 脚本，
@@ -417,6 +429,8 @@ CI **不调用**。`.github/workflows/` 共 9 个 workflow。
 并把 `websocket-service` / `workflow-service` 加进 path 过滤。
 **默认不处理的后果**：刚清零的后端 lint 门禁在这两个目录上是**假门禁**，
 下一个 no-dupe-keys 类真 Bug 可能再次悄悄合入。
+
+</details>
 
 ### D15 · PM2 `anti-v2` 进程反复重启（stopped，↺10）
 
@@ -444,8 +458,10 @@ CI **不调用**。`.github/workflows/` 共 9 个 workflow。
 - **D8** —— 部署目标定为哪个？（bot5 测试 / `/opt/7zi-frontend` / 只更新 Next 服务 / 暂不部署）
 - **D9 / D10** —— 同意「本地或 CI 构建镜像、源站只 pull」+「修 deploy.sh 健康检查端口为 3001」吗？
 - **D11** —— `state/tasks.json` 移出版本库？
-- **D12 / D13** —— `prometheus.js` 改为只改 `.ts` 源 + `use-prefetch` 跑一次回归？
-- **D14** —— 补 backend-ci 的 `websocket-service` / `workflow-service` 两个 job？
+- **D12 / D13** —— ~~`prometheus.js` 改为只改 `.ts` 源~~ ✅ 已解决（`f1fd650ddf`）
+  + ~~`use-prefetch` 跑一次回归~~ ✅ 已解决（`db6d4a1a94`）
+- **D14** —— ~~补 backend-ci 的两个 job~~ ✅ 已解决（`9295d821df` + `e00c13e4e6`）；
+  **仅剩**：是否批准在真实 GitHub Actions 上首跑验证？
 - **D15** —— `anti-v2` 进程下线？
 
 ---
