@@ -94,7 +94,12 @@ data/web-vitals.db
 tsconfig.tsbuildinfo
 
 # OpenClaw specific
+# 运行时状态文件：纯噪音，禁止入库（工作区保留，git rm --cached 剥离追踪）
+# 历史归档：state/tasks.archive.json —— 必须入库，供日后追溯
 state/tasks.json
+state/*.runtime.json
+state/*.tmp
+!state/tasks.archive.json
 botmem
 memory/claw-mesh-state.json
 
