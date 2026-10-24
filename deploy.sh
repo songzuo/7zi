@@ -219,7 +219,7 @@ container_http_ok() {
     local port=$2
     # 用精确容器 ID 执行，避免 name 前缀匹配到多个容器时 docker exec 失败
     local cid
-    cid=$(ssh_cmd "docker ps --filter 'name=$container' --filter 'status=running' --format '{{.ID}}' | head -1" 2>/dev/null | tr -d '\r\n')
+    cid=$(ssh_cmd "docker ps --filter 'name=$container' --filter 'status=running' --format '{{.ID}}' | head -1" 2>/dev/null | tr -d '\r\n' || true)
     [ -z "$cid" ] && return 1
     ssh_cmd "docker exec $cid node -e \"require('http').get('http://127.0.0.1:$port/api/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\"" >/dev/null 2>&1
 }

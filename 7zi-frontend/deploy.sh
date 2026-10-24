@@ -222,7 +222,7 @@ health_check() {
 
             log_info "Health status: $health_status"
 
-            if [ "$health_status" != "healthy" ] && [ "$health_status" != "unknown" ]; then
+            if [ "$health_status" != "healthy" ] && [ "$health_status" != "ok" ] && [ "$health_status" != "unknown" ]; then
                 log_warning "Health status is '$health_status' (expected 'healthy')"
             fi
 
