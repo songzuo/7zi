@@ -15,12 +15,18 @@ on:
     branches: [main, develop]
     paths:
       - '7zi-backend/**'
+      # T112: 显式列出两个独立子服务目录，保证其自身变更必定触发对应 job
+      - '7zi-backend/websocket-service/**'
+      - '7zi-backend/workflow-service/**'
       - 'workflow-engine/backend/**'
       - '.github/workflows/backend-ci.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - '7zi-backend/**'
+      # T112: 显式列出两个独立子服务目录，保证其自身变更必定触发对应 job
+      - '7zi-backend/websocket-service/**'
+      - '7zi-backend/workflow-service/**'
       - 'workflow-engine/backend/**'
       - '.github/workflows/backend-ci.yml'
   workflow_dispatch:
@@ -306,6 +312,19 @@ jobs:
         run: npm ci --prefer-offline
         working-directory: 7zi-backend
 
+      # 构建校验：本服务为 CommonJS 无编译产物，构建阶段校验
+      # ①生产依赖树可完整解析 ②全部源文件语法合法 ③入口文件存在。
+      - name: 构建校验（依赖树 + 语法）
+        run: |
+          set -e
+          echo "--- 生产依赖树解析 ---"
+          npm ls --omit=dev
+          echo "--- 源文件语法检查 ---"
+          find src -name '*.js' -print0 | xargs -0 -n1 node --check
+          echo "--- 入口文件检查 ---"
+          test -f src/index.js
+          echo "✅ 构建校验通过"
+
       - name: ESLint
         run: npx eslint src/
         working-directory: 7zi-backend/workflow-service
@@ -351,6 +370,19 @@ jobs:
       - name: 安装 ESLint（复用 7zi-backend 根依赖）
         run: npm ci --prefer-offline
         working-directory: 7zi-backend
+
+      # 构建校验：本服务为 CommonJS 无编译产物，构建阶段校验
+      # ①生产依赖树可完整解析 ②全部源文件语法合法 ③入口文件存在。
+      - name: 构建校验（依赖树 + 语法）
+        run: |
+          set -e
+          echo "--- 生产依赖树解析 ---"
+          npm ls --omit=dev
+          echo "--- 源文件语法检查 ---"
+          find src -name '*.js' -print0 | xargs -0 -n1 node --check
+          echo "--- 入口文件检查 ---"
+          test -f src/index.js
+          echo "✅ 构建校验通过"
 
       - name: ESLint
         run: npx eslint src/
