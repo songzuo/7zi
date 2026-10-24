@@ -251,3 +251,44 @@ git log --format='%h|%s' | grep 'Claw-Mesh 同步' | \
 
 ## 推送时间（已错峰，勿改成同一时刻）
 bot2 `:00` / bot4 `:15` / bot6 `:30` / bot3 `:45` / bot5 `*/5`
+
+---
+
+# 7zi 项目 CI 门禁状态（2026-10-24 10:30，主管逐 job 复跑）
+
+## ✅ 后端 CI 全绿
+| Job | 结果 |
+|---|---|
+| `7zi-backend` lint（`eslint websocket/ workflow-engine/`） | ✅ exit 0 |
+| `7zi-backend` jest --coverage | ✅ 16/16 套件、342/342 用例，覆盖率 91%+（门槛 60%） |
+| `workflow-engine/backend` lint | ✅ exit 0 |
+| `workflow-engine/backend` jest --coverage | ✅ 6/6 套件、214/214 用例，覆盖率 88.85% |
+| `workflow-service` lint + test | ✅ exit 0，**engine 49/49 + http 41/41** |
+| `websocket-service` lint + test | ✅ exit 0，**33/33** |
+| 4 子目录 `npm audit --omit=dev --audit-level=moderate` | ✅ 0 漏洞；uuid 均 `^11.1.1` |
+
+## 🔴 前端 CI `test-unit` 仍红
+`ci.yml` 的 `test-unit` job（`vitest --shard=N/4`）：**211 失败 / 5588 通过 / 32 跳过**（5831 总数），387 秒。
+五类分解（详见 `T85_FRONTEND_TEST_AUDIT.md`）：
+- 断言过时（产品行为已演进，测试期望没跟上）~120 → **测试错**
+- 手势/触摸事件未触发 40 → jsdom 未实现 TouchEvent 构造
+- 导入/模块解析失败 3 文件 → `supertest` 未装；vi.mock 工厂引用顶层变量触发 hoist 报错
+- 超时 1 → 双击检测用真实 setTimeout
+- 解析/收集配置错误 5 文件 → ✅ 本轮已修
+
+## 本轮关键修复（已入库）
+- `8a3a6f2fc0` —— **`workflow-service` 回移加固版 `safeEval`**。该目录此前还在用
+  **旧版 `eval()`**，与 `workflow-engine/backend` 已分叉。改为 `new Function` +
+  字面量注入，变量内容不再被当代码执行；补齐 `toLiteral`/`buildEvalScope`，
+  `resolvePath` 支持数组下标；非法占位符路径（`a..b`）抛 SyntaxError 让
+  `evaluateCondition` 能 emit `condition:error`（旧实现静默变 undefined，
+  调用方无法区分"条件为 false"和"条件写错了"）。
+  同时：HTTP 层不再给 `version` 兜底 `'1.0.0'`（否则引擎的 version 必填校验
+  变成死代码，"缺 version 应 400" 契约失效）；bodyParser 上限 100kb → 10mb。
+- `c196ebb030` —— **`deploy.sh` 健康检查改用容器内自检**。原先打 `localhost:3000`，
+  但 3000 不是宿主机对外端口（生产源站实测连接被拒），会**误判失败并自动回滚**。
+  现按三层判定：容器 running → 容器内 `127.0.0.1:3000/api/health` → 公开入口
+  （默认只告警，`strict` 才硬失败）。Cloudflare WAF 拦默认 curl UA，探测改带浏览器 UA。
+- `f1fd650ddf` —— **更正 `prometheus.js` 的处理方式**。该文件是 tsc 从同名 `.ts`
+  编译出的 ES5 产物，里面的 `var _this = this` 是 **tsc 对箭头函数的正确降级**，
+  不是死代码。已撤销手工改动，改为在 `eslint.config.mjs` 中忽略该编译产物。
