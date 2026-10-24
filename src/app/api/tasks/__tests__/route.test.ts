@@ -14,23 +14,31 @@ vi.mock('@/lib/db', () => ({
   getDatabase: vi.fn(),
 }))
 
-vi.mock('@/lib/logger', () => ({
-  default: {
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-  },
-}))
+vi.mock('@/lib/logger', async (importOriginal) => {
+  const actual = await (importOriginal() as Promise<any>)
+  return {
+    ...actual,
+    default: {
+      ...actual.default,
+      info: vi.fn(),
+      error: vi.fn(),
+      warn: vi.fn(),
+    },
+  }
+})
 
-vi.mock('@/lib/errors', () => ({
-  createAppError: vi.fn(),
-  ErrorCodes: {
-    VALIDATION_ERROR: 'VALIDATION_ERROR',
-    NOT_FOUND: 'NOT_FOUND',
-    SERVER_ERROR: 'SERVER_ERROR',
-  },
-  formatErrorMessage: vi.fn(error => error?.message || 'Unknown error'),
-}))
+// 用 importOriginal 保留真实实现，只覆盖需要断言的符号。
+// 手写工厂很容易漏掉 route.ts 导入的符号
+// （createValidationErrorResponse / createUnifiedErrorResponse 等），
+// 漏一个就会让整个测试文件收集失败（0 test）。
+vi.mock('@/lib/errors', async (importOriginal) => {
+  const actual = await (importOriginal() as Promise<any>)
+  return {
+    ...actual,
+    createAppError: vi.fn(),
+    formatErrorMessage: vi.fn(error => error?.message || 'Unknown error'),
+  }
+})
 
 vi.mock('@/middleware/auth', () => ({
   withAuth: vi.fn((request, handler) => {
@@ -357,7 +365,7 @@ describe('Tasks API Route', () => {
 
       expect(response.status).toBe(400)
       expect(data.success).toBe(false)
-      expect(data.errors).toContain('Title is required and must be a non-empty string')
+      expect(data.error.details.errors).toContain('Title is required and must be a non-empty string')
     })
 
     it('should reject task with empty title', async () => {
@@ -371,7 +379,7 @@ describe('Tasks API Route', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.errors).toContain('Title is required and must be a non-empty string')
+      expect(data.error.details.errors).toContain('Title is required and must be a non-empty string')
     })
 
     it('should reject task with title too long', async () => {
@@ -386,7 +394,7 @@ describe('Tasks API Route', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.errors).toContain('Title must be less than 200 characters')
+      expect(data.error.details.errors).toContain('Title must be less than 200 characters')
     })
 
     it('should reject task with invalid priority', async () => {
@@ -403,7 +411,7 @@ describe('Tasks API Route', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.errors).toContain('Invalid priority value')
+      expect(data.error.details.errors).toContain('Invalid priority value')
     })
 
     it('should reject task with invalid status', async () => {
@@ -420,7 +428,7 @@ describe('Tasks API Route', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.errors).toContain('Invalid status value')
+      expect(data.error.details.errors).toContain('Invalid status value')
     })
 
     it('should reject task with invalid dueDate format', async () => {
@@ -437,7 +445,7 @@ describe('Tasks API Route', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.errors).toContain('Invalid dueDate format')
+      expect(data.error.details.errors).toContain('Invalid dueDate format')
     })
 
     it('should accept all valid priority values', async () => {
