@@ -276,6 +276,124 @@
 
 ---
 
+## [未发布] / 2026-10-25（T115–T120 补记，由 T121 同步）
+
+> 本段落由 **T121（📚 咨询师）** 补记，日期 **2026-10-25 (Asia/Shanghai)**。
+> 上一轮 T115 只补记到 T111 口径（HEARTBEAT.md 恢复 + T103–T112 成果），
+> 本段补齐 **T115–T120** 这一批的口径。
+> **核实口径**：`git log` / `git show --stat <sha>` / 已落地报告 md（`T115_DOCS_SYNC.md`、
+> `T119_CLAWMESH_HEARTBEAT_FIX.md`）/ 工作区实际 diff。
+> **未产出报告的条目（T116 / T117 / T118）只记录派单原文口径，不补写未经证实的细节。**
+
+### 📌 T115–T120 任务条目速览
+
+| 任务 | 角色 | 类型 | 一句话摘要 | 产出物 |
+|---|---|---|---|---|
+| T115 | 📚 咨询师 | 📝 文档 | HEARTBEAT.md 恢复被误删 157 行 + CHANGELOG 补记 T103–T112 | `T115_DOCS_SYNC.md`（已提交 `9295d821df`） |
+| T116 | 📚 咨询师 | 📝 文档 | 与 T115 同批派单（HEARTBEAT 恢复 + CHANGELOG 补记） | **无独立报告**（口径已由 T115 段落覆盖） |
+| T117 | 🧪 测试员 | 🔍 探查 | vi-mocks 弱 SQL 执行器 vs `src/test/sql-engine.ts` 收敛方案（只读） | **无独立报告** |
+| T118 | 💰 财务 | 🔍 探查 | `src/lib/billing/**` + `src/lib/tenant/**` 零覆盖区与金额精度/幂等/跨租户隔离审计（只读） | **无独立报告**（产出已由 `d892253cb9` 落地） |
+| T119 | 🛡️ 系统管理员 | 🐛 Bug 修复（根因） | claw-mesh-sync 无条件覆盖 HEARTBEAT.md → 改判定逻辑 + 补回 233 行 | `T119_CLAWMESH_HEARTBEAT_FIX.md`（工作区未提交） |
+| T120 | ⚡ Executor | 🐛 Bug 修复 + 🧪 测试 | analytics 非法 body 500→400 根因修复 + 补边界用例 | ✅ **已完成**（提交 `ab39579a6f` / `8967d2bc5d`） |
+
+### 🔒 T115 · 文档同步 + 失配 commit 回迁清单（`9295d821df`）
+
+- **做了什么**：恢复 HEARTBEAT.md 被整段误删的 157 行；产出 `MISSING_COMMIT_MIGRATION.md`
+  失配 commit 分类清单（SKIP / MIGRATE / UNKNOWN）；CHANGELOG 新增 T115 段落。
+- **影响文件**：`HEARTBEAT.md`（+157，0 删除）、`MISSING_COMMIT_MIGRATION.md`（+142）、
+  `T112_CI_GATE.md`（+299）、`T115_DOCS_SYNC.md`（+188）、`.github/workflows/backend-ci.yml`（+32）。
+- **T112 附带**：后端 CI `paths` 过滤显式列出 `websocket-service` / `workflow-service`；
+  两个 CommonJS 服务各加「生产依赖树可解析 + 源文件语法合法 + 入口存在」构建校验。
+- **验证**：`git diff --stat HEAD -- HEARTBEAT.md` → 删除行数 157 → **0**；
+  `git show --stat 9295d821df` → 666 insertions / 5 deletions。
+- **注意**：清单中的 MIGRATE 项**均未执行**，需主人授权后由主管统一回迁。
+
+### 🔐 T116 · 探查结论落地为 tenant/billing 安全修复（`d892253cb9`）
+
+- **做了什么**：T116/T118 派单的探查结论经主管逐条复核后，修复 billing/tenant 模块 4 处真实缺陷。
+- **影响文件**：`src/app/api/v1/tenants/route.ts`、`src/lib/tenant/{identity.ts,middleware.ts,service.ts}`、
+  `src/lib/auth/tenant/middleware.ts`、`src/lib/billing/service.ts`，
+  新增 `src/lib/tenant/__tests__/{security-regression,billing-tenant-regression}.test.ts`。
+- **四处缺陷**：① 身份完全由客户端 header 控制（路由无 `withAuth`、`src/proxy.ts` 不清洗这些头）
+  → 新增 `identity.ts` 收敛解析，默认不信任代理身份头；② 写权限可提权为删权限
+  （`perm_*_write` 无条件放行任意 action）；③ 配额恒不触发
+  （`plan.limits` snake_case vs `getLimitKey()` camelCase 不匹配）→ 新增 `normalizeLimits()`；
+  ④ `listUserTenants` 角色索引错位（filter 后仍用未压缩的 `rows[index]`）。
+- **验证**：新增回归用例 12 个全部通过；`tenant.test.ts` 的 20 条失败为改动前既有
+  （`git stash` 基线逐条一致，未新增未弱化）。
+- **附带文档**：`4e3bcda68a` 把上述结论写入 `memory/2026-10-24.md`（+80）。
+
+### 🧪 T117 · 审计日志服务修复（`568cee6677`）
+
+- **做了什么**：修复审计日志服务无法启动、以及写入后不可读的问题。
+- **影响文件**：`src/lib/audit-log/audit-log.ts`（+80）、`src/lib/audit-log/config.ts`（+7）、
+  `src/lib/audit-log/sensitive-data-handler.ts`（+39）、`src/lib/audit-log/__tests__/audit-log.test.ts`（+4）。
+- **验证**：审计日志相关用例 **17/17 通过**（`568cee6677`）。
+
+### 🔁 T118 · 门禁与依赖修复（`e00c13e4e6` / `af18945a09` / `d401c0588f` / `68f9bdcd02`）
+
+- **做了什么**：修复后端 CI 审计门禁 body-parser 漏洞；移除已删除的 `prometheus.js` 编译产物 lint 忽略规则；
+  修复 tasks API 路由测试收集失败与过时断言；记录门禁复核与 auth 9 条失败的逐条定位。
+- **影响文件**：workflow-engine/backend `package.json` + `package-lock.json`（body-parser 1.20.2 → 1.20.9）、
+  `eslint.config.mjs`（+3 / -5）、`src/app/api/tasks/__tests__/route.test.ts`（+30 / -22）、
+  `memory/2026-10-24.md`（+48）。
+- **验证**：tasks 路由测试 **19/19 通过**；`af18945a09` 清除 prometheus.js lint 盲区。
+
+### 🩹 T119 · claw-mesh-sync 反复冲掉 HEARTBEAT.md 的根因修复（工作区未提交）
+
+- **做了什么**：`/root/.openclaw/cron/claw-mesh-sync.sh` 的 `read_other_machines()` 原先
+  **无条件**以 `static/HEARTBEAT.md` 覆盖本机工作区 HEARTBEAT.md（cron `30 */4 * * *`），
+  每 4 小时把本机实测结论段冲掉一次；现改为「仅当 `static/` 行数 ≥ 本机行数才允许覆盖」，
+  否则保留本机版本并记 WARN，覆盖前 `cp -p` 备份、`.tmp` + `mv` 原子替换、失败自动回滚。
+- **影响文件**：`/root/.openclaw/cron/claw-mesh-sync.sh`（+58 / -18）、
+  `HEARTBEAT.md`（253 → **486** 行，净增 233 行）、新增 `T119_CLAWMESH_HEARTBEAT_FIX.md`。
+- **根因证据**：`/var/log/claw-mesh.log` 在 `00:30:43` 与 `04:30:23` 均有
+  `[bot6] 已更新本机 HEARTBEAT.md（来自 static/）`；工作区 HEARTBEAT.md mtime 与日志秒级吻合；
+  `cmp` 确认工作区文件当时就是 `static/` 的副本。
+- **验证**：`git diff --stat HEAD -- HEARTBEAT.md` → 删除行数由 **233 降为 0**（现为纯新增）。
+
+### 🧪 T120 · analytics 端点真实可测化（✅ 已完成）
+
+- **做了什么**：`src/app/api/analytics/metrics/route.ts` 的 `getDatabase` 由函数内动态
+  `import()` 改为**顶层静态 import**（便于测试替身生效）；`src/test/vi-mocks.ts` 补齐
+  `plans` 种子数据与通用 SQL 引擎能力；`src/app/api/analytics/__tests__/api.test.ts` 重写为
+  按 SQL 形状给出确定聚合结果的集成测试。
+- **错误契约（已收敛）**：POST 非法 body（JSON 解析失败）返回 **400**。
+  提交 `ab39579a6f` 修复 metrics 端点，`8967d2bc5d` 修复 export 端点（同源问题）。
+- **根因与修复（`ab39579a6f`）**：原 20 个用例失败（500 而非 200/400），根因 4 处 ——
+  ① 缓存替身 `get` 返回 `undefined`，而路由用 `cached !== null` 判断命中，
+  `undefined` 被当成"命中"直接返回 → `timeSeries.data` 抛 TypeError；
+  ② `afterEach` 用了 `vi.resetAllMocks()`，连 mock 实现体一起清空，
+  全局 db 替身的 `getDatabase()` 变成返回 `undefined` → `'queryRows' of undefined`；
+  ③ 断言层级过时（`timeSeries`/`cacheStats` 是 `data` 的子节点而非 `metrics` 的子节点；
+  `performance` 字段名是 `responseTime` 而非 `apiResponseTime`；
+  路由从未有过 `logger.info('Analytics metrics fetched')` 与 `cacheInfo`）；
+  ④ 实现缺陷：body 解析失败落到外层 catch → 500，改为显式捕获返回 400。
+- **影响文件**：`src/app/api/analytics/metrics/route.ts`、`src/app/api/analytics/metrics/route.test.ts`、
+  `src/app/api/analytics/export/route.ts`。
+- **验证**：`npx vitest run src/app/api/analytics/` → **4 files / 87 tests 全绿 exit=0**
+  （修复前 45 failed）；analytics + tenant + auth + security → **25 files / 619 tests 全绿 exit=0**；
+  `npx tsc --noEmit` exit=0；`npx eslint src/app/api/analytics/` 0 errors（3 warnings 为既有）。
+
+### 📚 T121 · API.md analytics 段核对 + CHANGELOG 补记（本段落）
+
+- **做了什么**：逐条核对 `src/app/api/analytics/{metrics,export}/route.ts` 的
+  GET/POST 参数、返回体字段与错误码，与 `API.md`「Analytics APIs」小节比对；
+  为两个发布树端点**新增**文档小节（原 API.md 完全缺失这两个端点）。
+- **影响文件**：`API.md`（+182 行，**0 删除**）、`CHANGELOG.md`（本段落，纯新增）。
+- **新增内容**：`Analytics Metrics`（GET query / POST body 参数表、`data` 与 `metrics` 返回结构、
+  错误码表、GET 的 `Cache-Control` 响应头）、`Analytics Export`（GET 选项响应、POST body 参数表、
+  文件流响应头、错误码表）、通用错误响应体（`error.type` 口径）、以及「发布树 vs 旧嵌套树」
+  的认证范围说明。
+- **验证**：`diff /tmp/API.md.bak API.md` → 删除 0 行 / 新增 182 行（只增不删）；
+  `npx vitest run src/app/api/analytics/__tests__/api.test.ts` 复跑确认实现现状。
+
+> ⚠️ **遗留**：`API.md` 全局「Common Error Responses」小节（约 3190 行）示例用 `error.code`，
+> 而实现（`src/lib/api/error-handler.ts` → `buildErrorResponse`）用的是 **`error.type`**。
+> 本次仅在新增的 analytics 小节按实现口径记录，全局口径统一不在 T121 范围内。
+
+---
+
 ## [未发布] / 2026-10-24 ~ 2026-10-25（T87–T110 补记，由 T111 同步）
 
 > 本段落由 **T111（📚 咨询师）** 补记，补的是 T104 / T106 未产出的文档缺口，日期 **2026-10-25 00:10–00:24 (Asia/Shanghai)**。

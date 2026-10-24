@@ -3387,6 +3387,14 @@ data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"
 
 > 所有端点均要求 JWT 认证（`authenticateJWT`），未认证返回 401。
 > 数据来源统一为 `analyticsService`（`src/lib/analytics/service`）。
+>
+> **范围说明（2026-10-25 补充）**：下方 `Overview` / `Nodes` / `Resources` / `Anomalies` / `Trends`
+> 五个端点目前仅存在于**旧嵌套树** `7zi-frontend/src/app/api/analytics/*`，它们在路由内显式调用
+> `authenticateJWT`（未认证 → 401）。
+> 而**发布树**（根 `src/`）当前只落地了两个 analytics 端点：`/api/analytics/metrics` 与
+> `/api/analytics/export`。这两个路由文件内**没有** `authenticateJWT` 调用，仅经由
+> `src/proxy.ts` 的通用 API 限流器（100 req/min，按 IP）约束，故**不返回 401**。
+> 详见下方两节。
 
 ### Analytics Overview
 
@@ -3439,6 +3447,178 @@ data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"
 | `status` | string | No | all | 过滤：`success` / `failed` / `all` |
 
 返回工作流趋势数据 `getWorkflowTrends({ days, status })`。
+
+---
+
+### Analytics Metrics（发布树）
+
+**Endpoint:** `GET /api/analytics/metrics` / `POST /api/analytics/metrics`
+**Implementation:** `src/app/api/analytics/metrics/route.ts`
+**认证:** 路由内**未调用** `authenticateJWT`（无 401 契约）；受 `src/proxy.ts` 通用限流约束。
+**数据来源:** 真实数据库（`getDatabase()` 顶层静态 import，查 `agents` / `users` / `tasks` /
+`revenue` / `api_logs` 表），5 分钟内存缓存（`CachePresets.LONG`）。
+
+#### GET — Query Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `timeRange` | string | No | `week` | 时间范围：`today` / `week` / `month` / `quarter` / `year` / `custom` |
+| `customRange` | string (JSON) | No | - | 形如 `{"start":"2026-10-01","end":"2026-10-25"}`；JSON 解析失败 → **400** |
+| `page` | number | No | 1 | 页码，必须 ≥ 1，否则 **400** |
+| `limit` | number | No | 100 | 每页条数，取值 1–1000，越界 → **400** |
+
+> GET 仅支持 `timeRange` 与 `customRange` 两个过滤器；数组类过滤器（`agentIds` / `providers` 等）只在 POST 可传。
+
+#### POST — Request Body（JSON）
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `timeRange` | string | No | `week` | 同 GET |
+| `customRange` | object | No | - | `{ start: string, end: string }` |
+| `agentIds` | string[] | No | - | 按智能体 ID 过滤 |
+| `taskStatuses` | string[] | No | - | 按任务状态过滤 |
+| `taskPriorities` | string[] | No | - | 按任务优先级过滤 |
+| `taskTypes` | string[] | No | - | 按任务类型过滤 |
+| `providers` | string[] | No | - | 按供应商过滤 |
+| `metrics` | string[] | No | - | 需要返回的指标字段 |
+| `compareWith` | string | No | - | 对比基准时间范围（`TimeRange`） |
+| `page` | number | No | 1 | 同 GET |
+| `limit` | number | No | 100 | 同 GET |
+
+#### Response (200 OK)
+
+`data` 顶层字段：
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `metrics` | object | 汇总指标，结构见下表 |
+| `timeSeries` | array | 时间序列点（`timestamp` / `date` / `agents` / `users` / `tasks` / `tokens` / `revenue` / `errors`） |
+| `pagination` | object | `{ total, page, limit, totalPages }` |
+| `timestamp` | string | 生成时刻 ISO8601 |
+| `filters` | object | 回显本次实际生效的过滤器 |
+| `cacheStats` | object | `{ hitRate, hits, misses }` |
+
+`metrics` 子结构（`src/lib/types/analytics.ts` → `AnalyticsMetrics`）：
+
+| Group | Fields |
+|-------|--------|
+| `agents` | `total` / `active` / `idle` / `offline` / `workingHours` / `tasksCompleted` / `tokensUsed` / `byProvider`（`{provider: {count, tasksCompleted, tokensUsed, averageResponseTime}}`） |
+| `users` | `total` / `activeToday` / `activeWeek` / `newUsers` / `retentionRate` / `averageSessionDuration` |
+| `tasks` | `total` / `completed` / `inProgress` / `pending` / `cancelled` / `completionRate` / `averageCompletionTime` / `byPriority` / `byType` |
+| `revenue` | `total` / `monthly` / `weekly` / `daily` / `growthRate` / `bySource`（`subscriptions` / `one-time` / `enterprise`）/ `conversionRate` |
+| `performance` | `cpuUsage` / `memoryUsage` / `responseTime` / `uptime` / `errorRate` / `throughput` / `cacheHitRate` |
+
+> ⚠️ `performance.cpuUsage` / `memoryUsage` / `uptime` / `throughput` / `cacheHitRate`，
+> `users.retentionRate` / `averageSessionDuration`，`tasks.averageCompletionTime`，
+> `revenue.growthRate` / `conversionRate`，`agents.byProvider.*.averageResponseTime`
+> 当前为**随机/估算值**，并非数据库实测（实现中标注 "would need separate tracking"）。
+
+#### 响应头（仅 GET）
+
+`Cache-Control: public, s-maxage=60, stale-while-revalidate=30`
+
+#### 错误码
+
+| Status | 触发条件 | 实现 |
+|--------|----------|------|
+| 400 | `page`/`limit` 越界 | `createValidationError` |
+| 400 | `customRange` JSON 解析失败（GET） | `createValidationError` |
+| 400 | **非法 body（JSON 解析失败）** | 见下方说明 |
+| 429 | 触发 `src/proxy.ts` 通用 API 限流（100 req/min/IP） | proxy 中间件 |
+| 500 | 数据库查询异常等内部错误 | `createErrorResponse` |
+
+> ✅ **非法 body 契约说明（2026-10-25，T120 已落地）**：POST handler 对 `await request.json()` 的
+> 解析失败已被显式捕获，返回 **400**（`createErrorResponse(err, 400)`）。
+> 实现见 `src/app/api/analytics/metrics/route.ts` 的 POST 内层 try/catch。
+
+---
+
+### Analytics Export（发布树）
+
+**Endpoint:** `GET /api/analytics/export` / `POST /api/analytics/export`
+**Implementation:** `src/app/api/analytics/export/route.ts`
+**认证:** 路由内**未调用** `authenticateJWT`（无 401 契约）；受 `src/proxy.ts` 通用限流约束。
+
+#### GET — 无参数
+
+返回可用导出格式与选项：
+
+```json
+{
+  "success": true,
+  "data": {
+    "formats": ["csv", "xlsx", "json"],
+    "maxRecords": 10000,
+    "options": {
+      "includeHeaders": ["true", "false"],
+      "timeRange": ["today", "week", "month", "quarter", "year", "custom"]
+    }
+  },
+  "timestamp": "2026-10-25T05:00:00.000Z"
+}
+```
+
+> 注：`maxRecords: 10000` 目前只是**声明值**，POST 路径并未强制校验条数上限。
+
+#### POST — Request Body（JSON）
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `format` | string | No | `csv` | 仅支持 `csv` / `xlsx` / `json`；其他值（含 `pdf`）→ **400** |
+| `data` | array | **Yes** | - | 导出行数据；缺失 / 非数组 / 空数组 → **400** |
+| `filename` | string | No | `analytics-export` | 文件名基名（实际文件名追加日期后缀） |
+| `includeHeaders` | boolean | No | `true` | CSV 是否输出表头行 |
+| `filters` | object | No | - | 仅记录进日志，不影响导出结果 |
+| `dateRange` | object | No | - | `{ start, end }`；提供时文件名格式为 `<name>_<start>_to_<end>.<ext>` |
+
+#### Response (200 OK)
+
+直接返回**文件二进制流**（非 JSON 信封）：
+
+| Field | Description |
+|-------|-------------|
+| `Content-Type` | `text/csv` / `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` / `application/json` |
+| `Content-Disposition` | `attachment; filename="<finalFilename>"` |
+| `Cache-Control` | `no-cache, no-store, must-revalidate` |
+
+文件名规则：`<filename>_<YYYY-MM-DD>.<ext>`；`xlsx` 的扩展名为 `xlsx`，其余为格式名本身。
+
+#### 错误码
+
+| Status | 触发条件 | 实现 |
+|--------|----------|------|
+| 400 | `format` 不在 `csv` / `xlsx` / `json` 内 | `createValidationError` |
+| 400 | `data` 缺失 / 非数组 / 空数组 | `createValidationError` |
+| 400 | **非法 body（JSON 解析失败）** | 见下方说明 |
+| 429 | 触发 `src/proxy.ts` 通用 API 限流 | proxy 中间件 |
+| 500 | 导出过程内部异常 | `createErrorResponse` |
+
+> ✅ **非法 body 契约说明（2026-10-25，T120 已落地）**：与 metrics 端点同源问题，
+> POST 的 `await request.json()` 解析失败现已被显式捕获，返回 **400**。
+
+#### 错误响应体格式（两个端点通用）
+
+```json
+{
+  "success": false,
+  "error": {
+    "type": "VALIDATION_ERROR",
+    "message": "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 1000",
+    "userMessage": "...",
+    "action": "...",
+    "help": "...",
+    "details": {},
+    "timestamp": "2026-10-25T05:00:00.000Z"
+  },
+  "requestId": "..."
+}
+```
+
+> 注：实现（`src/lib/api/error-handler.ts` → `buildErrorResponse`）使用的是 **`error.type`**
+> 字段（取值见 `src/lib/api/error-types.ts`：`VALIDATION_ERROR` / `INTERNAL_ERROR` 等），
+> 而本文「Common Error Responses」小节（API.md 约 3190 行）示例用的是 `error.code`。
+> 两者不一致，本节以实现为准；全局 `error.code` → `error.type` 的口径统一不在 T121 范围内，
+> 已列为遗留项。
 
 ---
 
