@@ -7,6 +7,43 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { DraftStorage, WorkflowDraft, getDraftStorage } from '@/lib/storage/draft-storage'
 import { WorkflowDefinition, WorkflowStatus, NodeType } from '@/types/workflow'
 
+/**
+ * 构造一个会在 onsuccess 被赋值时立即回调的 mock request。
+ *
+ * 原实现只把 onsuccess 置为 null，storage 内部 `request.onsuccess = () => resolve()`
+ * 赋值后再没人触发，Promise 永远挂起 —— 每个用例都要等到超时才失败
+ * （该文件曾耗时 354 秒，单文件就足以撑爆 CI 的 10 分钟分片上限）。
+ */
+function createAutoRequest<T>(result: T, error: unknown = null) {
+  const request: Record<string, any> = {
+    result,
+    error,
+    onsuccess: null as any,
+    onerror: null as any,
+    onupgradeneeded: null as any,
+  }
+
+  Object.defineProperty(request, 'onsuccess', {
+    get: () => request.__onsuccess ?? null,
+    set: (handler: ((ev?: any) => void) | null) => {
+      request.__onsuccess = handler
+      if (handler) handler({ target: request })
+    },
+    configurable: true,
+  })
+
+  Object.defineProperty(request, 'onerror', {
+    get: () => request.__onerror ?? null,
+    set: (handler: ((ev?: any) => void) | null) => {
+      request.__onerror = handler
+      if (handler && error) handler({ target: request })
+    },
+    configurable: true,
+  })
+
+  return request
+}
+
 describe('DraftStorage', () => {
   let storage: DraftStorage
   let originalIndexedDB: typeof indexedDB
@@ -18,7 +55,11 @@ describe('DraftStorage', () => {
 
   afterEach(async () => {
     try {
-      await storage.clearAllDrafts()
+      // 兜底：mock 场景下 clear 请求可能永不回调，不能让它拖垮整个套件
+      await Promise.race([
+        storage.clearAllDrafts(),
+        new Promise((resolve) => setTimeout(resolve, 1000)),
+      ])
     } catch {}
     storage.close()
     if (originalIndexedDB) {
@@ -37,12 +78,7 @@ describe('DraftStorage', () => {
         },
       }
 
-      const mockRequest = {
-        result: mockDB,
-        onsuccess: null as any,
-        onerror: null as any,
-        onupgradeneeded: null as any,
-      }
+      const mockRequest = createAutoRequest(mockDB)
 
       const mockOpen = vi.fn().mockReturnValue(mockRequest)
       ;(global as any).indexedDB = {
@@ -94,13 +130,11 @@ describe('DraftStorage', () => {
       // 模拟保存
       const mockTransaction = {
         objectStore: vi.fn().mockReturnValue({
-          put: vi.fn(() => ({
-            onsuccess: vi.fn(),
-            onerror: vi.fn(),
-          })),
+          put: vi.fn(() => createAutoRequest(undefined)),
         }),
       }
       storage['db'] = {
+        close: vi.fn(),
         transaction: vi.fn().mockReturnValue(mockTransaction),
       } as any
 
@@ -129,20 +163,16 @@ describe('DraftStorage', () => {
 
   describe('草稿管理', () => {
     it('应该获取所有草稿元数据', async () => {
-      const mockRequest = {
-        result: [
-          {
-            id: 'draft-1',
-            name: '草稿1',
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-02T00:00:00Z',
-            autoSaved: false,
-            version: 1,
-          },
-        ],
-        onsuccess: null as any,
-        onerror: null as any,
-      }
+      const mockRequest = createAutoRequest([
+        {
+          id: 'draft-1',
+          name: '草稿1',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-02T00:00:00Z',
+          autoSaved: false,
+          version: 1,
+        },
+      ])
 
       const mockTransaction = {
         objectStore: vi.fn().mockReturnValue({
@@ -151,6 +181,7 @@ describe('DraftStorage', () => {
       }
 
       storage['db'] = {
+        close: vi.fn(),
         transaction: vi.fn().mockReturnValue(mockTransaction),
       } as any
 
@@ -161,10 +192,7 @@ describe('DraftStorage', () => {
     })
 
     it('应该删除草稿', async () => {
-      const mockDeleteRequest = {
-        onsuccess: null as any,
-        onerror: null as any,
-      }
+      const mockDeleteRequest = createAutoRequest(undefined)
 
       const mockTransaction = {
         objectStore: vi.fn().mockReturnValue({
@@ -173,6 +201,7 @@ describe('DraftStorage', () => {
       }
 
       storage['db'] = {
+        close: vi.fn(),
         transaction: vi.fn().mockReturnValue(mockTransaction),
       } as any
 
@@ -180,10 +209,7 @@ describe('DraftStorage', () => {
     })
 
     it('应该清空所有草稿', async () => {
-      const mockClearRequest = {
-        onsuccess: null as any,
-        onerror: null as any,
-      }
+      const mockClearRequest = createAutoRequest(undefined)
 
       const mockTransaction = {
         objectStore: vi.fn().mockReturnValue({
@@ -192,6 +218,7 @@ describe('DraftStorage', () => {
       }
 
       storage['db'] = {
+        close: vi.fn(),
         transaction: vi.fn().mockReturnValue(mockTransaction),
       } as any
 
