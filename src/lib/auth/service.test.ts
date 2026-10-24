@@ -34,7 +34,7 @@ import {
   getUserByRefreshToken,
   verifyPassword,
 } from './repository'
-import { UserRole, UserStatus } from './types'
+import { UserRole, UserStatus, type CreateUserRequest } from './types'
 import { logger } from '@/lib/logger'
 
 // ============================================================================
@@ -186,9 +186,11 @@ describe('Auth Service - Login', () => {
     if (!result.success) {
       expect(result.error).toBe('Login failed')
     }
-    expect(logger.error).toHaveBeenCalledWith('Login failed', expect.any(Error), {
-      category: 'auth',
-    })
+    expect(logger.error).toHaveBeenCalledWith(
+      'Login failed',
+      expect.any(Error),
+      expect.objectContaining({ category: 'auth' })
+    )
   })
 
   it('should support remember me option', async () => {
@@ -231,7 +233,17 @@ describe('Auth Service - Registration', () => {
 
   it('should register a new user successfully', async () => {
     vi.mocked(getUserByEmail).mockResolvedValue(null)
-    vi.mocked(createUser).mockResolvedValue(mockUser)
+    // The repository must echo back the user it just created, otherwise the
+    // response carries the wrong email.
+    vi.mocked(createUser).mockImplementation(async (data: CreateUserRequest) =>
+      Promise.resolve({
+        ...mockUser,
+        id: 'new-user-1',
+        email: data.email,
+        name: data.name,
+        role: data.role ?? UserRole.MEMBER,
+      })
+    )
 
     const result = await registerUser({
       email: 'newuser@example.com',

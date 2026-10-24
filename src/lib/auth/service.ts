@@ -239,12 +239,12 @@ export async function loginUser(
       expiresAt: dbToken.expiresAt,
     }
   } catch (error) {
-    // Detailed error logging for debugging
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    const errorStack = error instanceof Error ? error.stack : undefined
-    logger.error('Login failed', errorMessage, {
+    // logger.error(message, error?, data?) — the error object must be passed as
+    // the 2nd argument, otherwise the logger drops it (it only keeps values
+    // that are `instanceof Error`).
+    logger.error('Login failed', error, {
       category: 'auth',
-      error: errorStack,
+      errorMessage: error instanceof Error ? error.message : String(error),
       requestEmail: request.email,
     })
     return {

@@ -107,9 +107,17 @@ describe('JWT Functions', () => {
     })
 
     it('should fail if JWT_SECRET is not set', async () => {
+      // getJwtSecret() falls back to AGENT_ENCRYPTION_SECRET, which the global
+      // test setup always defines — so both must be cleared to observe the
+      // "no secret configured" path.
       delete process.env.JWT_SECRET
+      delete process.env.AGENT_ENCRYPTION_SECRET
 
-      await expect(sign(mockPayload, 3600)).rejects.toThrow('JWT_SECRET')
+      try {
+        await expect(sign(mockPayload, 3600)).rejects.toThrow('JWT_SECRET')
+      } finally {
+        process.env.AGENT_ENCRYPTION_SECRET = 'test-jwt-secret-key'
+      }
     })
 
     it('should include all payload fields', async () => {
@@ -498,9 +506,16 @@ describe('Integration Tests', () => {
 
 describe('Error Handling', () => {
   it('should handle missing JWT_SECRET gracefully', async () => {
+    // Clear the AGENT_ENCRYPTION_SECRET fallback as well — see the sibling
+    // test in sign() for the same reason.
     delete process.env.JWT_SECRET
+    delete process.env.AGENT_ENCRYPTION_SECRET
 
-    await expect(sign(mockPayload, 3600)).rejects.toThrow()
+    try {
+      await expect(sign(mockPayload, 3600)).rejects.toThrow()
+    } finally {
+      process.env.AGENT_ENCRYPTION_SECRET = 'test-jwt-secret-key'
+    }
   })
 
   it('should provide meaningful error messages', async () => {
