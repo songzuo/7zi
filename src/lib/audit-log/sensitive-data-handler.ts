@@ -30,6 +30,20 @@ export class AuditSensitiveDataHandler {
   public maskSensitiveData(event: AuditEvent): AuditEvent {
     const maskedEvent = JSON.parse(JSON.stringify(event));
 
+    // 脱敏事件顶层字段。
+    // 原实现只处理 user/request/resource/details/changes/error/metadata，
+    // 顶层直接挂在 event 上的敏感字段（如 event.password）完全不脱敏 ——
+    // 审计日志会把明文口令写进存储。
+    for (const [key, value] of Object.entries(maskedEvent)) {
+      const config =
+        this.sensitiveFields.get(key) ||
+        this.sensitiveFields.get(`event.${key}`) ||
+        this.findWildcardConfig(`event.${key}`);
+      if (config) {
+        (maskedEvent as Record<string, unknown>)[key] = this.maskValue(value, `event.${key}`, config);
+      }
+    }
+
     // 脱敏用户上下文
     if (maskedEvent.user) {
       maskedEvent.user = this.maskObject(maskedEvent.user, 'user');
@@ -126,12 +140,7 @@ export class AuditSensitiveDataHandler {
 
     // 如果没有配置，检查是否有通配符匹配
     if (!config) {
-      for (const [path, cfg] of this.sensitiveFields.entries()) {
-        if (path.endsWith('*') && fieldPath.startsWith(path.slice(0, -1))) {
-          config = cfg;
-          break;
-        }
-      }
+      config = this.findWildcardConfig(fieldPath);
     }
 
     // 如果仍然没有配置，返回原值
@@ -154,6 +163,18 @@ export class AuditSensitiveDataHandler {
   }
 
   /**
+   * 查找通配符匹配的敏感字段配置（如 'password*'）
+   */
+  private findWildcardConfig(fieldPath: string): SensitiveFieldConfig | undefined {
+    for (const [path, cfg] of this.sensitiveFields.entries()) {
+      if (path.endsWith('*') && fieldPath.startsWith(path.slice(0, -1))) {
+        return cfg;
+      }
+    }
+    return undefined;
+  }
+
+  /**
    * 脱敏字符串
    */
   private maskString(str: string, maskType: SensitiveFieldConfig['mask'] = 'partial'): string {
@@ -166,11 +187,13 @@ export class AuditSensitiveDataHandler {
         return '***';
 
       case 'partial':
-        // 保留前2个和后2个字符
+        // 保留前2个和后2个字符，中间固定 3 个星号。
+        // 星号数量按原长度补齐会泄漏原始长度，
+        // 固定宽度既保留了可辨识的前后缀，也不暴露长度。
         if (str.length <= 4) {
           return '***';
         }
-        return `${str.slice(0, 2)}${'*'.repeat(str.length - 4)}${str.slice(-2)}`;
+        return `${str.slice(0, 2)}***${str.slice(-2)}`;
 
       case 'hash':
         return this.hashString(str);

@@ -322,6 +322,10 @@ describe('AuditLogSystem', () => {
         user: { userId: 'user456', username: 'jane' },
       });
 
+      // 异步写入模式下事件还在缓冲区里，先落库再查，
+      // 否则 QueryBuilder 直接读 storage 会查不到刚写入的事件。
+      await auditLog.flush();
+
       const queryBuilder = new QueryBuilder(
         (auditLog as any).storage
       );

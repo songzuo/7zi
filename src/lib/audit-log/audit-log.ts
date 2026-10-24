@@ -385,13 +385,86 @@ export class AuditLogService {
    * 查询审计日志
    */
   public async query(options: AuditQueryOptions): Promise<AuditQueryResult> {
-    return this.queryService.query(options);
+    const result = await this.queryService.query(options);
+
+    // 合并尚未落库的缓冲区事件，避免"写完立刻查"查不到。
+    if (this.eventBuffer.length > 0) {
+      const pending = this.eventBuffer.filter((event) =>
+        this.matchesQuery(event, options)
+      );
+      if (pending.length > 0) {
+        result.data = [...pending, ...result.data];
+        result.total = result.data.length;
+        result.totalPages = result.pageSize > 0
+          ? Math.ceil(result.total / result.pageSize)
+          : result.totalPages;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * 判断事件是否满足查询条件（用于缓冲区事件）
+   */
+  private matchesQuery(event: AuditEvent, options: AuditQueryOptions): boolean {
+    const filter = options.filter;
+    if (!filter) return true;
+
+    if (filter.userIds?.length) {
+      if (!event.user?.userId || !filter.userIds.includes(event.user.userId)) {
+        return false;
+      }
+    }
+
+    if (filter.categories?.length && !filter.categories.includes(event.category)) {
+      return false;
+    }
+
+    if (filter.levels?.length && !filter.levels.includes(event.level)) {
+      return false;
+    }
+
+    if (filter.actions?.length && !filter.actions.includes(event.action)) {
+      return false;
+    }
+
+    // 时间范围用 timeRange（{ start, end }），与 AuditQueryFilter 定义一致
+    if (filter.timeRange) {
+      const timestamp = new Date(event.timestamp).getTime();
+      if (
+        timestamp < new Date(filter.timeRange.start).getTime() ||
+        timestamp > new Date(filter.timeRange.end).getTime()
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * 立即把缓冲区事件落库
+   *
+   * 异步写入模式（asyncWrite）下事件先进缓冲区，
+   * 任何直接读 storage 的路径（聚合、趋势、QueryBuilder）都看不到它们。
+   * 这些读取前需要先 flush。
+   */
+  public async flush(): Promise<void> {
+    if (this.eventBuffer.length > 0) {
+      await this.flushBuffer();
+    }
   }
 
   /**
    * 按ID获取事件
    */
   public async getById(id: string): Promise<AuditEvent | null> {
+    // 先查缓冲区（异步写入模式下事件可能尚未落库）
+    const pending = this.eventBuffer.find((event) => event.id === id);
+    if (pending) {
+      return pending;
+    }
     return this.storage.getById(id);
   }
 
@@ -401,6 +474,8 @@ export class AuditLogService {
   public async aggregate(
     options: AuditAggregationOptions
   ): Promise<AuditAggregationResult> {
+    // 聚合直接读 storage，先把缓冲区落库，避免漏掉刚写入的事件
+    await this.flush();
     return this.analyticsService.aggregate(options);
   }
 
@@ -411,6 +486,7 @@ export class AuditLogService {
     timeRange: { start: Date; end: Date },
     interval: 'hour' | 'day' | 'week' = 'day'
   ): Promise<AuditTrendResult> {
+    await this.flush();
     return this.analyticsService.getTrends(timeRange, interval);
   }
 
@@ -421,6 +497,7 @@ export class AuditLogService {
     userId: string,
     timeRange?: { start: Date; end: Date }
   ): Promise<UserActivityStats> {
+    await this.flush();
     return this.analyticsService.getUserActivityStats(userId, timeRange);
   }
 
@@ -432,6 +509,7 @@ export class AuditLogService {
     resourceId?: string,
     timeRange?: { start: Date; end: Date }
   ): Promise<ResourceAccessStats> {
+    await this.flush();
     return this.analyticsService.getResourceAccessStats(resourceType, resourceId, timeRange);
   }
 

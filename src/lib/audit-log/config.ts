@@ -89,6 +89,13 @@ export const DEFAULT_AUDIT_CONFIG: AuditLogConfig = {
   sensitiveFields: DEFAULT_SENSITIVE_FIELDS,
   retention: DEFAULT_RETENTION_POLICY,
   enableSigning: true,
+  // 与 signature-handler 的取钥逻辑保持一致：
+  // 优先 AUDIT_LOG_SIGNING_KEY 环境变量，未设置时用开发兜底密钥。
+  // 否则默认配置 enableSigning=true + signingKey 缺失会让
+  // AuditLogService.initialize() 直接抛错，审计日志服务根本无法启动。
+  signingKey:
+    process.env.AUDIT_LOG_SIGNING_KEY ||
+    'dev-audit-log-signing-key-please-change-in-production',
   asyncWrite: true,
   batchSize: 100,
   batchInterval: 5000,
