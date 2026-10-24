@@ -58,12 +58,10 @@ const eslintConfig = [
       // 不加忽略会让根级 lint 遍历十几分钟
       'xunshi-inspector/**',
       '**/dist/**',
-      // src/lib/monitoring/prometheus.js 是 tsc 从同名 .ts 编译出的产物
-      // （含 __awaiter/__generator/__spreadArray 等 tsc helper），
-      // 由 .ts 版本直接维护、手工修改会在下次编译时被覆盖，
-      // 且其中的 `var _this = this` 是 tsc 对箭头函数的降级产物（不是可删的死代码）。
       // 真正的源码是同目录的 prometheus.ts。
-      'src/lib/monitoring/prometheus.js',
+      // 旧的编译产物 prometheus.js 已删除：它遮蔽 .ts，
+      // 且其中的 CommonJS require() 在 vitest ESM 环境下解析不到 @ 别名，
+      // 导致所有经由 '@/lib/monitoring' 间接引用它的测试文件收集失败（0 test）。
       '**/build/**',
       '**/out/**',
       // 文档目录下的 .ts 是 API 用法示例（伪代码），不可编译也不参与构建
