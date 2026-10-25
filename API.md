@@ -2435,6 +2435,14 @@ Content-Type: application/json
 
 All RBAC endpoints may return the following error responses:
 
+> ⚠️ **字段口径提示（2026-10-25，T132 核对）**：RBAC 路由族目前**存在两种实现并存**的情况 ——
+> `src/app/api/rbac/roles/route.ts`、`src/app/api/rbac/permissions/route.ts` 走统一错误处理器
+> （`src/lib/api/error-handler.ts` → `buildErrorResponse`），返回体字段是 **`error.type`**；
+> 而 `src/app/api/rbac/{system,roles/[roleId],roles/[roleId]/permissions,users/[userId]/permissions,users/[userId]/roles}/route.ts`
+> 直接手写 `NextResponse.json({ success: false, error: { code: ... } })`，返回体字段是 **`error.code`**。
+> 下表示例按**手写路由的实际返回**给出（`error.code`）；接入方请同时兼容两种字段名，
+> 或以 `error.type ?? error.code` 兜底读取。统一该路由族属**实现侧**改造，不在本次文档口径统一范围内。
+
 #### Validation Error (400)
 
 ```json
@@ -3189,13 +3197,20 @@ data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"
 
 ## 📝 Common Error Responses
 
+> 📌 **字段口径（2026-10-25，T132 统一）**：标准错误响应体的错误分类字段为 **`error.type`**
+> （取值见 `src/lib/api/error-types.ts` 的 `ErrorType` 枚举：`VALIDATION_ERROR` / `UNAUTHORIZED` /
+> `NOT_FOUND` / `FORBIDDEN` / `RATE_LIMIT_EXCEEDED` / `CONFLICT` / `INTERNAL_ERROR` 等）。
+> 早期文档示例写作 `error.code`，现已全局更名为 `error.type`。
+> ⚠️ 少数**手写 `NextResponse.json` 的路由**（如 RBAC 路由族、v1/tenants 系）仍返回 `error.code`，
+> 各章节已就地标注，详见对应小节说明。
+
 ### Validation Error (400)
 
 ```json
 {
   "success": false,
   "error": {
-    "code": "VALIDATION_ERROR",
+    "type": "VALIDATION_ERROR",
     "message": "Invalid request parameters",
     "details": {
       "fields": {
@@ -3212,7 +3227,7 @@ data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"
 {
   "success": false,
   "error": {
-    "code": "UNAUTHORIZED",
+    "type": "UNAUTHORIZED",
     "message": "Invalid or expired token"
   }
 }
@@ -3224,7 +3239,7 @@ data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"
 {
   "success": false,
   "error": {
-    "code": "NOT_FOUND",
+    "type": "NOT_FOUND",
     "message": "Resource not found"
   }
 }
@@ -3236,7 +3251,7 @@ data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"
 {
   "success": false,
   "error": {
-    "code": "RATE_LIMIT_EXCEEDED",
+    "type": "RATE_LIMIT_EXCEEDED",
     "message": "Too many requests. Please try again later.",
     "retryAfter": 3600
   }
@@ -3249,7 +3264,7 @@ data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"
 {
   "success": false,
   "error": {
-    "code": "INTERNAL_ERROR",
+    "type": "INTERNAL_ERROR",
     "message": "An unexpected error occurred"
   }
 }
@@ -3615,10 +3630,10 @@ data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"
 ```
 
 > 注：实现（`src/lib/api/error-handler.ts` → `buildErrorResponse`）使用的是 **`error.type`**
-> 字段（取值见 `src/lib/api/error-types.ts`：`VALIDATION_ERROR` / `INTERNAL_ERROR` 等），
-> 而本文「Common Error Responses」小节（API.md 约 3190 行）示例用的是 `error.code`。
-> 两者不一致，本节以实现为准；全局 `error.code` → `error.type` 的口径统一不在 T121 范围内，
-> 已列为遗留项。
+> 字段（取值见 `src/lib/api/error-types.ts`：`VALIDATION_ERROR` / `INTERNAL_ERROR` 等）。
+> 早期文档曾写作 `error.code`，**已于 2026-10-25（T132）全局更名为 `error.type`**；
+> 本文「Common Error Responses」小节的 5 个示例已同步。RBAC 小节因走手写响应体，
+> 仍按实际返回保留 `error.code`（该节已就地标注两种实现并存的情况）。
 
 ---
 

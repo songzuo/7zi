@@ -7,6 +7,118 @@
 
 ---
 
+## [未发布] / 2026-10-21 ~ 2026-10-25（T119–T131 补记，由 T132 同步）
+
+> 本段落由 **T132（📚 咨询师）** 补记，日期 **2026-10-25 (Asia/Shanghai)**。
+> 上一轮 T121 只补记到 T120 口径；本段补齐 **T121–T131**，并回补 **T119 / T120** 的落地细节
+> 与此前未在 CHANGELOG 体现的提交。
+> **核实口径**：`git log --oneline -40` / `git show --stat <sha>` / 已落地报告 md
+> （`T119_CLAWMESH_HEARTBEAT_FIX.md`、`T121_DOCS_SYNC.md`、`T122_ANALYTICS_RECONCILE.md`、
+> `T123_WORKFLOW_API_TESTS.md`、`T130_TYPES_ESLINT_FIX.md`）/ 工作区实际 diff。
+> **T124 / T128 两轮派单无独立报告**，其目标（`API.md` 错误响应口径统一）由本轮 T132 完成。
+> **T131 截至补记时无报告、无提交**，只记录派单口径，不补写未经证实的细节。
+
+### 📌 T121–T131 任务条目速览
+
+| 任务 | 角色 | 类型 | 一句话摘要 | 产出物 |
+|---|---|---|---|---|
+| T121 | 📚 咨询师 | 📝 文档 | API.md 新增 analytics 两端点小节 + CHANGELOG 补记 T115–T120 | `T121_DOCS_SYNC.md`；提交 `3dcac4461a` |
+| T122 | ⚡ Executor | 🐛 Bug 修复 + 🧹 收口 | analytics 半成品收口：`api.test.ts` 真实性复核、3 个 eslint warning 清零、`ExportFormat` 与实现对齐 | `T122_ANALYTICS_RECONCILE.md`（工作区未提交） |
+| T123 | 🧪 测试员 | 🧪 测试编写 | workflow API 8 个高风险路由补齐 48 个用例（全绿），并暴露 D1–D9 实现缺陷 | `T123_WORKFLOW_API_TESTS.md` + 9 个 `route.test.ts`（未提交） |
+| T124 | 📚 咨询师 | 📝 文档 | （同 T132 目标）`API.md` 错误响应口径统一 | **无独立报告** → 由 T132 完成 |
+| T125–T129 | — | — | 上一轮 06:05 派发 | **全部无产物**（cron 会话因 `429 Token Plan 用量上限` 中断） |
+| T130 | ⚡ Executor | 🐛 Bug 修复 + ⚡ 代码优化 | 修 `workflow/[id]/route.test.ts` 6 处 TS2538 + 清 4 个文件 unused-vars | `T130_TYPES_ESLINT_FIX.md`（工作区未提交） |
+| T131 | ⚡ Executor | 🐛 Bug 修复 + 🧪 测试 | 4 条失败用例逐条判定「实现缺陷 vs 测试契约过时」 | **无报告、无提交**（截至补记时） |
+| T132 | 📚 咨询师 | 📝 文档 | `API.md` `error.code` → `error.type` 口径全局统一 + CHANGELOG 补记 | 本段落 + `T132_DOCS_CONSISTENCY.md` |
+
+### 🐛 Fixed
+
+- **analytics metrics / export 端点非法 body 由 500 收敛为 400**（提交 `ab39579a6f`、`8967d2bc5d`）
+  —— `await request.json()` 的解析失败此前落到外层 catch → 500，现已被显式捕获并返回 400；
+  同批还把 `metrics/route.ts` 的 `getDatabase` 由函数内动态 `import()` 改为顶层静态 import
+  （便于测试替身生效），并重写 `src/app/api/analytics/__tests__/api.test.ts` 为按 SQL 形状给出确定聚合结果的集成测试。
+  验证：`npx vitest run src/app/api/analytics/` → 4 files / 87 tests 全绿（修复前 45 failed）；
+  `npx eslint src/app/api/analytics/` → 0 error / 0 warning。
+  根因与教训记入 `memory/2026-10-25.md`（`20ad5150bb`）。
+- **全局 db 测试替身 5 处失真修复**（提交 `dd4ed233e9`）—— `src/test/vi-mocks.ts` 补齐聚合与分页语义，
+  20 条 tenant 失败用例全绿；定位过程记入 `memory/2026-10-24.md`（`4fd954afbe`）。
+- **claw-mesh-sync 反复冲掉本机 HEARTBEAT.md 的根因修复**（T119，工作区未提交）
+  —— `/root/.openclaw/cron/claw-mesh-sync.sh` 的 `read_other_machines()` 原先**无条件**以 `static/HEARTBEAT.md`
+  覆盖本机工作区 HEARTBEAT.md（cron `30 */4 * * *`），每 4 小时把本机实测结论段冲掉一次；
+  现改为「仅当 `static/` 行数 ≥ 本机行数才允许覆盖」，否则保留本机版本并记 WARN，
+  覆盖前 `cp -p` 备份、`.tmp` + `mv` 原子替换、失败自动回滚。
+  HEARTBEAT.md 253 → **486** 行（净增 233 行），`git diff --stat HEAD -- HEARTBEAT.md` 删除行数由 233 降为 0。
+  报告 `T119_CLAWMESH_HEARTBEAT_FIX.md`。
+- **workflow 测试文件 6 处 TS2538 类型错误清零**（T130，工作区未提交）
+  —— `src/app/api/workflow/[id]/route.test.ts` 的 mock DB 中 `params?.[params.length - 1]` 未做 undefined 收窄即用作索引；
+  改为先取原始值再用 `typeof` 运行时守卫收窄（未使用 `as any` / `@ts-ignore`）。
+  验证：`npx tsc --noEmit` exit 0；指定 4 个文件 eslint 0 error（warnings 57 → 51）。
+  报告 `T130_TYPES_ESLINT_FIX.md`。
+- **jose 测试替身失真 + logger 丢弃错误对象修复**（提交 `b6cfb405ab`）
+  —— 修正 `src/lib/auth/__mocks__/jose.ts` 的签名失真，并让 `src/lib/auth/service.ts` 不再丢弃 Error 对象。
+- **tasks API 路由测试收集失败与过时断言修复**（提交 `d401c0588f`）—— 19/19 通过。
+
+### 🧪 Added
+
+- **workflow API 测试补齐 48 个用例**（T123，工作区未提交）—— 覆盖 8 个高风险路由：
+  `workflow`（POST/GET）、`[id]`（GET/PUT/DELETE，含 LRU 缓存命中与失效）、
+  `[id]/versions/[versionId]`、`[id]/versions/[versionId]/rollback`、
+  `[id]/executions/[execId]`、`[id]/executions/[execId]/cancel`（状态机 running→cancelled）、
+  `[id]/history`、`workflow/history/export`。
+  新增 8 个测试文件共 48/48 全绿；`eslint src/app/api/workflow` 0 error / 5 warnings（均为既存实现文件）。
+  **同时暴露 9 项实现缺陷（D1–D9）**，其中 D1/D3/D4 为可被外部请求直接触发的输入校验缺口，
+  D7 为「403 状态码却返回 `error.type = INTERNAL_ERROR`」的口径不一致 —— **均未擅自改实现**，交主管判断。
+  报告 `T123_WORKFLOW_API_TESTS.md`。
+- **`src/lib/security/` 三模块单元测试**（T100，提交 `e52333a7b5`）—— log-sanitizer / sql-injection /
+  prototype-pollution-guard 共 123 用例全绿，报告 `T100_SECURITY_TESTS.md`。
+- **后端 CI 盲区补齐**（T112，提交 `9295d821df`）—— `websocket-service` / `workflow-service`
+  两个 job + path 过滤 + 「生产依赖树可解析 / 源文件语法合法 / 入口存在」构建校验，
+  报告 `T112_CI_GATE.md`（结论 Partial：`Backend CI` 整体仍红，根 `7zi-backend/package.json` 的
+  同源 body-parser 漏洞超出当轮授权范围）。
+
+### 🔧 Changed
+
+- **`API.md` 错误响应字段口径全局统一：`error.code` → `error.type`**（T132，本段落同步）
+  —— 实现（`src/lib/api/error-handler.ts` → `buildErrorResponse`）统一返回 `error.type`，
+  早期文档示例写作 `error.code` 属长期遗留口径。
+  「Common Error Responses」小节 5 个示例（400/401/404/429/500）已统一为 `error.type`，
+  并在该小节加注字段口径说明（含 `ErrorType` 枚举取值来源）。
+  **未误伤业务数据里的 `code` 字段**：JSON-RPC 段的 `"code": -32600` 等数值错误码、
+  以及 RBAC 路由族手写响应体实际返回的 `error.code` 均按实现原样保留。
+  `README.md` 全文无错误响应示例（`grep -c 'error.code' README.md` = 0），**无需改动**。
+  报告 `T132_DOCS_CONSISTENCY.md`。
+- **`ExportFormat` 类型收窄为 `'csv' | 'xlsx' | 'json'`**（T122，工作区未提交）——
+  与实现对齐（PDF 导出能力实际缺失）；核查全仓引用确认无调用方受影响。
+- **`docs/api-optimization-final-report.md` 早已确立的 `error.type` 口径**（早前批次）——
+  本次 T132 只是把 `API.md` 拉齐到该口径。
+
+### 📝 Docs
+
+- **`API.md` 新增 analytics 两端点小节**（T121，提交 `3dcac4461a`）——
+  `Analytics Metrics`（GET query / POST body 参数表、`data` 与 `metrics` 返回结构、错误码表、
+  GET 的 `Cache-Control` 响应头）与 `Analytics Export`（GET 选项响应、POST body 参数表、
+  文件流响应头、错误码表），以及「发布树 vs 旧嵌套树」的认证范围说明。报告 `T121_DOCS_SYNC.md`。
+- **`API.md` 清理 T120 落地后的 400 契约在途标注**（提交 `3dcac4461a`）。
+- **T121 遗留项 L2 结清** —— 原「`API.md` 全局 `Common Error Responses` 用 `error.code`，
+  实现用 `error.type`」的遗留，由本轮 T132 全局统一结清。
+- **HEARTBEAT.md 恢复被误删 157 行 + CHANGELOG 补记 T103–T112**（T115，提交 `9295d821df`）。
+- **部署脚本健康检查误判修复**（T90，提交 `c196ebb030` / `394475735d` / `b2b2540ff3`）——
+  `deploy.sh` 原以宿主机 `localhost:3000` 判活，而 3000 是**容器内部端口**，且 `/works` 路由在本仓库不存在，
+  部署必然误判回滚；改为容器内自检 + 三层判定。报告 `T90_DEPLOY_HEALTHCHECK_FIX.md`。
+
+### ⚠️ 本轮遗留
+
+1. **RBAC 路由族错误字段两套并存**：`src/app/api/rbac/{roles,permissions}/route.ts` 走统一处理器（`error.type`），
+   而 `src/app/api/rbac/{system,roles/[roleId],roles/[roleId]/permissions,users/[userId]/permissions,users/[userId]/roles}/route.ts`
+   手写 `NextResponse.json({ success: false, error: { code } })`（`error.code`）。
+   `src/app/api/v1/tenants/**`、`src/app/api/performance/clear/route.ts` 亦为手写 `error.code`。
+   统一属**实现侧**改造，本次按硬约束只改文档，已在 `API.md` 对应小节就地标注。
+2. **T131（4 条 workflow 失败用例判定）尚无报告、无提交**，失败基线仍在。
+3. **T123 暴露的 D1–D9 实现缺陷**（其中 D7 为 `error.type` 与状态码不一致）**均未修**。
+4. **T125–T129 五项派单无产物**（上一轮 cron 会话因 `429 Token Plan 用量上限` 中断）。
+
+---
+
 ## [未发布] / 2026-10-24（T86 同步）
 
 > 本段落由 T86（📚 咨询师）补记，日期 **2026-10-24 05:38–05:52 (Asia/Shanghai)**。
