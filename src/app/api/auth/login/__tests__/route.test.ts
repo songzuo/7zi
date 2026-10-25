@@ -18,11 +18,24 @@ const mockLogger = {
 }
 
 vi.mock('@/lib/auth/service', () => ({
-  loginUser: () => mockLoginUser,
+  // 路由直接 await loginUser(...)，mock 必须返回 Promise。
+  // 写成 `loginUser: () => mockLoginUser` 会返回一个函数（不是 Promise），
+  // 于是 result.success 是 undefined，路由走 401 分支 —— 全部成功用例假失败。
+  loginUser: (...args: unknown[]) => mockLoginUser(...args),
 }))
 
 vi.mock('@/lib/logger', () => ({
-  default: () => mockLogger,
+  // 被测代码用 `import { logger } from '@/lib/logger'`（具名导出），
+  // mock 工厂只给 default 会导致 'No "logger" export is defined' 收集失败。
+  // 必须带 auth —— 路由成功路径会调 logger.auth(...)，缺了会抛 TypeError 变 500。
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    auth: vi.fn(),
+  },
+  default: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }))
 
 vi.mock('@/lib/api/error-handler', () => ({

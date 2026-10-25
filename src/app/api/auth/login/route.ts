@@ -155,23 +155,27 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     // Validate request body
+    // 邮箱/密码先 trim：用户从输入法或复制粘贴常带首尾空白，
+    // 不 trim 会让 validateEmail 直接判非法格式。
     const { email, password, rememberMe }: LoginRequest = body
+    const normalizedEmail = typeof email === 'string' ? email.trim() : email
+    const normalizedPassword = typeof password === 'string' ? password.trim() : password
 
-    if (!email || !password) {
+    if (!normalizedEmail || !normalizedPassword) {
       const response = await createValidationError('Email and password are required')
       logRequestComplete(metadata, response, startTime)
       return response
     }
 
     // Validate email format
-    if (!validateEmail(email)) {
+    if (!validateEmail(normalizedEmail)) {
       const response = await createValidationError('Invalid email format')
       logRequestComplete(metadata, response, startTime)
       return response
     }
 
     // Login user
-    const result = await loginUser({ email, password, rememberMe })
+    const result = await loginUser({ email: normalizedEmail, password: normalizedPassword, rememberMe })
 
     if (!result.success) {
       logAuthError(metadata, 'authentication', result.error || 'Login failed')
