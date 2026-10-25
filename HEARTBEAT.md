@@ -484,3 +484,51 @@ grep -rn "from '@/" src/ | grep 7zi-frontend   # 应为空
 - `vi.advanceTimersByTime()` 必须包在 `act()` 里，否则 React 不刷新 state
 - fake timers 下 `waitFor` 不推进定时器 → 12s 超时；改同步断言
 - `fireEvent.touchEnd` 只填 `touches` 不填 `changedTouches`，需手动补
+
+---
+
+# 🔴 根级 CI 门禁真实基线（T138/T139 实测，2026-10-25）
+
+**注意：之前"211 failed"是嵌套树的口径。根级 CI 跑的是根 `src/` + `tests/`，口径完全不同。**
+
+根级 `npm run test:run`（= CI `test-unit` 的 4 shard）：
+- 失败文件 **294 个**，全量跑完**超过 4.6 小时仍未结束**（单进程串行）
+- 4 shard、每片 `timeout-minutes: 10` → **分片超时是必然的，不是偶发**
+
+## 本轮已修掉的三处"单文件就能撑爆分片"的元凶
+
+| 文件 | 原耗时 | 现耗时 | 根因 |
+|---|---|---|---|
+| `src/lib/storage/__tests__/draft-storage.test.ts` | **354s** | 2.6s | mock 的 request 只有 `onsuccess: null`，赋值后没人触发 → Promise 永不 resolve，每个用例都挂到超时 |
+| `src/lib/prefetch/prefetch.test.ts` | **73s** | 3.6s | 预取 promise 等 `link.onload` 才 resolve（fire-and-forget 语义错），且超时定时器不清理 |
+| `7zi-frontend/src/hooks/__tests__/useTouchGestures.test.ts` | 挂起 26 例 | 52/52 | ref 晚于 effect 就绪 → 监听器永远绑不上 |
+
+## 通用套路（下次照抄）
+
+1. **mock 的 `onsuccess`/`onerror` 必须在赋值时立即回调** —— 否则 Promise 永不 resolve，
+   每个用例都等 vitest 超时。写一个 `createAutoRequest()` 用 getter/setter 解决。
+2. **mock 的 db 对象要补齐所有方法** —— 少一个 `close()`，`afterEach` 抛 TypeError，
+   整个 describe 块全判失败。
+3. **动态 `await import()` 拿不到 `vi.mock` 的替换** —— 改静态 import。
+4. **mock 路径必须用 `@/` 别名，不能用相对路径** —— `vi.mock('../lib/db/connection')`
+   和 `vi.mock('@/lib/db/connection')` 在 vitest 里是**两个不同的模块 ID**，
+   用相对路径会导致业务代码里的别名导入拿到**真实模块**（连到真 SQLite）。
+   `src/test/vi-mocks.ts` 里已全局踩过这个坑。
+5. **mock 工厂漏符号 → 整个文件收集失败（0 test）** —— 用 `importOriginal` 保留真实实现，
+   只覆盖要断言的符号，别手写全量工厂。
+6. **`vi.mock` 工厂返回 async 函数给同步 API** → 路由解构拿到 undefined。
+   `db.queryRows()` 是**同步**的，返回 `T[]` 而不是 Promise。
+7. **fake timers 下 `waitFor` 不推进定时器** → 12s 超时；改同步断言。
+8. **改 hook 的 state 快照改不了 hook 内部 state** ——
+   `result.current.gestureState = {...}` 只是返回值快照；
+   要么加公开 setter（如 `setScale`），要么走真实手势路径。
+
+## 改名/契约变更后必须回头改测试（真实踩坑）
+
+- `b4889d4e1` 把 `navigate()` 改名成 `recordPath()`，改了 `user-behavior.test.ts`，
+  但 **`prefetch.test.ts` 没跟着改**，调的是一个已不存在的方法。
+- `analyzeNavigation()` 返回 `{ routes, predictions, insights }`，
+  **没有 `patterns` 字段** —— 那是另一个接口的形状。
+- `analyzeNavigation` 只收录 `count >= minVisits(2)` 的路径，单次访问不算模式。
+- 用户的密码路由是 `src/app/api/auth/login/` + `register/`，
+  **不是** `src/app/api/auth/`（嵌套树才是后者）。
