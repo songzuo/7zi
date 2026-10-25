@@ -42,13 +42,55 @@ sha_of_pkg() {
 }
 
 # ---- 选包管理器：优先 pnpm（与仓库 lock 一致），否则退回 npm ----------
-if [ -f pnpm-lock.yaml ] || command -v pnpm >/dev/null 2>&1; then
+if [ -f pnpm-lock.yaml ] && command -v pnpm >/dev/null 2>&1; then
+  PM=pnpm
+elif command -v pnpm >/dev/null 2>&1 && [ ! -f package-lock.json ]; then
   PM=pnpm
 elif command -v npm >/dev/null 2>&1; then
   PM=npm
 else
   echo "[deps] 未找到 pnpm/npm，无法安装依赖" | tee -a "$LOG"
   exit 1
+fi
+
+# ---- pnpm 12 自愈：确保 pnpm-workspace.yaml 存在 -------------------------
+# pnpm 12 起不再读 package.json 的 pnpm 字段；overrides 与 allowBuilds
+# 必须放在 pnpm-workspace.yaml。若缺失（部署目录是旧提交解包产物），
+# ERR_PNPM_IGNORED_BUILDS 会让 install 直接失败 —— 这里补齐。
+if [ "$PM" = pnpm ]; then
+  if [ ! -f pnpm-workspace.yaml ]; then
+    cat > pnpm-workspace.yaml << 'YAML'
+overrides:
+  brace-expansion@>=4.0.0 <5.0.5: '>=5.0.5'
+  flatted@<=3.4.1: '>=3.4.2'
+  serialize-javascript: '>=7.0.5'
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@sentry/cli': true
+  '@swc/core': true
+  better-sqlite3: true
+  core-js: true
+  msw: true
+  sharp: true
+  unrs-resolver: true
+YAML
+    echo "[deps] pnpm-workspace.yaml 缺失 —— 已自动补齐（overrides + allowBuilds）" | tee -a "$LOG"
+  elif ! grep -q "allowBuilds" pnpm-workspace.yaml; then
+    echo "[deps] pnpm-workspace.yaml 缺 allowBuilds —— 追加构建白名单" | tee -a "$LOG"
+    cat >> pnpm-workspace.yaml << 'YAML'
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@sentry/cli': true
+  '@swc/core': true
+  better-sqlite3: true
+  core-js: true
+  msw: true
+  sharp: true
+  unrs-resolver: true
+YAML
+  fi
 fi
 
 # ---- 关键依赖清单：必须能在 node_modules 顶层解析 ----------------------
