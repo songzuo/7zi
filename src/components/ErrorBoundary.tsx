@@ -2,11 +2,9 @@
 
 import { useEffect, useCallback, useState } from 'react'
 import * as Sentry from '@sentry/nextjs'
-import { ErrorDisplay, ErrorType } from './ErrorDisplay'
-import { getErrorCode, ErrorCodes, isNetworkError } from '@/lib/errors'
+import {ErrorDisplay} from './ErrorDisplay'
 
 // Direct imports from submodules
-import { UnifiedErrorType } from '@/lib/errors/unified-types'
 import { analyzeErrorType, getErrorTitle, getErrorMessage } from './errors/error-utils'
 
 export interface ErrorBoundaryProps {

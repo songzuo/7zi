@@ -11,7 +11,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import {
   useWebRTCMeeting,
   MeetingParticipant,
-  UseWebRTCMeetingOptions,
 } from '@/hooks/useWebRTCMeeting'
 import { Mic, MicOff, Phone, Users, Settings, Copy, Check } from 'lucide-react'
 import { toast } from '@/stores/uiStore'
@@ -39,7 +38,7 @@ interface MeetingRoomProps {
   onLeave?: () => void
 }
 
-interface AudioLevel {
+interface _AudioLevel {
   participantId: string
   level: number
 }
@@ -439,7 +438,7 @@ export default function MeetingRoom({
     isMuted,
     participants,
     remoteStreams,
-    joinMeeting,
+    joinMeeting: _joinMeeting,
     leaveMeeting,
     toggleMute,
     getAudioElement,
@@ -464,7 +463,7 @@ export default function MeetingRoom({
     onLeave?.()
   }
 
-  const getInitials = (name: string): string => {
+  const _getInitials = (name: string): string => {
     return name
       .split(' ')
       .map(n => n[0])

@@ -6,13 +6,13 @@
 'use client'
 
 import { useCallback } from 'react'
-import type { ParsedQuery, GeneratedSQL, DataField } from './types'
+import type {ParsedQuery, GeneratedSQL} from './types'
 
 /**
  * 生成 SQL 查询
  */
 export function generateSQL(parsedQuery: ParsedQuery, tableName: string = 'data'): GeneratedSQL {
-  const { intent, metrics, dimensions, filters, timeRange, aggregations, orderBy, limit } = parsedQuery
+  const { intent: _intent, metrics, dimensions, filters, timeRange, aggregations, orderBy, limit } = parsedQuery
   
   let sql = ''
   const params: Record<string, unknown> = {}

@@ -10,7 +10,6 @@
  */
 
 import { useTheme } from '@/stores/preferencesStore'
-import type { FC } from 'react'
 
 interface ThemeToggleProps {
   className?: string

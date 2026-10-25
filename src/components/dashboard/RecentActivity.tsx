@@ -16,8 +16,6 @@ import { Card } from '@/components/ui/Card'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import {
-  GitCommit,
-  AlertCircle,
   CheckCircle2,
   UserPlus,
   MessageSquare,

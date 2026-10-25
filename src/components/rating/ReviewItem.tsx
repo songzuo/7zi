@@ -10,14 +10,10 @@ import {
   MessageCircle,
   Flag,
   Trash2,
-  ChevronDown,
-  ChevronUp,
-  User,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
-import { Input } from '@/components/ui'
-import { Rating, HelpfulVote } from '@/types/feedback'
+import {Rating} from '@/types/feedback'
 
 export interface ReviewItemProps {
   rating: Rating
@@ -57,7 +53,7 @@ export function ReviewItem({
   const [replyContent, setReplyContent] = useState('')
   const [isSubmittingReply, setIsSubmittingReply] = useState(false)
   const [showFullText, setShowFullText] = useState(false)
-  const [expanded, setExpanded] = useState(true)
+  const [expanded, _setExpanded] = useState(true)
 
   const formattedDate = new Date(rating.created_at).toLocaleDateString('en-US', {
     year: 'numeric',

@@ -184,7 +184,7 @@ export function ErrorDisplay({
       await navigator.clipboard.writeText(JSON.stringify(errorInfo, null, 2))
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch (error) {
+    } catch (_error) {
       // 静默失败
     }
   }, [title, message, errorDigest, errorType])

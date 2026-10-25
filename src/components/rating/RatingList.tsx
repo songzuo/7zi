@@ -130,7 +130,7 @@ export function RatingList({
   /**
    * Handle rating update (after like/unlike)
    */
-  const handleRatingUpdate = (updatedRating: Rating) => {
+  const _handleRatingUpdate = (updatedRating: Rating) => {
     setRatings(prev => prev.map(r => (r.id === updatedRating.id ? updatedRating : r)))
   }
 

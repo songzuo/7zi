@@ -11,7 +11,7 @@
 
 'use client'
 
-import { useCallback, useEffect, useMemo, useState, memo } from 'react'
+import {useCallback, useEffect, useMemo, memo} from 'react'
 import {
   ReactFlow,
   Node,
@@ -272,7 +272,7 @@ const nodeTypes = {
 export function CollaborationGraph({
   agentNodes,
   connections,
-  onAgentUpdate,
+  onAgentUpdate: _onAgentUpdate,
   onConnectionClick,
   className = '',
   enableRealtime = true,

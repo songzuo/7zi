@@ -8,7 +8,7 @@ export { WorkflowCanvas } from './canvas'
 export type { WorkflowCanvasRef } from './canvas'
 export { WorkflowNodeComponent, NodeTypeSelector } from './node'
 export { WorkflowEdgeComponent, EdgeTypeSelector } from './edge'
-import { DesignerToolbar, NodeToolbar, PropertyPanel } from './toolbar'
+import {NodeToolbar, PropertyPanel} from './toolbar'
 export { DesignerToolbar, NodeToolbar, PropertyPanel } from './toolbar'
 
 /**

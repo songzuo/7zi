@@ -191,7 +191,7 @@ export function WorkflowNodeComponent({
 /**
  * 节点类型选择器（用于拖拽添加新节点）
  */
-export function NodeTypeSelector({ onTypeSelect }: { onTypeSelect: (type: NodeType) => void }) {
+export function NodeTypeSelector({ onTypeSelect: _onTypeSelect }: { onTypeSelect: (type: NodeType) => void }) {
   const types: Array<{ type: NodeType; label: string; icon: string }> = [
     { type: NodeType.AGENT, label: 'Agent', icon: '🤖' },
     { type: NodeType.CONDITION, label: '条件', icon: '⚡' },

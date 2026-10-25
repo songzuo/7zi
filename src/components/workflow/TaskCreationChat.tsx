@@ -12,7 +12,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { WorkflowDefinition, NodeType } from '@/types/workflow'
+import {WorkflowDefinition} from '@/types/workflow'
 import {
   parseTaskFromText,
   parsedTaskToWorkflowDefinition,
@@ -178,7 +178,7 @@ export function TaskCreationChat({
 
       if (validation.errors.length > 0) {
         assistantContent += `**需要注意的问题**:\n`
-        validation.errors.forEach(error => {
+        validation.errors.forEach(_error_ => {
           assistantContent += `• ${error}\n`
         })
         assistantContent += '\n'
@@ -205,7 +205,7 @@ export function TaskCreationChat({
           { label: '取消', action: 'cancel', variant: 'secondary', icon: '❌' },
         ],
       })
-    } catch (error) {
+    } catch (_error) {
       addMessage({
         role: 'assistant',
         content: '抱歉，我在解析您的描述时遇到了问题。请尝试提供更详细的描述，例如：\n• 任务的触发条件\n• 需要执行的动作\n• 预期的结果',

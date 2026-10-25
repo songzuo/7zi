@@ -5,7 +5,7 @@
 
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, {useState} from 'react'
 import { Calendar, ChevronDown, Check } from 'lucide-react'
 import { type TimeRange, type DateRange } from '@/lib/types/analytics'
 

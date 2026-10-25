@@ -11,8 +11,8 @@
  * - WebSocket 实时更新
  */
 
-import { useState, useEffect, useCallback } from 'react'
-import { AlertCircle, Activity, Zap, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import {useState, useEffect} from 'react'
+import {AlertCircle, Activity, TrendingUp, TrendingDown, Minus} from 'lucide-react'
 
 // ============================================
 // 类型定义

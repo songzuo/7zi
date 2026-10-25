@@ -20,9 +20,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ReferenceLine,
 } from 'recharts'
-import { TrendingUp, DollarSign, Calendar } from 'lucide-react'
+import {TrendingUp} from 'lucide-react'
 
 // ============================================================================
 // 类型定义

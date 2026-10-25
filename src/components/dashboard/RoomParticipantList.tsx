@@ -11,7 +11,6 @@
 
 import React, { useState, useMemo } from 'react'
 import { Users, MoreVertical, Crown, Shield, User, Clock, MessageSquare, X } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
 import type { RoomParticipant, UserRole } from '@/lib/websocket/rooms'

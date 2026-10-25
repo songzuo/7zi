@@ -2,7 +2,7 @@
 
 import { Component, ReactNode, ReactElement } from 'react'
 import * as Sentry from '@sentry/nextjs'
-import { ErrorDisplay, ErrorType } from './ErrorDisplay'
+import {ErrorDisplay} from './ErrorDisplay'
 import { analyzeErrorType } from './errors/error-utils'
 
 interface Props {

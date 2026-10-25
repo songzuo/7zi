@@ -155,7 +155,7 @@ export function useChartConfig() {
  * 模拟数据生成
  */
 function generateMockData(parsedQuery: ParsedQuery): QueryResult {
-  const { intent, dimensions, metrics } = parsedQuery
+  const { intent: _intent, dimensions, metrics } = parsedQuery
   
   const data: Record<string, unknown>[] = []
   const baseData = [
@@ -197,7 +197,7 @@ function generateChartConfig(
   parsedQuery: ParsedQuery,
   title: string
 ): ChartConfig {
-  const { intent, dimensions, metrics } = parsedQuery
+  const { intent, dimensions: _dimensions, metrics } = parsedQuery
   
   // 根据意图推荐图表类型
   let chartType: ChartConfig['type'] = 'bar'

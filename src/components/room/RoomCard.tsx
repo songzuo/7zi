@@ -92,7 +92,7 @@ function CardLayout({
   currentUserId,
   isSelected,
   onClick,
-  onJoin,
+  onJoin: _onJoin,
   onLeave,
   onDelete,
   showActions,

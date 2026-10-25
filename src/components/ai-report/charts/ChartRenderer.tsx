@@ -5,8 +5,8 @@
 
 'use client'
 
-import { useRef, useEffect, useState, useMemo, useCallback } from 'react'
-import type { ChartType, ChartConfig, QueryResult } from '../types'
+import {useRef, useEffect, useState, useMemo} from 'react'
+import type {ChartType, ChartConfig} from '../types'
 
 /**
  * 根据查询意图推荐图表类型
@@ -644,7 +644,7 @@ function HeatmapChart({
  * 数据表格组件
  */
 function DataTable({
-  config,
+  config: _config,
   data
 }: {
   config: ChartConfig

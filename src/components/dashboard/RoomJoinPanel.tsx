@@ -254,7 +254,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
 export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
   availableRooms = [],
   currentUserId,
-  currentUserName,
+  currentUserName: _currentUserName,
   joinedRoomIds = [],
   onJoin,
   isLoading = false,

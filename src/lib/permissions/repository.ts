@@ -324,8 +324,14 @@ export async function getUserPermissionContext(userId: string): Promise<Permissi
     return null
   }
 
-  // Get permissions from roles
-  const permissions = getPermissionsForRoles(userRoles)
+  // Get permissions from roles.
+  //
+  // 必须合并两处来源：
+  //  1. 角色默认定义（DEFAULT_ROLE_DEFINITIONS）—— 静态兜底
+  //  2. role_permissions 表里的显式授权 —— assignPermissionsToRole() 写入的
+  // 原实现只取 1，导致「给角色追加权限」这个动作**完全无效**：
+  // 库里明明有记录，用户的有效权限却还是默认那套。
+  const permissions = await getEffectivePermissionsForRoles(userRoles)
 
   // Get custom permissions from user record
   const userStmt = db.prepare('SELECT permissions FROM users WHERE id = ?')
@@ -343,6 +349,34 @@ export async function getUserPermissionContext(userId: string): Promise<Permissi
 /**
  * Get all user-role mappings
  */
+/**
+ * 取角色的**有效**权限：默认角色定义 ∪ role_permissions 表里的显式授权。
+ * assignPermissionsToRole() 写的是表，只读默认定义会让该操作形同虚设。
+ */
+async function getEffectivePermissionsForRoles(roles: Role[]): Promise<Permission[]> {
+  const merged = new Set<Permission>()
+  for (const role of roles) {
+    for (const p of getPermissionsForRoles([role])) {
+      merged.add(p)
+    }
+  }
+
+  const db = await getDatabaseAsync()
+  await initializeRbacTables()
+  const placeholders = roles.map(() => '?').join(', ')
+  const stmt = db.prepare(
+    `SELECT DISTINCT permission FROM role_permissions WHERE role IN (${placeholders})`
+  )
+  const rows = stmt.all(...roles) as Array<{ permission: Permission }>
+  for (const row of rows) {
+    if (row.permission) {
+      merged.add(row.permission)
+    }
+  }
+
+  return Array.from(merged)
+}
+
 export async function getAllUserRoleMappings(): Promise<UserRoleMapping[]> {
   const db = await getDatabaseAsync()
   await initializeRbacTables()

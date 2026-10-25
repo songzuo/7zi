@@ -17,7 +17,6 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { WorkflowNode, WorkflowEdge, WorkflowDefinition, NodeType, EdgeType, WorkflowStatus } from '@/types/workflow'
 import { WorkflowCanvas, WorkflowCanvasRef } from './designer/canvas'
 import { NodeEditorPanel } from './NodeEditorPanel'
-import { NodeToolbar } from './designer/toolbar'
 import { useWorkflowHistory } from './hooks/useWorkflowHistory'
 import { cn } from '@/lib/utils'
 
@@ -55,7 +54,7 @@ interface WorkflowEditorProps {
 /**
  * 默认工作流
  */
-const createEmptyWorkflow = (): WorkflowDefinition => ({
+const _createEmptyWorkflow = (): WorkflowDefinition => ({
   id: `workflow_${Date.now()}`,
   name: '新工作流',
   description: '',
@@ -330,7 +329,7 @@ export function WorkflowEditor({
           selectedNodeId: undefined,
           isEditing: false,
         })
-      } catch (error) {
+      } catch (_error) {
         alert('解析工作流文件失败')
       }
     }
@@ -427,7 +426,7 @@ export function WorkflowEditor({
   }, [history])
 
   // 定义工作流定义用于 Canvas
-  const workflowDefinition: WorkflowDefinition = {
+  const _workflowDefinition: WorkflowDefinition = {
     id: state.workflowId,
     name: state.workflowName,
     description: state.workflowDescription,

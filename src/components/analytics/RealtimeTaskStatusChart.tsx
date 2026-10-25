@@ -121,8 +121,8 @@ const DonutSegment: React.FC<DonutSegmentProps> = ({ percentage, color, startAng
 
 export const RealtimeTaskStatusChart: React.FC<RealtimeTaskStatusChartProps> = ({
   distribution,
-  history = [],
-  showHistory = true,
+  history: _history = [],
+  showHistory: _showHistory = true,
   showChanges = true,
   locale = 'en',
   height = 300,
@@ -171,7 +171,7 @@ export const RealtimeTaskStatusChart: React.FC<RealtimeTaskStatusChartProps> = (
   }, [distribution, percentages])
 
   // Check if there are significant changes
-  const hasSignificantChanges = useMemo(() => {
+  const _hasSignificantChanges = useMemo(() => {
     if (!distribution?.changes) return false
     return distribution.changes.some(change => Math.abs(change.delta) > 0)
   }, [distribution])
@@ -225,7 +225,7 @@ export const RealtimeTaskStatusChart: React.FC<RealtimeTaskStatusChartProps> = (
                 {/* Segments */}
                 {donutSegments
                   .filter(segment => segment.percentage > 0)
-                  .map((segment, index) => (
+                  .map((segment, _index) => (
                     <DonutSegment
                       key={segment.status}
                       percentage={segment.percentage}

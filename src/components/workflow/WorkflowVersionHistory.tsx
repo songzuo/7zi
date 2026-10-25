@@ -16,8 +16,6 @@ import {
   RotateCcw,
   GitCompare,
   Settings,
-  ChevronDown,
-  ChevronUp,
   Plus,
   Minus,
   Edit3,
@@ -25,7 +23,6 @@ import {
   Check,
   X,
   Loader2,
-  Trash2,
 } from 'lucide-react'
 
 // Types

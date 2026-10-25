@@ -130,7 +130,7 @@ export const WorkflowCanvas = forwardRef<WorkflowCanvasRef, WorkflowCanvasProps>
       onNodeAdd,
       onNodeDelete,
       onNodeCopy,
-      onNodeSetStart,
+      onNodeSetStart: _onNodeSetStart,
       onNodeDoubleClick,
       onEdgeAdd,
       onEdgeDelete,

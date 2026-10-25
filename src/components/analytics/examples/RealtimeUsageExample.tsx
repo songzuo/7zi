@@ -125,7 +125,7 @@ export function ExampleMinimalDashboard() {
 // ============================================================================
 
 export function ExampleWithErrorHandling() {
-  const { connection, taskDistribution, teamEfficiency, isConnected, hasError, connect } =
+  const { connection, taskDistribution: _taskDistribution, teamEfficiency, isConnected, hasError, connect } =
     useRealtimeAnalytics({
       url: 'ws://localhost:3001',
       reconnectInterval: 5000,

@@ -235,7 +235,7 @@ export function NodeEditorPanel({
   }, [editedNode, validateForm, onUpdate, handleClose])
 
   // 更新字段值
-  const updateField = useCallback((key: string, value: unknown, configType?: string) => {
+  const updateField = useCallback((key: string, value: unknown, _configType?: string) => {
     if (!editedNode) return
 
     setEditedNode(prev => {

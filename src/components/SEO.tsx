@@ -309,7 +309,7 @@ export function Breadcrumbs({ items, locale = 'zh' }: BreadcrumbsProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
 
   // Memoize baseUrl to prevent string recreation on every render
-  const baseUrlMemo = useMemo(() => baseUrl, [baseUrl])
+  const _baseUrlMemo = useMemo(() => baseUrl, [baseUrl])
 
   return (
     <nav aria-label="Breadcrumb" className="text-sm">

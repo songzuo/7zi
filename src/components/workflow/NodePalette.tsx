@@ -117,7 +117,7 @@ export function NodePalette({ disabled = false, className, onNodeClick }: NodePa
     setTimeout(() => document.body.removeChild(preview), 0)
   }
 
-  const handleDragEnd = (e: React.DragEvent) => {
+  const handleDragEnd = (_e: React.DragEvent) => {
     // 可以在拖拽结束时做一些清理
   }
 

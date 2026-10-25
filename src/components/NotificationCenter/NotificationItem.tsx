@@ -6,7 +6,7 @@
 'use client'
 
 import type { NotificationItemProps, NotificationType } from './types'
-import type { FC, MouseEvent } from 'react'
+import type {FC} from 'react'
 
 /** 类型对应的颜色配置 */
 const typeColors: Record<NotificationType, { bg: string; text: string; icon: string }> = {

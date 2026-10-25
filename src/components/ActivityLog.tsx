@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
-import type { FC, ReactNode, MouseEvent } from 'react'
+import type {FC} from 'react'
 
 export interface ActivityItem {
   id: string

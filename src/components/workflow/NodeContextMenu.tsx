@@ -75,7 +75,7 @@ export const DEFAULT_MENU_ITEMS: ContextMenuItem[] = [
 export function NodeContextMenu({
   x,
   y,
-  nodeId,
+  nodeId: _nodeId,
   isStartNode = false,
   isEndNode = false,
   items = DEFAULT_MENU_ITEMS,

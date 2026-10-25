@@ -78,9 +78,9 @@ export interface UndoRedoProps {
 
 export function UndoRedo({
   className,
-  enableShortcuts = true,
-  undoShortcut = ['Ctrl+Z', 'Cmd+Z'],
-  redoShortcut = ['Ctrl+Y', 'Cmd+Shift+Z'],
+  enableShortcuts: _enableShortcuts = true,
+  undoShortcut: _undoShortcut = ['Ctrl+Z', 'Cmd+Z'],
+  redoShortcut: _redoShortcut = ['Ctrl+Y', 'Cmd+Shift+Z'],
   showTooltips = true,
   size = 'md',
   variant = 'outline',

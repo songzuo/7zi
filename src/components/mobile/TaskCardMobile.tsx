@@ -28,7 +28,7 @@ export function TaskCardMobile({
   onAssign,
   onArchive,
   onDelete,
-  searchQuery,
+  searchQuery: _searchQuery,
 }: TaskCardMobileProps) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [showMenu, setShowMenu] = useState(false)
@@ -81,13 +81,13 @@ export function TaskCardMobile({
   // Long press handler
   const longPressHandlers = useLongPress({
     delay: 500,
-    onLongPress: e => {
+    onLongPress: _e => {
       setShowMenu(true)
       if ('vibrate' in navigator) {
         navigator.vibrate(50)
       }
     },
-    onClick: e => {
+    onClick: _e_ => {
       // Navigate to issue
       window.open(issue.html_url, '_blank')
     },

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-interface ServiceWorkerEventMap {
+interface _ServiceWorkerEventMap {
   'sw-updated': { version: string }
   'sw-error': { error: string }
 }

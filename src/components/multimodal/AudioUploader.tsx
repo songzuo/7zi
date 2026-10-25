@@ -127,7 +127,7 @@ export function AudioUploader({
       }, 1000)
 
       ;(recorder as MediaRecorderWithInterval).intervalId = interval
-    } catch (err) {
+    } catch (_err) {
       setError(t('recordingError'))
     }
   }, [processFile, t])

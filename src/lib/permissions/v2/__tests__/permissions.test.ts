@@ -11,9 +11,9 @@ import {
   ConditionOperator,
   FineGrainedPermission,
   PermissionCheckRequest,
-} from './types'
-import { PermissionEngine, createPermissionEngine } from './engine'
-import { InheritanceManager, createInheritanceManager } from './inheritance'
+} from '../types'
+import { PermissionEngine, createPermissionEngine } from '../engine'
+import { InheritanceManager, createInheritanceManager } from '../inheritance'
 
 describe('PermissionEngine', () => {
   let engine: PermissionEngine
@@ -387,8 +387,11 @@ describe('InheritanceManager', () => {
     it('should respect max depth', () => {
       const deepManager = createInheritanceManager({ maxDepth: 2 })
 
+      // 三层链 role_1 → role_2 → role_3 → role_4 超出 maxDepth=2，
+      // 递归到第 3 层时必须抛错（而不是静默截断后返回半个结果）。
       deepManager.addInheritance('role_1', 'role_2')
       deepManager.addInheritance('role_2', 'role_3')
+      deepManager.addInheritance('role_3', 'role_4')
 
       expect(() => {
         deepManager.getAllParentRoles('role_1')

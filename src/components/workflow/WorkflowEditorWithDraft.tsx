@@ -12,7 +12,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { WorkflowDefinition, WorkflowStatus } from '@/types/workflow'
+import {WorkflowDefinition} from '@/types/workflow'
 import { WorkflowEditor } from './WorkflowEditor'
 import { useWorkflowDraft } from '@/hooks/useWorkflowDraft'
 import { WorkflowDraft, DraftMetadata } from '@/lib/storage/draft-storage'

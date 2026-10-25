@@ -83,7 +83,7 @@ export function HealthDashboard({ className = '', refreshInterval = 5000 }: Heal
 
         const usedMB = perf.memory.usedJSHeapSize / (1024 * 1024)
         setMemoryUsage(usedMB)
-      } catch (error) {
+      } catch (_error) {
         // Silently fail on memory access errors
         setMemoryUsage(0)
       }

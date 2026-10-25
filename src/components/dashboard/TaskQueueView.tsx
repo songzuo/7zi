@@ -525,7 +525,7 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
   const agents = useSchedulerStore(selectAgents)
   const refresh = useSchedulerStore(state => state.refresh)
   const failTask = useSchedulerStore(state => state.failTask)
-  const completeTask = useSchedulerStore(state => state.completeTask)
+  const _completeTask = useSchedulerStore(state => state.completeTask)
   const scheduleTask = useSchedulerStore(state => state.scheduleTask)
   const isLoading = useSchedulerStore(state => state.isLoading)
   const error = useSchedulerStore(state => state.error)

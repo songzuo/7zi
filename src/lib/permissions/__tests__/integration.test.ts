@@ -146,12 +146,18 @@ describe('RBAC Integration Tests', () => {
       // Assign system management permission to manager (unusual but allowed)
       await assignPermissionsToRole(Role.MANAGER, [Permission.SYSTEM_MANAGE], 'admin')
 
-      // Verify permission was assigned
-      const managerContext = createPermissionContext('test', [Role.MANAGER])
-      expect(hasPermission(managerContext, Permission.SYSTEM_MANAGE)).toBe(true)
+      // Verify permission was assigned.
+      // 必须用**读库**的 getUserPermissionContext，而不是静态的
+      // createPermissionContext —— 后者只认 DEFAULT_ROLE_DEFINITIONS，
+      // 看不见 assignPermissionsToRole() 写进 role_permissions 表的记录，
+      // 用它断言等于没测到这条路径。
+      await addRolesToUser('test_user', [Role.MANAGER])
+      const managerContext = await getUserPermissionContext('test_user')
+      expect(managerContext).not.toBeNull()
+      expect(hasPermission(managerContext!, Permission.SYSTEM_MANAGE)).toBe(true)
 
       // This demonstrates custom permissions can be added to roles
-      expect(managerContext.permissions).toContain(Permission.SYSTEM_MANAGE)
+      expect(managerContext!.permissions).toContain(Permission.SYSTEM_MANAGE)
     })
   })
 

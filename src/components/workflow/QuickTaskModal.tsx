@@ -11,7 +11,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { WorkflowDefinition, NodeType, WorkflowNode, WorkflowEdge } from '@/types/workflow'
+import {WorkflowDefinition} from '@/types/workflow'
 import {
   parseTaskFromText,
   parsedTaskToWorkflowDefinition,

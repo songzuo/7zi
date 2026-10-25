@@ -16,7 +16,6 @@ import {
   useToasts,
   toast,
 } from '@/stores'
-import type { ToastType } from '@/stores'
 
 export function StoreUsageExample() {
   // ========== preferencesStore 示例 ==========
@@ -34,7 +33,7 @@ export function StoreUsageExample() {
   const toasts = useToasts()
 
   // 本地状态
-  const [inputValue, setInputValue] = useState('')
+  const [_inputValue, _setInputValue] = useState('')
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 p-6">

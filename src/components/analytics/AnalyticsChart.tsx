@@ -36,7 +36,7 @@ import {
   Download,
   TrendingUp,
 } from 'lucide-react'
-import { type ChartConfig, type TimeSeriesDataPoint, type ChartType } from '@/lib/types/analytics'
+import {type ChartConfig, type ChartType} from '@/lib/types/analytics'
 
 // ============================================================================
 // Type Definitions

@@ -245,6 +245,26 @@ dbTables.set('users', [])
 dbTables.set('user_tokens', [])
 dbTables.set('password_reset_tokens', [])
 
+
+// RBAC 默认角色种子（对齐 src/lib/permissions/types.ts 的 Role 枚举）。
+// 真实环境由 src/lib/permissions/seed.ts 的 seedDefaultRolesAndPermissions() 写入；
+// mock db 不跑迁移/种子，所以这里补上，否则 getAllRoles() 恒返回空数组。
+// 表结构对齐 src/lib/permissions/repository.ts 的 initializeRbacTables()。
+function seedRbacRoles(): void {
+  const now = '2026-01-01T00:00:00.000Z'
+  dbTables.set('roles', [
+    { id: 'admin', name: 'admin', description: '管理员', permissions: '[]', is_system: 1, created_at: now, updated_at: now },
+    { id: 'manager', name: 'manager', description: '管理者', permissions: '[]', is_system: 1, created_at: now, updated_at: now },
+    { id: 'member', name: 'member', description: '成员', permissions: '[]', is_system: 1, created_at: now, updated_at: now },
+    { id: 'guest', name: 'guest', description: '访客', permissions: '[]', is_system: 1, created_at: now, updated_at: now },
+    { id: 'viewer', name: 'viewer', description: '查看者', permissions: '[]', is_system: 1, created_at: now, updated_at: now },
+  ])
+  dbTables.set('user_roles', [])
+  dbTables.set('role_permissions', [])
+}
+
+seedRbacRoles()
+
 // plans 种子数据（对齐 src/lib/db/migrations/001_multi_tenant.sql 的真实 seed）。
 // 少了它，BillingService.getPlan() 恒返回 null → createOrUpdateSubscription
 // 直接抛 'Plan not found'，配额检查也无从谈起。
@@ -784,7 +804,11 @@ const mockDb: DatabaseConnection = {
 
     // Handle CREATE TABLE
     if (sql.toUpperCase().includes('CREATE TABLE')) {
-      const match = sql.match(/CREATE TABLE\s+(\w+)/i)
+      // 必须兼容 `CREATE TABLE IF NOT EXISTS xxx`：旧正则 `CREATE TABLE\s+(\w+)`
+      // 会把 `IF` 当成表名，于是表根本没建出来，后续 SELECT 一律 0 行。
+      const match = sql.match(
+        /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?["'`]?([\w]+)["'`]?/i
+      )
       if (match) {
         const tableName = match[1]
         if (!dbTables.has(tableName)) {
@@ -1094,19 +1118,23 @@ vi.mock('../lib/auth/middleware-rbac', () => ({
 }))
 
 // Mock permissions repository
-vi.mock('../lib/permissions/repository', () => ({
-  getUserPermissionContext: vi.fn().mockResolvedValue({
-    userId: 'test-user-id',
-    roles: [{ id: 'role_admin', name: 'Admin', permissions: ['admin:all'] }],
-    permissions: ['admin:all'],
-    customPermissions: [],
-  }),
-  getUserRoles: vi
-    .fn()
-    .mockResolvedValue([{ id: 'role_admin', name: 'Admin', permissions: ['admin:all'] }]),
-  hasPermission: vi.fn().mockReturnValue(true),
-  hasRole: vi.fn().mockReturnValue(true),
-}))
+// RBAC repository：整体保留真实实现（走已 mock 的 db 层）。
+//
+// 早期写法是逐个列举导出（只有 4 个函数），结果其余导出
+// （initializeRbacTables / getAllRoles / addRolesToUser / assignPermissionsToRole …）
+// 一被调用就报
+// 'No "xxx" export is defined on the "../lib/permissions/repository" mock'。
+// 曾试过用 vi.importActual + 覆写 getUserRoles/getUserPermissionContext/hasPermission/
+// hasRole 来"给固定值"，但这 4 个里 hasPermission/hasRole 是纯函数（入参是
+// 权限上下文，不是 DB），覆写成恒 true 会让权限判定逻辑的测试全部失真；
+// getUserRoles 覆写后又会与真实 seeded 数据冲突。
+// 最终只保留真实实现 —— db 层已被全局 mock，隔离性不受影响。
+vi.mock('../lib/permissions/repository', async () => {
+  const actual = await vi.importActual<typeof import('../lib/permissions/repository')>(
+    '../lib/permissions/repository'
+  )
+  return { ...actual }
+})
 
 // Mock feedback anti-spam module
 vi.mock('../lib/feedback/anti-spam', () => ({
@@ -1358,6 +1386,8 @@ beforeEach(() => {
   // Auth test tables
   dbTables.set('token_blacklist', [])
   dbTables.set('audit_logs', [])
+  // RBAC 默认角色（clearAllTables 会清空，必须补回）
+  seedRbacRoles()
 
   // clearAllTables() 会清空所有表，因此 plans 的种子数据必须在这里补回，
   // 否则每个用例开始时 plans 表都是空的 →

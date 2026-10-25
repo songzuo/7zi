@@ -14,7 +14,7 @@ try {
 
   // Button imports
   const ButtonModule = require('../Button');
-  const { Button, ButtonGroup, IconButton } = ButtonModule;
+  const { Button: _Button, ButtonGroup: _ButtonGroup, IconButton: _IconButton } = ButtonModule;
   console.log('✅ Button component imports: OK');
   
   // Verify exports
@@ -29,32 +29,32 @@ try {
 
   // Modal imports
   const ModalModule = require('../Modal');
-  const { Modal, ConfirmDialog } = ModalModule;
+  const { Modal: _Modal, ConfirmDialog: _ConfirmDialog } = ModalModule;
   console.log('✅ Modal component imports: OK');
 
   // Tabs imports
   const TabsModule = require('../Tabs');
-  const { Tabs, TabsList, TabTrigger, TabContent, TabPanel, ResponsiveTabs } = TabsModule;
+  const { Tabs: _Tabs, TabsList: _TabsList, TabTrigger: _TabTrigger, TabContent: _TabContent, TabPanel: _TabPanel, ResponsiveTabs: _ResponsiveTabs } = TabsModule;
   console.log('✅ Tabs component imports: OK');
 
   // Toast imports
   const ToastModule = require('../Toast');
-  const { ToastProvider, ToastButton, useToast, useToastActions } = ToastModule;
+  const { ToastProvider: _ToastProvider, ToastButton: _ToastButton, useToast: _useToast, useToastActions: _useToastActions } = ToastModule;
   console.log('✅ Toast component imports: OK');
 
   // Tooltip imports
   const TooltipModule = require('../Tooltip');
-  const { Tooltip, SimpleTooltip, withTooltip, InfoTooltip } = TooltipModule;
+  const { Tooltip: _Tooltip, SimpleTooltip: _SimpleTooltip, withTooltip: _withTooltip, InfoTooltip: _InfoTooltip } = TooltipModule;
   console.log('✅ Tooltip component imports: OK');
 
   // Index imports
-  const IndexModule = require('../index');
+  const _IndexModule = require('../index');
   console.log('✅ Index exports: OK');
 
   console.log('\n🎉 All components imported successfully!\n');
 
   // Verify component types (TypeScript would catch this at compile time)
-  const buttonProps = {
+  const _buttonProps = {
     variant: 'primary' as const,
     size: 'md' as const,
     loading: false,
@@ -68,7 +68,7 @@ try {
   };
   console.log('✅ Button props type: OK');
 
-  const modalProps = {
+  const _modalProps = {
     isOpen: true,
     onClose: () => {},
     title: 'Modal Title',
@@ -80,7 +80,7 @@ try {
   };
   console.log('✅ Modal props type: OK');
 
-  const tabsProps = {
+  const _tabsProps = {
     defaultValue: 'tab1',
     variant: 'underline' as const,
     orientation: 'horizontal' as const,

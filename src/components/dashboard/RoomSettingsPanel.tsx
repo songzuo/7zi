@@ -9,7 +9,7 @@
  * 支持国际化 (i18n)
  */
 
-import React, { useState, useEffect } from 'react'
+import React, {useState} from 'react'
 import {
   Settings,
   Users,
@@ -17,12 +17,9 @@ import {
   Bell,
   Trash2,
   Save,
-  Clock,
   Lock,
   Globe,
   Mail,
-  Eye,
-  EyeOff,
   AlertTriangle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -77,7 +74,7 @@ const TABS: TabConfig[] = [
 // 房间类型配置
 // ============================================================================
 
-const ROOM_TYPES: { type: RoomType; label: string }[] = [
+const _ROOM_TYPES: { type: RoomType; label: string }[] = [
   { type: 'chat', label: '聊天室' },
   { type: 'task', label: '任务协作' },
   { type: 'project', label: '项目协作' },

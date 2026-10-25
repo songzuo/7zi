@@ -6,12 +6,11 @@
 
 'use client'
 
-import { useState, useCallback } from 'react'
+import {useState} from 'react'
 import type {
   Room,
   RoomConfig,
   RoomVisibility,
-  RoomType,
   RoomParticipant,
   UserRole,
 } from '@/lib/websocket/rooms'
@@ -92,8 +91,8 @@ function GeneralSettings({
   const [roomName, setRoomName] = useState(room.name)
   const [maxParticipants, setMaxParticipants] = useState(room.config.maxParticipants || 100)
   const [autoCleanup, setAutoCleanup] = useState(room.config.autoCleanupMinutes || 0)
-  const [allowGuests, setAllowGuests] = useState(room.config.allowGuests || false)
-  const [messageHistory, setMessageHistory] = useState(room.config.messageHistoryEnabled || true)
+  const [allowGuests, _setAllowGuests] = useState(room.config.allowGuests || false)
+  const [messageHistory, _setMessageHistory] = useState(room.config.messageHistoryEnabled || true)
 
   const handleSaveName = () => {
     // TODO: Need to add a callback to update room metadata, not just config

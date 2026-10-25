@@ -17,7 +17,6 @@ import type {
   RoomType,
   RoomVisibility,
   RoomConfig,
-  RoomParticipant,
   UserRole,
 } from '@/lib/websocket/rooms'
 
@@ -53,7 +52,7 @@ export function RoomManager({
   const {
     currentRoomId,
     currentUserId,
-    currentUserName,
+    currentUserName: _currentUserName,
     rooms,
     setCurrentRoom,
     setCurrentUser,
@@ -61,8 +60,8 @@ export function RoomManager({
     addRoom,
     updateRoom,
     removeRoom,
-    setRoomsLoading,
-    setRoomsError,
+    setRoomsLoading: _setRoomsLoading,
+    setRoomsError: _setRoomsError,
   } = useWebSocketStore()
 
   // Initialize current user

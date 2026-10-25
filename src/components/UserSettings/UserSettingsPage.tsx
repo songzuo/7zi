@@ -75,7 +75,7 @@ export const UserSettingsPage = memo(function UserSettingsPage({
   className = '',
 }: UserSettingsPageProps) {
   const { theme, setTheme } = useTheme()
-  const { setNotifications: setStoreNotifications } = useStoreNotificationPreferences()
+  const { setNotifications: _setStoreNotifications } = useStoreNotificationPreferences()
 
   // Local storage for user profile
   const [storedProfile, setStoredProfile] = useLocalStorage<UserProfile>('user-profile', {
@@ -91,7 +91,7 @@ export const UserSettingsPage = memo(function UserSettingsPage({
     twoFactorEnabled: false,
     lastPasswordChange: null,
   })
-  const [notifications, setNotifications] = useLocalStorage<NotificationPreferences>(
+  const [_notifications, setNotifications] = useLocalStorage<NotificationPreferences>(
     'user-notifications',
     {
       emailNotifications: true,
@@ -178,7 +178,7 @@ export const UserSettingsPage = memo(function UserSettingsPage({
       setStoredProfile(profile)
       setSaveStatus('saved')
       setTimeout(() => setSaveStatus('idle'), 2000)
-    } catch (error) {
+    } catch (_error) {
       setSaveStatus('error')
       setTimeout(() => setSaveStatus('idle'), 2000)
     }
@@ -206,7 +206,7 @@ export const UserSettingsPage = memo(function UserSettingsPage({
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
       setSaveStatus('saved')
       setTimeout(() => setSaveStatus('idle'), 2000)
-    } catch (error) {
+    } catch (_error_) {
       setSaveStatus('error')
       setTimeout(() => setSaveStatus('idle'), 2000)
     }
@@ -216,7 +216,7 @@ export const UserSettingsPage = memo(function UserSettingsPage({
     setSecurity(prev => ({ ...prev, twoFactorEnabled: !prev.twoFactorEnabled }))
   }, [setSecurity])
 
-  const handleNotificationChange = useCallback(
+  const _handleNotificationChange = useCallback(
     (key: keyof NotificationPreferences) => {
       setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
     },

@@ -45,10 +45,10 @@ export interface PerformanceMonitoringDashboardProps {
 
 export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashboardProps> = ({
   enabled = true,
-  wsUrl,
+  wsUrl: _wsUrl,
   locale = 'en',
   showComponents: initialShowComponents = { metrics: true, charts: true, waterfall: true },
-  refreshInterval = 5000,
+  refreshInterval: _refreshInterval = 5000,
   className = '',
 }) => {
   const [isRefreshing, setIsRefreshing] = useState(false)

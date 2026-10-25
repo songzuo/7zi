@@ -95,7 +95,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   className,
 }) => {
   const [isVisible, setIsVisible] = useState(false)
-  const [isPositioned, setIsPositioned] = useState(false)
+  const [_isPositioned, setIsPositioned] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 

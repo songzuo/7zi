@@ -33,7 +33,7 @@ interface ApiResponse<T> {
  * Displays user profile with editing functionality
  */
 export default function UserProfile({ userId }: { userId: string }) {
-  const router = useRouter()
+  const _router = useRouter()
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)

@@ -12,7 +12,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { useCollaboration } from '@/lib/websocket'
-import { ConnectionStatus, UserList, RemoteCursor } from './ConnectionStatus'
+import {ConnectionStatus, UserList} from './ConnectionStatus'
 import type { Operation } from '@/lib/collaboration/manager'
 
 interface TaskEditorProps {
@@ -47,8 +47,8 @@ export function TaskEditor({
     cursors,
     document,
     typingUsers,
-    connect,
-    disconnect,
+    connect: _connect,
+    disconnect: _disconnect,
     reconnect,
     joinRoom,
     leaveRoom,

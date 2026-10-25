@@ -20,7 +20,6 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  Database,
   Server,
   TrendingUp,
   XCircle,

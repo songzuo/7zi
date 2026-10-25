@@ -40,7 +40,7 @@ interface EditorState {
 /**
  * 创建空工作流
  */
-const createEmptyWorkflow = (): WorkflowDefinition => ({
+const _createEmptyWorkflow = (): WorkflowDefinition => ({
   id: `workflow_${Date.now()}`,
   name: '新工作流',
   description: '',
@@ -119,7 +119,7 @@ export function WorkflowEditorEnhanced({
   const [historyIndex, setHistoryIndex] = useState(-1)
 
   // 右键菜单
-  const { menuState, openMenu, closeMenu } = useNodeContextMenu()
+  const { menuState, openMenu: _openMenu, closeMenu } = useNodeContextMenu()
 
   // 添加历史记录
   const addToHistory = useCallback((workflow: WorkflowDefinition) => {

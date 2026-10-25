@@ -285,6 +285,9 @@ describe('RBAC Repository', () => {
     })
 
     it('should remove roles from user', async () => {
+      // 自己先加好角色：全局 beforeEach 会清空所有表，
+      // 依赖上一个用例留下的数据是跨用例耦合（且用例顺序一变就假失败）。
+      await addRolesToUser(testUserId, [Role.ADMIN, Role.MANAGER])
       await removeRolesFromUser(testUserId, [Role.MANAGER])
       const roles = await getUserRoles(testUserId)
       expect(roles).toContain(Role.ADMIN)

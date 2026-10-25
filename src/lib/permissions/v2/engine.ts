@@ -313,13 +313,24 @@ export class PermissionEngine {
     // 获取字段值
     const fieldValue = this.getFieldValue(condition.field, user, resource)
 
+    // 条件的**右值**也可能是一个字段引用（跨对象比较），例如
+    //   { field: 'resource.ownerId', operator: EQUALS, value: 'user.userId' }
+    // 语义是「资源属主 == 当前用户」。原实现把右值当字面量，
+    // 于是 'user_1' === 'user.userId' 恒为 false ——
+    // 「只能读自己的资源」这类权限**永远不成立**（真实缺陷，非测试写错）。
+    // 这里把带 user./resource. 前缀的右值解析成实际值再比较。
+    const expected =
+      typeof condition.value === 'string' && /^(user|resource)\./.test(condition.value)
+        ? this.getFieldValue(condition.value, user, resource)
+        : condition.value
+
     // 根据操作符评估
     switch (condition.operator) {
       case ConditionOperator.EQUALS:
-        return this.compareEquals(fieldValue, condition.value, condition.caseSensitive)
+        return this.compareEquals(fieldValue, expected, condition.caseSensitive)
 
       case ConditionOperator.NOT_EQUALS:
-        return !this.compareEquals(fieldValue, condition.value, condition.caseSensitive)
+        return !this.compareEquals(fieldValue, expected, condition.caseSensitive)
 
       case ConditionOperator.IN:
         return Array.isArray(condition.value) && condition.value.includes(fieldValue)
@@ -328,13 +339,13 @@ export class PermissionEngine {
         return Array.isArray(condition.value) && !condition.value.includes(fieldValue)
 
       case ConditionOperator.CONTAINS:
-        return this.compareContains(fieldValue, condition.value, condition.caseSensitive)
+        return this.compareContains(fieldValue, expected, condition.caseSensitive)
 
       case ConditionOperator.STARTS_WITH:
-        return this.compareStartsWith(fieldValue, condition.value, condition.caseSensitive)
+        return this.compareStartsWith(fieldValue, expected, condition.caseSensitive)
 
       case ConditionOperator.ENDS_WITH:
-        return this.compareEndsWith(fieldValue, condition.value, condition.caseSensitive)
+        return this.compareEndsWith(fieldValue, expected, condition.caseSensitive)
 
       case ConditionOperator.GREATER_THAN:
         return this.compareNumeric(fieldValue, condition.value, (a, b) => a > b)
@@ -371,7 +382,18 @@ export class PermissionEngine {
     if (field.startsWith('user.')) {
       return this.getNestedValue(field.substring(5), user)
     } else if (field.startsWith('resource.')) {
-      return this.getNestedValue(field.substring(9), resource)
+      // 先在 resource 自身属性上找（resourceId / resourceType / ownerId / teamId …），
+      // 找不到再回落到 resource.attributes（status / priority / title / code …）。
+      //
+      // 原实现只在 resource 上找，导致 `resource.status` 这类**存在于 attributes
+      // 里的字段**一律取到 undefined —— 条件恒不成立，所有带条件的权限
+      // 都被判为不通过。这是真实的权限判定缺陷，不是测试写错。
+      const path = field.substring(9)
+      const direct = this.getNestedValue(path, resource)
+      if (direct !== undefined) {
+        return direct
+      }
+      return this.getNestedValue(path, resource.attributes)
     } else {
       // 默认从资源属性获取
       return this.getNestedValue(field, resource.attributes)

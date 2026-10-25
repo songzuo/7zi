@@ -11,7 +11,7 @@
  * - 实时统计数据
  */
 
-import React, { useEffect, useState, useCallback, memo } from 'react'
+import React, {useEffect, useState, memo} from 'react'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 
 // ============================================================================
@@ -107,7 +107,7 @@ export const RealtimeDashboard = memo(
       dataLatency: 0,
       updateFrequency: 2000,
     })
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, _setIsLoading] = useState(false)
 
     // 模拟实时数据更新
     useEffect(() => {

@@ -6,7 +6,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import type { ExportFormat, ExportOptions, ReportConfig, ChartConfig } from '../types'
+import type {ExportFormat, ExportOptions, ReportConfig} from '../types'
 
 /**
  * 导出服务类
@@ -104,7 +104,7 @@ function generatePrintableHTML(
   config: ReportConfig,
   options: ExportOptions
 ): string {
-  const { name, query, sql, chartConfig, result, createdAt } = config
+  const { name, query, sql, chartConfig: _chartConfig, result, createdAt } = config
   
   return `
 <!DOCTYPE html>
@@ -247,7 +247,7 @@ export function ExportPanel({
   className?: string
 }) {
   const [format, setFormat] = useState<ExportFormat>('csv')
-  const [includeChart, setIncludeChart] = useState(true)
+  const [includeChart, _setIncludeChart] = useState(true)
   const [includeData, setIncludeData] = useState(true)
   const [includeSQL, setIncludeSQL] = useState(false)
   const [isExporting, setIsExporting] = useState(false)

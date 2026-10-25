@@ -148,7 +148,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
       // Clear error for this field if it exists
       setErrors(prev => {
         if (!prev[name as keyof FormErrors]) return prev
-        const { [name as keyof FormErrors]: removed, ...rest } = prev
+        const { [name as keyof FormErrors]: _removed, ...rest } = prev
         return rest
       })
     },

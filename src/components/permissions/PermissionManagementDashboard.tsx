@@ -20,7 +20,7 @@ import {
  */
 export function PermissionManagementDashboard() {
   const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'audit'>('roles')
-  const [loading, setLoading] = useState(false)
+  const [_loading, setLoading] = useState(false)
 
   return (
     <div className="permission-management-dashboard">

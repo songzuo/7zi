@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
-import type { RoomType, RoomVisibility, RoomConfig } from '@/lib/websocket/rooms'
+import type {RoomType, RoomVisibility} from '@/lib/websocket/rooms'
 
 // ============================================================================
 // 类型定义
@@ -193,7 +193,7 @@ export const RoomCreateModal: React.FC<RoomCreateModalProps> = ({
   }
 
   // 生成默认房间 ID
-  const generateRoomId = () => {
+  const _generateRoomId = () => {
     return `${type}-${Date.now()}`
   }
 

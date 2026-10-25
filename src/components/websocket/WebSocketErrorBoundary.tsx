@@ -145,7 +145,7 @@ export function withWebSocketErrorBoundary<P extends object>(
     onError?: (error: Error, errorInfo: ErrorInfo) => void
   }
 ) {
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  const _displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
 
   return function WithWebSocketErrorBoundary(props: P) {
     return (

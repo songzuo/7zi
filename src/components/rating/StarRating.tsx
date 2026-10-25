@@ -62,7 +62,7 @@ export function StarRating({
 }: StarRatingProps) {
   const [hoverRating, setHoverRating] = useState<number>(0)
 
-  const stars = getStarValues(rating, maxRating)
+  const _stars = getStarValues(rating, maxRating)
   const displayRating = interactive && hoverRating > 0 ? hoverRating : rating
 
   const handleStarClick = (starIndex: number) => {

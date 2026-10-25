@@ -7,8 +7,8 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { useQueryParser, generateSuggestions } from './QueryParser'
-import { useSQLGenerator, generateSQL, validateSQL, formatSQL } from './SQLGenerator'
-import { ChartRenderer, recommendChartType, generateChartConfig } from './charts/ChartRenderer'
+import {useSQLGenerator, validateSQL, formatSQL} from './SQLGenerator'
+import {ChartRenderer, generateChartConfig} from './charts/ChartRenderer'
 import { ExportPanel, useReportExport } from './export/ReportExporter'
 import type {
   ReportConfig,
@@ -16,7 +16,6 @@ import type {
   QueryStatus,
   ParsedQuery,
   QueryResult,
-  ChartConfig,
   ExportOptions
 } from './types'
 
@@ -124,9 +123,9 @@ export function AIReportGenerator({
   const [history, setHistory] = useState<{ query: string; timestamp: Date; status: string }[]>([])
   
   // Hooks
-  const { parse, isParsing, parsedQuery } = useQueryParser()
+  const { parse, isParsing: _isParsing, parsedQuery } = useQueryParser()
   const { generate } = useSQLGenerator()
-  const { exportReport, isExporting } = useReportExport()
+  const { exportReport, isExporting: _isExporting } = useReportExport()
   
   // 处理查询提交
   const handleSubmit = useCallback(async () => {

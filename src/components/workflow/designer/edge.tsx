@@ -23,7 +23,7 @@ function calculateControlPoints(
   end: { x: number; y: number }
 ): { cp1: { x: number; y: number }; cp2: { x: number; y: number } } {
   const dx = end.x - start.x
-  const dy = end.y - start.y
+  const _dy = end.y - start.y
 
   const controlOffset = Math.abs(dx) * 0.5 + 50
 
@@ -96,7 +96,7 @@ export function WorkflowEdgeComponent({
   )
 
   // 计算箭头角度
-  const arrowAngle = useMemo(
+  const _arrowAngle = useMemo(
     () => calculateArrowAngle(sourcePosition, targetPosition),
     [sourcePosition, targetPosition]
   )

@@ -17,7 +17,6 @@ import {
   Globe,
   ChevronDown,
   ChevronRight,
-  Code,
 } from 'lucide-react'
 import type { MetricEntry } from '@/lib/hooks/useWebVitals'
 
@@ -105,15 +104,15 @@ function formatBytes(bytes?: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)}MB`
 }
 
-function getDomain(url: string): string {
+function _getDomain(url: string): string {
   try {
     return new URL(url).hostname
-  } catch (error) {
+  } catch (_error) {
     return url
   }
 }
 
-function getResourceIcon(
+function _getResourceIcon(
   type: string
 ): React.ComponentType<{ className?: string; style?: React.CSSProperties }> {
   const icon = RESOURCE_ICONS[type as keyof typeof RESOURCE_ICONS]

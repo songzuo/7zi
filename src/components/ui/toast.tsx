@@ -13,7 +13,7 @@
 
 'use client'
 
-import { memo, useCallback, useEffect, type FC } from 'react'
+import {memo, useCallback, type FC} from 'react'
 import { useToasts, useToastActions, type Toast, type ToastType } from '@/stores/uiStore'
 
 // ============================================================================

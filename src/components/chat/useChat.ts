@@ -6,7 +6,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Message, TeamMember } from './types'
+import {Message} from './types'
 import { initialMessage } from './data'
 import { UnifiedTeamMember } from '@/types/members'
 
