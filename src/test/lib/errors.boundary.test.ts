@@ -71,7 +71,7 @@ describe('errors - 边界条件测试', () => {
 
     it('正确设置 Error 的 name 属性', () => {
       const error = createAppError('Test')
-      expect(error.name).toBe('Error')
+      expect(error.name).toBe('UnifiedAppError')
     })
 
     it('正确设置 stack 属性', () => {
@@ -270,8 +270,9 @@ describe('errors - 边界条件测试', () => {
 
       it('空字符串 code', () => {
         const error = createAppError('Test', '')
-        // 空字符串 code 会被视为 falsy，继续检查其他条件
-        expect(getErrorCode(error)).toBe(ErrorCodes.UNKNOWN)
+        // 空字符串 code 会被视为 falsy，继续检查其他条件：
+        // 统一错误体系下未显式指定 statusCode 时会按类型推导为 500，因此最终映射为 SERVER_ERROR
+        expect(getErrorCode(error)).toBe(ErrorCodes.SERVER_ERROR)
       })
     })
 

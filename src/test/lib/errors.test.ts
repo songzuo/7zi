@@ -16,7 +16,8 @@ describe('errors', () => {
       expect(error).toBeInstanceOf(Error)
       expect(error.message).toBe('Test error')
       expect(error.code).toBeUndefined()
-      expect(error.statusCode).toBeUndefined()
+      // 未指定 code 时统一类型为 INTERNAL，状态码由 getDefaultStatusCode 推导为 500
+      expect(error.statusCode).toBe(500)
     })
 
     it('creates an error with code', () => {

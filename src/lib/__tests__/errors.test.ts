@@ -21,7 +21,9 @@ describe('errors.ts - 错误处理测试', () => {
       expect(error).toBeInstanceOf(Error)
       expect(error.message).toBe('测试错误')
       expect(error.code).toBeUndefined()
-      expect(error.statusCode).toBeUndefined()
+      // 未指定 code 时统一类型为 INTERNAL, 状态码由 getDefaultStatusCode 推导为 500
+      expect(error.statusCode).toBe(500)
+      expect(error.type).toBe('INTERNAL_ERROR')
     })
 
     it('应该创建带错误代码的错误', () => {
@@ -29,7 +31,8 @@ describe('errors.ts - 错误处理测试', () => {
 
       expect(error.message).toBe('测试错误')
       expect(error.code).toBe('TEST_CODE')
-      expect(error.statusCode).toBeUndefined()
+      // TEST_CODE 不是已知错误代码, 统一类型仍为 INTERNAL, 状态码推导为 500
+      expect(error.statusCode).toBe(500)
     })
 
     it('应该创建带错误代码和状态码的错误', () => {
@@ -513,7 +516,7 @@ describe('errors.ts - 错误处理测试', () => {
       expect(error.message).toBe('Test')
       expect(error.code).toBe('CODE')
       expect(error.statusCode).toBe(404)
-      expect(error.name).toBe('Error')
+      expect(error.name).toBe('UnifiedAppError')
     })
 
     it('错误代码应该匹配 ErrorCodes 类型', () => {

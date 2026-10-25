@@ -100,6 +100,8 @@ export function createAppError(message: string, code?: string, statusCode?: numb
   } else if (code === ErrorCodes.NETWORK_ERROR) {
     type = UnifiedErrorType.NETWORK_ERROR
   } else if (code === ErrorCodes.SERVER_ERROR) {
+    // UnifiedErrorType 中没有独立的 SERVER_ERROR 类型,
+    // ErrorCodes.SERVER_ERROR 只是国际化用的错误代码, 对应的统一类型是 INTERNAL (500)。
     type = UnifiedErrorType.INTERNAL
   }
 
@@ -107,27 +109,106 @@ export function createAppError(message: string, code?: string, statusCode?: numb
 }
 
 /**
+ * 读取旧版错误对象上可选的 code 字段
+ * Read the optional legacy `code` field from an error object
+ */
+function getLegacyErrorCode(error: Error): string | undefined {
+  if (error instanceof UAppError) {
+    return error.code
+  }
+  if ('code' in error && typeof error.code === 'string') {
+    return error.code
+  }
+  return undefined
+}
+
+/**
+ * 读取旧版错误对象上可选的 statusCode 字段
+ * Read the optional legacy `statusCode` field from an error object
+ */
+function getLegacyErrorStatusCode(error: Error): number | undefined {
+  if (error instanceof UAppError) {
+    return error.statusCode
+  }
+  if ('statusCode' in error && typeof error.statusCode === 'number') {
+    return error.statusCode
+  }
+  return undefined
+}
+
+/**
  * @deprecated Use toUnifiedError().message or toUnifiedError().toJSON() instead
+ *
+ * 兼容语义: Error 实例返回原始 message, 字符串原样返回, 其余类型返回中文兜底文案。
  */
 export function formatErrorMessage(error: unknown): string {
-  const unifiedError = tUnifiedError(error)
-  return unifiedError.message
+  if (error instanceof Error) {
+    return error.message
+  }
+  if (typeof error === 'string') {
+    return error
+  }
+  return '发生未知错误'
 }
 
 /**
  * @deprecated Use toUnifiedError().type === UnifiedErrorType.NETWORK_ERROR instead
+ *
+ * 兼容语义: 仅对 Error 实例判定, 依据 message 中的 network / fetch / timeout / abort 关键字,
+ * 同时兼容统一错误体系中的 NETWORK_ERROR 类型。
  */
 export function isNetworkError(error: unknown): boolean {
-  const unifiedError = tUnifiedError(error)
-  return unifiedError.type === UnifiedErrorType.NETWORK_ERROR
+  if (!(error instanceof Error)) {
+    return false
+  }
+
+  const message = error.message.toLowerCase()
+  if (
+    message.includes('network') ||
+    message.includes('fetch') ||
+    message.includes('timeout') ||
+    message.includes('abort')
+  ) {
+    return true
+  }
+
+  return tUnifiedError(error).type === UnifiedErrorType.NETWORK_ERROR
 }
 
 /**
  * @deprecated Use toUnifiedError().code instead
+ *
+ * 兼容语义: 显式 code > 网络错误判定 > HTTP 状态码映射 > UNKNOWN。
  */
 export function getErrorCode(error: unknown): string {
-  const unifiedError = tUnifiedError(error)
-  return unifiedError.code || ErrorCodes.UNKNOWN
+  if (!(error instanceof Error)) {
+    return ErrorCodes.UNKNOWN
+  }
+
+  const code = getLegacyErrorCode(error)
+  if (code) {
+    return code
+  }
+
+  if (isNetworkError(error)) {
+    return ErrorCodes.NETWORK_ERROR
+  }
+
+  switch (getLegacyErrorStatusCode(error)) {
+    case 401:
+      return ErrorCodes.UNAUTHORIZED
+    case 403:
+      return ErrorCodes.FORBIDDEN
+    case 404:
+      return ErrorCodes.NOT_FOUND
+    case 500:
+    case 502:
+    case 503:
+    case 504:
+      return ErrorCodes.SERVER_ERROR
+    default:
+      return ErrorCodes.UNKNOWN
+  }
 }
 
 /**
@@ -139,9 +220,9 @@ export function getUserFriendlyMessage(code: string): string {
     [ErrorCodes.UNAUTHORIZED]: '您需要登录才能访问此资源',
     [ErrorCodes.FORBIDDEN]: '您没有权限访问此资源',
     [ErrorCodes.VALIDATION_ERROR]: '您提交的数据格式不正确',
-    [ErrorCodes.NETWORK_ERROR]: '网络连接失败,请检查您的网络设置',
-    [ErrorCodes.SERVER_ERROR]: '服务器暂时无法处理您的请求,请稍后重试',
+    [ErrorCodes.NETWORK_ERROR]: '网络连接失败，请检查您的网络设置',
+    [ErrorCodes.SERVER_ERROR]: '服务器暂时无法处理您的请求，请稍后重试',
   }
 
-  return messages[code] || '发生未知错误,请稍后重试'
+  return messages[code] || '发生未知错误，请稍后重试'
 }
