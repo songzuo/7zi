@@ -8,7 +8,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { vi, beforeAll, afterAll } from 'vitest'
 
 // Set test environment variables first
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-key'
@@ -16,6 +16,35 @@ process.env.AGENT_ENCRYPTION_SECRET = process.env.AGENT_ENCRYPTION_SECRET || 'te
 
 // Import global mocks (must be before any test code runs)
 import '@/test/vi-mocks'
+
+// ---------------------------------------------------------------------------
+// MSW —— 拦截 fetch('http://localhost:3000/api/...')
+//
+// 根级 CI（.github/workflows/ci.yml 的 test-unit）用根 vitest.config.ts，
+// setupFiles 只挂了本文件。tests/api-integration/** 的用例全部是
+// fetch('http://localhost:3000/api/xxx') 打真实服务器 —— 但 CI 不起服务，
+// 于是 100% 'TypeError: fetch failed'。
+//
+// tests/api-integration/vitest.config.ts 里本来有 MSW setup，但那只在
+// `npm run test:api`（cd 进该目录跑）时生效，根 CI 跑不到。
+// 这里把同一套 handlers 挂到根 setup 上，两个入口行为就一致了。
+// ---------------------------------------------------------------------------
+//
+// 注意：必须动态 import。msw/node 在**模块求值时**就用 defineProperty 把
+// global.WebSocket 定义成只读，而本文件后面还要给 global.WebSocket 赋 MockWebSocket
+// —— 静态 import 会让那行抛 'Cannot assign to read only property WebSocket'，
+// 结果整个文件 0 test。
+let mswServer: { listen: (o: unknown) => void; close: () => void } | undefined
+
+beforeAll(async () => {
+  const mod = await import('./api-integration/mocks/handlers')
+  mswServer = mod.server as unknown as typeof mswServer
+  mswServer!.listen({ onUnhandledRequest: 'warn' })
+})
+
+afterAll(() => {
+  mswServer?.close()
+})
 
 // Add TextEncoder/TextDecoder polyfill for jsdom environment
 if (typeof global.TextEncoder === 'undefined') {
