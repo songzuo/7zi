@@ -316,7 +316,7 @@ function formatTranscriptionResult(
         'Failed to format transcription result',
         error instanceof Error ? error : new Error(String(error))
       )
-    } catch (err) {}
+    } catch (_err) {}
 
     // Return basic format on error
     return {
@@ -366,7 +366,7 @@ export async function POST(request: NextRequest) {
       logger.info('Audio transcription request received', {
         requestId,
       })
-    } catch (err) {
+    } catch (_err) {
       // Logger might not be available in test environment
     }
 
@@ -396,7 +396,7 @@ export async function POST(request: NextRequest) {
           requestId,
           error: validation.error,
         })
-      } catch (err) {}
+      } catch (_err) {}
       return createValidationError(validation.error)
     }
 
@@ -415,7 +415,7 @@ export async function POST(request: NextRequest) {
         timestamps,
         speakerDiarization,
       })
-    } catch (err) {}
+    } catch (_err) {}
 
     // Read audio buffer
     let buffer: Buffer
@@ -439,7 +439,7 @@ export async function POST(request: NextRequest) {
           error: contentValidation.error,
           filename: audio.name,
         })
-      } catch (err) {}
+      } catch (_err) {}
 
       return createValidationError(contentValidation.error || 'Audio validation failed', {
         filename: audio.name,
@@ -461,7 +461,7 @@ export async function POST(request: NextRequest) {
             provider,
           }
         )
-      } catch (err) {}
+      } catch (_err) {}
       return createServiceUnavailableError('Audio transcription service temporarily unavailable')
     }
 
@@ -477,7 +477,7 @@ export async function POST(request: NextRequest) {
           timestamps,
           speakerDiarization,
         })
-      } catch (err) {}
+      } catch (_err) {}
 
       const options: AudioTranscriptionOptions = {
         language,
@@ -498,7 +498,7 @@ export async function POST(request: NextRequest) {
           success: result.success,
           duration: result.data?.duration || 0,
         })
-      } catch (err) {}
+      } catch (_err) {}
     } catch (error) {
       logAudioProcessingError('transcription', error, {
         filename: audio.name,
@@ -603,7 +603,7 @@ export async function GET() {
           'Failed to get provider health status',
           error instanceof Error ? error : new Error(String(error))
         )
-      } catch (err) {}
+      } catch (_err) {}
       // Continue with empty health status
       health = {}
     }
@@ -629,7 +629,7 @@ export async function GET() {
         'Audio provider listing error',
         error instanceof Error ? error : new Error(String(error))
       )
-    } catch (err) {}
+    } catch (_err) {}
     return createErrorResponse(
       error instanceof Error ? error : new Error('Failed to list audio transcription providers')
     )

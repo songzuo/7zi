@@ -128,7 +128,7 @@ let activeAlerts: PerformanceAlert[] = []
 // Helper Functions
 // ========================================
 
-function generateAlertId(): string {
+function _generateAlertId(): string {
   return `alert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 

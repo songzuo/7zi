@@ -211,7 +211,7 @@ function handleSlowRequest(
 ): void {
   globalStats.totalSlowRequests++
 
-  const severity = duration > 5000 ? 'p0' : 'p1'
+  const _severity = duration > 5000 ? 'p0' : 'p1'
 
   alerts.performanceDegradation(route, duration, 2000).catch(err => {
     logger.error('[Monitoring] Failed to send slow request alert', err)
@@ -260,8 +260,8 @@ async function sendErrorAlert(
   error: unknown,
   request: NextRequest,
   route: string,
-  requestId: string,
-  duration: number
+  _requestId: string,
+  _duration: number
 ): Promise<void> {
   const errorMessage = error instanceof Error ? error.message : String(error)
   const errorType = error instanceof Error ? error.constructor.name : 'UnknownError'
@@ -279,7 +279,7 @@ async function sendErrorAlert(
 /**
  * 判断是否为严重错误
  */
-function isCriticalError(error: unknown, route: string): boolean {
+function isCriticalError(_error: unknown, _route: string): boolean {
   // 对所有路由的错误都进行告警（可调整策略）
   return true
 

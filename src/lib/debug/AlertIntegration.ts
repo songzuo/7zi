@@ -4,7 +4,7 @@
  * @version v1.10.0
  */
 
-import type { DiagnosticReport, ErrorClassification, AnalysisContext } from './types'
+import type  { DiagnosticReport, AnalysisContext } from './types'
 import { DiagnosticEngine, diagnosticEngine } from './DiagnosticEngine'
 
 // ============================================
@@ -242,10 +242,12 @@ export class SlackAlertHandler implements AlertHandler {
 
 export const alertIntegration = new AlertIntegrationManager()
 
-export default {
+const defaultExport = {
   AlertIntegrationManager,
   alertIntegration,
   consoleAlertHandler,
   WebhookAlertHandler,
   SlackAlertHandler,
 }
+
+export default defaultExport

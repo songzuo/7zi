@@ -450,7 +450,7 @@ export class AlertManager {
   /**
    * Suppress a rule for a duration
    */
-  suppressRule(ruleId: string, durationMs: number, reason?: string): boolean {
+  suppressRule(ruleId: string, durationMs: number, _reason?: string): boolean {
     const rule = this.rules.get(ruleId)
     if (!rule) return false
 

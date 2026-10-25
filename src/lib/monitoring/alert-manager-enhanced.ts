@@ -234,7 +234,7 @@ class PerformanceAlertManager {
     })
 
     // 监听自定义指标
-    performanceCollector.onAlert(alert => {
+    performanceCollector.onAlert(_alert => {
       // 额外的自定义处理
     })
 
@@ -328,7 +328,7 @@ class PerformanceAlertManager {
   /**
    * 触发告警
    */
-  private triggerAlert(ruleId: string, value: number, route?: string): void {
+  private triggerAlert(ruleId: string, value: number, _route?: string): void {
     const rule = this.rules.get(ruleId)
     if (!rule) return
 
@@ -459,9 +459,9 @@ class PerformanceAlertManager {
    * 发送通知
    */
   private sendNotification(
-    channel: 'console' | 'sentry' | 'slack' | 'email' | 'webhook',
-    alert: ActiveAlert,
-    timestamp: number
+    _channel: 'console' | 'sentry' | 'slack' | 'email' | 'webhook',
+    _alert: ActiveAlert,
+    _timestamp: number
   ): void {
     // 这里可以实现具体的通知逻辑
     // console 已经上面处理了

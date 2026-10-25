@@ -270,7 +270,7 @@ export class MapCacheCleaner {
 // Memory-Aware LRU Cache
 // ============================================
 
-export class MemoryAwareLRUCache<K, V> extends LRUCache<{ value: V; size: number }> {
+export class MemoryAwareLRUCache<_K, V> extends LRUCache<{ value: V; size: number }> {
   private maxMemoryBytes: number
   private currentMemoryBytes: number = 0
   private onEviction?: (key: string, value: { value: V; size: number }) => void

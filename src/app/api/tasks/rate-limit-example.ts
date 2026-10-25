@@ -13,7 +13,7 @@ import { withRateLimit, getRateLimitStatus } from '@/lib/rate-limit'
  * GET /api/tasks
  * Get all tasks (with rate limiting)
  */
-export const GET = withRateLimit(async (req: NextRequest) => {
+export const GET = withRateLimit(async (_req: NextRequest) => {
   try {
     // Your existing logic here
     const tasks = await getTasks()
@@ -22,7 +22,7 @@ export const GET = withRateLimit(async (req: NextRequest) => {
       success: true,
       data: tasks,
     })
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       {
         success: false,
@@ -52,7 +52,7 @@ export const POST = withRateLimit(
         success: true,
         data: task,
       })
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,

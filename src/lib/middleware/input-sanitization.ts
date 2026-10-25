@@ -99,7 +99,7 @@ const DEFAULT_ALLOWED_TAGS = [
 /**
  * Default allowed HTML attributes (whitelist)
  */
-const DEFAULT_ALLOWED_ATTRIBUTES = {
+const _DEFAULT_ALLOWED_ATTRIBUTES = {
   a: ['href', 'title'],
   img: ['src', 'alt', 'title'],
 }
@@ -237,7 +237,7 @@ export function sanitizeString(
   if (options.isURL) {
     try {
       new URL(sanitized)
-    } catch (error) {
+    } catch (_error) {
       return {
         sanitized,
         valid: false,

@@ -448,7 +448,7 @@ export class RootCauseAnalyzer {
    */
   private generateActionPlan(
     indicators: PerformanceIndicator[],
-    diagnosis: DiagnosisReport
+    _diagnosis: DiagnosisReport
   ): ActionItem[] {
     const actions: ActionItem[] = []
 

@@ -103,7 +103,7 @@ interface ActionPattern {
   extractFields: string[]
 }
 
-const ACTION_PATTERNS: ActionPattern[] = [
+const _ACTION_PATTERNS: ActionPattern[] = [
   {
     pattern: /发送(邮件|通知|消息|alert)(给|到)\s*(\S+)/i,
     nodeType: NodeType.AGENT,

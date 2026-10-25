@@ -5,7 +5,7 @@
  * @version 1.10.0
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { logger } from '@/lib/logger'
 import { reportGenerator } from '@/lib/ai/reports'
 import { ReportLanguage } from '@/lib/ai/reports/types'

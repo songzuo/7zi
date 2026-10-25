@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 /**
  * Tasks API Route
  * 任务管理 API 端点 (PROTECTED)
@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
  * @version 1.0.0
  */
 
-import { withAuth, RATE_LIMIT_CONFIG } from '@/middleware/auth'
+import { withAuth } from '@/middleware/auth'
 import { getDatabase } from '@/lib/db'
 import logger from '@/lib/logger'
 import {
@@ -20,7 +20,7 @@ import {
 } from '@/lib/errors'
 
 // Re-export for backward compatibility
-const createValidationError = createValidationErrorResponse
+const _createValidationError = createValidationErrorResponse
 
 // ============================================================================
 // Types
@@ -271,7 +271,7 @@ function validateCreateTaskRequest(data: CreateTaskRequest): { valid: boolean; e
 /**
  * 验证更新任务请求
  */
-function validateUpdateTaskRequest(data: Partial<UpdateTaskRequest>): {
+function _validateUpdateTaskRequest(data: Partial<UpdateTaskRequest>): {
   valid: boolean
   errors: string[]
 } {

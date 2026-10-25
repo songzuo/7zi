@@ -55,7 +55,7 @@ export async function logApiError(
   let errorDetails: unknown
   try {
     errorDetails = response.json()
-  } catch (error) {
+  } catch (_error) {
     errorDetails = { message: 'Unable to parse error response' }
   }
 
@@ -79,7 +79,7 @@ export async function logApiError(
         // Sanitize sensitive fields
         context.body = sanitizeBody(body)
       }
-    } catch (error) {
+    } catch (_error) {
       // Body not available or not JSON
     }
   }
@@ -223,14 +223,14 @@ export function withErrorLogging<T = unknown>(
         // Try to log error details
         try {
           const clone = response.clone()
-          const json = (await clone.json()) as ApiErrorResponse
+          const _json = (await clone.json()) as ApiErrorResponse
           await logApiError(
             request,
             response.clone() as NextResponse<ApiErrorResponse>,
             undefined,
             finalConfig
           )
-        } catch (error) {
+        } catch (_error) {
           // Response not JSON, skip detailed logging
         }
       }
@@ -298,7 +298,7 @@ export async function extractErrorInfo(response: Response): Promise<{
       errors: json.errors,
       requestId: response.headers.get('X-Request-ID') || json.requestId,
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       code: 'UNKNOWN_ERROR',
       message: response.statusText || '未知错误',

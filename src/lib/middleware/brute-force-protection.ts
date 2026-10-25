@@ -321,7 +321,7 @@ export function getBruteForceStatus(
 /**
  * Middleware wrapper for brute force protection
  */
-export function withBruteForceProtection<T = unknown>(
+export function withBruteForceProtection<_T = unknown>(
   handler: (
     request: NextRequest,
     context: {
@@ -398,7 +398,7 @@ export function withBruteForceProtection<T = unknown>(
         requireCaptcha: check.requireCaptcha,
       })
       isSuccess = response.status >= 200 && response.status < 400
-    } catch (error) {
+    } catch (_error) {
       isSuccess = false
       response = NextResponse.json(
         {

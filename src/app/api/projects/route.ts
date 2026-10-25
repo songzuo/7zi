@@ -5,7 +5,7 @@
  */
 
 import { NextRequest } from 'next/server'
-import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
+import { createSuccessResponse } from '@/lib/api/error-handler'
 
 /**
  * GET /api/projects - 获取项目列表

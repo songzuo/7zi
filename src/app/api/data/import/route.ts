@@ -55,7 +55,7 @@ const importRequestSchema = z.object({
 /**
  * GET /api/data/import - Show import options and usage
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     return NextResponse.json({
       success: true,

@@ -14,9 +14,7 @@ import {
   NodeType,
 } from '@/types/workflow'
 import {
-  ExecutionContext,
   createExecutionContext,
-  addLog,
   calculateDuration,
   ExecutionResult,
 } from './types'

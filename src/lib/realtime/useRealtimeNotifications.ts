@@ -67,7 +67,7 @@ export function useRealtimeNotifications(
   const enableSound = config?.enableSound !== false
 
   // Initialize WebSocket connection
-  const { isConnected, connectionState, reconnect, on, send, subscribe } = useEnhancedWebSocket({
+  const { isConnected, connectionState, reconnect, on, subscribe } = useEnhancedWebSocket({
     url: process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3000',
     token: userId ? undefined : '', // Token should come from auth context
     channels: userId ? [`user:${userId}`] : [],

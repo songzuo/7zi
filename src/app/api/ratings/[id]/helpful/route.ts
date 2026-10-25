@@ -1,11 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 /**
  * POST /api/ratings/[id]/helpful
  * Mark rating as helpful or not helpful
  */
 
 import { getDatabaseAsync } from '@/lib/db/index'
-import { logger } from '@/lib/logger'
 import {
   createSuccessResponse,
   createErrorResponse,

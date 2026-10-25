@@ -29,20 +29,20 @@ export function BasicWebSocketExample() {
       maxReconnectAttempts: 5,
     },
     {
-      onOpen: event => {
+      onOpen: _event => {
         // WebSocket connected
       },
       onError: event => {
         console.error('WebSocket error:', event)
       },
-      onClose: event => {
+      onClose: _event => {
         // WebSocket closed
       },
     }
   )
 
   // 监听特定类型的消息
-  const cleanupTaskUpdate = on('task:status_changed', data => {
+  const _cleanupTaskUpdate = on('task:status_changed', data => {
     const msg = data as WebSocketMessage
     if (isMessageType<{ taskId: string; status: string }>(msg, 'task:status_changed')) {
       // Task updated
@@ -50,7 +50,7 @@ export function BasicWebSocketExample() {
   })
 
   // 一次性监听
-  const cleanupOnce = once('system:announcement', data => {
+  const _cleanupOnce = once('system:announcement', _data => {
     // Received system announcement
   })
 
@@ -114,7 +114,7 @@ export function RealtimeChatExample() {
   })
 
   // 监听聊天消息
-  const cleanup = on('chat:message', data => {
+  const _cleanup = on('chat:message', data => {
     const msg = data as WebSocketMessage
     if (isMessageType<{ user: string; text: string }>(msg, 'chat:message')) {
       setMessages(prev => [
@@ -213,17 +213,17 @@ export function EnhancedWebSocketExample() {
   })
 
   // 监听连接状态变化
-  const cleanupStateChange = onStateChange(state => {
+  const _cleanupStateChange = onStateChange(_state => {
     // Connection state changed
   })
 
   // 监听错误
-  const cleanupError = onError(err => {
+  const _cleanupError = onError(err => {
     console.error('WebSocket error:', err)
   })
 
   // 监听任务消息
-  const cleanupTaskMessages = on('task:status_changed', (data: unknown) => {
+  const _cleanupTaskMessages = on('task:status_changed', (_data: unknown) => {
     // Task status changed
   })
 
@@ -404,7 +404,7 @@ export function NotificationServiceExample() {
   }
 
   // 监听错误
-  const cleanupError = notificationService.onError(error => {
+  const _cleanupError = notificationService.onError(error => {
     console.error('Notification service error:', error)
   })
 

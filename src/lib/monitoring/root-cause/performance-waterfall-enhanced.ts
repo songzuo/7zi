@@ -928,7 +928,7 @@ export class PerformanceWaterfall {
     // These are estimates based on resource counts
     // In a real implementation, these would come from PerformanceObserver
 
-    const scriptCount = this.resources.filter(r => r.initiatorType === 'script').length
+    const _scriptCount = this.resources.filter(r => r.initiatorType === 'script').length
     const cssCount = this.resources.filter(
       r => r.initiatorType === 'link' && r.name.includes('css')
     ).length

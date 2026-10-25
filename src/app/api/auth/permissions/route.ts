@@ -4,8 +4,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyJwtToken, authenticateToken } from '@/lib/auth/service'
-import { verifyAgentToken } from '@/lib/agents/core/auth-service'
 import { 
   getEntityPermissions, 
   getPermissionSummary,

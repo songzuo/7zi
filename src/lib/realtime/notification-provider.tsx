@@ -11,7 +11,6 @@ import React, {
   useContext,
   useEffect,
   useCallback,
-  useRef,
   useState,
   useMemo,
 } from 'react'
@@ -21,7 +20,6 @@ import { useNotificationPreferences, useNotificationBatching } from './notificat
 import type {
   WebSocketMessage,
   RealtimeNotification,
-  RealtimeNotificationType,
   MemberOnlinePayload,
   MemberOfflinePayload,
 } from './types'
@@ -108,7 +106,6 @@ export function NotificationProvider({
   token,
   channels = [],
   autoConnect = true,
-  enableBrowserNotifications = true,
   requestPermissionOnMount = false,
   enableSound = false,
   enableBatching = true,
@@ -141,7 +138,7 @@ export function NotificationProvider({
   } = useNotificationPreferences()
 
   // 新功能：批量通知
-  const { addToBatch, flushBatch, batchSize } = useNotificationBatching()
+  const { addToBatch } = useNotificationBatching()
 
   // 浏览器通知权限
   const [browserPermission, setBrowserPermission] = useState<

@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // 返回成功响应
     return createSuccessResponse({ received: true })
-  } catch (error) {
+  } catch (_error) {
     return createBadRequestError('Invalid CSP report format')
   }
 }

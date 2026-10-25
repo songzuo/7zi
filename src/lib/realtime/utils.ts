@@ -69,7 +69,7 @@ export function parseWebSocketMessage(jsonString: string): {
       return parsed
     }
     return null
-  } catch (error) {
+  } catch (_error) {
     return null
   }
 }

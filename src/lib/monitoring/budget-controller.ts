@@ -596,7 +596,7 @@ export class BudgetController {
     }
   }
 
-  private isSuppressed(suppression: SuppressionRule, result: BudgetCheckResult): boolean {
+  private isSuppressed(suppression: SuppressionRule, _result: BudgetCheckResult): boolean {
     const now = Date.now()
 
     // Check if within suppression window

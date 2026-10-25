@@ -16,8 +16,6 @@ import type {
   ContextAnalysis,
 } from './types'
 
-import { errorClassifier } from './ErrorClassifier'
-import { stackAnalyzer } from './StackAnalyzer'
 
 // ============================================
 // 根因规则
@@ -333,7 +331,7 @@ export class RootCauseAnalyzer {
   private identifyRootCauseType(
     error: Error,
     classification: ErrorClassification,
-    stackAnalysis: StackAnalysis
+    _stackAnalysis: StackAnalysis
   ): RootCauseType {
     const message = error.message.toLowerCase()
     const stack = error.stack || ''
@@ -632,7 +630,9 @@ export class RootCauseAnalyzer {
 
 export const rootCauseAnalyzer = new RootCauseAnalyzer()
 
-export default {
+const defaultExport = {
   RootCauseAnalyzer,
   rootCauseAnalyzer,
 }
+
+export default defaultExport

@@ -570,7 +570,7 @@ export class EnhancedAnomalyDetector extends EventEmitter {
 
     const jointAnomalies: string[] = []
 
-    for (const { metric: otherMetric, correlation } of correlatedMetrics) {
+    for (const { metric: otherMetric } of correlatedMetrics) {
       const otherHistory = this.dataHistory.get(otherMetric)
       if (!otherHistory || otherHistory.length < this.config.minSampleSize) continue
 

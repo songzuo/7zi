@@ -404,7 +404,7 @@ export class FixSuggester {
   private generateContextSuggestions(
     error: Error,
     contextAnalysis: ContextAnalysis,
-    stackAnalysis: StackAnalysis
+    _stackAnalysis: StackAnalysis
   ): FixSuggestion[] {
     const suggestions: FixSuggestion[] = []
 
@@ -522,8 +522,10 @@ export class FixSuggester {
 
 export const fixSuggester = new FixSuggester()
 
-export default {
+const defaultExport = {
   FixSuggester,
   fixSuggester,
   FIX_TEMPLATES,
 }
+
+export default defaultExport

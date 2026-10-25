@@ -203,7 +203,7 @@ export function useWebSocket(
           scheduleReconnectRef.current()
         }
       })
-    } catch (err) {
+    } catch (_err) {
       const errorEvent = new Event('error')
       setError(errorEvent)
       updateStatus('error')

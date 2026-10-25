@@ -64,7 +64,7 @@ function extractPath(request: NextRequest): string {
   try {
     const url = new URL(request.url)
     return url.pathname
-  } catch (error) {
+  } catch (_error) {
     return request.nextUrl.pathname
   }
 }
@@ -169,7 +169,7 @@ export function withRequestId<T = unknown>(
     logLevel?: 'debug' | 'info' | 'warn' | 'error'
   }
 ): (request: NextRequest) => Promise<NextResponse<T>> {
-  const { skipLogging = false, logLevel = 'info' } = options || {}
+  const { skipLogging = false } = options || {}
 
   return async (request: NextRequest) => {
     const context = createContext(request)

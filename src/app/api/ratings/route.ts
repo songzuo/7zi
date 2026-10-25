@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 /**
  * Rating API endpoints
  */
@@ -209,7 +209,6 @@ export async function POST(request: NextRequest) {
       rating,
       title,
       description,
-      images,
       verified,
       metadata: ratingMetadata,
     } = body as CreateRatingDto

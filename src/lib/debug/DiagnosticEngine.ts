@@ -4,18 +4,7 @@
  * @version v1.10.0
  */
 
-import type {
-  DiagnosticReport,
-  ErrorSummary,
-  ErrorClassification,
-  StackAnalysis,
-  ContextAnalysis,
-  RootCauseAnalysis,
-  FixSuggestion,
-  ReportMetadata,
-  EnvironmentInfo,
-  AnalysisContext,
-} from './types'
+import type    { DiagnosticReport, ErrorSummary, ErrorClassification, StackAnalysis, ContextAnalysis, EnvironmentInfo, AnalysisContext } from './types'
 
 import { errorClassifier } from './ErrorClassifier'
 import { stackAnalyzer } from './StackAnalyzer'
@@ -224,13 +213,15 @@ export function analyzeStack(error: Error): StackAnalysis {
 
 export const diagnosticEngine = new DiagnosticEngine()
 
-export default {
+const defaultExport = {
   DiagnosticEngine,
   diagnosticEngine,
   diagnose,
   classify,
   analyzeStack,
 }
+
+export default defaultExport
 
 // Re-export all types and sub-modules
 export * from './types'

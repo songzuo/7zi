@@ -6,7 +6,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { queryAuditLogs, getAuditStats, exportAuditLogs, AuditEventType, AuditSeverity, AuditLogEntry } from '@/lib/auth/audit-logger'
 import { verify } from '@/lib/auth/jwt'
-import { hasPermission } from '@/lib/auth/service'
 
 /**
  * Response types

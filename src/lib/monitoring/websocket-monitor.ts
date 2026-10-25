@@ -351,7 +351,7 @@ export class WebSocketMonitor {
 
     // 消息统计 - 使用 onAny 监听所有事件
     try {
-      socket.onAny((eventName, ...args) => {
+      socket.onAny((eventName, ..._args) => {
         metrics.messageCount++
 
         // 只记录重要事件，避免日志过多
@@ -437,7 +437,7 @@ export class WebSocketMonitor {
         socket.emit('ping', { timestamp: pingStart })
 
         // 监听 pong 响应
-        socket.once('pong', (data: { timestamp?: number; serverTime?: number }) => {
+        socket.once('pong', (_data: { timestamp?: number; serverTime?: number }) => {
           const latency = Date.now() - pingStart
 
           this.recordLatency(namespace, latency)
@@ -636,7 +636,7 @@ export class WebSocketMonitor {
     let maxLatency = 0
     let minLatency = Infinity
 
-    for (const [ns, metrics] of this.metrics) {
+    for (const [_ns, metrics] of this.metrics) {
       totalConnections++
       if (metrics.connectionState === 'connected') {
         activeConnections++

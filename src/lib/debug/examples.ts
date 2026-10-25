@@ -3,24 +3,9 @@
  * @version v1.10.0
  */
 
-import {
-  // 核心引擎
-  DiagnosticEngine,
-  diagnosticEngine,
-  diagnose,
-  classify,
-  analyzeStack,
-
-  // 集成
-  alertIntegration,
-  consoleAlertHandler,
-  logAnalyzer,
-
-  // 类型
-  type DiagnosticReport,
-  type ErrorClassification,
-  type StackAnalysis,
-} from './index'
+import { // 核心引擎
+  DiagnosticEngine, diagnose, classify, analyzeStack, // 集成
+  alertIntegration, consoleAlertHandler, logAnalyzer } from './index'
 
 // ============================================
 // 示例 1: 基础使用
@@ -261,7 +246,7 @@ app.use(async (err, req, res, next) => {
 // 运行示例
 // ============================================
 
-async function runExamples() {
+async function _runExamples() {
   await basicExample()
   classificationExample()
   stackAnalysisExample()
@@ -272,4 +257,4 @@ async function runExamples() {
   console.log('\n=== 所有示例完成 ===')
 }
 
-// runExamples() // 取消注释运行示例
+// _runExamples() // 取消注释运行示例

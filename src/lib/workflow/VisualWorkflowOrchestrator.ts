@@ -19,15 +19,11 @@ import {
   NodeStatus,
   InstanceStatus,
   WorkflowInstance,
-  NodeExecutionResult,
   EdgeType,
 } from '@/types/workflow'
 import {
   ExecutionContext,
   createExecutionContext,
-  addLog,
-  calculateDuration,
-  ExecutionResult,
 } from './types'
 import { nodeExecutorRegistry } from './executors/registry'
 
@@ -281,7 +277,7 @@ export class VisualWorkflowOrchestrator {
 
       // 尝试求值
       return new Function(`return ${evalCondition}`)()
-    } catch (error) {
+    } catch (_error) {
       return false
     }
   }
@@ -637,7 +633,7 @@ export class VisualWorkflowOrchestrator {
   private getNextNodes(
     workflow: WorkflowDefinition,
     currentNode: WorkflowNode,
-    output?: Record<string, unknown>
+    _output?: Record<string, unknown>
   ): WorkflowNode[] {
     const edges = workflow.edges.filter(e => e.source === currentNode.id)
     return edges

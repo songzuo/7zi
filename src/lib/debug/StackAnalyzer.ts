@@ -197,7 +197,7 @@ export class StackAnalyzer {
   private determineChainItemType(
     frame: StackFrame,
     index: number,
-    errorType: string
+    _errorType: string
   ): 'cause' | 'propagation' | 'handler' {
     // 第一个非 native 帧是原因
     if (index === 0 && !frame.isNative) {
@@ -390,9 +390,11 @@ export async function getSourceContext(
 
 export const stackAnalyzer = new StackAnalyzer()
 
-export default {
+const defaultExport = {
   parseStackTrace,
   StackAnalyzer,
   stackAnalyzer,
   getSourceContext,
 }
+
+export default defaultExport

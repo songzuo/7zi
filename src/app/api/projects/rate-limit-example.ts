@@ -33,7 +33,7 @@ export const GET = withRateLimit(async (_req: NextRequest) => {
       success: true,
       data: projects,
     })
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       {
         success: false,
@@ -63,7 +63,7 @@ export const POST = withRateLimit(
         success: true,
         data: project,
       })
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,

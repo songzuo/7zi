@@ -34,7 +34,7 @@ async function example1_DSLParser() {
 
   // 1.2 序列化为 JSON
   // @ts-ignore - convertToWorkflowDefinition is private but needed for examples
-  const workflowDef = parser.convertToWorkflowDefinition(dsl)
+  const _workflowDef = parser.convertToWorkflowDefinition(dsl)
   // @ts-ignore - serialize expects WorkflowDefinition not WorkflowDSL
   const json = parser.serialize(dsl, DSLFormat.JSON)
   console.log('\n序列化为 JSON (前 200 字符):')

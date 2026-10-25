@@ -52,7 +52,7 @@ class ReadStatusStore {
   /**
    * 获取未读通知数量
    */
-  async getUnreadCount(userId: string): Promise<number> {
+  async getUnreadCount(_userId: string): Promise<number> {
     // Mock implementation - 返回 0 表示所有通知都已读
     // 在实际实现中，这会查询数据库或状态管理器
     return 0

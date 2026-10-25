@@ -79,7 +79,7 @@ export function measureTiming(name: string, startMark: string, endMark?: string)
   if (typeof performance === 'undefined' || !('measure' in performance)) return
 
   try {
-    const detail = { description: `Measure: ${name}`, timestamp: Date.now() }
+    const _detail = { description: `Measure: ${name}`, timestamp: Date.now() }
 
     if (endMark) {
       performance.measure(name, startMark, endMark)
@@ -167,7 +167,7 @@ export function optimizeFID_INP() {
   if (typeof document === 'undefined') return
 
   // 1. 分解长任务
-  function yieldToMain() {
+  function _yieldToMain() {
     return new Promise(resolve => {
       setTimeout(resolve, 0)
     })
@@ -350,11 +350,11 @@ export function initWebVitalsMonitoring(config: WebVitalsConfig = {}) {
   isInitialized = true
 
   const {
-    enableSentry = true,
+    enableSentry: _enableSentry = true,
     enableConsole = process.env.NODE_ENV === 'development',
     sampleRate = 1.0,
     debug = false,
-    verbose = false,
+    verbose: _verbose = false,
     onLCP,
     onCLS,
     onTTFB,

@@ -420,7 +420,7 @@ class EnhancedMetricsCollector {
   /**
    * 获取指标趋势
    */
-  getTrend(metricName: string, windowMs: number = 3600000): {
+  getTrend(metricName: string, _windowMs: number = 3600000): {
     current: number
     previous: number
     changePercent: number

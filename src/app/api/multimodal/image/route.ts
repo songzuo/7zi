@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 /**
  * Multimodal API - Image Processing Endpoint
  * POST /api/multimodal/image
@@ -98,7 +98,7 @@ interface ImageProcessingFormData {
   quality?: number
 }
 
-interface ImageProcessingOptions extends ImageUploadOptions {
+interface _ImageProcessingOptions extends ImageUploadOptions {
   provider?: string
 }
 

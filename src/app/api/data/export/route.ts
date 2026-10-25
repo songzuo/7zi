@@ -38,7 +38,7 @@ const exportRequestSchema = z.object({
 /**
  * GET /api/data/export - Show supported tables and export options
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supportedTables = getSupportedTables()
 

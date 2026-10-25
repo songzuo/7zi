@@ -18,7 +18,6 @@ import { withSecurityHeaders, type SecurityHeadersConfig } from './security-head
 import {
   sanitizeRequestBody,
   sanitizeQueryParams,
-  sanitizeValue,
   type SanitizationOptions,
 } from './input-sanitization'
 import {
@@ -117,7 +116,7 @@ async function applyInputSanitization(
 
     try {
       body = await clonedRequest.json()
-    } catch (error) {
+    } catch (_error) {
       // No JSON body, that's fine
     }
 

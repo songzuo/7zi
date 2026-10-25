@@ -9,18 +9,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { repositories } from '@/lib/rate-limit-dashboard/database'
-import type {
-  CreateRateLimitRuleDTO,
-  RuleFilters,
-  ApiResponse,
-  ApiError,
-} from '@/lib/rate-limit-dashboard/types'
+import type   { CreateRateLimitRuleDTO, RuleFilters } from '@/lib/rate-limit-dashboard/types'
 import { logger } from '@/lib/logger'
-import {
-  createSuccessResponse,
-  createErrorResponse,
-  createValidationError,
-} from '@/lib/api/error-handler'
+import { createErrorResponse, createValidationError } from '@/lib/api/error-handler'
 
 // ============================================================================
 // Validation Schemas
@@ -78,7 +69,7 @@ async function checkAuth(request: NextRequest): Promise<{ success: boolean; user
     // In production, verify JWT signature and claims
     const userId = 'admin' // Default admin user for now
     return { success: true, userId }
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: 'Token verification failed' }
   }
 }

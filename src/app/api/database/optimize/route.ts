@@ -81,7 +81,7 @@ const dbOperationsSchema = z.object({
  * GET /api/database/optimize/health
  * Get comprehensive database health report
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const health = await getDatabaseHealth()
     const performanceReport = await generatePerformanceReport()

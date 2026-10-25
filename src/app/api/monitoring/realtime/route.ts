@@ -54,7 +54,7 @@ function getSocketIOServer(server: HTTPServer): SocketIOServer {
 /**
  * GET /api/monitoring/realtime - WebSocket 升级处理
  */
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   // Next.js App Router 不直接支持 WebSocket 升级
   // 需要在自定义服务器中处理
   // 这里返回说明信息

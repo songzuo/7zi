@@ -400,17 +400,12 @@ class RealTimeDashboardService {
     const metrics = performanceCollector.getMetrics()
 
     const current: RealTimeMetrics['current'] = {}
-    let lcpValue = 0
-    let fidValue = 0
-    let clsValue = 0
-    let inpValue = 0
 
     // 提取最新的 Core Web Vitals
     if (metrics.has('LCP')) {
       const lcpMetrics = metrics.get('LCP')!
       if (lcpMetrics.length > 0) {
         current.LCP = lcpMetrics[lcpMetrics.length - 1].value
-        lcpValue = current.LCP
       }
     }
 
@@ -418,7 +413,6 @@ class RealTimeDashboardService {
       const fidMetrics = metrics.get('FID')!
       if (fidMetrics.length > 0) {
         current.FID = fidMetrics[fidMetrics.length - 1].value
-        fidValue = current.FID
       }
     }
 
@@ -426,7 +420,6 @@ class RealTimeDashboardService {
       const clsMetrics = metrics.get('CLS')!
       if (clsMetrics.length > 0) {
         current.CLS = clsMetrics[clsMetrics.length - 1].value
-        clsValue = current.CLS
       }
     }
 
@@ -434,7 +427,6 @@ class RealTimeDashboardService {
       const inpMetrics = metrics.get('INP')!
       if (inpMetrics.length > 0) {
         current.INP = inpMetrics[inpMetrics.length - 1].value
-        inpValue = current.INP
       }
     }
 

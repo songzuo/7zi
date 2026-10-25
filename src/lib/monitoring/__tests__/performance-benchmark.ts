@@ -4,7 +4,6 @@
  *
  * 运行方式: npx ts-node src/lib/monitoring/__tests__/performance-benchmark.ts
  */
-// @ts-nocheck
 // ========================================
 // Circular Buffer Implementation (Optimized)
 // ========================================

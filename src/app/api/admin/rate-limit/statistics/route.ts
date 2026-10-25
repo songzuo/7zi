@@ -16,11 +16,7 @@ import type {
   TimeRange,
 } from '@/lib/rate-limit-dashboard/types'
 import { logger } from '@/lib/logger'
-import {
-  createSuccessResponse,
-  createErrorResponse,
-  createValidationError,
-} from '@/lib/api/error-handler'
+import { createErrorResponse, createValidationError } from '@/lib/api/error-handler'
 
 // ============================================================================
 // Validation Schemas
@@ -52,7 +48,7 @@ async function checkAuth(request: NextRequest): Promise<{ success: boolean; user
   try {
     const userId = 'admin'
     return { success: true, userId }
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: 'Token verification failed' }
   }
 }
@@ -74,7 +70,7 @@ function getTimeRange(timeRange?: string): TimeRange {
   return { start: now - 24 * 60 * 60 * 1000, end: now }
 }
 
-function generateTimeSeriesData(
+function _generateTimeSeriesData(
   startTime: number,
   endTime: number,
   interval: number,

@@ -108,7 +108,7 @@ async function verifySignedToken(token: string): Promise<boolean> {
   try {
     await jwtVerify(token, SECRET_KEY)
     return true
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }
@@ -159,7 +159,7 @@ function isSameOrigin(request: NextRequest): boolean {
   try {
     const originUrl = new URL(origin)
     return originUrl.host === host
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }
@@ -183,7 +183,7 @@ function extractCsrfToken(request: NextRequest): string | null {
       // Skip body parsing for middleware
       return null
     }
-  } catch (error) {
+  } catch (_error) {
     // Ignore parsing errors
   }
 
@@ -377,7 +377,7 @@ export async function generateCsrfToken(useSignedTokens: boolean = true): Promis
  */
 export function createCsrfMiddleware(config?: Partial<CsrfProtectionConfig>) {
   return (req: NextRequest) =>
-    withCsrfProtection(async request => {
+    withCsrfProtection(async _request => {
       // This is a placeholder - actual handler should be provided
       return NextResponse.next()
     }, config)(req)

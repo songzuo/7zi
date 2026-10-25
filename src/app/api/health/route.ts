@@ -131,7 +131,7 @@ export async function HEAD() {
     )
 
     return response
-  } catch (error) {
+  } catch (_error) {
     return new NextResponse(null, { status: 503 })
   }
 }

@@ -104,7 +104,7 @@ export class LogAnalyzer {
       try {
         const report = await this.engine.analyze(new Error(error.message))
         diagnosticReports.push(report)
-      } catch (e) {
+      } catch (_e) {
         // 忽略分析错误
       }
     }
@@ -272,7 +272,9 @@ export type LogParser = (content: string) => LogEntry[]
 
 export const logAnalyzer = new LogAnalyzer()
 
-export default {
+const defaultExport = {
   LogAnalyzer,
   logAnalyzer,
 }
+
+export default defaultExport

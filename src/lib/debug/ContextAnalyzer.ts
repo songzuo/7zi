@@ -12,7 +12,7 @@ import type {
   SuspiciousPattern,
 } from './types'
 
-import { stackAnalyzer, parseStackTrace } from './StackAnalyzer'
+import { parseStackTrace } from './StackAnalyzer'
 
 // ============================================
 // 堆栈帧接口
@@ -186,7 +186,7 @@ export class ContextAnalyzer {
   /**
    * 提取相关变量信息
    */
-  private extractVariables(error: Error, rootFrame: StackFrame | undefined): ContextVariable[] {
+  private extractVariables(error: Error, _rootFrame: StackFrame | undefined): ContextVariable[] {
     const variables: ContextVariable[] = []
 
     // 从错误消息中提取变量名
@@ -421,7 +421,9 @@ export class ContextAnalyzer {
 
 export const contextAnalyzer = new ContextAnalyzer()
 
-export default {
+const defaultExport = {
   ContextAnalyzer,
   contextAnalyzer,
 }
+
+export default defaultExport

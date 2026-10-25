@@ -30,7 +30,7 @@ interface NotificationStore {
 // Store 实现
 // ============================================================================
 
-export const useRealtimeNotificationStore = create<NotificationStore>((set, get) => ({
+export const useRealtimeNotificationStore = create<NotificationStore>((set, _get) => ({
   // 初始状态
   notifications: [],
   unreadCount: 0,

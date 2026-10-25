@@ -138,7 +138,7 @@ function detectBot(userAgent: string): {
   botType: 'known' | 'suspicious' | 'unknown'
   confidence: number
 } {
-  const ua = userAgent.toLowerCase()
+  const _ua = userAgent.toLowerCase()
 
   // Check known legitimate bots
   for (const pattern of KNOWN_BOT_PATTERNS) {
@@ -196,13 +196,13 @@ function analyzeRequestFrequency(
   }
 
   // Update entry
-  const countBefore = entry.count
+  const _countBefore = entry.count
   entry.count++
   entry.lastSeen = now
 
   // Calculate time since first request and since last request
   const timeSinceFirst = now - entry.firstSeen
-  const timeSinceLast = now - (entry.lastSeen - 100) // Approximate time since last request
+  const _timeSinceLast = now - (entry.lastSeen - 100) // Approximate time since last request
 
   // Check for burst requests (many requests in short time)
   // Use the total count and elapsed time to detect bursts

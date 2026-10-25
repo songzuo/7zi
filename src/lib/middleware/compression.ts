@@ -14,7 +14,7 @@
 
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { gzip, gunzip, constants } from 'zlib'
+import { gzip, gunzip } from 'zlib'
 import { promisify } from 'util'
 
 const gzipAsync = promisify(gzip)
@@ -77,7 +77,7 @@ class CompressionStatsCollector {
     },
   }
 
-  record(originalSize: number, compressedSize: number | null, encoding: string): void {
+  record(originalSize: number, compressedSize: number | null, _encoding: string): void {
     this.stats.totalRequests++
 
     if (compressedSize !== null) {
@@ -212,7 +212,7 @@ async function compressData(
 /**
  * Decompress data (for testing/debugging)
  */
-export async function decompressData(data: Buffer, encoding: 'gzip' | 'br'): Promise<Buffer> {
+export async function decompressData(data: Buffer, _encoding: 'gzip' | 'br'): Promise<Buffer> {
   // Brotli removed, using gzip only
   return await gunzipAsync(data)
 }

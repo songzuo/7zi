@@ -147,7 +147,7 @@ class NotificationService {
               // 重试发送通知
               await this.sendNotificationToUser(entry.notification, userId)
               processed.push(entry.notification.id)
-            } catch (error) {
+            } catch (_error) {
               // 记录错误并增加重试次数
               entry.attempts++
               entry.lastAttempt = Date.now()

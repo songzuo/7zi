@@ -11,11 +11,7 @@ import { z } from 'zod'
 import { repositories } from '@/lib/rate-limit-dashboard/database'
 import type { CreateBlacklistEntryDTO } from '@/lib/rate-limit-dashboard/types'
 import { logger } from '@/lib/logger'
-import {
-  createSuccessResponse,
-  createErrorResponse,
-  createValidationError,
-} from '@/lib/api/error-handler'
+import { createErrorResponse, createValidationError } from '@/lib/api/error-handler'
 
 // ============================================================================
 // Validation Schemas
@@ -56,7 +52,7 @@ async function checkAuth(request: NextRequest): Promise<{ success: boolean; user
   try {
     const userId = 'admin'
     return { success: true, userId }
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: 'Token verification failed' }
   }
 }

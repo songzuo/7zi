@@ -27,21 +27,21 @@ class NotificationServer {
   /**
    * 广播消息到所有连接的用户
    */
-  broadcast(message: WebSocketMessage): void {
+  broadcast(_message: WebSocketMessage): void {
     // Mock implementation - 在测试中不需要实际发送
   }
 
   /**
    * 广播消息到指定频道
    */
-  broadcastToChannel(channel: string, message: WebSocketMessage): void {
+  broadcastToChannel(_channel: string, _message: WebSocketMessage): void {
     // Mock implementation
   }
 
   /**
    * 发送消息给指定用户
    */
-  sendToUser(userId: string, message: WebSocketMessage): void {
+  sendToUser(_userId: string, _message: WebSocketMessage): void {
     // Mock implementation
   }
 

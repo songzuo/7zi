@@ -7,18 +7,13 @@ import {
   WorkflowDefinition,
   WorkflowInstance,
   WorkflowNode,
-  WorkflowEdge,
   NodeExecutionResult,
   NodeStatus,
   InstanceStatus,
-  EdgeType,
 } from '@/types/workflow'
 import {
-  NodeExecutor,
-  ExecutionContext,
   ExecutionResult,
   createExecutionContext,
-  addLog,
   calculateDuration,
 } from './types'
 import { nodeExecutorRegistry } from './executors/registry'
@@ -35,7 +30,7 @@ interface DependencyGraph {
 /**
  * 执行缓存键
  */
-interface CacheKey {
+interface _CacheKey {
   nodeId: string
   nodeType: string
   inputsHash: string
@@ -474,7 +469,7 @@ export class OptimizedWorkflowExecutor {
     nodeId: string,
     inputs: Record<string, unknown>,
     variables: Record<string, unknown>,
-    dependencyGraph: DependencyGraph
+    _dependencyGraph: DependencyGraph
   ): Promise<void> {
     const node = workflow.nodes.find(n => n.id === nodeId)
     if (!node) {

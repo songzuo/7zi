@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 /**
  * CSRF Token 生成端点
  *
@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { cookies } from 'next/headers'
 import { randomBytes } from 'crypto'
-import { createErrorResponse, ApiError, ErrorType } from '@/lib/api/error-handler'
+import { createErrorResponse, ErrorType } from '@/lib/api/error-handler'
 import { csrfTokenSchema, validateBody } from '@/lib/api/validation'
 import { logger } from '@/lib/logger'
 

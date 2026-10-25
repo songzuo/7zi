@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { dataImportService } from '@/lib/import'
-import type { ImportOptions, ImportFormat } from '@/lib/import/types'
+import type  { ImportOptions } from '@/lib/import/types'
 
 /**
  * POST /api/import - 创建导入任务

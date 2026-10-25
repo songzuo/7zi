@@ -118,8 +118,8 @@ export async function GET(request: NextRequest) {
     // Keys list
     if (path.endsWith('/keys')) {
       const searchParams = request.nextUrl.searchParams
-      const pattern = searchParams.get('pattern') || '*'
-      const count = parseInt(searchParams.get('count') || '100', 10)
+      const _pattern = searchParams.get('pattern') || '*'
+      const _count = parseInt(searchParams.get('count') || '100', 10)
 
       // In a real implementation, we'd scan Redis for keys
       // For demo, return mock keys
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
 
     // Adjust rate limit
     if (path.endsWith('/adjust')) {
-      const { key, layer, newLimit, resetCount, addTokens } = body
+      const { key, layer, _newLimit, _resetCount, _addTokens } = body
 
       if (!key || !layer) {
         return createBadRequestError('Key and layer are required')

@@ -4,10 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyJwtToken, authenticateToken } from '@/lib/auth/service'
+import { authenticateToken } from '@/lib/auth/service'
 import { verifyAgentToken } from '@/lib/agents/core/auth-service'
 import { isTokenBlacklisted } from '@/lib/auth/token-blacklist'
-import { logAuditEvent, AuditEventType } from '@/lib/auth/audit-logger'
 import { verify } from '@/lib/auth/jwt'
 
 /**

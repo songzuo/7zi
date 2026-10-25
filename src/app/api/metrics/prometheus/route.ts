@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 /**
  * Prometheus Metrics Endpoint
  * Prometheus 格式的指标导出端点
