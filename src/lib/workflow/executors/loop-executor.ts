@@ -147,8 +147,7 @@ export class LoopNodeExecutor implements NodeExecutor {
 
   async execute(context: ExecutionContext): Promise<ExecutionResult> {
     const startTime = new Date()
-    const { node, inputs, variables, instanceId } = context
-    // @ts-ignore - LoopConfig from types/workflow uses loopType
+    const { node, instanceId } = context
     const config = node.loopConfig as LoopConfig
 
     addLog(context, 'info', `开始执行循环节点: ${node.name} (类型: ${config.loopType})`)
@@ -224,7 +223,6 @@ export class LoopNodeExecutor implements NodeExecutor {
     context: ExecutionContext,
     config: LoopConfig
   ): Promise<LoopExecutionResult> {
-    const { inputs, variables, instanceId } = context
     const maxIterations = config.maxIterations || 1000
     const startTime = Date.now()
     const timeoutMs = (config.timeout || 300) * 1000
@@ -268,7 +266,7 @@ export class LoopNodeExecutor implements NodeExecutor {
     startTime: number,
     result: LoopExecutionResult
   ): Promise<void> {
-    const { inputs, variables, instanceId, node } = context
+    const { inputs, variables } = context
 
     while (result.totalIterations < maxIterations) {
       // 检查超时

@@ -8,7 +8,6 @@ import {
   AlertConfig,
   AlertLevel,
   AlertType,
-  WorkflowExecutionStatus,
 } from './types'
 import { NodeExecution } from './types'
 

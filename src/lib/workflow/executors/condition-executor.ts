@@ -136,7 +136,7 @@ export class ConditionNodeExecutor implements NodeExecutor {
 
       // 转换为布尔值
       return Boolean(result)
-    } catch (error) {
+    } catch (_error) {
       // 返回 false 而不是抛出异常，让工作流继续执行
       return false
     }

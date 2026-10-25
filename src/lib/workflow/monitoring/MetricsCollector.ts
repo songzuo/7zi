@@ -6,7 +6,6 @@
 import {
   ExecutionMetrics,
   NodeMetricsSummary,
-  WorkflowExecutionStatus,
 } from './types'
 import { NodeStatus } from '@/types/workflow'
 import { ExecutionTracker } from './ExecutionTracker'

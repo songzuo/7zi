@@ -7,7 +7,6 @@ import { ExecutionTracker } from './ExecutionTracker'
 import { StepRecorder } from './StepRecorder'
 import { MetricsCollector } from './MetricsCollector'
 import { AlertManager } from './AlertManager'
-import { NodeStatus } from '@/types/workflow'
 import {
   WorkflowExecution,
   NodeExecution,
