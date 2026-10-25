@@ -7493,3 +7493,94 @@ _Server Actions 新 API 文档添加于 v1.3.0 - 2026-03-27_
 ---
 
 _API 文档由 AI 主管维护 - 2026-03-29_
+
+---
+
+## 🩺 后端整合一致性补记（T141 架构体检，2026-10-25）
+
+> **本节由 📚 咨询师（T141）追加，日期 2026-10-25 (Asia/Shanghai)。**
+> 性质：**增量一致性补记**，不改写上文任何既有段落。
+> 核实口径（只读）：`find src/app/api -name route.ts`（实际 **108** 个路由文件）、
+> `find src/lib src/services -maxdepth 2 -type d`、`ls -la 7zi-backend/*`、
+> `git log --oneline -- 7zi-backend server workflow-engine`、`git ls-files`。
+> 完整核实过程与四类清单见工作区报告 `T141_BACKEND_CONSOLIDATION_AUDIT.md`。
+
+### 📌 头部统计口径修正（不改正文，只标注）
+
+- 头部 `**Total Endpoints:** 49 REST route files under src/app/api/` 已过期：
+  2026-10-25 实测为 **108** 个 `route.ts`（含 `src/app/api/__tests__/` 与 `src/app/api/websocket/__tests__/` 下仅测试、无 `route.ts` 的目录，故路由文件数 = 108）。
+- 头部 `**Last Updated:** 2026-10-21` → 本节追加后为 **2026-10-25**。
+- 本节**只列出尚未被本文档正文覆盖的路由**（39 条，见下表），**不一次性补写全部请求/响应契约**；
+  契约补全留待后续专项任务，避免一次性大改引入回归。
+
+### 🧩 缺失路由清单（API.md 正文未覆盖，共 39 条）
+
+> 判定方法：路由路径在 API.md 全文中以字面量形式出现即视为「已覆盖」；
+> 动态段按 `[x]` 与 `:x` 两种写法等价匹配。
+
+| # | 路由 | 方法（实测自 `route.ts` 导出） | 归属域 |
+|---|---|---|---|
+| 1 | `/api/admin/rate-limit/rules` | GET, POST, OPTIONS | 管理端 · 限流规则 |
+| 2 | `/api/admin/rate-limit/rules/[id]` | GET, PUT, DELETE, OPTIONS | 管理端 · 限流规则 |
+| 3 | `/api/admin/rate-limit/statistics` | GET, OPTIONS | 管理端 · 限流统计 |
+| 4 | `/api/admin/security/blacklist` | GET, POST, OPTIONS | 管理端 · 安全黑名单 |
+| 5 | `/api/audit/logs/[id]` | GET | 审计日志（列表 `/api/audit/logs` 已覆盖） |
+| 6 | `/api/auth/audit-logs` | GET | 认证 · 审计日志 |
+| 7 | `/api/auth/permissions` | GET | 认证 · 权限查询 |
+| 8 | `/api/auth/token` | POST | 认证 · 令牌签发 |
+| 9 | `/api/auth/verify` | GET | 认证 · 令牌校验 |
+| 10 | `/api/export/async` | POST | 导出 · 异步任务 |
+| 11 | `/api/export/jobs` | GET | 导出 · 任务列表 |
+| 12 | `/api/export/jobs/[jobId]` | GET, DELETE | 导出 · 任务详情/取消 |
+| 13 | `/api/export/jobs/[jobId]/download` | GET | 导出 · 产物下载 |
+| 14 | `/api/export/sync` | GET, POST | 导出 · 同步 |
+| 15 | `/api/import` | GET, POST | 导入 · 任务 |
+| 16 | `/api/import/[taskId]` | GET, DELETE | 导入 · 任务详情/取消 |
+| 17 | `/api/import/preview` | POST | 导入 · 预检 |
+| 18 | `/api/monitoring/apm` | GET, HEAD | 监控 · APM |
+| 19 | `/api/monitoring/realtime` | GET | 监控 · 实时 |
+| 20 | `/api/rca/analyze/[incidentId]` | GET, POST | 根因分析 |
+| 21 | `/api/rca/knowledge` | GET, POST, PUT, DELETE | 根因分析 · 知识库 |
+| 22 | `/api/rca/propagation/[incidentId]` | GET, POST | 根因分析 · 传播链 |
+| 23 | `/api/reports/custom` | POST | 报表 · 自定义 |
+| 24 | `/api/reports/generate` | GET, POST | 报表 · 生成 |
+| 25 | `/api/reports/templates` | GET | 报表 · 模板 |
+| 26 | `/api/sentry-test` | GET | 诊断 · Sentry 连通性 |
+| 27 | `/api/v1/tenants` | GET, POST | 多租户 · 主入口 |
+| 28 | `/api/v1/tenants/login` | POST | 多租户 · 登录 |
+| 29 | `/api/v1/tenants/invite` | POST | 多租户 · 邀请 |
+| 30 | `/api/v1/tenants/accept` | POST | 多租户 · 接受邀请 |
+| 31 | `/api/v1/tenants/switch` | POST | 多租户 · 切换 |
+| 32 | `/api/v1/tenants/transfer` | POST | 多租户 · 转移 |
+| 33 | `/api/workflow/[id]/executions` | GET | 工作流 · 执行列表 |
+| 34 | `/api/workflow/[id]/executions/[execId]` | GET | 工作流 · 执行详情 |
+| 35 | `/api/workflow/[id]/executions/[execId]/cancel` | POST | 工作流 · 取消执行 |
+| 36 | `/api/workflow/[id]/history` | GET | 工作流 · 历史 |
+| 37 | `/api/workflow/[id]/metrics` | GET | 工作流 · 指标 |
+| 38 | `/api/workflow/[id]/stream` | GET | 工作流 · SSE 流 |
+| 39 | `/api/workflow/history/export` | POST | 工作流 · 历史导出 |
+
+### ⚠️ 正文中的「幽灵路径」需修正标注（本次不改，仅登记）
+
+`src/app/api/` 下**不存在** `workflows/`（复数）目录，但正文仍以 `/api/workflows/[workflowId]/...` 描述工作流版本与回滚端点：
+
+- `GET /api/workflows/[workflowId]/versions`（正文 5284 / 5331 行）
+- `POST /api/workflows/[workflowId]/rollback`（正文 5344 行）
+
+实际路由为 **`/api/workflow/[id]/versions/...`（单数、`[id]`）**，且 `versions`、`versions/[versionId]`、`versions/compare`、`versions/settings`、`versions/[versionId]/rollback` 在 `src/app/api/workflow/[id]/versions/` 下**均已存在**——即正文把它们标注为「已移除」的端点**实际存在**。本节仅登记该差异，**不擅自改动**上文既有结论段落（涉及 T123/T130 落地口径），留待专项任务裁决。
+
+### 🏗️ 后端整合主线状态速记（与 `7zi-backend/` 实测一致）
+
+| 事实（2026-10-25 只读核实） | 证据 |
+|---|---|
+| `7zi-backend/` 已存在，含 `websocket/`、`workflow-engine/`、`websocket-service/`、`workflow-service/`、`bin/`、`package.json` | `ls -la 7zi-backend/` |
+| `7zi-backend/websocket/` 与 `7zi-backend/workflow-engine/` 仍是**符号链接视图**（实体代码在 `server/` 与 `workflow-engine/backend/`） | `ls -la` 显示 `websocket-server.js -> .../server/websocket-server.js`、`src -> .../backend/src` |
+| 端口冲突**已解决**：WS 兜底 3002 / WF 兜底 3001，脚本路径 3010 / 3011 | `websocket/lib/config.js`（`DEFAULT_PORT=3002`）、`workflow-engine/backend/server.js`（`DEFAULT_PORT=3001`） |
+| `websocket-service/` 与 `workflow-service/` **仍被 git 追踪（27 个文件）**，且已接入后端 CI | `git ls-files`；`.github/workflows/backend-ci.yml` 含两个子服务 job |
+| T31 阶段 1 提出的 5 个端点（`/api/v1/ws/health|stats|rooms/:id`、`/api/v1/workflow/health|metrics`）**尚未移植**到正式实现 | `grep -rn 'api/v1/ws\|api/v1/workflow' 7zi-backend/websocket/lib/server.js workflow-engine/backend/server.js` → 无命中 |
+| JWT 短密钥「生产即退出」行为**已 backport** 到 `websocket/lib/jwt-secret.js` | `MIN_SECRET_LENGTH = 64` + `exit(1)` 分支 |
+| `workflow-service/src/engine/WorkflowEngine.js` 的 `safeEval` **已回迁加固版**（`new Function` + `with(scope)`，含 `resolveConditionValue`） | `grep -n 'new Function\|resolveConditionValue'` 两个实现均命中 |
+| 前端侧后端逻辑仍分散在 `src/lib/`：`websocket`(31 文件/13k LOC)、`workflow`(33/13.9k)、`message-queue`(20/5.2k)、`realtime`(15/5.5k)、`monitoring`(54/31.9k) 等 | `find src/lib -name '*.ts'` 统计 |
+| 通知模块**三处并存**：`src/lib/services/notification*.ts` 与 `src/features/notifications/services/notification*.ts`（内容高度重复） | `diff` + `wc -l`（各 427/596/601 行 ×2 处） |
+
+_本节追加于 2026-10-25，来源报告：`T141_BACKEND_CONSOLIDATION_AUDIT.md`。_

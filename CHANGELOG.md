@@ -7,6 +7,50 @@
 
 ---
 
+## [未发布] / 2026-10-25（T141 后端整合架构体检）
+
+> 本段落由 **T141（📚 咨询师）** 追加，日期 **2026-10-25 (Asia/Shanghai)**。
+> 性质：**只读体检 + 文档增量同步**。本次**未修改任何 `src/` 源码**、未 `git add/commit/push`、未新增依赖。
+> 完整核实过程与四类清单见 `T141_BACKEND_CONSOLIDATION_AUDIT.md`。
+
+### 📝 Documentation
+
+- **`API.md` 追加「🩺 后端整合一致性补记（T141 架构体检，2026-10-25）」小节**（增量追加，未改写既有段落）
+  - 列出 **39 条正文未覆盖的路由**（admin 限流/安全黑名单、auth token/verify/permissions/audit-logs、
+    export 任务族、import 任务族、monitoring apm/realtime、rca 三条、reports 三条、sentry-test、
+    v1/tenants 六条、workflow executions/history/metrics/stream/history-export），
+    附带**实测方法列表**（直接取自各 `route.ts` 的导出 handler），仅列清单不写契约。
+  - 登记 **2 处「幽灵路径」差异**：正文描述的 `/api/workflows/[workflowId]/versions`、`/api/workflows/[workflowId]/rollback`
+    在 `src/app/api/` 下**不存在**（无 `workflows/` 复数目录）；实际实现是 `/api/workflow/[id]/versions/...`，
+    且正文标注为「已移除」的 `versions`、`versions/[versionId]`、`versions/compare`、`versions/settings`、
+    `versions/[versionId]/rollback` **实际均存在**。本次仅登记不改动，涉及 T123/T130 口径。
+  - 新增「后端整合主线状态速记」小节（`7zi-backend/` 目录、symlink 现状、端口分配、CI 覆盖、前端 `src/lib` 后端模块规模、通知模块重复）。
+
+### 🔍 Audited（只读核实，未产生代码变更）
+
+- **后端整合主线现状核实**（对照 `ARCH_BACKEND_CONSOLIDATION_PLAN_20261020.md`、
+  `ARCH_BACKEND_CONSOLIDATION_20261021.md`、`T31_BACKEND_CONSOLIDATION_PLAN_20261022.md`）：
+  - ✅ **已完成**：`7zi-backend/` 目录建立；统一 `package.json`（含 `engines: node>=18`）；`bin/start-*.sh` 三脚本；
+    端口冲突消解（WS 兜底 3002 / WF 兜底 3001，脚本注入 3010 / 3011）；
+    `websocket/lib/` 六模块化拆分 + 110+ 用例 Jest 基线；JWT「生产+短密钥 exit(1)」行为已 backport；
+    `workflow-service` 的 `safeEval` 已回迁加固版（`new Function` + `with(scope)`）。
+  - 🚧 **未完成**：T31 阶段 3「symlink 收敛」（`7zi-backend/websocket/`、`7zi-backend/workflow-engine/` 仍为符号链接视图，
+    实体代码仍在 `server/` 与 `workflow-engine/backend/`）；T31 阶段 1 提出的 5 个端点
+    （`/api/v1/ws/health|stats|rooms/:id`、`/api/v1/workflow/health|metrics`）**尚未移植**到正式实现；
+    T31 阶段 2「删除 `websocket-service/` / `workflow-service/`」**未执行**（27 个文件仍被 git 追踪，
+    且已由 `.github/workflows/backend-ci.yml` 的两个独立 job 覆盖，删除前需先解耦 CI）。
+  - 📌 **文档落后于代码**：`7zi-backend/README.md` 目录树仍只列 `websocket/` 与 `workflow-engine/`，
+    未列 `websocket-service/` / `workflow-service/`；`API.md` 头部「Total Endpoints: 49」与实际 108 路由文件不符。
+
+### ⚠️ 遗留（建议后续专项，本任务不执行）
+
+- `src/lib/services/notification*.ts` 与 `src/features/notifications/services/notification*.ts` **双份并存**（各 427/596/601 行），
+  建议合并为单一实现。
+- `API.md` 39 条缺失路由的请求/响应契约补全，以及「幽灵路径」段落的裁决与改写。
+- `7zi-backend/README.md` 目录树与根 `README.md` 的服务目录同步。
+
+---
+
 ## [未发布] / 2026-10-21 ~ 2026-10-25（T119–T131 补记，由 T132 同步）
 
 > 本段落由 **T132（📚 咨询师）** 补记，日期 **2026-10-25 (Asia/Shanghai)**。
