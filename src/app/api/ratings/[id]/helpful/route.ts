@@ -10,6 +10,7 @@ import {
   createSuccessResponse,
   createErrorResponse,
   createNotFoundError,
+  createValidationError,
 } from '@/lib/api/error-handler'
 import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger'
 
@@ -24,7 +25,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     // Validate input
     if (typeof helpful !== 'boolean') {
-      return createErrorResponse(new Error('helpful must be a boolean'), 400)
+      // 用 createValidationError 而不是 createErrorResponse(err, 400)：
+      // 后者走普通 Error 分支，error.type 会是 INTERNAL_ERROR，与 400 语义不符。
+      return createValidationError('helpful must be a boolean', { helpful })
     }
 
     const db = await getDatabaseAsync()

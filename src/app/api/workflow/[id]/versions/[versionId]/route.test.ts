@@ -111,7 +111,9 @@ describe('Workflow Version Detail API', () => {
 
       expect(response.status).toBe(403)
       expect(data.success).toBe(false)
-      expect(data.error.type).toBe('INTERNAL_ERROR')
+      // 403 必须配 FORBIDDEN 类型 —— 之前走 createErrorResponse(err, 403)
+      // 会让 error.type 变成 INTERNAL_ERROR，与状态码语义不符。
+      expect(data.error.type).toBe('FORBIDDEN')
       expect(data.error.message).toBe('Direct version deletion is not allowed. Use rollback instead.')
     })
 

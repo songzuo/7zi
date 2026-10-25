@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { workflowMonitoring } from '@/lib/workflow/monitoring'
+import { createNotFoundError } from '@/lib/api/error-handler'
 
 export async function GET(
   request: NextRequest,
@@ -23,12 +24,11 @@ export async function GET(
       )
     }
 
-    // 验证工作流ID匹配
+    // 验证工作流ID匹配。
+    // 归属不匹配统一按 404 处理（与 versions 路由一致）——
+    // 避免通过状态码差异泄漏"执行存在但不属于本工作流"这一信息。
     if (details.execution.workflowId !== workflowId) {
-      return NextResponse.json(
-        { error: 'Execution does not belong to this workflow' },
-        { status: 400 }
-      )
+      return createNotFoundError('Execution not found')
     }
 
     return NextResponse.json(details)

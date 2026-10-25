@@ -136,8 +136,11 @@ describe('GET /api/workflow/[id]/executions/[execId]', () => {
     })
     const data = await response.json()
 
-    expect(response.status).toBe(400)
-    expect(data.error).toBe('Execution does not belong to this workflow')
+    // 归属不匹配统一按 404（与 versions 路由一致），避免用状态码差异
+    // 泄漏"执行存在但不属于本工作流"这一信息。
+    expect(response.status).toBe(404)
+    expect(data.error.type).toBe('NOT_FOUND')
+    expect(data.error.message).toBe('Execution not found')
   })
 
   it('should return 500 when fetching details throws', async () => {

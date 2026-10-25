@@ -10,6 +10,7 @@ import {
   createSuccessResponse,
   createErrorResponse,
   createNotFoundError,
+  createForbiddenError,
 } from '@/lib/api/error-handler'
 
 interface RouteParams {
@@ -53,7 +54,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Note: We don't allow direct deletion of versions to preserve history
     // This would require admin privileges in a real implementation
 
-    return createErrorResponse(new Error('Direct version deletion is not allowed. Use rollback instead.'), 403)
+    // 用 createForbiddenError 而不是 createErrorResponse(err, 403)：
+    // 后者走的是普通 Error 分支，error.type 会是 INTERNAL_ERROR，
+    // 与 403 的语义不符（客户端按 type 分支处理时会走错）。
+    return createForbiddenError('Direct version deletion is not allowed. Use rollback instead.')
   } catch (error) {
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
