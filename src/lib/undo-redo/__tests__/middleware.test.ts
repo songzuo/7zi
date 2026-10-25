@@ -367,6 +367,13 @@ describe('undoRedo Middleware', () => {
       expect(store.user.profile.age).toBe(31)
       expect(store.canUndo).toBe(true)
 
+      // 每次 set 是一个历史节点（见同文件的 'should handle array state updates'：
+      // addItem + removeItem 之后要 undo 两次才回到初始值）。
+      // updateName / updateAge 是两次独立的 set，所以需要 undo 两次。
+      store.undo()
+      expect((useStore.getState() as UndoRedoState).user.name).toBe('Jane')
+      expect((useStore.getState() as UndoRedoState).user.profile.age).toBe(30)
+
       store.undo()
       expect((useStore.getState() as UndoRedoState).user.name).toBe('John')
       expect((useStore.getState() as UndoRedoState).user.profile.age).toBe(30)
