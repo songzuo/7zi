@@ -3,7 +3,7 @@
  * 包含工作流执行、节点执行和性能指标的定义
  */
 
-import { NodeStatus, InstanceStatus } from '@/types/workflow'
+import { NodeStatus } from '@/types/workflow'
 
 /**
  * 工作流执行状态

@@ -153,7 +153,12 @@ export interface DashboardLayout {
 // Export Formats
 // ============================================================================
 
-export type ExportFormat = 'csv' | 'xlsx' | 'json' | 'pdf'
+/**
+ * 支持的导出格式。
+ * 注意：与 /api/analytics/export 的实现保持一致 —— 仅 csv/xlsx/json，
+ * 不含 pdf（服务端尚未实现 PDF 导出，传入 pdf 会被拒绝并返回 400）。
+ */
+export type ExportFormat = 'csv' | 'xlsx' | 'json'
 
 export interface ExportOptions {
   format: ExportFormat

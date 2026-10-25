@@ -28,9 +28,22 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
 
+    if (isNaN(limit) || limit < 1 || limit > 1000) {
+      return createValidationError('Limit must be between 1 and 1000')
+    }
+
+    if (isNaN(offset) || offset < 0) {
+      return createValidationError('Offset must be >= 0')
+    }
+
     const result = await workflowVersionService.getVersions(workflowId, { limit, offset })
 
-    return createSuccessResponse(result)
+    // 回显分页参数，供客户端确认当前页对应的分片区间
+    return createSuccessResponse({
+      ...result,
+      limit,
+      offset,
+    })
   } catch (error) {
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }

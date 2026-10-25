@@ -823,7 +823,7 @@ class CronTrigger implements ITrigger {
   /**
    * 获取指定时区的日期
    */
-  private getDateInTimezone(timezone: string): Date {
+  private getDateInTimezone(_timezone: string): Date {
     // TODO(P3): 实现时区转换 (使用 Intl.DateTimeFormat)
     return new Date()
   }

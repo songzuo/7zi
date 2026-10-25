@@ -30,8 +30,9 @@ describe('POST /api/workflow/[id]/run', () => {
     const response = await POST(mockRequest, { params: Promise.resolve({ id: '123' }) })
     expect(response.status).toBe(200)
     const data = await response.json()
-    expect(data.executionId).toBeDefined()
     expect(data.success).toBe(true)
+    expect(data.data.instanceId).toBeDefined()
+    expect(typeof data.data.instanceId).toBe('string')
   })
 
   it('should validate required workflow id', async () => {

@@ -3,9 +3,9 @@
  * 负责管理工作流的触发和执行调度
  */
 
-import { WorkflowDefinition, WorkflowInstance, InstanceStatus } from '@/types/workflow'
+import { WorkflowDefinition } from '@/types/workflow'
 import { enhancedWorkflowExecutor } from './executor'
-import { TriggerManager, TriggerDefinition, TriggerType, TriggerStatus } from './triggers'
+import { TriggerManager, TriggerDefinition, TriggerStatus } from './triggers'
 
 /**
  * 调度任务状态

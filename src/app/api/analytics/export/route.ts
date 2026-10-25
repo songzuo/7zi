@@ -136,7 +136,6 @@ function getContentType(format: ExportFormat): string {
     csv: 'text/csv',
     xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     json: 'application/json',
-    pdf: 'application/pdf',
   }
   return types[format] || 'application/octet-stream'
 }
@@ -162,6 +161,11 @@ export async function POST(request: NextRequest) {
         parseError instanceof Error ? parseError : new Error('Invalid request body'),
         400
       )
+    }
+    // JSON 合法但不是对象（null / 数组 / 数字）→ 客户端错误，
+    // 否则下面的解构会抛 TypeError → 500。
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return createValidationError('Invalid request body')
     }
     const {
       format = 'csv',

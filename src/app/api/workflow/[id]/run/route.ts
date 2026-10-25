@@ -7,7 +7,7 @@
 import { NextRequest } from 'next/server'
 import { workflowEngine } from '@/lib/workflow/engine'
 import { WorkflowStatus, NodeType, EdgeType, InstanceStatus } from '@/types/workflow'
-import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
+import { createSuccessResponse, createErrorResponse, createValidationError } from '@/lib/api/error-handler'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -20,6 +20,12 @@ interface RouteParams {
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params
+
+    // 路径参数校验：workflow id 为必填项
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      return createValidationError('Workflow ID is required')
+    }
+
     const body = await request.json()
 
     // 创建工作流定义（模拟 - 实际应该从数据库读取）
@@ -116,6 +122,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params
+
+    // 路径参数校验：workflow id 为必填项
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      return createValidationError('Workflow ID is required')
+    }
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const limit = parseInt(searchParams.get('limit') || '50')

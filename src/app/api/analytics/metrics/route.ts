@@ -158,7 +158,9 @@ async function fetchMetricsFromDatabase(filters: AnalyticsFilters): Promise<Anal
   const db = getDatabase()
   
   const timeMultiplier = getTimeMultiplier(filters.timeRange)
-  const { startDate, endDate } = getDateRange(filters)
+  // metrics 聚合按 created_at >= startDate 过滤各表；endDate 未被任何查询使用，
+  // 故不解构出来（避免 no-unused-vars 警告）。
+  const { startDate } = getDateRange(filters)
 
   // Fetch agents metrics
   const agentsResult = db.queryRows<{
@@ -365,7 +367,6 @@ async function fetchTimeSeriesFromDatabase(
   
   // Calculate pagination
   const startIndex = (page - 1) * limit
-  const endIndex = Math.min(startIndex + limit, totalDays + 1)
   const totalPages = Math.ceil((totalDays + 1) / limit)
 
   // Fetch daily aggregated data from database
@@ -470,7 +471,7 @@ export async function GET(request: NextRequest) {
 
     // Validate pagination parameters
     if (page < 1 || limit < 1 || limit > 1000) {
-      return createValidationError(
+      return await createValidationError(
         'Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 1000'
       )
     }
@@ -480,7 +481,8 @@ export async function GET(request: NextRequest) {
       try {
         parsedCustomRange = JSON.parse(customRange)
       } catch (error) {
-        return createValidationError('Invalid customRange format')
+        logger.error('Analytics GET invalid customRange', error, { category: 'analytics' })
+        return await createValidationError('Invalid customRange format')
       }
     }
 
@@ -528,7 +530,7 @@ export async function GET(request: NextRequest) {
     )
   } catch (error) {
     logger.error('Analytics API error', error, { category: 'analytics' })
-    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'))
+    return await createErrorResponse(error instanceof Error ? error : new Error('Internal server error'))
   }
 }
 
@@ -557,17 +559,32 @@ export async function POST(request: NextRequest) {
       body = await request.json()
     } catch (parseError) {
       logger.error('Analytics POST invalid JSON body', parseError, { category: 'analytics' })
-      return createErrorResponse(
+      return await createErrorResponse(
         parseError instanceof Error ? parseError : new Error('Invalid request body'),
         400
       )
     }
-    const page = body.page || 1
-    const limit = body.limit || 100
+    // JSON 合法但不是对象（null / 数组 / 数字）→ 同样是客户端错误，
+    // 否则下面的 body.page 解引用会抛 TypeError → 500。
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return await createValidationError('Invalid request body')
+    }
+    // 用 ?? 而不是 ||：|| 会把合法的 0 吞成默认值（0 || 1 === 1），
+    // 导致下面 page < 1 的校验永远不触发（page=0 被静默改成 1）。
+    const page = body.page ?? 1
+    const limit = body.limit ?? 100
 
     // Validate pagination parameters
-    if (page < 1 || limit < 1 || limit > 1000) {
-      return createValidationError(
+    if (
+      typeof page !== 'number' ||
+      typeof limit !== 'number' ||
+      !Number.isFinite(page) ||
+      !Number.isFinite(limit) ||
+      page < 1 ||
+      limit < 1 ||
+      limit > 1000
+    ) {
+      return await createValidationError(
         'Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 1000'
       )
     }
@@ -608,9 +625,9 @@ export async function POST(request: NextRequest) {
       },
     }
 
-    return createSuccessResponse(responseData)
+    return await createSuccessResponse(responseData)
   } catch (error) {
     logger.error('Analytics POST API error', error, { category: 'analytics' })
-    return createErrorResponse(error instanceof Error ? error : new Error('Invalid request body'))
+    return await createErrorResponse(error instanceof Error ? error : new Error('Invalid request body'))
   }
 }

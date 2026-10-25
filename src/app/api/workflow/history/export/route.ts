@@ -6,7 +6,6 @@
 import { NextRequest } from 'next/server'
 import { workflowHistoryService } from '@/lib/workflow/history'
 import {
-  createSuccessResponse,
   createErrorResponse,
   createValidationError,
 } from '@/lib/api/error-handler'
