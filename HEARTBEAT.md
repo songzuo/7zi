@@ -1,50 +1,5 @@
 # HEARTBEAT.md
 
-## 当前基线（2026-10-24 05:38–05:52，T86 实测）
-
-| 检查项 | 命令 | 结果 |
-|---|---|---|
-| 前端 ESLint（`7zi-frontend/src`） | `cd 7zi-frontend && npx eslint src` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
-| 后端 ESLint | `cd 7zi-backend && npx eslint .` | ✅ **0 errors / 0 warnings**（exit 0，无输出） |
-| 根级 ESLint | `npx eslint src` | ✅ **0 errors / 1625 warnings**（exit 0） |
-| 后端 Jest | `cd 7zi-backend && npx jest` | ✅ **16 套件 / 342 用例全绿**，15.3s |
-| 后端 Jest worker | 同上 | ⚠️ 输出 `A worker process has failed to exit gracefully`（测试全绿，但疑似 teardown 泄漏，**待验证**） |
-| 前端 collab-client | `cd 7zi-frontend && npx vitest run tests/features/collab-client.test.ts` | ✅ **38 passed (38)**，Duration 3.82s（05:55 实测；05:39 时为 15 failed / 23 passed，已由 T82 修复） |
-
-### 后端 CI 实际覆盖范围
-- `.github/workflows/` 共 **9 个** workflow 配置
-- `backend-ci.yml` 5 个 job，**只**覆盖 `7zi-backend/`（根）与 `workflow-engine/backend/`
-- **尚未覆盖** `7zi-backend/websocket-service/` 与 `7zi-backend/workflow-service/`
-  （两者 `package.json` 都有 `lint` / `test` 脚本，CI 未调用）→ 真实覆盖缺口
-- 真实 GitHub Actions 上的**首次运行尚未发生**
-
-### Git 状态（05:40 实测）
-- 本地 `main` **领先 `origin/main` 30 个提交**（`origin/main` = `17cf105a92`，2026-10-23 00:44）
-- 工作区：**5 个已修改文件**（`HEARTBEAT.md` / `eslint.config.mjs` / `memory/claw-mesh-state.json` /
-  `src/lib/monitoring/prometheus.js` / `state/tasks.json`）+ 1 个未跟踪文件（`DEV_TASKS_20261024_0537.md`）
-- 全部改动**未 push**
-
-### 关键判断记录
-- ⚠️ **更正先前的一处误判**（提交 `f1fd650ddf`）：
-  `src/lib/monitoring/prometheus.js` 是 tsc 从同名 `.ts` 编译出的 ES5 产物
-  （含 `__awaiter`/`__generator`/`__spreadArray` 等 tsc helper）。
-  里面的 `var _this = this` 是 **tsc 对 `.ts` 箭头函数的正确降级**，不是死代码；
-  手工改成 `this` 会改坏与 `.ts` 的对应关系，且下次编译即被覆盖。
-  已核对两文件方法集与导出完全一致（8 个方法 + 2 个导出）。
-  **处理方式：撤销手工改动，在 `eslint.config.mjs` 中忽略该编译产物。**
-- prefetch 测试的 9 个失败已用 `git stash` 干净树对照，确认**存量非本次引入**。
-- prefetch 测试的 9 个失败已用 `git stash` 干净树对照，确认**存量非本次引入**。
-- 裸 `curl` 打 `https://7zi.com/` 返回 403 是 **Cloudflare/WAF 拦 curl UA**，不是站点故障；
-  所有健康检查/监控脚本必须带浏览器 UA。
-
-### 集群 SSH 实测（05:44）
-| 节点 | 结果 |
-|---|---|
-| bot3 | ❌ `Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password)` |
-| bot4 | ❌ 同上 |
-| bot5 | ✅ 用 `~/.ssh/id_bot6_ed25519` 可登录（hostname = `ecm-cd59`）；但 `crontab -l` 显示同步为 **`*/5 * * * *`**（每 5 分钟） |
-
----
 # OpenClaw相关任务前必读
 
 在执行任何OpenClaw配置相关任务之前，请先阅读:
@@ -58,8 +13,9 @@
 
 集群节点：bot2 / bot3 / bot4 / bot5 / bot6，共享仓库 `songzuo/botmem`。
 
-**先确认自己在哪台**：`hostname` —— 不同节点的 HEARTBEAT.md 内容相同，
-但"本机"可能指 bot2（本文件原本这么写）或 bot4（bot4 上实际如此）。
+**先确认自己在哪台**：`hostname` + `curl -s ifconfig.me` ——
+⚠️ **本机是 bot3**（hostname=VM-0-4-opencloudos，公网 159.75.149.84 = bot3.szspd.cn）。
+"本机"指 bot3，**不是 bot2 也不是 bot4**。bot6 是另一台独立机器 109.123.246.140。
 清单第 2/3/4/5 项要 SSH 到**其他**节点，先排除本机。
 
 **核心提醒：不要只看"同步是否成功"。** 2026-10-22 的经验是，
@@ -286,6 +242,277 @@ git log --format='%h|%s' | grep 'Claw-Mesh 同步' | \
 **教训**：共享仓库里"谁在写谁"必须看**提交实际改了哪些路径**，
 不能只看 commit message 里的节点名 —— message 是脚本自报的，可以撒谎。
 
+## 24. 备份仓库会"推飞"（2026-10-25 踩过）
+`/root/.openclaw/backups/github/repo` 长期不 pull → **ahead 29 / behind 305**，
+`backup-static.sh` 的 push 被拒（非 fast-forward），备份静默堆积。
+- 巡检必查：`cd /root/.openclaw/backups/github/repo && git rev-list --left-right --count HEAD...origin/main`
+- 修复：`git pull --rebase origin main`（`claw-mesh-state.json` 会反复冲突，
+  循环 `git checkout --theirs` + `git add` + `git rebase --continue` 处理）
+- ⚠️ rebase 前先 `git checkout -- claw-mesh-deploy/scripts/claw-mesh-sync.sh`，
+  本地可能是含 `YOUR_GITHUB_TOKEN_HERE` 的陈旧模板
+- 根因：备份脚本 push 前没有可靠地 pull --rebase
+
+## 25. 跨节点 SSH 现状（2026-10-25）
+**只有 bot2 ↔ bot6 能互访**（用 `~/.ssh/b6_ed25519`）。
+bot2 → bot3/4/5 全 `Permission denied`；bot6 → bot3/4/5 同样被拒。
+bot2 本机的 `id_ed25519` 私钥**已不存在**（只剩 `b6_ed25519` 与
+`id_ed25519_backuptunnel`），对端 authorized_keys 都不认。
+→ 清单第 2/3/4/5 项目前只能靠共享仓库里的 state 副本间接核对。
+
+## 26. 备份仓库 push 被拒（2026-10-25 已修复脚本）
+`backup-memory.sh` / `backup-static.sh` 原来用
+`git pull --rebase origin main 2>/dev/null || ... || true` —— **失败被吞掉**，
+本地落后远端后 push 必然 non-fast-forward，备份静默堆积（实测 ahead 2 / behind 23）。
+→ 脚本已改为：rebase 失败自动解决冲突重试 5 次，仍失败则**中止并报错**（不再 `|| true`）。
+→ 巡检必查：`cd /root/.openclaw/backups/github/repo && git rev-list --left-right --count HEAD...origin/main`（应为 `0 0`）
+→ 修复手法：残留 rebase 状态先 `rm -rf .git/rebase-merge .git/rebase-apply`；
+  rebase 后 HEAD 会 detached，**必须 `git checkout main` 再 push**，否则推的是陈旧 ref。
+
+## 27. 脱敏 pattern 漏了 `moltbook_sk_` 下划线形式（2026-10-25 定位）
+
+**症状**：moltbook API key 一直"脱敏不干净"——
+旧 pattern 是 `s/sk_[A-Za-z0-9]*/[已移除]/g`（下划线，破坏标识符），
+换成安全版 `s/(^|[^A-Za-z0-9_])sk-[A-Za-z0-9_-]{20,}/...`（连字符）之后，
+**`moltbook_sk_XXXX` 这种下划线形式反而完全匹配不上了** → key 从未被脱敏。
+
+**更阴的一点**：手工/半自动脱敏只替换了 key 的前半段，尾部 `-<尾部已脱敏>`
+仍以明文留在文件里（形如 `moltbook_sk_[已移除]`），
+而且**源文件不变 → 下一轮同步又把带尾部的旧值推回仓库**，
+形成"每天自动复活"。
+
+→ 修法（已落地，bot4 2026-10-25 推到 origin/main）：
+  1. sed 补两条 pattern：
+     `s/(^|[^A-Za-z0-9_])moltbook_sk_[A-Za-z0-9]{10,}/\1moltbook_sk_[已移除]/g`
+     `s/moltbook_\[已移除\][-A-Za-z0-9_]*/moltbook_[已移除]/g`
+  2. `grep -rlE` 的定位 pattern 也要加 `moltbook_sk_[A-Za-z0-9]{20,}` 和 `moltbook_\[已移除\]`
+     —— 否则文件根本不会被 sed 扫到
+  3. 注意：`sk-`（连字符）≠ `sk_`（下划线），**两种都要覆盖**
+
+**自查**：
+```bash
+grep -rnE 'moltbook_[A-Za-z0-9_\[\]-]{8,}' --include='*.md' . | grep -v '已移除]'
+git grep -nE 'moltbook_sk_[A-Za-z0-9]{20,}|moltbook_\[已移除\]' origin/main -- .
+```
+
+## 28. 每日备份脚本会把已脱敏的密钥"复活"（2026-10-25 定位）
+
+**症状**：`7zi.com/memory/2026-07-30.md` 里的两把真实 API key
+（`sk-` 开头的一对真实 key（Coze/第三方端点））在 01:09 被 "OpenClaw Security" 脱敏，
+**当天 08:00 又原样出现**。
+
+**根因**：`7zi.com` 节点的**每日上传脚本不做脱敏**，
+它把本机源文件（仍是明文）原样推到共享仓库，覆盖掉安全提交。
+→ 这是"源在明文 + 上传不做脱敏"的循环，不是单次事故。
+
+→ 处置：先在仓库侧重新脱敏（bot4 已做，提交 `09885abb11`），
+  **但根治必须在 7zi 节点上做**：源文件脱敏 + 上传脚本加脱敏步骤。
+  巡检必查：
+```bash
+git grep -nE '(^|[^A-Za-z0-9_])(sk-[A-Za-z0-9]{25,}|gh[p]_[A-Za-z0-9]{20,})' origin/main -- .
+```
+→ **只要这条命令有输出，就是密钥又活了**，必须重新脱敏并追查来源节点。
+
+**教训**：在共享仓库里做"脱敏"只是止血；
+**只要还有节点的源文件是明文、且它的上传脚本不脱敏，明天就会复活**。
+
+## 29. 同步脚本改完要真的跑一遍（2026-10-25 做法）
+改 live 脚本后：
+1. `bash -n` 语法校验
+2. **直接执行一次** `bash /root/.openclaw/cron/claw-mesh-sync.sh`，看日志是否走到"✅ 同步完成"
+3. 用 `git show <sha> --name-only --format=''` 确认提交只动了本节点目录
+4. 用独立 clone 推送到 origin/main（**不要在同步专用工作副本里改**——
+   它每 5 分钟被 `git reset --hard origin/main` 清空，改动会丢）
+
+## 30. 护栏本身会误报，把节点静默停摆（2026-10-25 bot5 实测）
+
+**症状**：bot5 在 10:43 加了"提交前损坏不变量校验"之后，
+同步提交只剩 10:50 一条，之后全部消失（它平时每 5 分钟一次）。
+**看起来像"节点掉线"，实际是护栏每轮都中止提交。**
+
+**根因**：护栏用
+```bash
+grep -qE '[A-Za-z0-9_]+\[已移除\]' "$f"   # 文件里有就报错
+```
+判断文件是否被损坏。但**巡检记录本身会引用损坏样例**
+（如 ``ta[已移除]` 出现在"如何还原被误伤标识符"的复盘文档里）→ 误报 →
+`save_state 3 "identifier_corrupted"` + `return 1` → 每轮同步都失败。
+
+**更隐蔽的一点**：护栏在 `git commit` **之前**中止，
+所以仓库里 bot5 的 `claw-mesh-state.json` 仍停在最后一次成功那轮的
+`healthy` —— **"状态看起来健康"与"节点已停摆"同时成立**。
+→ 光看 state 里的 status 会漏掉这种停摆，**必须看 lastSync 是否在推进**。
+
+**正确判据**（只拦"本次新增"的损坏）：
+```python
+old_marks  = set(re.findall(r"[A-Za-z0-9_]*\[已移除\]", old))   # HEAD 版本
+old_tokens = set(re.findall(r"[A-Za-z0-9_]*sk_[A-Za-z0-9_]*", old))
+# 新版本里出现 HEAD 没有的 [已移除]，且其前缀在 HEAD 里对应 X_sk_Y → 真损坏
+```
+已用真实数据验证：bot5 的复盘文档 → 放行；bot6 历史损坏版 → 拦截。
+
+**教训**：**护栏必须先在真实数据上验证放行/拦截两个方向，再上生产**。
+只测"能拦住坏文件"不够 —— 还会误伤好文件，而误伤的表现是"节点静默消失"，
+比不装护栏更难查。
+
+## 31. 巡检必查：lastSync 是否在推进（不只是 status）
+state 里 `status: healthy` 只说明**最后一次写 state 时**是健康的。
+护栏中止、push 被拒、fetch 挂死（bot5 10:50-11:10 复现：进程挂在 fetch 上 20 分钟）
+都会留下"健康的旧 state"。
+```bash
+git log --format='%ad %s' --date=format:'%H:%M' origin/main --grep='<节点>: Claw-Mesh' | head -4
+# 对比该节点的推送节奏（bot5 每 5 分钟、bot2 :00 / bot4 :15 / bot6 :30 / bot3 :45）
+```
+落后超过 2 个周期 → 节点已停摆，即使 state 显示 healthy。
+
+⚠️ **各节点节奏不同，别用同一把尺子**（据 2026-10-25 实测）：
+| 节点 | 节奏 | 槽位 |
+|---|---|---|
+| bot5 | 每 5 分钟 | `*/5` |
+| bot2 | 每 4 小时 | `:00` |
+| bot3 | 每 4 小时 | `:45` |
+| bot4 | 每 4 小时 | `:15` |
+| bot6 | 每 4 小时 | `:30` |
+→ bot3 08:45、bot6 08:30 之后没新同步是**正常**，下一槽位 12:45 / 12:30。
+→ 只有超出**自己节奏** 2 个周期才算停摆。
+
+## 32. 部署脚本会被 bot4 的本地副本覆盖（2026-10-25 踩过两遍）
+`claw-mesh-deploy/scripts/` 下的文件**由 bot4 自己的本地副本推送**（bot4 的 live 脚本
+`git add claw-mesh-deploy/`）。所以：
+- bot2 在仓库里改 `claw-mesh-selfheal.sh` → **bot4 下一轮同步（:15）会用它本地的旧副本覆盖回去**
+  （实测：bot2 15:53 的修复被 bot4 15:52 的提交覆盖，第二次应用才成功）
+- 推论：**改仓库里的部署脚本 ≠ 修好节点**（第 21 条的又一次应验）。
+  → 部署类修复必须让 bot4 侧也更新本地副本，bot4 拉一次 origin/main 才生效
+  → 或由 bot2 在 bot4 同步前把修复提交好并观察下一轮是否被覆盖
+
+## 33. 脚本里的"修复版"要验证它真的执行（2026-10-25）
+bot4 的 selfheal 脚本注释写着「实测 bot5 15:35 后停摆」并声称已修 rebase 残留，
+但检查的路径 `$WORK_DIR/botmem/.git/rebase-merge` **永远不存在**
+（`WORK_DIR` 就是 clone 根，git dir 是 `$WORK_DIR/.git`）→ 清理逻辑一次都没跑过。
+- **注释里的"实测"不等于代码真的走过那条路径**
+- 修完脚本必须：① `bash -n` ② 造出触发条件实跑 ③ 检查目标路径确实被访问
+- 巡检时看脚本里的路径变量是否与实际目录结构一致（`WORK_DIR` vs `WORK_DIR/.git`）
+
+## 34. 节点互相覆盖污染：三条路径要一起堵（2026-10-25 实测）
+
+**症状**：bot6 在 16:30 的"提交合并完成"提交（`d0970581b8`）里，
+bot2/MEMORY.md、bot2/memory/2026-10-25.md、bot3/MEMORY.md、bot3/memory/2026-10-25.md
+**全变成了 bot6 自己的内容**（bot3/MEMORY.md 开头是"bot6 巡检记录"）。
+bot6 自己 16:30 的状态显示 `files_synced: 70`，而其他节点只有 1-8 → **数量异常就是信号**。
+
+### 三条污染路径（第 23 节只记了第一条）
+1. **提交时暂存范围**：`git add .` / `git add -A` 会把**所有**节点目录一起提交。
+   → 必须是 `git add "$MACHINE_NAME"/`
+   （同一段里前一行已经是对的，唯独"提交合并完成"那步漏了 → **要逐行核对**）
+2. **脱敏范围**：全仓库 `find $BOTMEM_DIR | sed -i` → 节点 A 的 sed 改写节点 B 的文件。
+   → 必须是 `find "$BOTMEM_DIR/$MACHINE_NAME"`
+3. **拷贝顺序**：`git reset --hard origin/main` 在前、`cp -r $WORKSPACE_DIR/$MACHINE_NAME`
+   在后 → 本机副本（可能已脏）把仓库里已修好的版本**盖回去**。
+   实测 bot3 因此**无法自愈**：仓库恢复干净后，它在 20:45/20:52/21:03
+   **三次**把污染内容又推回来。→ 拷贝前先 fetch+reset，且**跳过空文件**
+   （空文件几乎总是"覆盖事故"的结果，不是真实内容）。
+
+### 巡检必查
+```bash
+# 1) 每个提交只动了自己的目录吗？
+for c in $(git log --format='%h' origin/main -12); do
+  echo -n "$c: "; git show $c --name-only --format='' | grep -oE '^[a-z0-9._-]+/' | sort -u | tr '\n' ' '; echo
+done
+# 2) 各节点文件归属对吗？（第一行应该像自己的内容）
+for n in bot2 bot3 bot4 bot5 bot6; do
+  echo -n "$n/MEMORY.md :: "; git show origin/main:$n/MEMORY.md | head -1 | cut -c1-40; echo
+done
+```
+→ 出现别人的内容、或文件数明显偏多（70 vs 平时 8）= **正在污染**。
+
+**教训**：堵污染要**三条路径一起堵**。只堵了脱敏范围，
+提交范围和拷贝顺序照样能把内容送到别人目录里。
+
+## 35. 同一时刻槽的两个任务写同一个文件 = 永久死循环（2026-10-25 20:00 实测）
+**症状**：bot2 20:00 的同步 6 次 push 全被拒，日志 `❌ Claw-Mesh 同步失败`，
+但 `claw-mesh-state.json` 写着 `status: healthy` —— **状态文件完全掩盖了失败**。
+
+**根因（三层）**：
+1. `backup-memory.sh`（`0 */4` = **:00**）与同步脚本（`:00`）**同槽**，
+   且**都写** `bot2/memory/claw-mesh-state.json` → 互为对方制造冲突
+2. 同步脚本 push 重试里 rebase 冲突只 `abort` —— 等于什么都没做，
+   下一轮 push 照样 non-fast-forward → 6 次重试全废
+3. `save_state 4 "push_failed"` 被后面的 `save_state 0 "idle"` 覆盖 → 永远 healthy
+
+**修法**：
+- rebase 冲突时**自动解决**（冲突文件取远端版）+ `rebase --continue`，不要只 abort
+- push 失败写独立标记文件（成功时清除），巡检优先读它
+- **运行时状态文件只允许一个任务写**（备份脚本不要提交 state 文件）
+- crontab **错峰**：同一台机器上所有写共享仓库的任务不能落在同一分钟
+
+**巡检必查**：
+```bash
+grep -E '推送失败|同步失败' /var/log/claw-mesh.log | tail -5   # 不能只看 state.status
+ls -la /var/run/claw-mesh-sync.pushfailed 2>/dev/null          # 存在=上轮没推上去
+crontab -l | grep -E 'backup|claw-mesh|sync-from'               # 看有没有同槽
+```
+
+## 36. rebase 冲突时 --theirs / --ours 的方向容易搞反（2026-10-25）
+在 `git rebase` 过程中：
+- **`--theirs` = 待重放的那一侧**（= 你的本地提交）
+- **`--ours` = 已经变基到远端的那一侧**（= 远端内容）
+备份脚本原写法 `checkout --theirs || checkout --ours` → 优先取的是**本地**，
+等于用本地覆盖远端 —— 方向反了。
+→ 全量覆盖式备份脚本应取 **`--ours`（远端侧）**；
+  但普通同步脚本要保留自己的改动，取 `--theirs`（本地侧）—— **两者相反，要按场景选**。
+
+## 37. `git diff --quiet` 守卫在共享仓库里**永远为假** → 共享清单从未分发（2026-10-26 00:00 实测）
+
+**症状**：bot3 是唯一还在跑旧脚本的节点（383 行 vs 其他节点 423 行），
+22:25 它把 bot2 的身份行写进了 `bot2/memory/2026-10-26.md`，
+23:28 又把 bot4 的身份行写进了 `bot4/memory/2026-10-26.md`。
+
+**根因（两层，都很隐蔽）**：
+1. 共享清单的分发逻辑带了守卫：
+   ```bash
+   if git -C "$WORKSPACE_DIR" diff --quiet -- HEARTBEAT.md 2>/dev/null; then
+       cp "$STATIC_DIR/HEARTBEAT.md" "$WORKSPACE_DIR/HEARTBEAT.md"
+   fi
+   ```
+   本意是"本机改过就别覆盖"。但**同步工作区本身就是共享仓库的 checkout**，
+   里面还有 `bot2/ bot5/ ...` 等其它节点的目录 → `git diff` **永远非空**
+   → 守卫**永远为假** → **共享清单从未分发到 bot3**。
+2. 于是 bot3 一直拿不到第 31/34 节的教训（"必须 `git add "$MACHINE_NAME"/`"），
+   一直跑着带 `git add .` 的旧脚本 → 持续污染别人的目录。
+   **一个看起来合理的"保护性守卫"，反而让最需要修复的节点永远收不到修复指引。**
+
+**修法**：分发时**不要用 `git diff` 判断"本机是否改过"**。
+```bash
+if [ -f "$STATIC_DIR/HEARTBEAT.md" ]; then
+    if [ -f "$WORKSPACE_DIR/HEARTBEAT.md" ] && \
+       ! cmp -s "$STATIC_DIR/HEARTBEAT.md" "$WORKSPACE_DIR/HEARTBEAT.md"; then
+        cp "$WORKSPACE_DIR/HEARTBEAT.md" "$WORKSPACE_DIR/HEARTBEAT.md.local.bak"
+    fi
+    cp "$STATIC_DIR/HEARTBEAT.md" "$WORKSPACE_DIR/HEARTBEAT.md"
+fi
+```
+
+### ⚠️ 更要紧的：**crontab 里可能内嵌了整份脚本副本**
+bot3 的 crontab **不是**调用 `/root/.openclaw/cron/claw-mesh-sync.sh`，
+而是**内嵌了一整份 1000+ 行的脚本**。于是：
+- 你改了 `/root/.openclaw/cron/claw-mesh-sync.sh` → **完全不起作用**（cron 跑的是内嵌副本）
+- 仓库里的 `botN/claw-mesh-sync.sh` 副本同理（每次同步都会被节点自己的 live 脚本覆盖回去）
+
+**巡检必查（每个节点都要查，不能只看本机）**：
+```bash
+# 1) crontab 是调用脚本，还是内嵌了脚本？
+crontab -l | grep -cE '^\s*git add \.|rebase origin/main'   # >0 = 内嵌副本，必须一起改
+crontab -l | grep -nE 'claw-mesh-sync\.sh'                   # 期望：只有一行调用
+# 2) 节点的 live 脚本和仓库副本是否一致？
+ssh root@botN.szspd.cn 'grep -c "git add \"\$MACHINE_NAME\"/" /root/.openclaw/cron/claw-mesh-sync.sh'
+# 3) 静态分发守卫是否被 git diff 卡死？
+grep -n 'git diff --quiet -- HEARTBEAT.md' <脚本>
+```
+
+**教训**：**"仓库里改了"≠"节点上生效"**（第 21、24 节）——
+这里还要再加一层：**"脚本文件改了"≠"cron 会跑它"**。
+判断节点是否修好，要看 **cron 实际执行的那份脚本**，
+而不是 `/root/.openclaw/cron/` 下你改的那个文件。
+
 ## 已知遗留（需用户决策，勿擅自处理）
 - git 历史中可能仍残留旧 token —— 彻底清除需重写历史 + 强制推送
 - 仓库内 7.5 万个 node_modules 文件 —— 清理需重写历史
@@ -297,238 +524,112 @@ git log --format='%h|%s' | grep 'Claw-Mesh 同步' | \
 ## 推送时间（已错峰，勿改成同一时刻）
 bot2 `:00` / bot4 `:15` / bot6 `:30` / bot3 `:45` / bot5 `*/5`
 
-## 🔴 CI 门禁实测结论（2026-10-24 06:30，主管亲自本地复现）
+## 38. 备份脚本的 rebase 会因"工作区有改动"而中止（2026-10-26 05:05 实测）
 
-| Workflow | Job | 实测结果 |
-|---|---|---|
-| `ci.yml` | `lint`（`npm run lint` = `eslint .`） | ✅ **exit 0** / 1767 warnings / 140 秒 |
-| `ci.yml` | `typecheck`（`tsc --noEmit`） | ✅ **exit 0** |
-| `ci.yml` | `test-unit`（`vitest --shard=N/4`） | ❌ **exit 1** — 全量 5831 用例中 **211 失败 / 5588 通过 / 32 跳过**，耗时 387 秒 |
-| `backend-ci.yml` | `security-audit`（4 子目录 npm audit + uuid ≥ 11.1.1） | ✅ 4/4 全绿，uuid 均为 `^11.1.1` |
-| `backend-ci.yml` | `test-7zi-backend`（lint + jest --coverage） | ✅ 16/16 套件、342/342 用例，覆盖率 91%+（门槛 60%） |
-| `backend-ci.yml` | `test-workflow-engine`（lint + jest --coverage） | ✅ 6/6 套件、214/214 用例，覆盖率 88.85%（门槛 60%） |
-| `backend-ci.yml` | `test-workflow-service` / `test-websocket-service` | ✅ **本轮新增**（此前这两个子服务无 lint/test 门禁） |
+**症状**：`/var/log/backup-memory.log` 出现
+`!! pull --rebase 失败，中止备份（避免 push 被拒）`，
+备份仓库 `rev-list --left-right --count HEAD...origin/main` = `0 59`（持续落后堆积）。
 
-**结论：后端 CI 全绿；前端 CI 的 `test-unit` 必然红。**
+**根因**：**不是 rebase 冲突**，而是
+`error: cannot rebase: You have unstaged changes`
+—— 上一轮运行残留的运行期文件改动（如 `bot2/memory/claw-mesh-state.json`
+的 lastUpdate/lastSync 字段）留在工作区 → `git pull --rebase` 直接拒绝执行。
 
-### 前端 211 个失败用例分类（详见 `T85_FRONTEND_TEST_AUDIT.md`）
+**另一个坑**：这种情况本来是 **fast-forward 可拉取**的，
+用 rebase 反而多引入了这个失败条件。
 
-| 类别 | 用例数 | 性质 | 处置建议 |
-|---|---|---|---|
-| 断言过时（产品行为已演进，测试期望没跟上） | ~120 | **测试错** | 改测试期望，逐条核对产品新行为 |
-| 手势/触摸事件未触发 | 40 | **基建错** | jsdom 未实现 TouchEvent 构造，需注入 Touch 对象 |
-| 导入/模块解析失败 | 3 文件 | **基建错** | `supertest` 未安装；vi.mock 工厂引用顶层变量触发 hoist 报错 |
-| 超时 | 1 | 基建错 | 双击检测用真实 setTimeout，fake timer 未推进 |
-| 解析/收集配置错误 | 5 文件 | ✅ 本轮已修复入库 | — |
-
-### CI 耗时风险
-- `ci.yml` 的 `test-unit` 是 **4 分片并行**，每片 10 分钟超时
-- 本机 4 核、load average 常驻 9~14（多代理并发），分片耗时会被显著放大
-- 慢测试集中：`VisualWorkflowOrchestrator.test.ts`（62.6s）、
-  `edge-cases-supplement.test.ts`（75.6s）、`workflow-execution.integration.test.ts`（22.8s），
-  均为**真实 setTimeout 等待**（1~5 秒/用例），建议改 fake timer
-
----
-
-# 7zi 项目 CI 门禁状态（2026-10-24 10:30，主管逐 job 复跑）
-
-## ✅ 后端 CI 全绿
-| Job | 结果 |
-|---|---|
-| `7zi-backend` lint（`eslint websocket/ workflow-engine/`） | ✅ exit 0 |
-| `7zi-backend` jest --coverage | ✅ 16/16 套件、342/342 用例，覆盖率 91%+（门槛 60%） |
-| `workflow-engine/backend` lint | ✅ exit 0 |
-| `workflow-engine/backend` jest --coverage | ✅ 6/6 套件、214/214 用例，覆盖率 88.85% |
-| `workflow-service` lint + test | ✅ exit 0，**engine 49/49 + http 41/41** |
-| `websocket-service` lint + test | ✅ exit 0，**33/33** |
-| 4 子目录 `npm audit --omit=dev --audit-level=moderate` | ✅ 0 漏洞；uuid 均 `^11.1.1` |
-
-## 🔴 前端 CI `test-unit` 仍红
-`ci.yml` 的 `test-unit` job（`vitest --shard=N/4`）：**211 失败 / 5588 通过 / 32 跳过**（5831 总数），387 秒。
-五类分解（详见 `T85_FRONTEND_TEST_AUDIT.md`）：
-- 断言过时（产品行为已演进，测试期望没跟上）~120 → **测试错**
-- 手势/触摸事件未触发 40 → jsdom 未实现 TouchEvent 构造
-- 导入/模块解析失败 3 文件 → `supertest` 未装；vi.mock 工厂引用顶层变量触发 hoist 报错
-- 超时 1 → 双击检测用真实 setTimeout
-- 解析/收集配置错误 5 文件 → ✅ 本轮已修
-
-## 本轮关键修复（已入库）
-- `8a3a6f2fc0` —— **`workflow-service` 回移加固版 `safeEval`**。该目录此前还在用
-  **旧版 `eval()`**，与 `workflow-engine/backend` 已分叉。改为 `new Function` +
-  字面量注入，变量内容不再被当代码执行；补齐 `toLiteral`/`buildEvalScope`，
-  `resolvePath` 支持数组下标；非法占位符路径（`a..b`）抛 SyntaxError 让
-  `evaluateCondition` 能 emit `condition:error`（旧实现静默变 undefined，
-  调用方无法区分"条件为 false"和"条件写错了"）。
-  同时：HTTP 层不再给 `version` 兜底 `'1.0.0'`（否则引擎的 version 必填校验
-  变成死代码，"缺 version 应 400" 契约失效）；bodyParser 上限 100kb → 10mb。
-- `c196ebb030` —— **`deploy.sh` 健康检查改用容器内自检**。原先打 `localhost:3000`，
-  但 3000 不是宿主机对外端口（生产源站实测连接被拒），会**误判失败并自动回滚**。
-  现按三层判定：容器 running → 容器内 `127.0.0.1:3000/api/health` → 公开入口
-  （默认只告警，`strict` 才硬失败）。Cloudflare WAF 拦默认 curl UA，探测改带浏览器 UA。
-- `f1fd650ddf` —— **更正 `prometheus.js` 的处理方式**。该文件是 tsc 从同名 `.ts`
-  编译出的 ES5 产物，里面的 `var _this = this` 是 **tsc 对箭头函数的正确降级**，
-  不是死代码。已撤销手工改动，改为在 `eslint.config.mjs` 中忽略该编译产物。
-
----
-
-# 🔴 生产部署拓扑实测（T91，2026-10-24 10:30，SSH 只读实测源站）
-
-**`deploy.sh` 假设的 Docker 蓝绿拓扑在生产上根本不存在。**
-
-| 项 | 生产实况 |
-|---|---|
-| Docker 容器 | 12 个，**全是 `octo-*`**（另一个产品），**无 7zi-frontend** |
-| PM2 进程 | 5 个，**无 7zi-frontend**；`/var/www/7zi`、`/opt/7zi-frontend` 均无进程在跑 |
-| `7zi.com` 首页 | nginx 托管的**纯静态站** `/var/www/erhu-brand/china-for-free`（无 `.next`） |
-| `/api/health` | nginx → `127.0.0.1:3001` → `/data/web/marriage` 的 tsx server（**另一项目**） |
-| 3002 | `next-server (v15.5.15)` @ `/data/var/www/new-7zi-site`（服务 ai/export 子域） |
-| `anti-v2` | **stopped ↺10** —— 未处理的上线故障 |
-| RAM | **97.3%** —— 不能 `next build` |
-| 健康接口真实响应 | `{"status":"ok"}` —— **不是 `healthy`** |
-
-## deploy.sh 的三处硬伤
-1. `get_compose_file()` production 分支指向**不存在**的 `docker-compose.zero-downtime.yml`
-2. 蓝绿 service `7zi-frontend-blue` / `-green` 在生产和现有 compose 文件里**都不存在**
-3. `/works` 路由在 `src/app` 下**不存在**
-
-## 🔴 生产服务器同样内嵌明文 PAT
-`/var/www/7zi/.git/config` 的 remote URL 里有一个**仍有效**的 GitHub PAT
-（与本地 botmem 历史里发现的是同一个）。已在报告中脱敏。
-**必须吊销**，且吊销后同步修 remote URL。
-
-## 新增待拍板 4 条
-1. 部署目标是 `/var/www/7zi`（在跑 git，19 dirty）还是 `/opt/7zi-frontend`（不在进程表）？
-2. 服务器 `git pull` + build + PM2 切换，还是本地构建 rsync？
-3. 补齐 compose 文件，还是把 `deploy.sh` 改成 PM2 路线？
-4. `anti-v2` 反复崩溃是否一并处理？
-
-完整报告：`T91_PRODUCTION_TOPOLOGY.md`
-
----
-
-# 🔴 前端双树分叉 —— CI 跑的是根级，修复却落在嵌套树（T97，2026-10-24）
-
-**这是本轮最容易被骗的地方，改前端前必须先确认改的是哪棵树。**
-
-| | 根级 `src/` + `tests/` | 嵌套 `7zi-frontend/src/` |
-|---|---|---|
-| 版本 | 1.14.2 | 1.14.1 |
-| CI `test-unit` 跑谁 | ✅ **跑这棵树**（根 `vitest.config.ts` include `src/**`、`tests/**`） | ❌ 从未在根 CI 跑过 |
-| 实际发布 | ✅ `deploy.sh` rsync 整仓 + 根 `Dockerfile` `COPY . .` | ❌ 不发布 |
-| 文件数 | 1883 | 982 |
-
-**同名文件 121 个，内容分叉 116 个（95.9%），只有 5 个一致。**
-
-## 后果
-2026-06-01 以来触碰 `7zi-frontend/src` 的 **35 个 commit 中，31 个（88.6%）只改了非发布树**；
-同期根级 `src/` 只收到 7 个 commit。→ **"修好了"不等于"CI 变绿"。**
-
-## 已踩的坑（务必记住）
-- `6bc88ab75f` / `cb56fd87bb`（useTouchGestures / useSwipe 手势修复）
-  改的是**嵌套树**，根级 CI **一行都跑不到**。
-- `e475608a72`（auth 501 契约对齐）同理 —— 根级是真实 `loginUser` 实现，
-  没有 501 短路，"501 契约"模型在根级**不适用**。
-- `d2328ff110` 声称做了 3 处安全修复，实际 `git show --numstat` 里**源码改动 = 0**
-  （只改了 `DEV_TASKS_*.md` / `state/tasks.json`）。修复**从未进入任何树**。
-
-## 强制前置检查（派单时必须写进任务书）
+**修法（已落地）**：`backup-memory.sh` / `backup-static.sh` 在
+`git fetch origin` 之后、`git pull --rebase` 之前加：
 ```bash
-# 1. 确认目标树
-ls src/hooks/useSwipeGestures.ts 2>/dev/null && echo "→ 根级（发布树）"
-ls 7zi-frontend/src/hooks/useTouchGestures.ts 2>/dev/null && echo "→ 嵌套树（非发布）"
-# 2. 确认 import 路径归属
-grep -rn "from '@/" src/ | grep 7zi-frontend   # 应为空
+git checkout -- . 2>/dev/null || true
+git reset -q HEAD 2>/dev/null || true
+```
+备份内容随后会从工作区 `cp -r` 覆盖回来，**拉取前丢弃工作区改动是安全的**。
+
+**巡检必查**：
+```bash
+tail -20 /var/log/backup-memory.log | grep -E '中止备份|PUSH FAILED'
+cd /root/.openclaw/backups/github/repo && git rev-list --left-right --count HEAD...origin/main   # 应为 0 0
 ```
 
-## 推荐收敛方案（待主人拍板，勿擅自执行）
-- **SSOT = 根级 `src/` + `tests/`**
-- Phase 0（零成本）：子代理任务书写死 `src/` 前缀 + pre-flight 断言
-- Phase 1：`git mv 7zi-frontend 7zi-frontend.legacy`（可逆、不丢历史）
-- Phase 2：13 个根级缺失模块差异化回迁（`lib/automation/`、`components/WorkflowEditor/` 优先）
-- Phase 3：`d2328ff110` 的安全修复真正落到根级 `src/app/api/auth/login/route.ts`
-- **symlink 方案不推荐**（git 不跟踪 symlink 目标、Windows runner 需 `symlinks: true`）
-
-## 🔴 移除嵌套树前必查（R7 高危）
-根级 `tests/` 有 **6 个文件 13 处 import 指向嵌套树**：
-`tests/automation/**`（4 个）、`tests/components/WorkflowEditor/AutoLayout.test.tsx`、
-`tests/integration/alert-system-edge-cases.test.ts`。
-其中 `performance-monitoring/alerting/*` **在嵌套树里也已不存在**
-（实际路径是 `lib/performance/alerting/`）→ 这些测试**现在就是断链的**。
-→ 移除前必须先改指根级，否则**立即编译失败**。
-
-完整报告：`T97_FRONTEND_TREE_DEDUP_AUDIT.md`（470 行）
+**教训**：**"pull --rebase 失败"有多种原因**，日志里 CONFLICT 关键字只是其中一种。
+遇到 rebase 类报错，先把 `git rebase` 的完整输出读一遍再下结论，
+别默认是冲突。（这跟第 35 节"rebase 冲突只 abort → 等于什么都没做"是同一类问题：
+**看真实错误信息，不要按预设的剧本处理**。）
 
 ---
 
-# 🛠️ 本轮已落地的手势修复（嵌套树，2026-10-24）
+# 🔴 根级 CI 测试基建：已修的「系统性」坑（2026-10-26 归档）
 
-`6bc88ab75f` / `cb56fd87bb`，`useTouchGestures.test.ts` 52/52、`useSwipe.test.ts` 25/25。
+这些都不是单个用例的问题，是**整片文件红**的根因。优先级最高。
 
-**真实产品缺陷（不只是测试问题）：**
-1. 双指缩放比例分母写成 `touches[0].clientX - touches[0].clientX + 1`，**恒等于 1**
-   → 双指缩放完全失效。改为 touchstart 记录初始双指间距。
-2. 滑动命中阈值后**仍会额外触发 `onTap`**，一次手势被算成两种。
-3. DOM 监听器直接绑定 `handleTouchStart/Move/End`，**绑定那一刻的闭包被固化**
-   → handler 依赖的 state（如 `scale`）永远停在初值。改为稳定转发函数。
-4. 原实现只在 `useEffect` 里读 `elementRef.current`，元素晚于 effect 就绪时
-   **监听永远绑不上**。改为 ref setter 中同步挂载/卸载。
-5. 阈值判定 `>` 应为 `>=`（正好等于阈值不触发）；两轴等距应优先水平方向。
-6. `touchend` 的抬起手指在真实 DOM 中位于 `changedTouches`，
-   原实现只读 `changedTouches[0]`，只填 `touches` 的环境直接失效。
-   改为 `e.changedTouches[0] ?? e.touches[0]`。
+## A. `tests/setup.ts` 顶层抛异常 → 整片文件 0 用例
 
-**新增公开 API：** `setScale(scale)`（与 `resetState` 对称的程序化缩放接口）
+`global.WebSocket = MockWebSocket as any` 直接赋值会抛
+`TypeError: Cannot assign to read only property 'WebSocket'` ——
+jsdom 把 WebSocket 定义成**只读的 getter 属性**（没有 setter）。
+setup 在顶层抛异常 → 所有依赖 global.WebSocket 的文件全部收集失败。
 
-**测试基建坑（下次别再踩）：**
-- `result.current.gestureState = {...}` **改不了 hook 内部 state**（那只是返回值快照）
-- `vi.advanceTimersByTime()` 必须包在 `act()` 里，否则 React 不刷新 state
-- fake timers 下 `waitFor` 不推进定时器 → 12s 超时；改同步断言
-- `fireEvent.touchEnd` 只填 `touches` 不填 `changedTouches`，需手动补
+**修法**：`Object.defineProperty(global, 'WebSocket', { value, writable: true, configurable: true })`。
+（msw/node 也会在模块求值时把 WebSocket define 成只读，所以必须抢在它前面。）
 
----
+## B. `vi.mock` 工厂缺具名导出 → 收集失败
 
-# 🔴 根级 CI 门禁真实基线（T138/T139 实测，2026-10-25）
+`vi.mock('@/lib/logger', () => ({ default: {...} }))` 但被测代码用的是
+`import { logger } from '@/lib/logger'` → 抛 `No "logger" export is defined` → 文件 0 用例。
+根级共 **60 个文件**踩这个坑。工厂里必须同时给 default 和具名导出。
 
-**注意：之前"211 failed"是嵌套树的口径。根级 CI 跑的是根 `src/` + `tests/`，口径完全不同。**
+## C. mock 工厂返回函数而不是 Promise → 全部假失败
 
-根级 `npm run test:run`（= CI `test-unit` 的 4 shard）：
-- 失败文件 **294 个**，全量跑完**超过 4.6 小时仍未结束**（单进程串行）
-- 4 shard、每片 `timeout-minutes: 10` → **分片超时是必然的，不是偶发**
+```ts
+vi.mock('@/lib/auth/service', () => ({ loginUser: () => mockLoginUser }))
+```
+`loginUser` 返回的是**函数**，不是 Promise。路由 `await loginUser(...)` 之后
+`result.success` 是 undefined → 走 401 分支 → 所有成功用例假失败。
+要写成 `loginUser: (...args) => mockLoginUser(...args)`。
 
-## 本轮已修掉的三处"单文件就能撑爆分片"的元凶
+## D. 动态 `await import()` 拿不到 `vi.mock` 的替换
 
-| 文件 | 原耗时 | 现耗时 | 根因 |
-|---|---|---|---|
-| `src/lib/storage/__tests__/draft-storage.test.ts` | **354s** | 2.6s | mock 的 request 只有 `onsuccess: null`，赋值后没人触发 → Promise 永不 resolve，每个用例都挂到超时 |
-| `src/lib/prefetch/prefetch.test.ts` | **73s** | 3.6s | 预取 promise 等 `link.onload` 才 resolve（fire-and-forget 语义错），且超时定时器不清理 |
-| `7zi-frontend/src/hooks/__tests__/useTouchGestures.test.ts` | 挂起 26 例 | 52/52 | ref 晚于 effect 就绪 → 监听器永远绑不上 |
+`await import('@/lib/db/connection')` 走的是真实模块，连到真 SQLite 报
+`no such table: revenue`。改静态 import。
 
-## 通用套路（下次照抄）
+## E. mock 路径必须用 `@/` 别名
 
-1. **mock 的 `onsuccess`/`onerror` 必须在赋值时立即回调** —— 否则 Promise 永不 resolve，
-   每个用例都等 vitest 超时。写一个 `createAutoRequest()` 用 getter/setter 解决。
-2. **mock 的 db 对象要补齐所有方法** —— 少一个 `close()`，`afterEach` 抛 TypeError，
-   整个 describe 块全判失败。
-3. **动态 `await import()` 拿不到 `vi.mock` 的替换** —— 改静态 import。
-4. **mock 路径必须用 `@/` 别名，不能用相对路径** —— `vi.mock('../lib/db/connection')`
-   和 `vi.mock('@/lib/db/connection')` 在 vitest 里是**两个不同的模块 ID**，
-   用相对路径会导致业务代码里的别名导入拿到**真实模块**（连到真 SQLite）。
-   `src/test/vi-mocks.ts` 里已全局踩过这个坑。
-5. **mock 工厂漏符号 → 整个文件收集失败（0 test）** —— 用 `importOriginal` 保留真实实现，
-   只覆盖要断言的符号，别手写全量工厂。
-6. **`vi.mock` 工厂返回 async 函数给同步 API** → 路由解构拿到 undefined。
-   `db.queryRows()` 是**同步**的，返回 `T[]` 而不是 Promise。
-7. **fake timers 下 `waitFor` 不推进定时器** → 12s 超时；改同步断言。
-8. **改 hook 的 state 快照改不了 hook 内部 state** ——
-   `result.current.gestureState = {...}` 只是返回值快照；
-   要么加公开 setter（如 `setScale`），要么走真实手势路径。
+`vi.mock('../lib/db/connection')` 和 `vi.mock('@/lib/db/connection')` 在 vitest 里
+是**两个不同的模块 ID**。用相对路径 → 业务代码里的别名导入拿到**真实模块**。
 
-## 改名/契约变更后必须回头改测试（真实踩坑）
+## F. 全局 mock DB 没有实现 SQLite 系统表
 
-- `b4889d4e1` 把 `navigate()` 改名成 `recordPath()`，改了 `user-behavior.test.ts`，
-  但 **`prefetch.test.ts` 没跟着改**，调的是一个已不存在的方法。
-- `analyzeNavigation()` 返回 `{ routes, predictions, insights }`，
-  **没有 `patterns` 字段** —— 那是另一个接口的形状。
-- `analyzeNavigation` 只收录 `count >= minVisits(2)` 的路径，单次访问不算模式。
-- 用户的密码路由是 `src/app/api/auth/login/` + `register/`，
-  **不是** `src/app/api/auth/`（嵌套树才是后者）。
+`src/test/vi-mocks.ts` 的 mock DB 原来：
+- `CREATE INDEX` 直接被忽略（只认 CREATE TABLE）
+- 查 `sqlite_master` 返回 `[]`
+- 不支持 `SELECT ... AS` 别名、不支持 `WHERE ... NOT LIKE`
+
+于是凡是查索引/表结构的代码全部拿不到数据。已补 `dbIndexes` 登记表、
+sqlite_master 支持、别名映射、NOT LIKE 过滤。
+
+## G. zustand v5：selector 返回对象字面量 = 无限重渲染
+
+zustand v5 用 `Object.is` 比较 selector 返回值。返回**新对象**每次渲染都判定为
+「变了」→ 无限循环 → `Maximum update depth exceeded`。
+必须用 `useShallow`（`zustand/react/shallow`）。
+
+## H. zustand v5：`set` 用 Object.assign，getter 派生字段会被拍平成快照
+
+`get canUndo() { return history.past.length > 0 }` 挂在 store 对象上 ——
+第一次 `set` 之后 state 里只剩普通值，getter 再也不求值 → `canUndo` 永远 false。
+派生值必须是**真实状态字段**，每次变动后同步写回。
+
+## I. 生产代码里的真实缺陷（已修，值得记住的模式）
+
+- `parseIndexColumns` 没去掉 `DESC` 后缀 → 拿到 `'created_at DESC'`
+- `analyzeNavigation` 返回 `{routes,predictions,insights}`，**没有** `patterns` 字段
+- `b4889d4e1` 把 `navigate()` 改名 `recordPath()`，改了主测试但漏了 `prefetch.test.ts`
+- `isDark` 存快照而非实时推导 → theme='system' 时不同步
+- `getErrorCode` 委托 `toUnifiedError` 时**丢失 statusCode 映射** → 401/403/404 全判成 UNKNOWN
+- `shouldRecordAction` / `excludeActionTypes` / `getActionType` 声明了但**实现里一次没用**
+
+## J. 诊断手法（很好用）
+
+写一个临时 `dbg.test.ts` 把中间值 console.log 出来，比反复猜快得多。
+注意：**同一个文件里**已有用例的 mock 路径要和被测代码一致，否则打的是真实模块。
