@@ -9,10 +9,15 @@ import {
   type IndexInfo,
   type IndexUsageReport,
 } from '../index-analyzer'
-import { getDatabaseAsync } from '../index'
+import { getDatabaseAsync, closeDatabase } from '../index'
+
 describe('Index Analyzer', () => {
   beforeEach(async () => {
     // Use in-memory database for tests
+    // 必须先 closeDatabase()：dbInstance 是模块级单例，首次调用 getDatabaseAsync()
+    // 时就把路径锁死了。之后再改 DATABASE_PATH 也换不掉 —— 于是测试连到
+    // 之前别的用例开的文件库，索引自然是 0 个。
+    closeDatabase()
     process.env.DATABASE_PATH = ':memory:'
     // Initialize database with test schema
     const db = await getDatabaseAsync()

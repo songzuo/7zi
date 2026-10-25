@@ -235,6 +235,11 @@ interface Operation {
 
 const dbTables: Map<string, DbRow[]> = new Map()
 
+// 索引登记表：name -> { tableName, indexName, sql }
+// 之前 mock 只认 CREATE TABLE，CREATE INDEX 直接被忽略，
+// 于是查 sqlite_master 拿不到任何索引（index-analyzer 整个文件 14 个用例全红）。
+const dbIndexes: Map<string, { tableName: string; indexName: string; sql: string }> = new Map()
+
 // Initialize tables
 dbTables.set('users', [])
 dbTables.set('user_tokens', [])
@@ -414,6 +419,73 @@ function rowMatchesConditions(row: DbRow, conditions: Array<{column: string, ope
 // ============================================================================
 
 function executeAll(sql: string, params?: unknown[]): DbRow[] {
+  // sqlite_master 是 SQLite 的系统表：表和索引都登记在上面。
+  // 之前 mock 直接返回 []，凡是查 sqlite_master 的代码（索引分析器等）
+  // 一律拿不到数据。
+  if (/FROM\s+sqlite_master/i.test(sql)) {
+    const wantsIndex = /type\s*=\s*'index'/i.test(sql)
+    const wantsTable = /type\s*=\s*'table'/i.test(sql)
+    const rows: DbRow[] = []
+
+    if (wantsTable) {
+      for (const t of dbTables.keys()) {
+        rows.push({ type: 'table', name: t, tbl_name: t, sql: `CREATE TABLE ${t}` })
+      }
+    }
+    if (wantsIndex || (!wantsIndex && !wantsTable)) {
+      for (const idx of dbIndexes.values()) {
+        // SQLite 里 sqlite_autoindex_* 是 UNIQUE/PRIMARY KEY 隐式索引，
+        // 真实查询会用 name NOT LIKE 'sqlite_%' 过滤掉，这里也标成 sqlite_ 前缀。
+        rows.push({
+          type: 'index',
+          name: idx.indexName,
+          tbl_name: idx.tableName,
+          sql: idx.sql,
+        })
+      }
+    }
+
+    // 真实 sqlite_master 查询常带 SELECT 别名（`tbl_name as tableName`）和
+    // WHERE 过滤（`name NOT LIKE 'sqlite_%'`）。mock 必须照做，
+    // 否则调用方拿到的字段名对不上（index-analyzer 读 row.indexName 得到 undefined）。
+    const aliasMap: Record<string, string> = {}
+    const selectPart = sql.match(/SELECT\s+([\s\S]*?)\s+FROM/i)
+    if (selectPart) {
+      for (const raw of selectPart[1].split(',')) {
+        const part = raw.trim()
+        const asMatch = part.match(/(\w+)\s+AS\s+(\w+)/i)
+        if (asMatch) aliasMap[asMatch[1]] = asMatch[2]
+        else if (/^\w+$/.test(part)) aliasMap[part] = part
+      }
+    }
+    const filtered = rows.filter((r) => {
+      const notLike = sql.match(/(\w+)\s+NOT\s+LIKE\s+'([^']*)'/i)
+      if (notLike) {
+        const col = notLike[1]
+        const pattern = notLike[2]
+        const value = String(r[col] ?? '')
+        const re = new RegExp('^' + pattern.replace(/%/g, '.*') + '$', 'i')
+        if (re.test(value)) return false
+      }
+      const eqMatch = sql.match(/(\w+)\s*=\s*'([^']*)'/i)
+      if (eqMatch) {
+        const col = eqMatch[1]
+        if (String(r[col] ?? '') !== eqMatch[2]) return false
+      }
+      return true
+    })
+
+    if (Object.keys(aliasMap).length === 0) return filtered
+
+    return filtered.map((r) => {
+      const out: DbRow = {}
+      for (const [src, dst] of Object.entries(aliasMap)) {
+        out[dst] = r[src]
+      }
+      return out
+    })
+  }
+
   const tableName = parseTableName(sql)
   if (!tableName) return []
 
@@ -699,6 +771,17 @@ const mockDb: DatabaseConnection = {
   isInTransaction: vi.fn().mockReturnValue(false),
 
   exec: vi.fn((sql: string, params?: unknown[]) => {
+    // Handle CREATE INDEX —— 记进 dbIndexes，让查 sqlite_master 的用例能用。
+    const idxMatch = sql.match(
+      /CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?[\"\'`]?(\w+)[\"\'`]?\s+ON\s+([\"\'`]?\w+[\"\'`]?)/i
+    )
+    if (idxMatch) {
+      const indexName = idxMatch[1]
+      const tableName = idxMatch[2].replace(/[\"\'`]/g, '')
+      dbIndexes.set(indexName, { tableName, indexName, sql })
+      return { changes: 0, lastInsertRowid: 0 }
+    }
+
     // Handle CREATE TABLE
     if (sql.toUpperCase().includes('CREATE TABLE')) {
       const match = sql.match(/CREATE TABLE\s+(\w+)/i)
