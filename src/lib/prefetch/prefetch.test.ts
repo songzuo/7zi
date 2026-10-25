@@ -48,8 +48,11 @@ describe('UserBehaviorAnalyzer', () => {
   let analyzer: UserBehaviorAnalyzer
 
   beforeEach(() => {
-    analyzer = new UserBehaviorAnalyzer()
+    // 必须先清 localStorage 再构造分析器：
+    // UserBehaviorAnalyzer 构造函数会从 localStorage 加载历史数据，
+    // 先构造再清理的话，上一个用例留下的会话/访问计数会被带进来。
     localStorageMock.clear()
+    analyzer = new UserBehaviorAnalyzer()
   })
 
   describe('startSession', () => {

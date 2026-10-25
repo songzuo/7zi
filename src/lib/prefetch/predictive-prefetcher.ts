@@ -102,7 +102,15 @@ export class PredictivePrefetcher {
   recordNavigation(fromPath: string, toPath: string): void {
     this.recordVisit(toPath)
 
-    const pattern = this.behaviorPatterns.get(fromPath)
+    // fromPath 的行为模式可能还不存在（用户第一次从这里跳转）。
+    // 原实现只在 pattern 已存在时计数，导致新路径的跳转记录被丢弃，
+    // 预测也就永远学不到"从 A 到 B"这条链路。
+    let pattern = this.behaviorPatterns.get(fromPath)
+    if (!pattern) {
+      this.recordVisit(fromPath)
+      pattern = this.behaviorPatterns.get(fromPath)
+    }
+
     if (pattern) {
       const currentCount = pattern.nextPages.get(toPath) || 0
       pattern.nextPages.set(toPath, currentCount + 1)

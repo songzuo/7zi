@@ -49,12 +49,15 @@ export class ResourcePrefetcher {
     defaultPriority: 'high' | 'medium' | 'low'
     enableViewportBased: boolean
     viewportConfig: ViewportBasedConfig
+    timeout: number
   }
 
   constructor(config?: Partial<typeof ResourcePrefetcher.prototype.config>) {
     this.config = {
       maxConcurrent: 6,
       defaultPriority: 'medium',
+      // 单个资源预取的超时时间（毫秒）
+      timeout: 10000,
       enableViewportBased: true,
       viewportConfig: {
         threshold: 200, // 200px
@@ -196,15 +199,27 @@ export class ResourcePrefetcher {
     }
 
     return new Promise((resolve, reject) => {
-      link.onload = () => resolve()
-      link.onerror = () => reject(new Error(`Failed to prefetch: ${resource.url}`))
+      // 超时定时器必须在 settle 时清理，否则每个预取都会留下一个
+      // 挂起的定时器 —— 批量预取时会把测试拖到超时。
+      const timeoutId = setTimeout(() => {
+        reject(new Error(`Prefetch timeout: ${resource.url}`))
+      }, this.config.timeout)
+
+      const settle = (fn: () => void) => {
+        clearTimeout(timeoutId)
+        fn()
+      }
+
+      link.onload = () => settle(resolve)
+      link.onerror = () => settle(() => reject(new Error(`Failed to prefetch: ${resource.url}`)))
 
       document.head.appendChild(link)
 
-      // 超时处理
-      setTimeout(() => {
-        reject(new Error(`Prefetch timeout: ${resource.url}`))
-      }, 10000)
+      // 预取是 fire-and-forget：link 插入 DOM 后浏览器就会去加载资源，
+      // 等待 onload/onerror 会让整个预取链阻塞到超时
+      // （在 jsdom 等没有真实网络栈的环境里 onload 永远不会触发）。
+      // 这里在插入后立即 resolve，加载结果由 onload/onerror 回调单独处理。
+      settle(resolve)
     })
   }
 
