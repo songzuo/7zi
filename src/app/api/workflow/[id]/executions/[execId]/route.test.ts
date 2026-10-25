@@ -90,16 +90,19 @@ describe('GET /api/workflow/[id]/executions/[execId]', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data.execution.id).toBe('exec_1')
-    expect(data.execution.workflowId).toBe('wf_1')
-    expect(data.execution.status).toBe('running')
-    expect(data.nodes).toHaveLength(1)
-    expect(data.nodes[0].nodeId).toBe('node_1')
-    expect(data.nodes[0].duration).toBe(1000)
-    expect(data.metrics.executionId).toBe('exec_1')
-    expect(data.metrics.totalDuration).toBe(1000)
-    expect(data.alerts).toHaveLength(1)
-    expect(data.alerts[0].id).toBe('alert_1')
+    // 统一信封：{ success, data, timestamp }
+    expect(data.success).toBe(true)
+    const details = data.data
+    expect(details.execution.id).toBe('exec_1')
+    expect(details.execution.workflowId).toBe('wf_1')
+    expect(details.execution.status).toBe('running')
+    expect(details.nodes).toHaveLength(1)
+    expect(details.nodes[0].nodeId).toBe('node_1')
+    expect(details.nodes[0].duration).toBe(1000)
+    expect(details.metrics.executionId).toBe('exec_1')
+    expect(details.metrics.totalDuration).toBe(1000)
+    expect(details.alerts).toHaveLength(1)
+    expect(details.alerts[0].id).toBe('alert_1')
   })
 
   it('should return 404 when the execution does not exist', async () => {
@@ -118,10 +121,11 @@ describe('GET /api/workflow/[id]/executions/[execId]', () => {
     const data = await response.json()
 
     expect(response.status).toBe(404)
-    expect(data.error).toBe('Execution not found')
+    expect(data.error.type).toBe('NOT_FOUND')
+    expect(data.error.message).toBe('Execution not found')
   })
 
-  it('should return 400 when the execution belongs to another workflow', async () => {
+  it('should return 404 when the execution belongs to another workflow', async () => {
     mockMonitoring.getExecutionDetails.mockReturnValue({
       execution: { ...execution, workflowId: 'wf_other' },
       nodes: [],
@@ -156,6 +160,7 @@ describe('GET /api/workflow/[id]/executions/[execId]', () => {
     const data = await response.json()
 
     expect(response.status).toBe(500)
-    expect(data.error).toBe('Failed to fetch execution details')
+    expect(data.error.type).toBe('INTERNAL_ERROR')
+    expect(data.error.message).toBe('Failed to fetch execution details')
   })
 })

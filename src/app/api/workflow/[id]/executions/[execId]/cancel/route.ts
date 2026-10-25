@@ -3,9 +3,15 @@
  * POST /api/workflow/:id/executions/:execId/cancel
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { workflowMonitoring } from '@/lib/workflow/monitoring'
-import { createNotFoundError } from '@/lib/api/error-handler'
+import {
+  createNotFoundError,
+  createSuccessResponse,
+  createErrorResponse,
+  createValidationError,
+} from '@/lib/api/error-handler'
+import { logger } from '@/lib/logger'
 
 export async function POST(
   request: NextRequest,
@@ -18,10 +24,7 @@ export async function POST(
     const execution = workflowMonitoring.getExecution(execId)
 
     if (!execution) {
-      return NextResponse.json(
-        { error: 'Execution not found' },
-        { status: 404 }
-      )
+      return createNotFoundError('Execution not found')
     }
 
     // 验证工作流ID匹配。
@@ -33,24 +36,20 @@ export async function POST(
 
     // 检查执行状态
     if (execution.status === 'completed' || execution.status === 'failed' || execution.status === 'cancelled') {
-      return NextResponse.json(
-        { error: `Cannot cancel execution with status: ${execution.status}` },
-        { status: 400 }
+      return createValidationError(
+        `Cannot cancel execution with status: ${execution.status}`,
+        { status: execution.status }
       )
     }
 
     // 取消执行
     const cancelledExecution = workflowMonitoring.cancelExecution(execId)
 
-    return NextResponse.json({
-      success: true,
-      execution: cancelledExecution,
-    })
+    // 用统一信封（{ success, data, timestamp }），与同族 workflow 路由一致。
+    return createSuccessResponse({ execution: cancelledExecution })
   } catch (error) {
-    console.error('Error cancelling execution:', error)
-    return NextResponse.json(
-      { error: 'Failed to cancel execution' },
-      { status: 500 }
-    )
+    logger.error('Error cancelling execution', error, { category: 'workflow' })
+    // 对外用通用文案，不把内部错误细节透给调用方；真实错误已写进日志。
+    return createErrorResponse(new Error('Failed to cancel execution'))
   }
 }

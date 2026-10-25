@@ -10,7 +10,6 @@ import {
   createSuccessResponse,
   createErrorResponse,
   createValidationError,
-  createNotFoundError,
 } from '@/lib/api/error-handler'
 
 interface RouteParams {

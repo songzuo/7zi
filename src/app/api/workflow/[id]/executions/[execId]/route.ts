@@ -3,9 +3,10 @@
  * GET /api/workflow/:id/executions/:execId
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { workflowMonitoring } from '@/lib/workflow/monitoring'
-import { createNotFoundError } from '@/lib/api/error-handler'
+import { createNotFoundError, createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
@@ -18,10 +19,7 @@ export async function GET(
     const details = workflowMonitoring.getExecutionDetails(execId)
 
     if (!details.execution) {
-      return NextResponse.json(
-        { error: 'Execution not found' },
-        { status: 404 }
-      )
+      return createNotFoundError('Execution not found')
     }
 
     // 验证工作流ID匹配。
@@ -31,12 +29,11 @@ export async function GET(
       return createNotFoundError('Execution not found')
     }
 
-    return NextResponse.json(details)
+    // 用统一信封（{ success, data, timestamp }），与同族 workflow 路由一致。
+    return createSuccessResponse(details)
   } catch (error) {
-    console.error('Error fetching execution details:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch execution details' },
-      { status: 500 }
-    )
+    logger.error('Error fetching execution details', error, { category: 'workflow' })
+    // 对外用通用文案，不把内部错误细节透给调用方；真实错误已写进日志。
+    return createErrorResponse(new Error('Failed to fetch execution details'))
   }
 }

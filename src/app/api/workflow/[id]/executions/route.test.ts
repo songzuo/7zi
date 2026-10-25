@@ -27,10 +27,12 @@ describe('GET /api/workflow/[id]/executions', () => {
     const response = await GET(new NextRequest('http://localhost:3000/api/workflow/123/executions'), { params: Promise.resolve({ id: '123' }) })
     expect(response.status).toBe(200)
     const data = await response.json()
-    expect(Array.isArray(data.executions)).toBe(true)
-    expect(data.executions).toHaveLength(2)
-    expect(data.executions[0].id).toBe('exec-1')
-    expect(data.total).toBe(2)
+    // 统一信封：{ success, data, timestamp }
+    expect(data.success).toBe(true)
+    expect(Array.isArray(data.data.executions)).toBe(true)
+    expect(data.data.executions).toHaveLength(2)
+    expect(data.data.executions[0].id).toBe('exec-1')
+    expect(data.data.total).toBe(2)
   })
 })
 

@@ -3,9 +3,11 @@
  * GET /api/workflow/:id/executions
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { workflowMonitoring } from '@/lib/workflow/monitoring'
 import { WorkflowExecutionStatus } from '@/lib/workflow/monitoring/types'
+import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
@@ -38,12 +40,11 @@ export async function GET(
       order,
     })
 
-    return NextResponse.json(result)
+    // 用统一信封（{ success, data, timestamp }），与同族 workflow 路由一致。
+    return createSuccessResponse(result)
   } catch (error) {
-    console.error('Error fetching execution history:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch execution history' },
-      { status: 500 }
-    )
+    logger.error('Error fetching execution history', error, { category: 'workflow' })
+    // 对外用通用文案，不把内部错误细节透给调用方；真实错误已写进日志。
+    return createErrorResponse(new Error('Failed to fetch execution history'))
   }
 }

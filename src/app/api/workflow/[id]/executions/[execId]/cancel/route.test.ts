@@ -67,9 +67,10 @@ describe('POST /api/workflow/[id]/executions/[execId]/cancel', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
+    // 统一信封：{ success, data, timestamp }
     expect(data.success).toBe(true)
-    expect(data.execution.id).toBe('exec_1')
-    expect(data.execution.status).toBe('cancelled')
+    expect(data.data.execution.id).toBe('exec_1')
+    expect(data.data.execution.status).toBe('cancelled')
     expect(mockMonitoring.cancelExecution).toHaveBeenCalledWith('exec_1')
   })
 
@@ -84,12 +85,13 @@ describe('POST /api/workflow/[id]/executions/[execId]/cancel', () => {
     const data = await response.json()
 
     expect(response.status).toBe(404)
-    expect(data.success).toBeUndefined()
-    expect(data.error).toBe('Execution not found')
+    expect(data.success).toBe(false)
+    expect(data.error.type).toBe('NOT_FOUND')
+    expect(data.error.message).toBe('Execution not found')
     expect(mockMonitoring.cancelExecution).not.toHaveBeenCalled()
   })
 
-  it('should return 400 when the execution belongs to another workflow', async () => {
+  it('should return 404 when the execution belongs to another workflow', async () => {
     mockMonitoring.getExecution.mockReturnValue(makeExecution({ workflowId: 'wf_other' }))
 
     const request = createRequest('/api/workflow/wf_1/executions/exec_1/cancel')
@@ -120,7 +122,8 @@ describe('POST /api/workflow/[id]/executions/[execId]/cancel', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toBe(`Cannot cancel execution with status: ${status}`)
+      expect(data.error.type).toBe('VALIDATION_ERROR')
+      expect(data.error.message).toBe(`Cannot cancel execution with status: ${status}`)
       expect(mockMonitoring.cancelExecution).not.toHaveBeenCalled()
     }
   )
@@ -139,6 +142,7 @@ describe('POST /api/workflow/[id]/executions/[execId]/cancel', () => {
     const data = await response.json()
 
     expect(response.status).toBe(500)
-    expect(data.error).toBe('Failed to cancel execution')
+    expect(data.error.type).toBe('INTERNAL_ERROR')
+    expect(data.error.message).toBe('Failed to cancel execution')
   })
 })
