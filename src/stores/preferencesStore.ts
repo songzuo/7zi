@@ -16,6 +16,7 @@
 
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import { useShallow } from 'zustand/react/shallow'
 
 // ============================================================================
 // 类型定义
@@ -244,32 +245,43 @@ export const useSettings = () => usePreferencesStore(s => s.settings)
  * 获取主题设置
  */
 export const useTheme = () => {
-  return usePreferencesStore(state => ({
-    theme: state.settings.theme,
-    setTheme: state.setTheme,
-    toggleTheme: state.toggleTheme,
-    isDark: state.isDark,
-  }))
+  // 必须用 useShallow：zustand v5 用 Object.is 比较 selector 结果。
+  // 直接返回对象字面量会让每次渲染都产出新对象 → 无限重渲染
+  // （'Maximum update depth exceeded'）。
+  return usePreferencesStore(
+    useShallow(state => ({
+      theme: state.settings.theme,
+      setTheme: state.setTheme,
+      toggleTheme: state.toggleTheme,
+      isDark: state.isDark,
+    }))
+  )
 }
 
 /**
  * 获取语言设置
  */
 export const useLanguage = () => {
-  return usePreferencesStore(state => ({
-    language: state.settings.language,
-    setLanguage: state.setLanguage,
-  }))
+  // 同 useTheme：对象字面量 selector 在 zustand v5 下会无限重渲染。
+  return usePreferencesStore(
+    useShallow(state => ({
+      language: state.settings.language,
+      setLanguage: state.setLanguage,
+    }))
+  )
 }
 
 /**
  * 获取通知偏好
  */
 export const useNotificationPreferences = () => {
-  return usePreferencesStore(state => ({
-    notifications: state.settings.notifications,
-    setNotifications: state.setNotifications,
-  }))
+  // 同 useTheme：对象字面量 selector 在 zustand v5 下会无限重渲染。
+  return usePreferencesStore(
+    useShallow(state => ({
+      notifications: state.settings.notifications,
+      setNotifications: state.setNotifications,
+    }))
+  )
 }
 
 /**
