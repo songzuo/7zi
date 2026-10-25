@@ -24,11 +24,17 @@ class MockWebSocket {
 
   constructor(url: string) {
     this.url = url
-    // 模拟异步连接
+    // 模拟异步连接。
+    //
+    // readyState 必须在**有监听者时也会**变成 OPEN —— 之前只在 `this.onopen`
+    // 存在时��改 readyState，导致没有注册 onopen 的用例里 socket 永远停在
+    // CONNECTING，send() 一直抛 'WebSocket not connected'。
     setTimeout(() => {
-      if (!this.closed && this.onopen) {
+      if (!this.closed) {
         this.readyState = MockWebSocket.OPEN
-        this.onopen({ type: 'open' })
+        if (this.onopen) {
+          this.onopen({ type: 'open' })
+        }
       }
     }, 10)
   }
@@ -56,6 +62,11 @@ class MockWebSocket {
   }
 
   simulateError(error: any): void {
+    // 真实 WebSocket 遇到网络错误后连接就断了，readyState 变 CLOSED。
+    // 之前只派发 onerror 而不动 readyState —— 于是断言
+    // 'ws.readyState 不再是 OPEN' 永远失败。
+    this.closed = true
+    this.readyState = MockWebSocket.CLOSED
     if (this.onerror) {
       this.onerror({ type: 'error', error })
     }

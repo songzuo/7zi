@@ -169,7 +169,18 @@ class MockWebSocket {
   }
 }
 
-global.WebSocket = MockWebSocket as any
+// jsdom 把 global.WebSocket 定义成**只读的 getter 属性**（没有 setter），
+// 直接赋值会抛 'Cannot assign to read only property WebSocket'。
+// 必须先 redefineProperty 换成可写属性。
+//
+// 这个错误发生在 setup 文件顶层 —— 整个 setup 抛异常 → **所有**用到
+// global.WebSocket 的测试文件全部 0 用例 / 全红。
+// （msw/node 也会在模块求值时把 WebSocket define 成只读，所以这里要抢在它前面。）
+Object.defineProperty(global, 'WebSocket', {
+  value: MockWebSocket,
+  writable: true,
+  configurable: true,
+})
 
 // Mock IntersectionObserver with callback support
 class MockIntersectionObserver {
