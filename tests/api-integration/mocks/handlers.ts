@@ -2820,6 +2820,146 @@ export const workflowHandlers = [
 
 // Analytics endpoints handlers
 export const analyticsHandlers = [
+  // GET /api/analytics/nodes
+  //
+  // 这些子路由在根级 src/app/api/analytics/ 下并不存在（只有 metrics / export），
+  // 路由实现在 7zi-frontend/src/app/api/analytics/ 里。根级 CI 不起真实服务器，
+  // 所以这里补上 MSW handler，让用例能验证**契约**（响应形状），而不是去打真服务器。
+  http.get('http://localhost:3000/api/analytics/nodes', ({ request }) => {
+    const url = new URL(request.url)
+    const workflowId = url.searchParams.get('workflowId') || undefined
+
+    const nodes = [
+      {
+        id: 'node-1',
+        name: 'worker-alpha',
+        cpuUsage: 42.5,
+        memoryUsage: 61.2,
+        uptime: 86400,
+        status: 'online',
+        workflowId: workflowId || 'wf-123',
+        lastSeen: new Date().toISOString(),
+      },
+    ]
+
+    return HttpResponse.json({
+      success: true,
+      data: { nodes, total: nodes.length },
+      timestamp: Date.now(),
+    })
+  }),
+
+  // GET /api/analytics/overview
+  http.get('http://localhost:3000/api/analytics/overview', () => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        totalAgents: 10,
+        activeAgents: 5,
+        totalUsers: 100,
+        activeUsers: 50,
+        totalTasks: 500,
+        completedTasks: 300,
+        pendingTasks: 150,
+        systemHealth: 92,
+        timestamp: new Date().toISOString(),
+      },
+      timestamp: Date.now(),
+    })
+  }),
+
+  // GET /api/analytics/resources
+  http.get('http://localhost:3000/api/analytics/resources', ({ request }) => {
+    const url = new URL(request.url)
+    const hours = parseInt(url.searchParams.get('hours') || '24')
+
+    const usage = (used: number, total: number) => ({
+      used,
+      total,
+      percentage: Math.round((used / total) * 100),
+    })
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        cpu: usage(4, 16),
+        memory: usage(3, 8),
+        disk: usage(120, 500),
+        hours,
+        timestamp: new Date().toISOString(),
+      },
+      timestamp: Date.now(),
+    })
+  }),
+
+  // GET /api/analytics/trends
+  http.get('http://localhost:3000/api/analytics/trends', ({ request }) => {
+    const url = new URL(request.url)
+    const metric = url.searchParams.get('metric') || 'tasks'
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        metric,
+        period: 'week',
+        trends: [
+          {
+            date: '2024-01-01',
+            value: 100,
+            metric,
+            direction: 'increasing',
+            changePercent: 5,
+            forecast: 'stable',
+          },
+          {
+            date: '2024-01-02',
+            value: 120,
+            metric,
+            direction: 'increasing',
+            changePercent: 20,
+            forecast: 'increasing',
+          },
+        ],
+        timestamp: new Date().toISOString(),
+      },
+      timestamp: Date.now(),
+    })
+  }),
+
+  // GET /api/analytics/anomalies
+  http.get('http://localhost:3000/api/analytics/anomalies', ({ request }) => {
+    const url = new URL(request.url)
+    const startDate = url.searchParams.get('startDate') || undefined
+    const endDate = url.searchParams.get('endDate') || undefined
+
+    const anomalies = [
+      {
+        id: 'anomaly-1',
+        type: 'cpu_spike',
+        severity: 'warning',
+        value: 92,
+        threshold: 80,
+        timestamp: new Date().toISOString(),
+      },
+    ]
+
+    const bySeverity = (sev: string) => anomalies.filter(a => a.severity === sev).length
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        anomalies,
+        total: anomalies.length,
+        criticalCount: bySeverity('critical'),
+        warningCount: bySeverity('warning'),
+        infoCount: bySeverity('info'),
+        filters: { startDate, endDate },
+        timestamp: new Date().toISOString(),
+      },
+      timestamp: Date.now(),
+    })
+  }),
+
   // GET /api/analytics/metrics
   http.get('http://localhost:3000/api/analytics/metrics', ({ request }) => {
     const url = new URL(request.url)
