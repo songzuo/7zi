@@ -27,7 +27,7 @@ vi.mock('@/lib/permissions/repository', () => ({
 }))
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     error: vi.fn(),
   },
 }))

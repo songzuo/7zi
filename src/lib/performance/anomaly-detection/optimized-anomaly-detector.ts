@@ -142,9 +142,11 @@ function computeAdaptiveThreshold(
   const q75 = getQuantile(sorted, 75)
   const iqr = q75 - q25
 
-  // Use IQR method for robust threshold
+  // Use IQR method for robust lower threshold.
+  // percentile 用于指定上界位置（默认 95 分位），
+  // 下界仍按 IQR 规则（q25 - 1.5 * IQR）推算，保证对离群点不敏感。
   const lower = q25 - 1.5 * iqr
-  const upper = q75 + 1.5 * iqr
+  const upper = getQuantile(sorted, percentile)
 
   // Calculate confidence based on sample size
   const confidence = Math.min(1, values.length / 100)
@@ -417,7 +419,9 @@ export function createOptimizedAnomalyDetector(
 // Default Export
 // ============================================
 
-export default {
+const optimizedAnomalyDetectorExports = {
   OptimizedAnomalyDetector,
   createOptimizedAnomalyDetector,
 }
+
+export default optimizedAnomalyDetectorExports

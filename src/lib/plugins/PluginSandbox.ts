@@ -1,10 +1,22 @@
-// @ts-nocheck
 /**
  * Plugin Sandbox
  * Secure execution environment for plugins
  */
 
 import { EventEmitter } from 'events';
+import * as eventsModule from 'events';
+import * as cryptoModule from 'crypto';
+import * as urlModule from 'url';
+import * as querystringModule from 'querystring';
+import * as pathModule from 'path';
+import * as utilModule from 'util';
+import * as streamModule from 'stream';
+import * as bufferModule from 'buffer';
+import * as zlibModule from 'zlib';
+import * as fsModule from 'fs';
+import * as httpModule from 'http';
+import * as httpsModule from 'https';
+import * as netModule from 'net';
 import * as vm from 'vm';
 import {
   PluginSandbox as IPluginSandbox,
@@ -173,11 +185,13 @@ export class PluginSandbox implements IPluginSandbox {
     try {
       new vm.Script(code);
     } catch (error: unknown) {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       const match = error.message.match(/:(\d+):(\d+)/);
       if (match) {
         errors.push({
           line: parseInt(match[1]),
           column: parseInt(match[2]),
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
           message: error.message,
         });
       }
@@ -221,29 +235,29 @@ export class PluginSandbox implements IPluginSandbox {
   private createSecureRequire(pluginId: string, permissions: Set<string>): (module: string) => unknown {
     const allowedModules = new Map<string, unknown>([
       // Safe built-in modules
-      ['crypto', require('crypto')],
-      ['url', require('url')],
-      ['querystring', require('querystring')],
-      ['path', require('path')],
-      ['util', require('util')],
-      ['events', require('events')],
-      ['stream', require('stream')],
-      ['buffer', require('buffer')],
-      ['zlib', require('zlib')],
+      ['crypto', cryptoModule],
+      ['url', urlModule],
+      ['querystring', querystringModule],
+      ['path', pathModule],
+      ['util', utilModule],
+      ['events', eventsModule],
+      ['stream', streamModule],
+      ['buffer', bufferModule],
+      ['zlib', zlibModule],
     ]);
 
     // Add permission-based modules
     if (permissions.has('fs:read') || permissions.has('fs:write')) {
-      allowedModules.set('fs', require('fs'));
+      allowedModules.set('fs', fsModule);
     }
 
     if (permissions.has('http')) {
-      allowedModules.set('http', require('http'));
-      allowedModules.set('https', require('https'));
+      allowedModules.set('http', httpModule);
+      allowedModules.set('https', httpsModule);
     }
 
     if (permissions.has('net')) {
-      allowedModules.set('net', require('net'));
+      allowedModules.set('net', netModule);
     }
 
     return (module: string) => {
@@ -322,7 +336,7 @@ export class PluginSandbox implements IPluginSandbox {
   /**
    * Create secure environment
    */
-  private createSecureEnv(permissions: Set<string>): Record<string, string> {
+  private createSecureEnv(_permissions: Set<string>): Record<string, string> {
     const env: Record<string, string> = {};
 
     // Only allow safe environment variables

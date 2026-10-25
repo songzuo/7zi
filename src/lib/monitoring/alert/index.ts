@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Alerting System - Main Entry Point
  * 多渠道告警配置系统

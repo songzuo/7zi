@@ -9,7 +9,7 @@ import { getApiPerformanceReport, clearApiPerformanceData } from '@/lib/middlewa
 import { getRateLimitStats, clearAllRateLimits } from '@/lib/middleware/rate-limit'
 // Mock dependencies
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     error: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),

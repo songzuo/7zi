@@ -6,8 +6,6 @@
 import nodemailer, { Transporter, type SendMailOptions } from 'nodemailer'
 import {
   formatEmailAlert,
-  formatTimestamp,
-  getLevelEmoji,
   type AlertLevel,
 } from '@/lib/utils/formatting'
 import type { PerformanceAlert } from '../alerter'

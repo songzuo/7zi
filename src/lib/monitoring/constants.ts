@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Shared Constants for Monitoring
  * 避免硬编码值，统一配置

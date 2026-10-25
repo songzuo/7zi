@@ -30,7 +30,7 @@ vi.mock('@/lib/agents/a2a/task-store', () => ({
 }))
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     error: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),

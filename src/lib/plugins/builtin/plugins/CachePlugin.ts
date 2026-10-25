@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Cache Plugin
  * High-performance caching with multiple backends
@@ -74,6 +73,7 @@ export class CachePlugin implements Plugin {
     id: this.metadata.id,
     enabled: true,
     priority: 90,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     config: {
       backend: 'memory',
       ttl: 3600,
@@ -132,6 +132,7 @@ export class CachePlugin implements Plugin {
   /**
    * Register hooks
    */
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   registerHooks(registry: HookRegistry): void {
     registry.register('onCacheHit', this.handleCacheHit.bind(this) as HookHandler);
     registry.register('onCacheMiss', this.handleCacheMiss.bind(this) as HookHandler);
@@ -206,6 +207,7 @@ export class CachePlugin implements Plugin {
    * Set value in cache
    */
   private async set<T = unknown>(key: string, value: T, ttl?: number): Promise<{ success: boolean }> {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as CachePluginConfig;
 
     // Check if we need to evict
@@ -309,6 +311,7 @@ export class CachePlugin implements Plugin {
    * Evict entries based on strategy
    */
   private evict(): void {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as CachePluginConfig;
     const entries = Array.from(this.cache.entries());
 
@@ -363,14 +366,14 @@ export class CachePlugin implements Plugin {
   /**
    * Handle cache hit hook
    */
-  private handleCacheHit(context: unknown, input: unknown): void {
+  private handleCacheHit(_context: unknown, _input: unknown): void {
     this.metrics.hits++;
   }
 
   /**
    * Handle cache miss hook
    */
-  private handleCacheMiss(context: unknown, input: unknown): void {
+  private handleCacheMiss(_context: unknown, _input: unknown): void {
     this.metrics.misses++;
   }
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Collaboration Types
  *
@@ -125,11 +124,18 @@ export interface CollaborationStats {
 // ============================================================================
 
 export type {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   CollaborationSession,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   CollaborationParticipant,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   EditLock,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   CollaborationEvent,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   CollaborationEventType,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   CollaborationConfig,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   CollaborationStats,
 }

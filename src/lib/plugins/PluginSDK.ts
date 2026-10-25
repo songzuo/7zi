@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin SDK
  * Development kit for plugin authors
@@ -194,7 +193,9 @@ export class PluginDatabaseClientImpl implements PluginDatabaseClient {
     return (this.db as { query: (sql: string, params?: unknown[]) => Promise<T> }).query(sql, params);
   }
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   async transaction<T>(callback: (tx: PluginTransaction) => Promise<T>): Promise<T> {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     return (this.db as { transaction: <U>(cb: (tx: PluginTransaction) => Promise<U>) => Promise<U> }).transaction(callback);
   }
 
@@ -235,6 +236,7 @@ export class PluginDatabaseClientImpl implements PluginDatabaseClient {
 
   async findOne<T = unknown>(table: string, where: Record<string, unknown>): Promise<T | null> {
     const results = await this.find(table, where);
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     return results[0];
   }
 }
@@ -473,6 +475,7 @@ export class PluginSDK implements IPluginSDK {
   constructor(pluginId: string, pluginConfig: PluginConfig, db?: unknown) {
     this.logger = new PluginLoggerImpl(pluginId);
     this.storage = new PluginStorageImpl(pluginId);
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     this.http = new PluginHTTPClientImpl(pluginId, pluginConfig.config?.apiBaseUrl);
     this.events = new EventEmitter();
     this.db = new PluginDatabaseClientImpl(pluginId, db);
@@ -491,6 +494,7 @@ export class PluginBuilder<T extends Plugin = Plugin> {
   private name: string = '';
   private version: string = '1.0.0';
   private description: string = '';
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   private pluginClass: new () => T;
   private config: Partial<PluginConfig> = {};
 

@@ -14,19 +14,11 @@ import {
   RootCauseType, 
   Severity, 
   SeverityLevel,
-  AnalysisReport,
   CorrelationEngine,
-  Correlation as CorrelationType,
-  CorrelationConfig,
-  DEFAULT_CORRELATION_CONFIG,
   CausalityAnalyzer,
-  CausalityConfig,
-  DEFAULT_CAUSALITY_CONFIG,
   CausalChain,
   TimeSeriesPoint,
   CallChainTracer,
-  CallChainConfig,
-  DEFAULT_CALL_CHAIN_CONFIG
 } from './index'
 import { IncrementalZScore } from '../anomaly-detection'
 
@@ -383,7 +375,7 @@ export class IntelligentRCA {
         confidence: this.calculateConfidence(rootCauses, correlations),
         status: rootCauses.length > 0 ? 'completed' : 'partial'
       }
-    } catch (error) {
+    } catch {
       return {
         incidentId: incident.id,
         timestamp: Date.now(),

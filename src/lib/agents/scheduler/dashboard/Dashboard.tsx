@@ -19,9 +19,9 @@ import {
   ListTodo,
   History,
   RefreshCw,
-  Settings,
+  
   Zap,
-  Plus,
+  
   AlertTriangle,
   CheckCircle2,
   type LucideIcon,

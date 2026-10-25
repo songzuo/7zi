@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Root Cause Analysis Module
  * 性能问题根因分析
@@ -13,24 +12,17 @@ import {
   BottleneckDetector,
   bottleneckDetector,
   type Bottleneck,
-  type BottleneckAnalysis,
-  type BottleneckRecommendation,
   type PerformanceProfile,
 } from './root-cause/bottleneck-detector'
 
 import {
   SlowRequestTracker,
   slowRequestTracker,
-  type RequestTiming,
-  type SlowRequestAnalysis,
-  type RequestBottleneck,
 } from './root-cause/slow-request-tracker'
 
 import {
   PerformanceWaterfall,
   performanceWaterfall,
-  type ResourceTiming,
-  type WaterfallAnalysis,
 } from './root-cause/performance-waterfall'
 
 // ========================================

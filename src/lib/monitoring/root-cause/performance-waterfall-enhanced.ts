@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Performance Waterfall Analyzer (Enhanced)
  * Enhanced version with:
@@ -183,7 +182,7 @@ export class PerformanceWaterfall {
       })
       observer.observe({ type: 'resource', buffered: true })
       this.performanceObservers.push(observer)
-    } catch (e) {
+    } catch {
       // PerformanceObserver not supported
     }
   }

@@ -4,7 +4,7 @@
  * Analyzes and correlates multiple related anomalies to identify common root causes
  */
 
-import { Severity, SeverityLevel } from './types'
+import { SeverityLevel } from './types'
 
 // ============================================================================
 // Types

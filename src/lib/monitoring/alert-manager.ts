@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Alert Manager Module
  * 告警管理器
@@ -15,9 +14,7 @@ import {
   type AlertConfig,
   type AlertSeverity,
   type AlertChannel,
-  type AggregatedAlert,
 } from './alerts'
-import { performanceAlertManager } from './performance.alerts'
 
 // ========================================
 // Types

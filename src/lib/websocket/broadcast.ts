@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Broadcast Utilities
  *
@@ -79,7 +78,7 @@ export function getRoomSockets(roomId: string): Set<string> {
 /**
  * Get all online user IDs in a room
  */
-export function getOnlineUserIdsInRoom(roomId: string, roomParticipants: Map<string, unknown>): Set<string> {
+export function getOnlineUserIdsInRoom(roomId: string, _roomParticipants: Map<string, unknown>): Set<string> {
   const onlineUserIds = new Set<string>()
 
   if (!io) return onlineUserIds

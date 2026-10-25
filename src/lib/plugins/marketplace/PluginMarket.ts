@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin Market
  * Plugin discovery and marketplace interface
@@ -6,9 +5,9 @@
 
 import {
   PluginMarketEntry,
-  PluginMetadata,
+  
   PluginCategory,
-  PluginStatus,
+  
   PluginSecurityScan,
 } from '../types';
 

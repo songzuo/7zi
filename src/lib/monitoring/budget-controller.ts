@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Performance Budget Controller
  * 性能预算控制器
@@ -9,7 +8,6 @@
  * - 生成预算报告
  */
 
-import { performanceAlertManager } from './performance.alerts'
 import { AlertSystem, type AlertConfig, type AlertSeverity } from './alerts'
 
 // ========================================

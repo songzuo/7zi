@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin Validator
  * Plugin validation and verification
@@ -6,7 +5,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { PluginMetadata, PluginValidationError } from '../types';
+import { PluginMetadata } from '../types';
 
 export interface ValidationResult {
   valid: boolean;
@@ -142,7 +141,7 @@ export class PluginValidator {
         warnings,
         metadata: manifest as PluginMetadata,
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         valid: false,
         errors: [{ field: 'manifest', message: 'Invalid JSON format' }],

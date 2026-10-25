@@ -11,8 +11,8 @@
  * @module LearningOptimizer
  */
 
-import type { TimePrediction } from './time-prediction-engine'
-import type { SchedulingDecision } from './adaptive-scheduler'
+import type {  } from './time-prediction-engine'
+import type {  } from './adaptive-scheduler'
 import type { TaskType, AgentId, TaskHistoryRecord, AggregatedStats } from './types'
 
 // ============================================================================

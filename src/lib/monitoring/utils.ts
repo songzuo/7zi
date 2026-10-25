@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Shared Utility Functions for Monitoring
  * 共享工具函数，避免重复代码
@@ -120,7 +119,7 @@ export function truncateObject(obj: unknown, maxLength: number = 500): string {
 
   try {
     return JSON.stringify(obj).slice(0, maxLength)
-  } catch (error) {
+  } catch {
     return '[Object]'
   }
 }

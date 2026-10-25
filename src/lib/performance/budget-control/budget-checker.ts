@@ -3,6 +3,21 @@
  * Checks performance metrics against defined budgets and reports violations
  */
 
+/**
+ * 动态加载预算配置模块。
+ *
+ * 导入路径在运行时才确定，TypeScript 无法静态解析这种形式的 import()，
+ * 因此通过把 import() 放进一个独立函数来绕开静态解析限制，
+ * 同时保持返回值的类型明确。
+ */
+async function importBudgetModule(modulePath: string): Promise<{ default?: BudgetConfig } & BudgetConfig> {
+  // 运行时拼接的可选链导入
+  const specifier = modulePath
+  const importer: (p: string) => Promise<{ default?: BudgetConfig } & BudgetConfig> = p =>
+    import(/* webpackIgnore: true */ p)
+  return importer(specifier)
+}
+
 // ========================================
 // Types
 // ========================================
@@ -157,13 +172,12 @@ export class BudgetChecker {
         return await response.json()
       }
 
-      // Server-side: require the file
+      // Server-side: dynamically import the file
       // Note: This assumes the file exists at the given path
       try {
-        // @ts-ignore - dynamic import for server-side
-        const config = await import(path)
+        const config = await importBudgetModule(path)
         return config.default || config
-      } catch (error) {
+      } catch {
         return null
       }
     } catch (error) {

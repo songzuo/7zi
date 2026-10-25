@@ -21,8 +21,8 @@ import {
   Artifact,
   AgentExecutor,
   RequestContext,
-  SimpleEventBus,
-  getAgentRegistry,
+  
+  
 } from './a2a'
 
 // ============================================================================
@@ -332,7 +332,7 @@ export class MultiAgentOrchestrator {
     let finalContext: Record<string, unknown> = {}
 
     // Build dependency graph
-    const dependencyGraph = this.buildDependencyGraph(workflow)
+    const _dependencyGraph = this.buildDependencyGraph(workflow)
     const completedSteps = new Set<string>()
 
     // Execute steps in order respecting dependencies
@@ -717,7 +717,7 @@ export class MultiAgentOrchestrator {
    */
   async executeFaultDiagnosis(
     symptom: string,
-    context?: Record<string, unknown>
+    _context?: Record<string, unknown>
   ): Promise<WorkflowResult> {
     const workflow: WorkflowStep[] = [
       {
@@ -1072,7 +1072,7 @@ export class MultiAgentOrchestrator {
       output: r.output,
     }))
 
-    const totalWeight = weights.reduce((sum, w) => sum + w.weight, 0)
+    const _totalWeight = weights.reduce((sum, w) => sum + w.weight, 0)
 
     // For text outputs, return the one with highest weight
     // For numeric outputs, could compute weighted average

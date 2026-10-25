@@ -121,7 +121,7 @@ vi.mock('@/lib/api/rooms/store', () => {
 })
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
     info: vi.fn(),

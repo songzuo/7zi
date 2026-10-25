@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Enhanced Metrics Collector
  * 增强版指标收集器 - 支持实时性能数据聚合

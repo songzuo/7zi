@@ -62,7 +62,7 @@ vi.mock('./repository', () => ({
 }))
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     error: vi.fn(),
     info: vi.fn(),
   },

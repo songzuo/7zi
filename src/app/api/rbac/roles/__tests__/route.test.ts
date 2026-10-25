@@ -42,7 +42,7 @@ vi.mock('@/lib/permissions/rbac', () => ({
 }))
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     error: vi.fn(),
     info: vi.fn(),
   },

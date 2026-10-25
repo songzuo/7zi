@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Performance Monitor Integration
  * Enhanced monitoring that sends metrics to the performance API

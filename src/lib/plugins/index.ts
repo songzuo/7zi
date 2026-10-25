@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin System for v1.10.0
  * A flexible, secure, and extensible plugin architecture

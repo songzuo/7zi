@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Alert Deduplication and Aggregation Module
  * 告警去重和聚合
@@ -352,15 +351,10 @@ export class AlertAggregator {
   private groupAlerts(): Map<string, AggregationGroup> {
     const groups = new Map<string, AggregationGroup>()
     const now = Date.now()
-    const cutoff = now - this.config.windowMs
 
-    // 过滤窗口内的告警
-    const recentAlerts = this.alerts.filter(a => {
-      // 使用当前时间作为近似值，实际应用中需要从context获取timestamp
-      return true
-    })
-
-    for (const alert of recentAlerts) {
+    // AlertContext 本身不携带时间戳，窗口裁剪统一由 trimAlerts() 负责，
+    // 因此这里直接对当前缓存的全部告警分组。
+    for (const alert of this.alerts) {
       const key = this.generateGroupKey(alert)
       const existing = groups.get(key)
 
@@ -546,10 +540,8 @@ export class AlertAggregator {
    * 清除旧告警
    */
   private trimAlerts(): void {
-    const cutoff = Date.now() - this.config.windowMs
-
-    // 移除窗口外的告警
-    // 注意：这里假设alert有timestamp字段，实际应用中需要从context获取
+    // AlertContext 不含时间戳，无法按时间窗口裁剪；
+    // 这里按最大保留条数裁剪，保证内存占用可控。
     this.alerts = this.alerts.slice(-this.config.maxAlertsInWindow)
   }
 

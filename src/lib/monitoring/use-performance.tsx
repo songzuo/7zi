@@ -276,7 +276,7 @@ export function useRouteChangePerformance(): {
 
     try {
       observer.observe({ type: 'navigation', buffered: true })
-    } catch (error) {
+    } catch {
       // Navigation Timing API not supported
     }
 

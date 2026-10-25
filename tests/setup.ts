@@ -288,7 +288,7 @@ if (typeof window !== 'undefined') {
 
 // Mock logger
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),

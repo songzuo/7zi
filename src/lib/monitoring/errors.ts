@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Error Tracking Utilities
  * Enhanced error handling with Sentry integration
@@ -164,7 +163,7 @@ export function withErrorTracking<T extends (...args: unknown[]) => Promise<unkn
             if (typeof arg === 'object' && arg !== null) {
               try {
                 return JSON.stringify(arg).slice(0, 500)
-              } catch (error) {
+              } catch {
                 return '[Object]'
               }
             }

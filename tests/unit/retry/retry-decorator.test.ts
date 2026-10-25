@@ -8,7 +8,7 @@ import { withRetry, RetryPresets, getRetryInfo, type RetryConfig } from '@/lib/a
 
 // Mock logger
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),

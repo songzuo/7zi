@@ -6,10 +6,7 @@
 
 import type {
   BudgetConfig,
-  Budget,
-  TimingBudget,
   PerformanceMetrics,
-  BudgetCheckResult,
 } from './budget-checker'
 import { BudgetChecker } from './budget-checker'
 import { BudgetParser } from './budget-parser'

@@ -282,7 +282,7 @@ export class ScheduleHistory {
       const data = JSON.parse(json)
       this.decisions = data.decisions || []
       this.metrics = data.metrics || this.initializeMetrics()
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Invalid history data format')
     }
   }

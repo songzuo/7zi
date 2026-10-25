@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin Marketplace
  * Plugin discovery, installation, and management

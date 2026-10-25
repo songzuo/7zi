@@ -11,7 +11,7 @@ import {
   WalletTransaction,
   TransactionType,
   TransactionStatus,
-  WalletOperationRequest,
+  
 } from './types'
 
 /**

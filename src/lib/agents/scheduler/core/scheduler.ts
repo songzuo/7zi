@@ -4,7 +4,7 @@
  */
 
 import { AgentCapability, initializeAgents } from '../models/agent-capability'
-import { Task, TaskQueue, createTask } from '../models/task-model'
+import { Task, TaskQueue } from '../models/task-model'
 import {
   ScheduleDecision,
   ScheduleHistory,

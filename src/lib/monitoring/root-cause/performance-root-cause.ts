@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Performance Root Cause Analyzer
  * 性能根因分析器
@@ -692,7 +691,7 @@ export class PerformanceRootCauseAnalyzer {
       })
       longTaskObserver.observe({ type: 'longtask', buffered: true })
       this.observers.push(longTaskObserver)
-    } catch (e) {
+    } catch {
       // Long task observer not supported
     }
 
@@ -709,7 +708,7 @@ export class PerformanceRootCauseAnalyzer {
       })
       layoutShiftObserver.observe({ type: 'layout-shift', buffered: true })
       this.observers.push(layoutShiftObserver)
-    } catch (e) {
+    } catch {
       // Layout shift observer not supported
     }
   }

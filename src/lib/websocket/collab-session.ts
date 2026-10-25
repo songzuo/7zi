@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Collaboration Session Management
  *
@@ -162,6 +161,7 @@ export function updateParticipantCursor(
   const participant = session.participants.get(userId)
   if (!participant) return false
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   participant.cursor = cursor
   participant.lastActivity = new Date()
   session.lastActivity = new Date()
@@ -179,6 +179,7 @@ export function updateParticipantSelection(
   const participant = session.participants.get(userId)
   if (!participant) return false
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   participant.selection = selection
   participant.lastActivity = new Date()
   session.lastActivity = new Date()

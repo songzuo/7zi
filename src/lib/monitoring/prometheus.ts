@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Prometheus/OpenMetrics Exporter
  * 标准化的 Prometheus 指标导出器

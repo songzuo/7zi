@@ -5,7 +5,7 @@
  * Using time series analysis to identify cause-effect relationships
  */
 
-import { Severity, SeverityLevel } from './types'
+import { SeverityLevel } from './types'
 
 // ============================================================================
 // Types

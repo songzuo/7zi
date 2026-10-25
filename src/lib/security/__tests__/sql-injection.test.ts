@@ -10,7 +10,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const loggerWarn = vi.fn()
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     warn: (...args: unknown[]) => loggerWarn(...args),
     info: vi.fn(),
     error: vi.fn(),

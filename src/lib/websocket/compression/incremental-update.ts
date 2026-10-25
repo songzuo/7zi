@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Incremental Update System
  * 
@@ -441,6 +440,7 @@ export class IncrementalUpdateManager<T = unknown> {
         })
       } else {
         // Compare elements
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         this.diffObjects(oldArr[i] as T, newArr[i] as T, newPath, diff)
       }
     }
@@ -473,6 +473,7 @@ export class IncrementalUpdateManager<T = unknown> {
         })
       } else {
         // Compare values
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         this.diffObjects(oldObj[key] as T, newObj[key] as T, newPath, diff)
       }
     }
@@ -502,6 +503,7 @@ export class IncrementalUpdateManager<T = unknown> {
       
       case 'test':
         const currentValue = this.getAtPath(data, parts)
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         return currentValue === op.value ? data : undefined
       
       default:
@@ -544,6 +546,7 @@ export class IncrementalUpdateManager<T = unknown> {
       }
       
       const index = /^\d+$/.test(part) ? parseInt(part, 10) : part
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       current = (current as Record<string, unknown>)[index]
     }
     
@@ -628,7 +631,7 @@ export class IncrementalUpdateManager<T = unknown> {
       return 0
     }
     
-    const oldSize = JSON.stringify(oldData).length
+    const _oldSize = JSON.stringify(oldData).length
     const newSize = JSON.stringify(newData).length
     const diffSize = JSON.stringify(diff).length
     
@@ -672,6 +675,7 @@ export class IncrementalUpdateManager<T = unknown> {
     try {
       return createHash('sha256').update(JSON.stringify(data)).digest('hex')
     } catch (error) {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       logger.warn('Failed to calculate hash', { error })
       return ''
     }

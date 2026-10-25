@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Bottleneck Detector
  * Identifies performance bottlenecks and provides optimization recommendations

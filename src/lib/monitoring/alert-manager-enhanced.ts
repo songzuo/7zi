@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Performance Alert Manager
  * 性能告警管理器 - 支持阈值触发
@@ -11,7 +10,6 @@
  * - 多渠道告警通知
  */
 
-import type { PerformanceAlert } from './performance.monitor'
 import { performanceCollector } from './performance.monitor'
 import { ALERT_CONFIG } from './performance.config'
 
@@ -65,7 +63,7 @@ export interface AlertNotification {
   timestamp: number
 }
 
-type AlertCallback = (alert: ActiveAlert) => void
+export type AlertCallback = (alert: ActiveAlert) => void
 
 // ============================================
 // 告警管理器

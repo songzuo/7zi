@@ -12,7 +12,7 @@ import { cookies } from 'next/headers'
 
 // Mock logger to avoid console output during tests
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),

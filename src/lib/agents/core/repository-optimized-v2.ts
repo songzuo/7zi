@@ -315,7 +315,7 @@ export async function validateAgentApiKey(agentId: string, apiKey: string): Prom
     if (decryptedKey === apiKey) {
       return mapRowToAgent(row)
     }
-  } catch (error) {
+  } catch (_error) {
     return null
   }
 

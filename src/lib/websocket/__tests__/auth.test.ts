@@ -13,7 +13,7 @@ import { generateUserColor } from '../auth'
 
 // Mock the dependencies
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),

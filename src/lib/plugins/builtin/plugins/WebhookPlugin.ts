@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Webhook Plugin
  * Event-driven webhooks with retry and delivery tracking
@@ -13,6 +12,7 @@ import {
   PluginMetrics,
   HookHandler,
 } from '../../types';
+import * as cryptoModule from 'crypto';
 
 export interface WebhookPluginConfig {
   maxRetries: number;
@@ -113,6 +113,7 @@ export class WebhookPlugin implements Plugin {
     id: this.metadata.id,
     enabled: true,
     priority: 80,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     config: {
       maxRetries: 3,
       retryDelay: 1000,
@@ -177,6 +178,7 @@ export class WebhookPlugin implements Plugin {
   /**
    * Register hooks
    */
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   registerHooks(registry: HookRegistry): void {
     registry.register('onWebhookReceived', this.handleWebhookReceived.bind(this) as HookHandler);
     registry.register('onEvent', this.handleEvent.bind(this) as HookHandler);
@@ -398,6 +400,7 @@ export class WebhookPlugin implements Plugin {
       return;
     }
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as WebhookPluginConfig;
     this.processing = true;
 
@@ -415,6 +418,7 @@ export class WebhookPlugin implements Plugin {
    * Deliver webhook
    */
   private async deliver(delivery: WebhookDelivery): Promise<void> {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as WebhookPluginConfig;
     const endpoint = this.endpoints.get(delivery.endpointId);
 
@@ -488,8 +492,8 @@ export class WebhookPlugin implements Plugin {
    * Sign payload
    */
   private signPayload(payload: unknown, secret: string): string {
-    const crypto = require('crypto');
-    const hmac = crypto.createHmac('sha256', secret);
+    
+    const hmac = cryptoModule.createHmac('sha256', secret);
     hmac.update(JSON.stringify(payload));
     return hmac.digest('hex');
   }
@@ -498,8 +502,8 @@ export class WebhookPlugin implements Plugin {
    * Generate ID
    */
   private generateId(): string {
-    const crypto = require('crypto');
-    return crypto.randomBytes(16).toString('hex');
+    
+    return cryptoModule.randomBytes(16).toString('hex');
   }
 
   /**
@@ -507,7 +511,9 @@ export class WebhookPlugin implements Plugin {
    */
   private handleWebhookReceived(context: unknown, input: unknown): void {
     this.trigger({
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       event: input.event || 'webhook.received',
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       payload: input.payload,
     });
   }
@@ -516,9 +522,12 @@ export class WebhookPlugin implements Plugin {
    * Handle event hook
    */
   private handleEvent(context: unknown, input: unknown): void {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     if (input.event) {
       this.trigger({
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         event: input.event,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         payload: input.payload,
       });
     }
@@ -528,7 +537,8 @@ export class WebhookPlugin implements Plugin {
    * Health check
    */
   async healthCheck(): Promise<PluginHealthStatus> {
-    const config = this.config.config as WebhookPluginConfig;
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
+    const _config = this.config.config as WebhookPluginConfig;
 
     return {
       status: 'healthy',

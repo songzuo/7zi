@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Slack Alert Channel
  * 专用 Slack 告警渠道实现

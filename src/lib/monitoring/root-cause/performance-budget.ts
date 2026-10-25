@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Performance Budget Controller
  * 性能预算控制器

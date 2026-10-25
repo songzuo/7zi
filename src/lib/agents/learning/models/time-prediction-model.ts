@@ -98,7 +98,7 @@ export class TimePredictionModel {
    * @returns Prediction result with confidence intervals
    */
   predict(input: TimePredictionInput): TimePredictionResult {
-    const { historicalData, complexity, dependencies, agentLoad, estimatedDuration } = input
+    const { historicalData: _historicalData, complexity: _complexity, dependencies, agentLoad, estimatedDuration: _estimatedDuration } = input
 
     // Determine the best strategy based on available data
     const strategy = this.selectStrategy(input)
@@ -162,7 +162,7 @@ export class TimePredictionModel {
    * Simple mean of historical completion times
    */
   private historicalAveragePredict(input: TimePredictionInput): TimePredictionResult {
-    const { historicalData, estimatedDuration } = input
+    const { historicalData, estimatedDuration: _estimatedDuration } = input
 
     if (!historicalData || historicalData.length === 0) {
       return this.complexityAdjustedPredict(input)
@@ -197,7 +197,7 @@ export class TimePredictionModel {
    * More recent data has higher weight
    */
   private weightedAveragePredict(input: TimePredictionInput): TimePredictionResult {
-    const { historicalData, estimatedDuration } = input
+    const { historicalData, estimatedDuration: _estimatedDuration } = input
 
     if (!historicalData || historicalData.length === 0) {
       return this.complexityAdjustedPredict(input)

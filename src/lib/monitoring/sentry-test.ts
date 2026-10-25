@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Sentry Test Utilities
  * Helper functions to test Sentry integration

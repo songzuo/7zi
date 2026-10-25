@@ -185,7 +185,7 @@ export class AdaptiveScheduler {
    * Schedule a task to the best available agent
    */
   async schedule(task: SchedulableTask): Promise<SchedulingDecision> {
-    const startTime = Date.now()
+    const _startTime = Date.now()
 
     // Get candidate agents
     const candidates = this.getCandidateAgents(task)
@@ -605,8 +605,8 @@ export class AdaptiveScheduler {
    */
   private adjustWeightBasedOnPerformance(
     agentId: AgentId,
-    success: boolean,
-    actualTime: number
+    _success: boolean,
+    _actualTime: number
   ): void {
     const agent = this.agentStates.get(agentId)
     if (!agent) return
@@ -732,7 +732,7 @@ export class AdaptiveScheduler {
   /**
    * Infer task type from task ID (placeholder)
    */
-  private inferTaskType(taskId: string): TaskType {
+  private inferTaskType(_taskId: string): TaskType {
     // In real implementation, this would come from task metadata
     return 'general'
   }

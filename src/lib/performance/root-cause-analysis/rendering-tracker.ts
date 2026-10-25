@@ -116,7 +116,7 @@ export class RenderingTracker {
           }
         })
         longTaskObserver.observe({ entryTypes: ['longtask'] })
-      } catch (e) {
+      } catch {
         // Long task API may not be supported in all browsers
       }
 
@@ -141,7 +141,7 @@ export class RenderingTracker {
           }
         })
         layoutShiftObserver.observe({ entryTypes: ['layout-shift'] })
-      } catch (e) {
+      } catch {
         // Layout shift API may not be supported in all browsers
       }
 
@@ -158,7 +158,7 @@ export class RenderingTracker {
           })
         })
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] })
-      } catch (e) {
+      } catch {
         // LCP API may not be supported in all browsers
       }
 
@@ -179,7 +179,7 @@ export class RenderingTracker {
           })
         })
         fidObserver.observe({ entryTypes: ['first-input'] })
-      } catch (e) {
+      } catch {
         // FID API may not be supported in all browsers
       }
 
@@ -203,10 +203,10 @@ export class RenderingTracker {
           }
         })
         tbtObserver.observe({ entryTypes: ['longtask'] })
-      } catch (e) {
+      } catch {
         // Long task API may not be supported in all browsers
       }
-    } catch (e) {
+    } catch {
       // PerformanceObserver may not be supported
     }
   }
@@ -224,7 +224,7 @@ export class RenderingTracker {
         const firstAttribution = attribution[0]
         return firstAttribution.name || firstAttribution.container?.type || 'unknown'
       }
-    } catch (e) {
+    } catch {
       // Attribution may not be available
     }
     return 'unknown'

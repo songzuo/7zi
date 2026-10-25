@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin Loader
  * Dynamic plugin loading with hot reload support
@@ -6,13 +5,22 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { execSync } from 'child_process';
+import * as vm from 'vm';
+import { createRequire } from 'module';
 import {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   Plugin,
   PluginMetadata,
-  PluginConfig,
+  
   PluginLoadError,
   PluginValidationError,
 } from './types';
+
+// 动态模块加载使用 createRequire（ESM 环境下等价的 require 实现）
+const dynamicRequire = createRequire(
+  typeof __filename !== 'undefined' ? __filename : import.meta.url
+);
 
 export interface PluginSource {
   type: 'local' | 'npm' | 'url' | 'git';
@@ -143,16 +151,17 @@ export class PluginLoader implements IPluginLoader {
     if (fs.existsSync(modulePath)) {
       // Clear require cache for hot reload
       if (this.options.enableHotReload) {
-        delete require.cache[require.resolve(modulePath)];
+        delete dynamicRequire.cache[dynamicRequire.resolve(modulePath)];
       }
 
-      pluginModule = require(modulePath);
+      pluginModule = dynamicRequire(modulePath);
     } else {
       throw new PluginLoadError(id, `Plugin module not found: ${modulePath}`);
     }
 
     // Create plugin instance
     const PluginClass = (pluginModule as { default?: typeof Plugin } & typeof Plugin).default || pluginModule;
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const plugin: Plugin = new PluginClass();
 
     // Attach metadata
@@ -164,9 +173,9 @@ export class PluginLoader implements IPluginLoader {
   /**
    * Load plugin from npm
    */
-  private async loadFromNpm(id: string, packageName?: string, version?: string): Promise<Plugin> {
+  private async loadFromNpm(id: string, packageName?: string, _version?: string): Promise<Plugin> {
     const pkgName = packageName || id;
-    const modulePath = require.resolve(pkgName);
+    const modulePath = dynamicRequire.resolve(pkgName);
 
     if (!modulePath) {
       throw new PluginLoadError(id, `NPM package not found: ${pkgName}`);
@@ -174,11 +183,11 @@ export class PluginLoader implements IPluginLoader {
 
     // Clear require cache
     if (this.options.enableHotReload) {
-      delete require.cache[require.resolve(modulePath)];
+      delete dynamicRequire.cache[dynamicRequire.resolve(modulePath)];
     }
 
     // Load module
-    const pluginModule = require(modulePath);
+    const pluginModule = dynamicRequire(modulePath);
     const PluginClass = (pluginModule as { default?: typeof Plugin } & typeof Plugin).default || pluginModule;
     const plugin: Plugin = new PluginClass();
 
@@ -218,6 +227,7 @@ export class PluginLoader implements IPluginLoader {
 
       // Execute code in sandboxed environment
       const pluginModule = await this.executePluginCode(id, code);
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       const PluginClass = pluginModule.default || pluginModule;
       const plugin: Plugin = new PluginClass();
 
@@ -231,7 +241,7 @@ export class PluginLoader implements IPluginLoader {
    * Load plugin from Git
    */
   private async loadFromGit(id: string, repoUrl: string): Promise<Plugin> {
-    const { execSync } = require('child_process');
+    
     const tempDir = path.join('/tmp', 'plugins', id);
 
     try {
@@ -301,7 +311,7 @@ export class PluginLoader implements IPluginLoader {
    */
   private async executePluginCode(id: string, code: string): Promise<unknown> {
     // Use VM module for sandboxed execution
-    const vm = require('vm');
+    
     const context = vm.createContext({
       module: { exports: {} },
       exports: {},

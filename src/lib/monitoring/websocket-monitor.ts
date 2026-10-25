@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Monitor
  * WebSocket 连接监控器 - 自动追踪 Socket.IO 连接性能
@@ -360,7 +359,7 @@ export class WebSocketMonitor {
           this.log(`[${ns}] Message received: ${eventName}`)
         }
       })
-    } catch (error) {
+    } catch {
       this.log(`[${ns}] onAny not supported on this socket`)
     }
 

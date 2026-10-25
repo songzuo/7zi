@@ -4,8 +4,8 @@
  */
 
 import { create } from 'zustand'
-import { AgentCapability, AgentProvider } from '../models/agent-capability'
-import { Task, TaskPriority, TaskStatus } from '../models/task-model'
+import { AgentCapability } from '../models/agent-capability'
+import { Task,  TaskStatus } from '../models/task-model'
 import { ScheduleDecision } from '../models/schedule-decision'
 import { AgentScheduler } from '../core/scheduler'
 

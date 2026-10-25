@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Web Vitals Monitoring (Enhanced)
  * Collects and reports Core Web Vitals with real system integration
@@ -99,7 +98,7 @@ export function getTimingEntries(): PerformanceEntry[] {
 
   try {
     return performance.getEntriesByType('measure')
-  } catch (error) {
+  } catch {
     return []
   }
 }
@@ -114,7 +113,7 @@ export function clearTiming(name?: string) {
     } else {
       performance.clearMarks()
     }
-  } catch (error) {
+  } catch {
     // Ignore
   }
 }
@@ -232,7 +231,7 @@ export function optimizeFID_INP() {
         }
       })
       observer.observe({ type: 'longtask', buffered: true })
-    } catch (error) {
+    } catch {
       // Long Task API not supported
     }
   }
@@ -540,7 +539,7 @@ export function observePerformance() {
       })
     })
     longTaskObserver.observe({ type: 'longtask', buffered: true })
-  } catch (error) {
+  } catch {
     // Long Task API not supported
   }
 
@@ -554,7 +553,7 @@ export function observePerformance() {
       })
     })
     layoutShiftObserver.observe({ type: 'layout-shift', buffered: true })
-  } catch (error) {
+  } catch {
     // Layout Shift API not supported
   }
 }

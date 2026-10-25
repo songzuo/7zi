@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin Hooks
  * Hook system for plugin lifecycle and events

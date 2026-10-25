@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Authentication Middleware
  *

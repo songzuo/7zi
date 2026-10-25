@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Room Store
  *
@@ -15,9 +14,9 @@ import type {
   RoomType,
   RoomVisibility,
   RoomParticipant,
-  RoomConfig,
+  
 } from '@/lib/websocket/rooms'
-import type { UserRole, Permission } from '@/lib/websocket/permissions'
+import type {  } from '@/lib/websocket/permissions'
 import type { StoredMessage } from '@/lib/websocket/message-store'
 
 // ============================================================================

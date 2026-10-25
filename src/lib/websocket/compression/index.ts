@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Compression & Optimization System
  * 
@@ -151,6 +150,7 @@ export class WebSocketOptimizationManager {
 
     // 3. Compression
     if (!options.skipCompression) {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       const compressed = this.compression.compress(data, undefined, options.clientCaps)
       
       if (compressed && typeof compressed === 'object' && 'compressed' in compressed) {
@@ -214,11 +214,13 @@ export class WebSocketOptimizationManager {
         // Try gzip first
         result = this.compression.decompress(data, 'gzip')
       } catch (error) {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         logger.warn('Failed to decompress with gzip, trying brotli', { error })
         try {
           // Try brotli
           result = this.compression.decompress(data, 'brotli')
         } catch (error2) {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
           logger.warn('Failed to decompress with brotli, using data as-is', { error: error2 })
           // Not compressed, use as-is
           result = data

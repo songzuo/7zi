@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Real-Time Performance Dashboard Service
  * 实时性能仪表板服务
@@ -10,11 +9,32 @@
  * - 多客户端连接管理
  */
 
-import type { Server as SocketIOServer } from 'socket.io'
-import type { Socket } from 'socket.io-client'
-import type { DefaultEventsMap } from 'socket.io/dist/typed-events'
+import type { Server as SocketIOServer, Socket } from 'socket.io'
 import { performanceCollector } from './performance.monitor'
-import type { PerformanceMetric, CustomMetric, PerformanceAlert } from './performance.monitor'
+import type { PerformanceMetric, PerformanceAlert } from './performance.monitor'
+
+/**
+ * 客户端 -> 服务端 的自定义事件
+ */
+interface DashboardClientToServerEvents {
+  subscribe: (data: { metrics?: string[]; alertLevels?: string[] }) => void
+  unsubscribe: (data: { metrics?: string[]; alertLevels?: string[] }) => void
+  getHistory: (callback: (data: RealTimeMetrics[]) => void) => void
+  getTrends: (data: { windowMs?: number }, callback: (data: PerformanceTrend) => void) => void
+}
+
+/**
+ * 服务端 -> 客户端 的自定义事件
+ */
+interface DashboardServerToClientEvents {
+  'metrics:current': (data: RealTimeMetrics) => void
+  'metrics:history': (data: RealTimeMetrics[]) => void
+  'metrics:trend': (data: PerformanceTrend) => void
+  'alerts:recent': (data: PerformanceAlert[]) => void
+}
+
+/** 服务端连接使用的 Socket 类型（带仪表盘自定义事件） */
+type DashboardSocket = Socket<DashboardClientToServerEvents, DashboardServerToClientEvents>
 
 // ============================================
 // 类型定义
@@ -123,7 +143,7 @@ class RealTimeDashboardService {
     this.io = io
 
     // 监听客户端连接
-    io.on('connection', (socket: Socket) => {
+    io.on('connection', (socket: DashboardSocket) => {
       this.handleClientConnection(socket)
     })
 
@@ -139,7 +159,7 @@ class RealTimeDashboardService {
   /**
    * 处理客户端连接
    */
-  private handleClientConnection(socket: Socket) {
+  private handleClientConnection(socket: DashboardSocket) {
     const client: DashboardClient = {
       id: socket.id,
       subscribedMetrics: ['LCP', 'FID', 'CLS', 'INP', 'TTFB', 'FCP'],
@@ -227,7 +247,7 @@ class RealTimeDashboardService {
   /**
    * 发送初始数据
    */
-  private sendInitialData(socket: Socket) {
+  private sendInitialData(socket: DashboardSocket) {
     const client = this.clients.get(socket.id)
     if (!client) return
 

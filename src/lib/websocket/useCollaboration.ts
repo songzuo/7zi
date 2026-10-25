@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Collaboration Hook
  *
@@ -397,7 +396,6 @@ export function useCollaboration(
   )
 
   // Create socket connection
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const connect = useCallback(() => {
     if (socketRef.current?.connected) {
       logger.warn('WebSocket already connected')

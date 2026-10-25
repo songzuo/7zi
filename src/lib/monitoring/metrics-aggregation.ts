@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Optimized Metrics Aggregation Module
  * 优化的指标聚合模块
@@ -483,7 +482,7 @@ function accumulatorToMetrics(acc: AggregatedMetricsAccumulator): AggregatedMetr
 // Export
 // ============================================
 
-export default {
+const metricsAggregationExports = {
   getAggregatedMetrics,
   getGroupedAggregation,
   getMultiMetricAggregation,
@@ -491,3 +490,5 @@ export default {
   calculateMovingAverage,
   getPercentiles,
 }
+
+export default metricsAggregationExports

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin Registry
  * Central registry for managing loaded plugins
@@ -9,7 +8,7 @@ import {
   PluginRegistry as IPluginRegistry,
   PluginSearchQuery,
   PluginCategory,
-  PluginStatus,
+  
 } from './types';
 
 export class PluginRegistry implements IPluginRegistry {

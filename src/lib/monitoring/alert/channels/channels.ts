@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Alert Channels Configuration Module
  * 统一的多渠道告警配置系统
@@ -590,7 +589,7 @@ export class AlertChannelSender {
     }
 
     try {
-      const result = await this.sendByType(config, payload)
+      await this.sendByType(config, payload)
       return {
         success: true,
         channel: config.type,

@@ -25,7 +25,7 @@ vi.mock('@/lib/db', () => ({
 vi.mock('@/lib/logger', () => ({
   // 被测代码用 `import { logger } from '@/lib/logger'`（具名导出），
   // mock 工厂只给 default 会导致 'No "logger" export is defined' 收集失败。
-  logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
+  logger: { auth: vi.fn(), info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }))
 

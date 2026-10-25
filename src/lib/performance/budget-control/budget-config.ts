@@ -3,7 +3,7 @@
  * Load and manage budget configuration with default values and file loading support
  */
 
-import type { BudgetConfig, Budget, TimingBudget, PerformanceMetrics } from './budget-checker'
+import type { BudgetConfig, Budget, PerformanceMetrics } from './budget-checker'
 import { BudgetParser } from './budget-parser'
 
 // ========================================
@@ -238,25 +238,21 @@ export class BudgetConfigManager {
       }
 
       // Server-side: read from file system
-      if (typeof require === 'function') {
-        try {
-          const fs = require('fs')
-          const jsonString = fs.readFileSync(path, 'utf-8')
-          const result = this.parser.parse(jsonString)
-          if (result.success) {
-            return result.config
-          } else {
-            console.warn('[BudgetConfig] File validation errors:', result.errors)
-            return null
-          }
-        } catch (e) {
-          // File doesn't exist or can't be read
-          console.warn(`[BudgetConfig] Cannot read file ${path}:`, e)
+      try {
+        const { readFile } = await import('node:fs/promises')
+        const jsonString = await readFile(path, 'utf-8')
+        const result = this.parser.parse(jsonString)
+        if (result.success) {
+          return result.config
+        } else {
+          console.warn('[BudgetConfig] File validation errors:', result.errors)
           return null
         }
+      } catch (e) {
+        // File doesn't exist or can't be read
+        console.warn(`[BudgetConfig] Cannot read file ${path}:`, e)
+        return null
       }
-
-      return null
     } catch (error) {
       console.error(`[BudgetConfig] Error loading file ${path}:`, error)
       return null

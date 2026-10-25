@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin Security
  * Plugin security scanning and verification

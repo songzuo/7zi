@@ -12,7 +12,7 @@
  */
 
 import React, { useState, useMemo } from 'react'
-import { useSchedulerStore, selectRecentDecisions } from '../stores/scheduler-store'
+import { useSchedulerStore } from '../stores/scheduler-store'
 import type { ScheduleDecision } from '../models/schedule-decision'
 import type { AgentCapability } from '../models/agent-capability'
 
@@ -104,14 +104,17 @@ function DecisionCard({
   agents,
   isExpanded,
   onToggle,
-  currentTime = Date.now(),
+  currentTime,
 }: DecisionCardProps) {
+  // 兜底时间在挂载时快照一次，避免渲染期间调用 Date.now()（React 纯度约束）
+  const [snapshotTime] = useState(() => Date.now())
+  const effectiveTime = currentTime ?? snapshotTime
   const agent = agents.find(a => a.agentId === decision.assignedAgent)
   const emoji = agent ? AGENT_EMOJIS[agent.agentId] || '🤖' : '🤖'
   const agentName = agent?.name || 'Unknown Agent'
 
   // Format timestamp
-  const timestamp = new Date(decision.decisionTime || currentTime).toLocaleString('zh-CN', {
+  const timestamp = new Date(decision.decisionTime || effectiveTime).toLocaleString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -365,6 +368,8 @@ export function ScheduleHistory() {
   const { recentDecisions, agents, isLoading, error, refresh } = useSchedulerStore()
 
   const [currentPage, setCurrentPage] = useState(1)
+  // 当前时间在挂载时快照一次，传给 DecisionCard 使用（避免渲染期调用 Date.now()）
+  const [currentTime] = useState(() => Date.now())
   const [outcomeFilter, setOutcomeFilter] = useState<OutcomeType>('all')
   const [agentFilter, setAgentFilter] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -427,10 +432,21 @@ export function ScheduleHistory() {
     })
   }
 
-  // Reset page on filter change
-  React.useEffect(() => {
+  // 筛选条件变化时在渲染期调整页码（React 官方推荐写法），
+  // 避免在 effect 内同步 setState 造成级联渲染
+  const [filterSnapshot, setFilterSnapshot] = useState({
+    outcomeFilter,
+    agentFilter,
+    searchQuery,
+  })
+  if (
+    filterSnapshot.outcomeFilter !== outcomeFilter ||
+    filterSnapshot.agentFilter !== agentFilter ||
+    filterSnapshot.searchQuery !== searchQuery
+  ) {
+    setFilterSnapshot({ outcomeFilter, agentFilter, searchQuery })
     setCurrentPage(1)
-  }, [outcomeFilter, agentFilter, searchQuery])
+  }
 
   // Statistics
   const stats = useMemo(() => {
@@ -575,7 +591,7 @@ export function ScheduleHistory() {
                   agents={agents}
                   isExpanded={expandedDecisions.has(decisionKey)}
                   onToggle={() => toggleExpansion(decisionKey)}
-                  currentTime={Date.now()}
+                  currentTime={currentTime}
                 />
               )
             })}

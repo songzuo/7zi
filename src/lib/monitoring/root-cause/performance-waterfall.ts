@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Performance Waterfall Analyzer
  * Analyzes resource loading waterfall to identify performance bottlenecks

@@ -18,10 +18,10 @@ import {
 import {
   createAgent,
   getAgentById,
-  getAllAgents,
+  
   updateAgentStatus,
   initializeAgentTables,
-  validateAgentApiKey,
+  
   mapRowToAgent,
 } from './repository'
 import { createWallet } from './wallet-repository'
@@ -210,7 +210,7 @@ export async function verifyAgentToken(
       role: payload.role as string,
       permissions: (payload.permissions as string[]) || [],
     }
-  } catch (error) {
+  } catch (_error) {
     return null
   }
 }
@@ -236,7 +236,7 @@ export async function refreshAgentToken(refreshToken: string): Promise<AgentToke
     }
 
     return generateAgentToken(agent)
-  } catch (error) {
+  } catch (_error) {
     return null
   }
 }

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Logging Plugin
  * Advanced logging with multiple transports and formatters
@@ -15,6 +14,7 @@ import {
   HookHandler,
   HookRegistry,
 } from '../../types';
+import * as fsModule from 'fs';
 
 export interface LoggingPluginConfig {
   level: LogLevel;
@@ -66,6 +66,7 @@ export class LoggingPlugin implements Plugin {
     id: this.metadata.id,
     enabled: true,
     priority: 100,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     config: {
       level: 'info',
       format: 'json',
@@ -96,6 +97,7 @@ export class LoggingPlugin implements Plugin {
     context.logger.info('Logging plugin initialized');
 
     // Start flush timer
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as LoggingPluginConfig;
     this.flushTimer = setInterval(
       () => this.flush(),
@@ -174,6 +176,7 @@ export class LoggingPlugin implements Plugin {
    * Log a message
    */
   private log(entry: Partial<LogEntry>): { success: boolean } {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as LoggingPluginConfig;
 
     // Check log level
@@ -269,6 +272,7 @@ export class LoggingPlugin implements Plugin {
    * Set log level
    */
   private setLevel(level: LogLevel): { success: boolean } {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as LoggingPluginConfig;
     config.level = level;
     return { success: true };
@@ -279,9 +283,13 @@ export class LoggingPlugin implements Plugin {
    */
   private handleLog(context: unknown, input: unknown): void {
     this.log({
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       level: input.level || 'info',
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       pluginId: input.pluginId,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       message: input.message,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       meta: input.meta,
     });
   }
@@ -292,10 +300,14 @@ export class LoggingPlugin implements Plugin {
   private handleError(context: unknown, input: unknown): void {
     this.log({
       level: 'error',
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       pluginId: input.pluginId,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       message: input.error?.message || 'Unknown error',
       meta: {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         error: input.error?.stack,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         ...input.meta,
       },
     });
@@ -309,6 +321,7 @@ export class LoggingPlugin implements Plugin {
       return;
     }
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as LoggingPluginConfig;
     const logs = [...this.logBuffer];
     this.logBuffer = [];
@@ -330,6 +343,7 @@ export class LoggingPlugin implements Plugin {
    * Flush logs to a specific transport
    */
   private async flushToTransport(logs: LogEntry[], transport: LogTransport): Promise<void> {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as LoggingPluginConfig;
     const formattedLogs = logs.map((log) => this.formatLog(log, config.format));
 
@@ -342,14 +356,16 @@ export class LoggingPlugin implements Plugin {
 
       case 'file':
         // Write to file
-        const fs = require('fs');
+        
         const path = transport.config?.path || './logs/plugin.log';
         const content = formattedLogs.join('\n') + '\n';
-        await fs.promises.appendFile(path, content);
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
+        await fsModule.promises.appendFile(path, content);
         break;
 
       case 'http':
         // Send to HTTP endpoint
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         await fetch(transport.config?.url || '', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

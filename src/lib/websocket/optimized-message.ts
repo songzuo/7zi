@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Message Compression and Optimization
  *
@@ -11,7 +10,7 @@
  * @version 2.0.0
  */
 
-import { createGzip, createUnzip, gzipSync, unzipSync } from 'zlib'
+import {   gzipSync, unzipSync } from 'zlib'
 import type { Server as SocketIOServer, Socket } from 'socket.io'
 
 // ============================================
@@ -244,11 +243,6 @@ export class MessageBatcher {
 // Delta Update System
 // ============================================
 
-interface DeltaState {
-  key: string
-  value: unknown
-  version: number
-}
 
 /**
  * Calculate delta between two states
@@ -379,7 +373,7 @@ export class OptimizedMessageHandler {
    * Deliver a message through available channels
    * Priority: callback > socket > server instance
    */
-  private deliverMessage(optimized: OptimizedMessage, original: WebSocketMessage): void {
+  private deliverMessage(optimized: OptimizedMessage, _original: WebSocketMessage): void {
     // Use custom send callback if provided
     if (this.sendCallback) {
       this.sendCallback(optimized)
@@ -591,7 +585,7 @@ export function createOptimizedMessageHandler(
 // Default Export
 // ============================================
 
-export default {
+const optimizedMessageExports = {
   compressMessage,
   decompressMessage,
   computeDelta,
@@ -603,3 +597,5 @@ export default {
   createOptimizedMessageHandler,
   defaultCompressionConfig,
 }
+
+export default optimizedMessageExports

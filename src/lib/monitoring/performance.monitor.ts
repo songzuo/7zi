@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Enhanced Performance Monitoring System
  * 增强版性能监控系统
@@ -202,7 +201,7 @@ class PerformanceCollector {
       })
 
       observer.observe({ type: 'longtask', buffered: true })
-    } catch (error) {
+    } catch {
       // Long Task API 不支持
     }
   }
@@ -494,7 +493,7 @@ class PerformanceCollector {
         metric.value,
         'millisecond'
       )
-    } catch (error) {
+    } catch {
       // Sentry measurement API 不可用
     }
   }

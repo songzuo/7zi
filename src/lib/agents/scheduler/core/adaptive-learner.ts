@@ -4,7 +4,7 @@
  */
 
 import { AgentCapability } from '../models/agent-capability'
-import { Task, TaskType, TaskPriority } from '../models/task-model'
+import {  TaskType, TaskPriority } from '../models/task-model'
 import { ScheduleDecision } from '../models/schedule-decision'
 
 /**
@@ -657,7 +657,7 @@ export class AdaptiveLearner {
     }
 
     try {
-      const data = {
+      const _data = {
         metrics: Array.from(this.metrics.entries()),
         decisionHistory: this.decisionHistory.slice(-500), // Keep last 500
         weightCache: Array.from(this.weightCache.entries()).map(([agentId, weights]) => [

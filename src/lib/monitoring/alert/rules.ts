@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Alert Rule Engine Module
  * 告警规则引擎 - 支持阈值、趋势、周期规则

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Collaboration Document Synchronization
  *
@@ -138,6 +137,7 @@ export function updateCursor(
   const participant = session.participants.get(userId)
   if (!participant) return null
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   participant.cursor = cursor
   participant.lastActivity = new Date()
   session.lastActivity = new Date()
@@ -163,6 +163,7 @@ export function updateSelection(
   const participant = session.participants.get(userId)
   if (!participant) return null
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   participant.selection = selection
   participant.lastActivity = new Date()
   session.lastActivity = new Date()
@@ -249,6 +250,7 @@ export function getParticipantCursors(
     if (participant.cursor) {
       cursors.push({
         userId,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         cursor: participant.cursor,
       })
     }
@@ -275,6 +277,7 @@ export function getParticipantSelections(
     if (participant.selection) {
       selections.push({
         userId,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         selection: participant.selection,
       })
     }

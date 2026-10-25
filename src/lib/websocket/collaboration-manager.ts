@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Collaboration Manager
  *
@@ -221,6 +220,7 @@ export class CollaborationManager {
     const session = this.sessions.get(sessionId)
     if (!session) return false
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const event = updateCursor(session, userId, cursor)
     if (event) {
       this.emitEvent(event)
@@ -235,6 +235,7 @@ export class CollaborationManager {
     const session = this.sessions.get(sessionId)
     if (!session) return false
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const event = updateSelection(session, userId, selection)
     if (event) {
       this.emitEvent(event)

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Server Implementation
  *
@@ -25,11 +24,11 @@ import type { AuthenticatedSocket } from './types'
 import {
   RoomManager,
   getRoomManager,
-  type RoomType,
-  type RoomVisibility,
-  type RoomConfig,
-  type CreateRoomOptions,
-  type JoinRoomOptions,
+  
+  
+  
+  
+  
   type RoomEventCallbacks,
 } from './rooms'
 
@@ -40,7 +39,7 @@ import {
   type Permission,
 } from './permissions'
 
-import { MessageStore, getMessageStore, type MessageHistoryOptions } from './message-store'
+import { MessageStore, getMessageStore } from './message-store'
 
 // ============================================================================
 // Split Modules (v1.4.1)
@@ -51,7 +50,7 @@ import { broadcastToRoom, broadcastToUser, broadcastToAll, setIO } from './broad
 import { setupRoomHandlers, setRoomManager, setPermissionManager as setRoomPermissionManager } from './handlers/room-handlers'
 import { setupMessageHandlers, setMessageStore, setPermissionManager as setMessagePermissionManager } from './handlers/message-handlers'
 import { setupDocumentHandlers, setPermissionManager as setDocPermissionManager, setRoomManager as setDocRoomManager } from './handlers/doc-handlers'
-import { broadcastTaskStatusUpdate, broadcastTaskStatusToUser, type TaskStatusUpdate } from './task-status'
+import { broadcastTaskStatusUpdate, broadcastTaskStatusToUser } from './task-status'
 
 // ============================================================================
 // Re-export types from core modules and shared types
@@ -127,9 +126,13 @@ function initializeCoreModules(): void {
   // Wire up the handler modules with manager instances
   // Define proper type for handler module interfaces
   setRoomManager(roomManager)
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   setMessageStore(messageStore)
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   setRoomPermissionManager(permissionManager)
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   setMessagePermissionManager(permissionManager)
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   setDocPermissionManager(permissionManager)
   setDocRoomManager(roomManager)
 }

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Compression Integration
  *
@@ -224,7 +223,7 @@ export function createOptimizedEmit(
 
   try {
     // Process message
-    const result = optimizationManager.processOutgoing(event, data, {
+    const _result = optimizationManager.processOutgoing(event, data, {
       skipCompression: options?.skipCompression,
       skipCache: options?.skipCache
     })
@@ -310,6 +309,7 @@ export function resetCompressionSystem(): void {
 export function setCompressionEnabled(enabled: boolean): void {
   const optimizationManager = getOptimizationManager()
   optimizationManager.setEnabled(enabled)
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   logger.info('[WebSocket Compression] Optimizations', enabled ? 'enabled' : 'disabled')
 }
 

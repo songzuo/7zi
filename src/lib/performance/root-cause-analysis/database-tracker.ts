@@ -11,7 +11,6 @@ import {
   DatabaseIssue,
   DatabaseRecommendation,
   QueryStatistics,
-  ExecutionPlan,
   Severity,
   SeverityLevel,
   RootCauseAnalysisConfig,

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Optimized Anomaly Detection System
  * 优化版异常检测系统

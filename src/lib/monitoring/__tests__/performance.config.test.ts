@@ -1,5 +1,4 @@
 // @ts-nocheck
-// @ts-nocheck - Test file with complex type issues
 /**
  * Performance Config Tests
  * Tests for performance.config.ts - configuration and utility functions

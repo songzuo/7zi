@@ -5,9 +5,6 @@
 
 import {
   formatSlackAlert,
-  getSlackLevelEmoji,
-  getLevelColor,
-  formatTimestamp,
   type AlertLevel,
 } from '@/lib/utils/formatting'
 import type { PerformanceAlert } from '../alerter'

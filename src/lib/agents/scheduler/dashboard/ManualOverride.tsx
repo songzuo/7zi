@@ -11,10 +11,10 @@
  */
 
 import React, { useState, useMemo, useCallback } from 'react'
-import { useSchedulerStore, selectPendingTasks, selectAgents } from '../stores/scheduler-store'
+import { useSchedulerStore } from '../stores/scheduler-store'
 import type { Task } from '../models/task-model'
 import type { AgentCapability } from '../models/agent-capability'
-import type { TaskType } from '../models/agent-capability'
+import type {  } from '../models/agent-capability'
 
 /**
  * Agent emoji mapping
@@ -146,7 +146,7 @@ interface AgentSelectItemProps {
 
 function AgentSelectItem({ agent, isSelected, onSelect, reason }: AgentSelectItemProps) {
   const emoji = AGENT_EMOJIS[agent.agentId] || '🤖'
-  const statusColor = !agent.availability
+  const _statusColor = !agent.availability
     ? 'border-red-300 dark:border-red-800'
     : agent.currentLoad > 80
       ? 'border-orange-300 dark:border-orange-800'
@@ -392,7 +392,7 @@ export function ManualOverride() {
   }, [selectedAgentId, agents])
 
   // Filter agents by task type
-  const compatibleAgents = useMemo(() => {
+  const _compatibleAgents = useMemo(() => {
     if (!selectedTask) return agents
     return agents.filter(
       agent => agent.availability && agent.capabilities.taskTypes.includes(selectedTask.type)

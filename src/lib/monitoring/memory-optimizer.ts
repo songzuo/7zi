@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Memory Optimization and Monitoring
  *
@@ -471,7 +470,7 @@ export function createResourceTracker(
 // Default Export
 // ============================================
 
-export default {
+const memoryOptimizerExports = {
   MemoryMonitor,
   MapCacheCleaner,
   MemoryAwareLRUCache,
@@ -480,3 +479,5 @@ export default {
   createMapCacheCleaner,
   createResourceTracker,
 }
+
+export default memoryOptimizerExports

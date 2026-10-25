@@ -31,7 +31,7 @@ vi.mock('@/lib/api/error-handler', () => ({
 }))
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     error: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),

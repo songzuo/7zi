@@ -1,5 +1,3 @@
-// @ts-nocheck
-// @ts-nocheck
 /**
  * WebSocket Service Exports
  *
@@ -93,6 +91,7 @@ export { default as useCollaboration } from './useCollaboration'
 export type {
   ConnectionState,
   RoomUser as CollaborationRoomUser,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   CollaborationConfig,
   CollaborationState,
   CollaborationActions,
@@ -131,6 +130,7 @@ export type {
   EditLock,
   CollaborationEvent,
   CollaborationEventType,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
   CollaborationConfig,
   CollaborationStats,
 } from './collab-types'

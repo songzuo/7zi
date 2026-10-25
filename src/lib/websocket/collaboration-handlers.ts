@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Collaboration WebSocket Handlers
  *
@@ -638,10 +637,10 @@ export function handleCollaborationDisconnect(socket: AuthenticatedSocket): void
 
   if (!userRooms) return
 
-  const collabManager = getCollaborationManager()
+  const _collabManager = getCollaborationManager()
 
   // 离开所有协作会话
-  for (const roomId of userRooms) {
+  for (const _roomId of userRooms) {
     // 查找该房间的所有协作会话
     // 由于没有直接的映射，这里需要遍历所有会话
     // 在生产环境中，应该维护一个房间到会话的映射

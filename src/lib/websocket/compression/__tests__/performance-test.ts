@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Compression Performance Tests
  * 
@@ -9,6 +8,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { getOptimizationManager } from '../index'
+import type { CompressedMessage } from '../compression-manager'
 import {
   CompressionManager,
   BatchMessageProcessor,
@@ -38,14 +39,16 @@ function generateRandomString(length: number): string {
   return result
 }
 
-function generateRandomObject(depth: number = 3, width: number = 5): any {
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
+
+function generateRandomObject(depth: number = 3, width: number = 5): JsonValue {
   if (depth === 0) {
     return Math.random() > 0.5 
       ? Math.random() * 1000 
       : generateRandomString(20)
   }
 
-  const obj: Record<string, any> = {}
+  const obj: Record<string, JsonValue> = {}
   for (let i = 0; i < width; i++) {
     const key = `key_${i}`
     if (Math.random() > 0.3) {
@@ -57,7 +60,18 @@ function generateRandomObject(depth: number = 3, width: number = 5): any {
   return obj
 }
 
-function generateTypicalMessage(): any {
+interface TestMessage {
+  type: string
+  timestamp: number
+  userId: number
+  roomId: string
+  data: {
+    users: Array<{ id: number; name: string; email: string; status: string }>
+    messages: Array<{ id: number; content: string; senderId: number; timestamp: number }>
+  }
+}
+
+function generateTypicalMessage(): TestMessage {
   return {
     type: 'data_update',
     timestamp: Date.now(),
@@ -120,7 +134,7 @@ describe('WebSocket Compression Performance', () => {
       let totalCompressed = 0
 
       for (const msg of messages) {
-        const result = compression.compress(JSON.stringify(msg), 'brotli') as any
+        const result = compression.compress(JSON.stringify(msg), 'brotli') as CompressedMessage
         
         if (result.compressed) {
           totalOriginal += result.originalSize
@@ -143,7 +157,7 @@ describe('WebSocket Compression Performance', () => {
       const json = JSON.stringify(msg)
 
       const start = performance.now()
-      const result = compression.compress(json, 'brotli')
+      const _result = compression.compress(json, 'brotli')
       const end = performance.now()
 
       const duration = end - start
@@ -155,7 +169,7 @@ describe('WebSocket Compression Performance', () => {
     it('should decompress in < 5ms', () => {
       const msg = generateTypicalMessage()
       const json = JSON.stringify(msg)
-      const compressed = compression.compress(json, 'brotli') as any
+      const compressed = compression.compress(json, 'brotli') as CompressedMessage
 
       const start = performance.now()
       const decompressed = compression.decompress(compressed.compressed, 'brotli')
@@ -192,12 +206,12 @@ describe('WebSocket Compression Performance', () => {
 
       // Gzip benchmark
       const gzipStart = performance.now()
-      const gzipResult = compression.compress(json, 'gzip') as any
+      const gzipResult = compression.compress(json, 'gzip') as CompressedMessage
       const gzipEnd = performance.now()
 
       // Brotli benchmark
       const brotliStart = performance.now()
-      const brotliResult = compression.compress(json, 'brotli') as any
+      const brotliResult = compression.compress(json, 'brotli') as CompressedMessage
       const brotliEnd = performance.now()
 
       console.log('Gzip:')
@@ -260,7 +274,7 @@ describe('WebSocket Compression Performance', () => {
       batcher.add('test', { data: 1 })
       
       // Wait a bit
-      const waitStart = Date.now()
+      const _waitStart = Date.now()
       
       setTimeout(() => {
         batcher.add('test', { data: 2 })
@@ -323,7 +337,7 @@ describe('WebSocket Compression Performance', () => {
       data2.data.messages[0].content = 'changed content here'
 
       incremental.generateUpdate('test', data1)
-      const update = incremental.generateUpdate('test', data2)
+      const _update = incremental.generateUpdate('test', data2)
       const stats = incremental.getStats()
 
       console.log(`Total saved bytes: ${stats.totalSavedBytes}`)
@@ -409,8 +423,7 @@ describe('WebSocket Compression Performance', () => {
 
   describe('End-to-End Performance', () => {
     it('should meet overall performance targets', () => {
-      const { getOptimizationManager } = require('../index')
-      const manager = getOptimizationManager()
+            const manager = getOptimizationManager()
 
       const messages = Array.from({ length: 100 }, () => generateTypicalMessage())
       const start = performance.now()
@@ -434,8 +447,7 @@ describe('WebSocket Compression Performance', () => {
     })
 
     it('should maintain backward compatibility', () => {
-      const { getOptimizationManager } = require('../index')
-      const manager = getOptimizationManager()
+            const manager = getOptimizationManager()
 
       // Client without compression support
       const clientCaps = {

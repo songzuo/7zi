@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Batch Message Processor
  * 
@@ -381,6 +380,7 @@ export class BatchMessageProcessor extends EventEmitter {
       }
       return Buffer.byteLength(JSON.stringify(data), 'utf8')
     } catch (error) {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       logger.warn('Failed to calculate buffer size, using default estimate', { error })
       return 1024 // Default size estimate
     }

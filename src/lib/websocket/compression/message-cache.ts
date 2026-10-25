@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Message Cache Layer
  * 
@@ -182,7 +181,9 @@ export class MessageCache<T = unknown> {
         timestamp: Date.now(),
         lastAccess: Date.now()
       }
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       this.cache.set(key, entry)
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       return entry
     }
 
@@ -416,6 +417,7 @@ export class MessageCache<T = unknown> {
     try {
       return createHash('md5').update(JSON.stringify(data)).digest('hex')
     } catch (error) {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       logger.warn('Failed to calculate hash with JSON, falling back to String', { error })
       return createHash('md5').update(String(data)).digest('hex')
     }
@@ -428,6 +430,7 @@ export class MessageCache<T = unknown> {
       }
       return Buffer.byteLength(JSON.stringify(data), 'utf8')
     } catch (error) {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       logger.warn('Failed to calculate size, using default estimate', { error })
       return 1024 // Default estimate
     }

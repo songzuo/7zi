@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Collaboration Integration Tests
  *

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin Manager
  * Core plugin management system with lifecycle control
@@ -16,14 +15,14 @@ import {
   HookRegistry,
   HookName,
   HookContext,
-  PluginError,
+  
   PluginLoadError,
   PluginInitError,
   PluginExecuteError,
   PluginDependencyError,
   PluginHealthStatus,
   PluginMetrics,
-  PluginEvents,
+  
 } from './types';
 import { PluginLoader } from './PluginLoader';
 
@@ -261,6 +260,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
         output: result,
       });
 
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       return result;
     } catch (error) {
       this.errors.set(pluginId, error as Error);
@@ -289,6 +289,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
         };
 
         const result = await handler(context, input);
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         results.push(result);
 
         this.emit('hook:executed', { hook, result });
@@ -572,7 +573,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
   /**
    * Check version compatibility
    */
-  private isVersionCompatible(version: string, range: string): boolean {
+  private isVersionCompatible(_version: string, _range: string): boolean {
     // Simple semver check (use semver library in production)
     return true;
   }

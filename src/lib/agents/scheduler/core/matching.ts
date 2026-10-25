@@ -5,7 +5,7 @@
 
 import { AgentCapability } from '../models/agent-capability'
 import { Task } from '../models/task-model'
-import { AgentProvider } from '../models/agent-capability'
+import {  } from '../models/agent-capability'
 
 /**
  * Task matching result with confidence score
@@ -27,7 +27,7 @@ export class TaskMatcher {
   findCandidates(task: Task, agents: Map<string, AgentCapability>): AgentCapability[] {
     const candidates: AgentCapability[] = []
 
-    for (const [agentId, agent] of agents.entries()) {
+    for (const [_agentId, agent] of agents.entries()) {
       if (this.canHandleTask(agent, task)) {
         candidates.push(agent)
       }

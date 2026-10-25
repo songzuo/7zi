@@ -1,5 +1,4 @@
 // @ts-nocheck
-// @ts-nocheck - Test file with complex type issues
 /**
  * Performance Monitor Tests
  * Tests for performance.monitor.ts - the main performance monitoring system

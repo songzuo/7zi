@@ -14,7 +14,7 @@ import { type Task, type JsonRpcResponse } from '@/lib/agents/a2a/types'
 
 // Mock logger
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     info: vi.fn(),
     debug: vi.fn(),
     error: vi.fn(),

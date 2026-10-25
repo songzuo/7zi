@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin Installer
  * Plugin installation and update management
@@ -6,7 +5,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { PluginMarketEntry, PluginLoadError } from '../types';
+import { execSync } from 'child_process';
+import { PluginMarketEntry } from '../types';
 import { PluginLoader } from '../PluginLoader';
 import { PluginValidator } from './PluginValidator';
 import { PluginSecurity } from './PluginSecurity';
@@ -162,7 +162,7 @@ export class PluginInstaller {
       fs.writeFileSync(archivePath, Buffer.from(buffer));
 
       // Extract archive
-      const { execSync } = require('child_process');
+      
       fs.mkdirSync(installPath, { recursive: true });
       execSync(`tar -xzf ${archivePath} -C ${installPath}`, { stdio: 'ignore' });
 

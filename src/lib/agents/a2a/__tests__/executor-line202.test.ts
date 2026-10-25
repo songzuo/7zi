@@ -1,4 +1,4 @@
-// @ts-nocheck - Test file with complex type issues
+// @ts-nocheck
 /**
  * Test for executor.ts line 202 - joining multiple text parts
  */

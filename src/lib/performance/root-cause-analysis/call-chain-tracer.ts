@@ -5,7 +5,7 @@
  * to identify performance bottlenecks and dependencies
  */
 
-import { Severity, SeverityLevel } from './types'
+import { SeverityLevel } from './types'
 
 // ============================================================================
 // Types

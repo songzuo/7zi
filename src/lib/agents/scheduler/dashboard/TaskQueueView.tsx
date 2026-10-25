@@ -101,8 +101,11 @@ interface TaskCardProps {
   currentTime?: number
 }
 
-function TaskCard({ task, agents, onReassign, onCancel, onTaskClick, selected }: TaskCardProps) {
+function TaskCard({ task, agents, onReassign, onCancel, onTaskClick, selected, currentTime }: TaskCardProps) {
   const [showReassign, setShowReassign] = useState(false)
+  // 当前时间在挂载时快照一次，避免渲染期间调用 Date.now()（React 纯度约束）
+  const [snapshotTime] = useState(() => Date.now())
+  const effectiveTime = currentTime ?? snapshotTime
 
   const priorityColor = PRIORITY_COLORS[task.priority]
   const statusColor = STATUS_COLORS[task.status]
@@ -113,8 +116,8 @@ function TaskCard({ task, agents, onReassign, onCancel, onTaskClick, selected }:
   const deadline = task.deadline ? new Date(task.deadline).toLocaleString() : null
 
   // Check if deadline is approaching or overdue
-  const isOverdue = task.deadline && task.deadline < Date.now() && task.status !== 'completed'
-  const isDeadlineSoon = task.deadline && !isOverdue && task.deadline - Date.now() < 60 * 60 * 1000
+  const isOverdue = task.deadline && task.deadline < effectiveTime && task.status !== 'completed'
+  const isDeadlineSoon = task.deadline && !isOverdue && task.deadline - effectiveTime < 60 * 60 * 1000
 
   // Available agents for reassignment
   const availableAgents = agents.filter(
@@ -296,6 +299,8 @@ export function TaskQueueView() {
   const [filterPriority, setFilterPriority] = useState<TaskPriority | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [filterType, setFilterType] = useState<TaskType | 'all'>('all')
+  // 当前时间在挂载时快照一次，供统计/超时判断使用（避免渲染期调用 Date.now()）
+  const [currentTime] = useState(() => Date.now())
 
   // Initialize store on mount
   React.useEffect(() => {
@@ -415,9 +420,9 @@ export function TaskQueueView() {
       assigned: filteredTasks.filter(t => t.status === 'assigned').length,
       inProgress: filteredTasks.filter(t => t.status === 'in_progress').length,
       urgent: filteredTasks.filter(t => t.priority === 'urgent').length,
-      overdue: filteredTasks.filter(t => t.deadline && t.deadline < Date.now()).length,
+      overdue: filteredTasks.filter(t => t.deadline && t.deadline < currentTime).length,
     }
-  }, [filteredTasks])
+  }, [filteredTasks, currentTime])
 
   // Handle manual reassignment
   const handleReassign = useCallback(
@@ -434,7 +439,7 @@ export function TaskQueueView() {
   )
 
   // Handle task cancellation
-  const handleCancel = useCallback(async (taskId: string) => {
+  const handleCancel = useCallback(async (_taskId: string) => {
     if (confirm('Are you sure you want to cancel this task?')) {
       try {
         // This would need to be implemented in the scheduler
@@ -655,7 +660,8 @@ export function TaskQueueView() {
                       onReassign={handleReassign}
                       onCancel={handleCancel}
                       onTaskClick={handleTaskClick}
-                      selected={selectedTaskId === task.id}
+                      currentTime={currentTime}
+                    selected={selectedTaskId === task.id}
                     />
                   ))}
                 </div>

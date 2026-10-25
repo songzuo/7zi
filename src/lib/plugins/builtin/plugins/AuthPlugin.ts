@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Auth Plugin
  * Authentication and authorization with multiple providers
@@ -14,6 +13,7 @@ import {
   HookHandler,
   HookRegistry,
 } from '../../types';
+import * as cryptoModule from 'crypto';
 
 export interface AuthPluginConfig {
   providers: AuthProvider[];
@@ -143,6 +143,7 @@ export class AuthPlugin implements Plugin {
     id: this.metadata.id,
     enabled: true,
     priority: 95,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     config: {
       providers: [
         { type: 'local', enabled: true },
@@ -233,6 +234,7 @@ export class AuthPlugin implements Plugin {
         return (await this.register(input as RegisterInput)) as TOutput;
 
       case 'login':
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         return (await this.login(input as LoginInput)) as TOutput;
 
       case 'logout':
@@ -242,12 +244,15 @@ export class AuthPlugin implements Plugin {
         return (await this.verify(input as VerifyInput)) as TOutput;
 
       case 'refresh':
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         return (await this.refresh(input as RefreshInput)) as TOutput;
 
       case 'getUser':
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         return (await this.getUser(input as GetUserInput)) as TOutput;
 
       case 'updateUser':
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
         return (await this.updateUser(input as UpdateUserInput)) as TOutput;
 
       case 'deleteUser':
@@ -337,6 +342,7 @@ export class AuthPlugin implements Plugin {
 
     // Verify password
     const passwordHash = await this.context?.storage.get(`password:${user.id}`);
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     if (!passwordHash || !this.verifyPassword(credentials.password, passwordHash)) {
       this.recordFailedAttempt(credentials.username);
       return { success: false, error: 'Invalid credentials' };
@@ -463,6 +469,7 @@ export class AuthPlugin implements Plugin {
 
     // Verify old password
     const passwordHash = await this.context?.storage.get(`password:${data.userId}`);
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     if (!passwordHash || !this.verifyPassword(data.oldPassword, passwordHash)) {
       return { success: false, error: 'Invalid old password' };
     }
@@ -512,6 +519,7 @@ export class AuthPlugin implements Plugin {
    * Create session
    */
   private async createSession(userId: string): Promise<Session> {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as AuthPluginConfig;
     const session: Session = {
       id: this.generateId(),
@@ -529,6 +537,7 @@ export class AuthPlugin implements Plugin {
    * Record failed attempt
    */
   private recordFailedAttempt(username: string): void {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const config = this.config.config as AuthPluginConfig;
     const attempts = (this.attempts.get(username) || 0) + 1;
     this.attempts.set(username, attempts);
@@ -564,6 +573,7 @@ export class AuthPlugin implements Plugin {
    * Validate password
    */
   private validatePassword(password: string): string | null {
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
     const policy = (this.config.config as AuthPluginConfig).passwordPolicy;
 
     if (password.length < policy.minLength) {
@@ -594,16 +604,16 @@ export class AuthPlugin implements Plugin {
    */
   private hashPassword(password: string): string {
     // In production, use bcrypt
-    const crypto = require('crypto');
-    return crypto.createHash('sha256').update(password).digest('hex');
+    
+    return cryptoModule.createHash('sha256').update(password).digest('hex');
   }
 
   /**
    * Verify password
    */
   private verifyPassword(password: string, hash: string): boolean {
-    const crypto = require('crypto');
-    const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+    
+    const passwordHash = cryptoModule.createHash('sha256').update(password).digest('hex');
     return passwordHash === hash;
   }
 
@@ -611,36 +621,36 @@ export class AuthPlugin implements Plugin {
    * Generate token
    */
   private generateToken(): string {
-    const crypto = require('crypto');
-    return crypto.randomBytes(32).toString('hex');
+    
+    return cryptoModule.randomBytes(32).toString('hex');
   }
 
   /**
    * Generate ID
    */
   private generateId(): string {
-    const crypto = require('crypto');
-    return crypto.randomBytes(16).toString('hex');
+    
+    return cryptoModule.randomBytes(16).toString('hex');
   }
 
   /**
    * Handle auth attempt hook
    */
-  private handleAuthAttempt(context: unknown, input: unknown): void {
+  private handleAuthAttempt(_context: unknown, _input: unknown): void {
     // Log auth attempt
   }
 
   /**
    * Handle auth success hook
    */
-  private handleAuthSuccess(context: unknown, input: unknown): void {
+  private handleAuthSuccess(_context: unknown, _input: unknown): void {
     this.metrics.logins++;
   }
 
   /**
    * Handle auth failure hook
    */
-  private handleAuthFailure(context: unknown, input: unknown): void {
+  private handleAuthFailure(_context: unknown, _input: unknown): void {
     this.metrics.failedAttempts++;
   }
 
@@ -674,6 +684,7 @@ export class AuthPlugin implements Plugin {
       successCount: this.metrics.logins,
       failureCount: this.metrics.failedAttempts,
       memoryUsage: process.memoryUsage().heapUsed,
+// @ts-expect-error - legacy type issue migrated from file-level @ts-nocheck
       custom: this.metrics as AuthPluginMetrics,
       timestamp: new Date(),
     };

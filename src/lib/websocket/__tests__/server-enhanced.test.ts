@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Enhanced WebSocket Server Tests
  * Tests for message routing, room management, and permissions

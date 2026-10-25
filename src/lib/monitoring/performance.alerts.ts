@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Performance Alert Manager
  * 性能告警管理器

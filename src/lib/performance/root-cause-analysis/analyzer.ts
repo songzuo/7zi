@@ -6,7 +6,6 @@
 
 import {
   RootCause,
-  RootCauseType,
   Severity,
   SeverityLevel,
   AnalysisReport,
@@ -21,7 +20,6 @@ import {
   CriticalPathNode,
   RootCauseAnalysisConfig,
   DEFAULT_CONFIG,
-  Impact,
   DatabaseAnalysis,
   APIAnalysis,
   RenderingAnalysis,

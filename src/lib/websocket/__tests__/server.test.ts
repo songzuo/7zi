@@ -1,4 +1,4 @@
-// @ts-nocheck - Test file with complex type issues
+// @ts-nocheck
 /**
 // @ts-expect-error - Mock type compatibility issues
  * WebSocket Server Tests

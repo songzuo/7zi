@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * WebSocket Monitoring Middleware
  * WebSocket 监控中间件 - 集成到 Socket.IO 服务器
@@ -30,7 +29,7 @@ export function setupWebSocketMonitoring(io: SocketIOServer): void {
 
   // 监控每个客户端连接
   io.on('connection', (socket: ServerSocket) => {
-    const namespace = `client_${socket.id}`
+    const _namespace = `client_${socket.id}`
 
     // 设置 ping/pong 处理
     socket.on('ping', (data: { timestamp: number }) => {

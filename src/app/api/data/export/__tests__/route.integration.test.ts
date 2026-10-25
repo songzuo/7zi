@@ -23,7 +23,7 @@ vi.mock('@/lib/data-import-export', async () => {
 })
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     info: vi.fn(),
     debug: vi.fn(),
     error: vi.fn(),

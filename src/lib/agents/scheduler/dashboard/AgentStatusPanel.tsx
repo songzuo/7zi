@@ -36,7 +36,7 @@ import {
 } from 'lucide-react'
 import { useSchedulerStore, selectAgentAvailability } from '../stores/scheduler-store'
 import type { AgentCapability, TaskType } from '../models/agent-capability'
-import type { Task, TaskStatus } from '../models/task-model'
+import type { Task } from '../models/task-model'
 
 /**
  * Agent display data structure

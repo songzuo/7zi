@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Optimized Metrics Aggregator with Web Worker Support
  *
@@ -226,11 +225,6 @@ function calculatePercentilesOptimized(values: number[]): { p50?: number; p90?: 
     p95: quickSelect([...values], Math.max(0, p95Index)),
     p99: quickSelect([...values], Math.max(0, p99Index)),
   }
-}
-
-// Keep original function for backward compatibility
-function calculatePercentiles(values: number[]): { p50?: number; p90?: number; p95?: number; p99?: number } {
-  return calculatePercentilesOptimized(values)
 }
 
 // ============================================
@@ -602,7 +596,9 @@ export function createOptimizedAggregator(
 // Default Export
 // ============================================
 
-export default {
+const optimizedMetricsAggregatorExports = {
   OptimizedMetricsAggregator,
   createOptimizedAggregator,
 }
+
+export default optimizedMetricsAggregatorExports

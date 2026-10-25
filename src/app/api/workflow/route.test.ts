@@ -11,7 +11,7 @@ import { NextRequest } from 'next/server'
 import { GET, POST } from './route'
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     info: vi.fn(),
     error: vi.fn(),
     debug: vi.fn(),

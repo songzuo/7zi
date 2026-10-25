@@ -1,5 +1,4 @@
 // @ts-nocheck
-// @ts-nocheck - Test file with complex type issues
 /**
  * Performance Metrics Tests
  * Tests for performance-metrics.ts - metric collection and API reporting
@@ -18,7 +17,7 @@ import type { PerformanceMetric } from '@/app/api/performance/metrics/route'
 
 // Mock the logger
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),

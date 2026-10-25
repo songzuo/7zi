@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin System Configuration
  * Example configuration for the plugin system
@@ -352,7 +351,7 @@ export function validatePluginConfig(config: PluginConfig): { valid: boolean; er
   };
 }
 
-export default {
+const pluginDefaults = {
   plugin: pluginConfig,
   plugins: examplePlugins,
   permissions: defaultPermissions,
@@ -364,4 +363,6 @@ export default {
   prod: prodConfig,
   getConfig,
   validatePluginConfig,
-};
+}
+
+export default pluginDefaults;

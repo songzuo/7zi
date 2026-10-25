@@ -25,7 +25,7 @@ vi.mock('@/lib/auth/tenant', () => ({
 }))
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
+  logger: { auth: vi.fn(),
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),

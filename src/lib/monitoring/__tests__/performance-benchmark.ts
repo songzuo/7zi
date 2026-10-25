@@ -1,11 +1,10 @@
-// @ts-nocheck
 /**
  * Performance Benchmark for Monitoring Optimization
  * 监控优化性能基准测试
  *
  * 运行方式: npx ts-node src/lib/monitoring/__tests__/performance-benchmark.ts
  */
-
+// @ts-nocheck
 // ========================================
 // Circular Buffer Implementation (Optimized)
 // ========================================

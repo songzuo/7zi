@@ -9,7 +9,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useWebSocketStore } from './websocket-store'
 import type { Room, RoomType } from '@/lib/websocket/rooms'
-import type { StoredMessage, MessageReaction } from '@/lib/websocket/message-store'
+import type { StoredMessage } from '@/lib/websocket/message-store'
 
 // ============================================================================
 // Helper Functions
@@ -37,13 +37,6 @@ function isOwnMessage(message: StoredMessage, currentUserId: string | null): boo
   return message.userId === currentUserId
 }
 
-function getReactionUsers(reaction: MessageReaction, currentUserName: string | null): string {
-  const users = [reaction.userName]
-  if (reaction.userName !== currentUserName && currentUserName) {
-    users.push(currentUserName)
-  }
-  return users.slice(0, 3).join(', ') + (users.length > 3 ? ' 等' : '')
-}
 
 // ============================================================================
 // Message Item Component
@@ -60,7 +53,7 @@ interface MessageItemProps {
 function MessageItem({
   message,
   currentUserId,
-  currentUserName,
+  currentUserName: _currentUserName,
   onReact,
   onReply,
 }: MessageItemProps) {
@@ -461,13 +454,13 @@ export interface RoomViewProps {
   onLeaveRoom?: () => void
 }
 
-export function RoomView({ onSendMessage, onReactMessage, onLeaveRoom }: RoomViewProps) {
+export function RoomView({ onSendMessage, onReactMessage, onLeaveRoom: _onLeaveRoom }: RoomViewProps) {
   const [replyingTo, setReplyingTo] = useState<StoredMessage | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   const {
-    currentRoomId,
+    currentRoomId: _currentRoomId,
     currentUserId,
     currentUserName,
     showMemberPanel,
