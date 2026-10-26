@@ -34,10 +34,12 @@ cd "$PROJECT_DIR" || { echo "[deps] 项目目录不存在: $PROJECT_DIR" | tee -
 
 STAMP_FILE="node_modules/.deps-stamp"
 sha_of_pkg() {
+  # 把 package.json 与 .npmrc 一起纳入 stamp：
+  # .npmrc 决定 node-linker（isolated/hoisted），它一变就必须重装。
   if command -v sha256sum >/dev/null 2>&1; then
-    sha256sum package.json | awk '{print $1}'
+    { sha256sum package.json; [ -f .npmrc ] && sha256sum .npmrc; } | awk '{print $1}' | tr '\n' '-'
   else
-    shasum -a 256 package.json | awk '{print $1}'
+    { shasum -a 256 package.json; [ -f .npmrc ] && shasum -a 256 .npmrc; } | awk '{print $1}' | tr '\n' '-'
   fi
 }
 
@@ -58,6 +60,19 @@ fi
 # 必须放在 pnpm-workspace.yaml。若缺失（部署目录是旧提交解包产物），
 # ERR_PNPM_IGNORED_BUILDS 会让 install 直接失败 —— 这里补齐。
 if [ "$PM" = pnpm ]; then
+  # linker 切换（isolated ↔ hoisted）时，pnpm 不会自动重排已有布局，
+  # 必须清空 node_modules 重装，否则旧布局残留导致 Turbopack 解析失败。
+  WANT_LINKER="hoisted"
+  if [ -f .npmrc ] && grep -qE '^\s*node-linker\s*=\s*isolated' .npmrc; then
+    WANT_LINKER="isolated"
+  fi
+  CUR_LINKER=""
+  [ -f node_modules/.modules.yaml ] && CUR_LINKER="$(grep -m1 'nodeLinker:' node_modules/.modules.yaml 2>/dev/null | awk '{print $2}')"
+  if [ -n "$CUR_LINKER" ] && [ "$CUR_LINKER" != "$WANT_LINKER" ]; then
+    echo "[deps] node-linker 变更（$CUR_LINKER → $WANT_LINKER）—— 清空 node_modules 重装" | tee -a "$LOG"
+    rm -rf node_modules
+  fi
+
   if [ ! -f pnpm-workspace.yaml ]; then
     cat > pnpm-workspace.yaml << 'YAML'
 overrides:
@@ -95,7 +110,9 @@ fi
 
 # ---- 关键依赖清单：必须能在 node_modules 顶层解析 ----------------------
 # 这些包历史上出过「只 import 未声明」的问题，纳入强制校验。
-CRITICAL_DEPS="tailwindcss clsx express js-yaml ws next react react-dom"
+# postcss / postcss-load-config 虽未被源码直接 import，但 Turbopack 的
+# postcss transform 会从项目根解析它们，缺失即构建失败。
+CRITICAL_DEPS="tailwindcss clsx express js-yaml ws next react react-dom postcss postcss-load-config"
 
 PKG_SHA="$(sha_of_pkg)"
 OLD_SHA=""
