@@ -1,1 +1,0 @@
-/root/.openclaw/workspace/server/sentry-ws.js
