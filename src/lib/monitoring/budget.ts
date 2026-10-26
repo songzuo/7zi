@@ -47,6 +47,45 @@ export interface BudgetReport {
   summary: string
 }
 
+/**
+ * 指标全称 → 缩写。
+ *
+ * 阈值通常用缩写（LCP / FID / CLS / TTFB），而上报方可能用全称
+ * （PerformanceObserver 的 entryType 就是 'largest-contentful-paint'）。
+ * 归一化后两边才能比较上。
+ */
+const METRIC_NAME_ALIASES: Record<string, string> = {
+  largestcontentfulpaint: 'lcp',
+  firstinputdelay: 'fid',
+  cumulativelayoutshift: 'cls',
+  timefirstbyte: 'ttfb',
+}
+
+/**
+ * 把指标名归一成可比较的形式：去掉所有非字母数字字符并转小写，
+ * 再把已知全称映射成缩写。
+ *
+ * 'Largest Contentful Paint' / 'largest-contentful-paint' → 'lcp'
+ * 'LCP' → 'lcp'
+ */
+function normalizeMetricName(name: string): string {
+  const normalized = name.toLowerCase().replace(/[^a-z0-9]/g, '')
+  return METRIC_NAME_ALIASES[normalized] ?? normalized
+}
+
+/**
+ * 深拷贝一个 BudgetConfig。
+ *
+ * 必须拷贝 thresholds 数组**及其中的每个 threshold 对象** ——
+ * 只拷贝外层的话，threshold 仍然是共享引用，改它照样会互相影响。
+ */
+function cloneBudgetConfig(config: BudgetConfig): BudgetConfig {
+  return {
+    ...config,
+    thresholds: config.thresholds.map(threshold => ({ ...threshold })),
+  }
+}
+
 // ========================================
 // Default Budgets
 // ========================================
@@ -200,14 +239,27 @@ export class PerformanceBudget {
 
   constructor(configs: BudgetConfig[] = DEFAULT_BUDGETS) {
     this.budgets = new Map()
-    configs.forEach(config => this.addBudget(config))
+    // **深拷贝**每个 config。
+    //
+    // 之前是 `configs.forEach(config => this.addBudget(config))` ——
+    // addBudget 把 config 对象**原样**存进 Map。
+    // 而默认参数 DEFAULT_BUDGETS 是模块级的可变对象数组，
+    // 于是所有 PerformanceBudget 实例共享同一批 config 对象。
+    // 任何一个实例调用 setBudgetEnabled / 修改阈值，
+    // 都会污染其它实例 —— 典型症状：
+    //   用例「should skip disabled budgets」把 Core Web Vitals 关掉后，
+    //   后续所有用例的 lcpResult 都是 undefined。
+    // 深拷贝让每个实例持有自己的 config，实例之间互不影响。
+    configs.forEach(config => this.addBudget(cloneBudgetConfig(config)))
   }
 
   /**
    * Add a budget configuration
    */
   addBudget(config: BudgetConfig): void {
-    this.budgets.set(config.name, config)
+    // 同样深拷贝 —— 调用方后续修改自己手里的 config 对象，
+    // 不应该影响到已经加进来的 budget。
+    this.budgets.set(config.name, cloneBudgetConfig(config))
   }
 
   /**
@@ -260,8 +312,14 @@ export class PerformanceBudget {
       for (const threshold of budget.thresholds) {
         // Match if metric name is contained in threshold name OR threshold name in metric name
         // For example: 'LCP' matches 'LCP' and 'LCP Critical'
-        const thresholdLower = threshold.name.toLowerCase()
-        const metricLower = metricName.toLowerCase()
+        //
+        // 还要能匹配**全称**：PerformanceObserver 上报的 entryType 是
+        // 'largest-contentful-paint'，而阈值叫 'LCP' ——
+        // 两者字符串互不包含，光靠 contains 匹配不到，
+        // 于是全称上报的指标永远不触发任何预算检查。
+        // 这里把全称归一到缩写再做比较。
+        const thresholdLower = normalizeMetricName(threshold.name)
+        const metricLower = normalizeMetricName(metricName)
 
         const isRelated =
           thresholdLower.includes(metricLower) || metricLower.includes(thresholdLower)
@@ -286,6 +344,19 @@ export class PerformanceBudget {
       }
 
       const score = this.calculateScore(violations)
+
+      // 记入违规历史。
+      //
+      // 之前**只有** checkMetrics（批量）会 push 到 violationHistory，
+      // 单个 checkMetric 不记 —— 于是：
+      //   budget.checkMetric('LCP', 5000, 'ms')
+      // 明明产生了违规，getViolationHistory() 却是空的。
+      // 违规历史/频次统计/最常违规预算全都依赖这个数组，
+      // 单条检查的场景下这些功能等于形同虚设。
+      if (violations.length > 0) {
+        this.violationHistory.push(...violations)
+        this.trimHistory()
+      }
 
       results.push({
         budget,
@@ -380,7 +451,11 @@ export class PerformanceBudget {
 
     return Array.from(frequency.entries())
       .map(([name, data]) => ({ name, ...data }))
-      .sort((a, b) => b.count - a.count)
+      // 次数多的排前面；次数相同时，**critical 的排前面**。
+      // 例如 checkMetric('LCP', 5000) 会同时触发 'LCP'(warning) 和
+      // 'LCP Critical'(critical) 两个阈值 —— 两者次数一样，
+      // 但 critical 明显更严重，排在前面才对。
+      .sort((a, b) => b.count - a.count || b.critical - a.critical)
       .slice(0, limit)
   }
 
