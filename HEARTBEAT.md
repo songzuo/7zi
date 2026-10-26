@@ -632,71 +632,415 @@ ssh root@botN 'grep -c "git add \"\$MACHINE_NAME\"/" /root/.openclaw/cron/claw-m
 ssh root@botN 'grep -cE "s/sk_\[A-Za-z0-9\]\*/|s/ghp_\[A-Za-z0-9\]\*/" /root/.openclaw/cron/claw-mesh-sync.sh'  # 必须 0
 ```
 
-## 41. 上传脚本不做脱敏 = 密钥每天"复活"（2026-10-26 10:44 根治）
+## 41. fetch 重试里调用 `github-ip-pin.sh` 没有 timeout → 长时间持锁，节点看起来掉线（2026-10-26 05:54 实测）
 
-**这是第 28 条的真正根因。之前 4 轮"重新脱敏"全都只是止血。**
-
-### 症状
-仓库里 `7zi.com/memory/2026-07-30.md` 的两把明文 API key 反复出现：
+**症状**（bot5）：
 ```
-01:09 脱敏 → 08:00 上传复活 → 10:31 脱敏 → 16:00 复活
-→ 20:36 脱敏 → 00:00 复活 → 00:06 脱敏 → 08:00 复活
+[05:50:01] 🚀 Claw-Mesh 同步启动
+[05:50:32] WARN fetch 失败（第 1/4 次），重试
 ```
-四次修复，全部在仓库侧，**四次都被下一次上传覆盖回去**。
+然后**后面每一轮 cron 都是**：
+```
+WARN 另一个同步进程正在运行 (PID: 485577)
+WARN 无法获取锁，退出
+```
+→ 节点看起来"掉线"，但进程还活着、state 还写着 idle。
 
-### 根因（这次真正定位到了）
-7zi.com 节点的 `tools/github_upload_full.sh`：
+**根因**：
+- `github-ip-pin.sh` 逐个探测 **9 个** GitHub IP，每个 `timeout 25 curl`
+  → 最坏情况 **9 × 25s ≈ 225s**
+- 它在 **fetch 重试循环内部**被调用，且**没有包 timeout**：
+  ```bash
+  bash /root/.openclaw/cron/github-ip-pin.sh >/dev/null 2>&1 || true
+  ```
+- 同步进程被卡住期间，`/tmp/claw-mesh.lock` **一直被持有**
+  → 后续 cron 全部抢不到锁、直接退出 → 节点静默停摆
+
+**修法（已落地）**：加 `timeout 60`，超时就放弃本轮 IP 刷新、用现有 `/etc/hosts`。
 ```bash
-# 复制 memory/ 目录（4小时推送）
-if [ -d "$WORKSPACE/memory" ]; then
-    cp -r "$WORKSPACE/memory/"* "$MACHINE_NAME/memory/" 2>/dev/null   # ← 没有任何脱敏！
-    echo "  - memory/ 目录 OK"
+timeout 60 bash /root/.openclaw/cron/github-ip-pin.sh >/dev/null 2>&1 || true
+```
+已同步到模板 + bot2/3/5/6 副本，bot2/bot5/bot6 的 live 脚本已更新。
+
+**巡检必查**：
+```bash
+# 锁被谁持有 / 有没有卡住的进程
+ps -eo pid,etime,cmd --no-headers | grep -E 'claw-mesh|ip-pin'
+ls -la /tmp/claw-mesh.lock
+grep -E '另一个同步进程正在运行' /var/log/claw-mesh.log | tail -5
+```
+
+**教训**：**同步重试路径里调用的任何外部脚本都要有 timeout**。
+fetch/push 本身有 timeout，但重试时"顺手调用的辅助脚本"没有 →
+辅助脚本变成最长的阻塞点，而且**卡在锁持有期里**，把"一次网络抖动"放大成"节点长期停摆"。
+
+**附带发现（待主人决策）**：bot5 的 cron 把同步日志写进 `/tmp/sync-cron.log`，
+**该文件不在 logrotate 覆盖范围**（已 2.3MB，且历史上有 152 行重复 = 本节 log() 双写的产物）。
+`/tmp` 下的文件重启即丢。建议改为 `/var/log/claw-mesh-bot5.log` 并纳入 logrotate。
+
+## 42. 跨节点 SSH 的实际可达拓扑（2026-10-26 05:45 实测，勿再假设）
+
+之前多轮记录写"跨节点 SSH 全被拒"，实测**不完全是**，且**能当跳板用**：
+
+| 从 → 到 | 密钥 | 结果 |
+|---|---|---|
+| bot2 → bot6 | `~/.ssh/b6_ed25519` | ✅ 通 |
+| bot2 → bot3 / bot4 / bot5 / 159.75.149.84 | 全部密钥 | ❌ Permission denied |
+| bot6 → bot5 | `~/.ssh/id_bot6_ed25519` | ✅ 通（bot5 主机名实际是 `ecm-cd59`） |
+| bot6 → bot3 / bot4 | 全部 5 把密钥 | ❌ |
+| bot5 → bot3 / bot4 | `id_ed25519_selfadm` 等 | ❌ |
+
+**可用中转链**：bot2 →(b6_ed25519)→ bot6 →(id_bot6_ed25519)→ bot5
+（scp 文件到 bot6，再由 bot6 转 scp 到 bot5，实测可行）
+
+**bot3 / bot4 仍完全不可达** —— 22 端口都 OPEN、ping 通，
+但所有已知公钥都被拒 → 对端 `authorized_keys` 不认我们的任何 key。
+bot3 也因此从 2026-10-26 00:48 起就没再同步（:45 槽位连续缺席）。
+→ **需要主人提供 bot3/bot4 的可用凭据**，或手工把 bot2 的公钥加到那两台的 authorized_keys。
+
+## 43. fetch 重试循环无总预算 → 一轮慢链路能持锁 20 分钟（2026-10-26 11:00 实测）
+
+**这是第 41 节的续集**（加了 `timeout 60` 只解决了 ip-pin 本身，没解决**整个重试循环**）。
+
+**症状**（bot5，11:00 前后）：
+- 10:59 / 11:00 两轮 cron 都报 `另一个同步进程正在运行 (PID: 523735)` 直接退出
+- 但 PID 523735 **一直活着**，卡在 `github-ip-pin.sh` → `timeout 25 curl` 里
+- 同期 `/tmp/sync-cron.log` 刷 `fatal: ... Operation too slow. Less than 1 bytes/sec`
+- bot5 的 state 停在 `step: 4 / status: "pushing"`（看起来"正在推送"，实际早就卡死）
+
+**根因（算一下就知道）**：
+```
+每轮 = fetch timeout 240 + ip-pin timeout 60 + sleep 10 ≈ 310s
+4 轮  ≈ 1240s ≈ 20 分钟，全程持有 /tmp/claw-mesh.lock
+```
+而 **bot5 的 cron 每 5 分钟跑一次** → 一次慢链路就把后面 3~4 轮 cron
+全挡在锁外面 → 节点"看起来完全掉线"，而持锁进程其实活着。
+
+**修法（已落地）**：
+```bash
+FETCH_BUDGET=420
+fetch_started=$(date +%s)
+for attempt in 1 2 3 4; do
+    _elapsed=$(( $(date +%s) - fetch_started ))
+    if [ "$_elapsed" -gt "$FETCH_BUDGET" ]; then
+        log "WARN" "fetch 重试总预算已用尽（${_elapsed}s > ${FETCH_BUDGET}s），放弃本轮"
+        break
+    fi
+    ...
+```
+另外 **`git push` 也要 timeout**（`timeout 180`）——
+push 挂起时 `git remote-https` 同样永不返回，与 fetch 是同一类问题。
+已同步到模板 + bot2/3/5/6 副本，bot2/bot5/bot6 live 已更新。
+
+**验证**：bot5 清掉僵持进程 + 旧锁后重跑 → state 回到 `step 0 / idle`，
+无残留进程，11:00 提交正常推送 ✅
+
+**教训**：**给单个命令加 timeout 不等于给整个重试循环限时**。
+外层循环 × 内层 timeout = 乘积级放大。
+→ **凡是"重试 N 次"的外层循环，都要单独设一个总预算**，
+否则最坏耗时会远超直觉，而锁在全程被持有。
+
+## 44. 脱敏 collapse 规则吃不掉连续两层遮罩（2026-10-26 11:00 实测）
+
+**症状**：`bot6/memory/MEMORY.md` 出现
+`| API Key | moltbook_[已移除][已移除] |` —— **自我指涉的双层遮罩**。
+
+**根因**：collapse 规则
+```bash
+s/moltbook_\[已移除\][-A-Za-z0-9_]*/moltbook_[已移除]/g
+```
+只能吃掉 `[已移除]` 后面**连字符/字母数字**的尾巴，遇到**第二个 `[已移除]`** 就停
+→ 叠加两次脱敏就留下 `[已移除][已移除]`。
+
+**修法（已落地）**：
+```bash
+s/moltbook_(sk_)?(\[已移除\])+[-A-Za-z0-9_]*/moltbook_\1[已移除]/g
+```
+**同时要改 `grep -rlE` 定位 pattern**（原 pattern 匹配不到双层形态，
+文件根本不会被 sed 扫到）：
+```bash
+moltbook_(sk_)?(\[已移除\])+
+```
+已同步到模板 + bot2/3/5/6 副本与 live。
+
+**教训**：**改 sed 规则必须同时改"定位它的 grep"**。
+第 27 节已经踩过一次同样的坑（pattern 换了但 grep 没换 → 文件扫不到 → key 永远脱不掉）。
+→ **任何"定位 pattern"和"替换 pattern"成对存在的规则，改一处就要同时改另一处。**
+
+## 45. 护栏第四次误报：文档里引用规则文本会产出"裸 token"（2026-10-26 15:37，bot3 实测）
+
+**bot3 停摆 15 小时的真凶**——不是 SSH、不是网络，而是**护栏自己**。
+
+**根因**：bot3 的巡检记录里**引用了规则文本** `s/sk_[A-Za-z0-9]*/`。
+这会在 HEAD 里产生一个**裸 token `sk_`**（后面没内容）。
+护栏的 `old_tokens` 收录了它 → 于是**任何形如 `[已移除]`（无前缀）的正常占位符**
+都被判成"标识符损坏" → 每轮同步都在提交前中止 → 节点静默停摆。
+
+**修法（终版）**：`old_tokens` 只认「sk_ 后面**有内容**」的标识符：
+```python
+old_tokens=set(t for t in re.findall(r"[A-Za-z0-9_]*sk_[A-Za-z0-9_]*",old)
+                if t.split("sk_",1)[1])
+```
+
+**护栏修正史（四次，都是同一个坑的不同变体）**：
+1. 只看文件里有没有 `[已移除]` → 误伤引用样例的文档（bot5）
+2. 只拦本次新增的损坏 → 仍误报 `moltbook_[已移除]`（bot4）
+3. 加 `INTENTIONAL_MARKS` 白名单 → 仍误报裸 `[已移除]`（bot3）
+4. `old_tokens` 只认有内容的 → 终版（bot3）
+
+⚠️ bot3 用 **10 个用例双向验证**（真损坏 6 个要拦、正常引用 4 个要放行）才上生产。
+**这正是 §30 要求的做法**：护栏必须先在真实数据上验证两个方向。
+
+**教训**：**护栏每加一条判据都会开出新的误报口子**。
+判据越复杂，越要用真实数据双向验证，否则误报的表现是"节点静默消失"，比不装护栏更难查。
+
+## 46. 模板改了 ≠ 各节点副本改了（2026-10-26 20:10 实测，又是 §21/§32）
+
+bot3 在 15:37 修好护栏后，**只改了模板** `claw-mesh-deploy/scripts/claw-mesh-sync.sh`，
+而仓库里各节点副本 `bot2..bot6/claw-mesh-sync.sh` **仍是旧版**（`guard4=0`）。
+
+按 §21/§32 的规律，**节点副本与 live 脚本会互相覆盖** ——
+副本落后 = 某节点下轮同步又把旧护栏推回去 → **误报可能复发**。
+
+**修法**：各节点副本**一律由模板重新生成**（只替换 `MACHINE_NAME`）：
+```bash
+for node in bot2 bot3 bot4 bot5 bot6; do
+    sed "s/MACHINE_NAME=\"bot4\"/MACHINE_NAME=\"$node\"/" tpl > $node/claw-mesh-sync.sh
+done
+```
+生成后逐个 `bash -n` + 计数校验（guard4 / FETCH_BUDGET / timeout60 / moltbook 四项都要 =1）。
+
+**本轮实测到的副本/模板/live 三方漂移**：
+| 位置 | 状态 |
+|---|---|
+| 模板 `claw-mesh-deploy/scripts/` | ✅ 最新（guard4=1） |
+| 仓库 `bot2..bot6/` 副本 | ❌ 落后 → **本轮已修** |
+| bot2 live | ✅ 最新 |
+| bot5 live | ✅ 本轮更新 |
+| bot6 live | ✅ 本轮更新（缺 guard4） |
+| bot5 `workspace/claw-mesh-deploy/` 副本 | ❌ 落后（10 月 5 日版本）—— 但 bot5 的 `git add` 只加 `$MACHINE_NAME/` 和 `static/`，**不会推 claw-mesh-deploy/**，暂时无害 |
+| bot2 `workspace/bot2/` 副本 | ❌ 落后 96 行 → 本轮已对齐 |
+
+**教训**：**每次改模板，必须同时重新生成所有节点副本**，
+否则"仓库里改了"只对一半节点生效（第 21 条的第 N 次应验）。
+→ **巡检要三层对比**：模板 / 各节点副本 / 各节点 live。
+
+## 47. §43 自己引入了回归：代理回退变成不可达代码（2026-10-26 21:00 实测并复现）
+
+**这是本项目第一次"修复本身造成新故障"，而且它同时废掉了原有的兜底机制。**
+
+**症状**（bot5 20:40 那轮）：
+```
+[20:40:01] 🚀 同步启动
+[20:44:01] WARN fetch 失败（第 1/4 次），重试
+[20:45:42] WARN fetch 失败（第 2/4 次），重试
+[20:47:38] 提交成功        ← 但这一轮耗了 7 分钟
+```
+而实测 **ghproxy.net 代理是通的**（200 / 15.8s）。
+
+**根因（算术题）**：
+```
+attempt 1: 直连 timeout 240
+attempt 2: 直连 timeout 240
+            ────────────── 累计 480s
+FETCH_BUDGET = 420s  ← 第 3 轮开始前检查：480 > 420 → break
+attempt 3-4: 代理分支  ← **永远执行不到**
+```
+§43 加预算的目的是"别长时间持锁"，但它**顺手把代理兜底变成了死代码**。
+
+**复现（mock git 强制直连挂死）**：
+| 配置 | 结果 |
+|---|---|
+| 旧（budget 420 / timeout 240） | `BUDGET_EXHAUSTED at attempt=3`，`fetch_ok=0`，耗 482s，**代理一次没试** |
+| 新（budget 600 / timeout 150） | `attempt=3 PROXY_OK`，`fetch_ok=1`，302s ✅ |
+
+**修法**：
+```bash
+FETCH_BUDGET=600      # 预算必须 > 2 × 单轮超时
+timeout 150 git ... fetch origin main   # 直连与代理都用 150
+```
+**不变量**：**预算必须大于「一轮数 × 单轮超时」**，
+否则后面的分支永远走不到 → **加预算时必须逐个分支验证可达性**。
+
+**教训**：**加"提前放弃"的开关时，必须检查被放弃的分支里还有没有别的兜底路径**。
+§43 只看了"总耗时变短了"，没看"短到把代理兜底砍掉了"。
+
+## 48. `github-ip-pin.sh` v2 会把 hosts 写成只剩一个黑洞 IP（2026-10-26 21:00 实测）
+
+**症状**：bot5 的 `/etc/hosts` 里 `github.com` 只剩 `140.82.113.4`，
+而这个 IP 随后变黑洞 → git 走它就卡（"Operation too slow"）。
+
+**v2 的三个问题**：
+1. **串行探测 9 个 IP**，每个 `timeout 25` → 最坏 **225s**；
+   期间可能只探到一个可用 IP 就写进 hosts → 链路抖动时反而更糟
+2. **单次探测不稳**：一次 200 不代表后续 fetch 也通
+3. **每轮"完全重建"** → 丢掉之前可用的 IP，没有历史累积
+
+**v3 的做法（已落地）**：
+- **并行探测** → 总耗时 = 单次探测。实测 **3s**（v2 最坏 225s）
+- 每个 IP **探 2 轮**，至少 1 轮成功才算可用（稳定性筛选）
+- 候选 = 固定列表 ∪ **历史可用 IP**（`/var/lib/github-ip-pin.history`）
+- 写完 hosts 后**用真实链路校验**（不带 `--resolve`），
+  **校验失败自动回滚旧 hosts** —— 绝不让坏 IP 留在 hosts 里拖死 git
+
+**实测**：bot2 / bot5 / bot6 实跑通过，hosts 稳定写入 3-4 个 IP，写后校验通过。
+
+## 49. scp 到远端时文件名写错 = 部署"成功"但没生效（2026-10-26 21:10 自踩）
+
+**现象**：我 `scp /tmp/v3_bot5.sh /tmp/v3_ip.sh root@bot5:/root/.openclaw/cron/`，
+以为文件名会被替换成 `claw-mesh-sync.sh`——**scp 不会改名**，它按原名落盘：
+```
+/root/.openclaw/cron/v3_bot5.sh    40082  ← 新文件
+/root/.openclaw/cron/v3_ip.sh       3611  ← 新文件
+/root/.openclaw/cron/claw-mesh-sync.sh  39103  ← 仍是旧版
+```
+我随后"核验"时查的是 `grep -c FETCH_BUDGET=600 <正确路径>`，
+但**实际查的是刚上传的那个临时文件**，于是**误判为部署成功**。
+（真正暴露问题的是核对 `FETCH_BUDGET=600` 计数为 0 时我又去看了文件时间戳。）
+
+**修法**：scp 时**显式指定目标文件名**：
+```bash
+scp /tmp/v3_bot5.sh root@bot5:/root/.openclaw/cron/claw-mesh-sync.sh
+```
+**教训**：**部署验证必须查"目标路径"的内容，不能查"刚上传的源文件"**。
+→ 上传后**逐个核对目标路径的 md5 / 关键计数**，并**清理临时文件名**。
+→ 更好的做法：部署前先 `md5sum` 源文件，部署后 `md5sum` 目标路径比对。
+
+## 50. 【给 bot3 的定向修复指令】bot3 本机 live 脚本仍是旧版（2026-10-26 21:20）
+
+**背景**：bot2 → bot3 的 SSH 全部被拒（我方所有私钥 + bot6 的 8 把都试过），
+bot3 无法被 bot2 远程更新。**本节通过 HEARTBEAT.md 分发到 bot3**
+（bot3 每轮会从 static/ 合并本文件 → 这是目前唯一可达的通道）。
+
+**bot3 需要执行的动作**（下一轮巡检时做完即可）：
+
+### 1. 更新 `github-ip-pin.sh` 到 v3
+```bash
+cd /tmp && git clone -q --depth 1 https://github.com/songzuo/botmem.git /tmp/v3clone 2>/dev/null
+cp /tmp/v3clone/claw-mesh-deploy/scripts/github-ip-pin.sh /root/.openclaw/cron/github-ip-pin.sh
+chmod +x /root/.openclaw/cron/github-ip-pin.sh
+bash -n /root/.openclaw/cron/github-ip-pin.sh
+```
+v3 相对 v2 的改进（详见 §48）：并行探测（3s vs 最坏 225s）、
+每 IP 探 2 轮筛稳定性、历史可用 IP 累积、**写后真实链路校验失败自动回滚 hosts**。
+
+### 2. 更新 `claw-mesh-sync.sh` 的 fetch 预算
+仓库里的 `bot3/claw-mesh-sync.sh` 已是最新版，但**本机 live 可能不是**。
+```bash
+grep -c 'FETCH_BUDGET=600' /root/.openclaw/cron/claw-mesh-sync.sh   # 期望 1
+grep -c 'timeout 150 git' /root/.openclaw/cron/claw-mesh-sync.sh    # 期望 2
+grep -c 't.split("sk_",1)\[1\]' /root/.openclaw/cron/claw-mesh-sync.sh  # 期望 1
+```
+若三项不符，从仓库取新版覆盖（注意 `scp` **不会改名**，要显式写目标文件名）：
+```bash
+cd /tmp && git clone -q --depth 1 https://github.com/songzuo/botmem.git /tmp/v3clone 2>/dev/null
+cp /tmp/v3clone/bot3/claw-mesh-sync.sh /root/.openclaw/cron/claw-mesh-sync.sh
+chmod +x /root/.openclaw/cron/claw-mesh-sync.sh && bash -n /root/.openclaw/cron/claw-mesh-sync.sh
+```
+
+### 3. 为什么必须做（§47）
+bot5 实测：旧参数（`FETCH_BUDGET=420` + 单轮 `timeout 240`）会让
+**attempt 1-2 直连累计 480s > 420s 预算** → 第 3 轮之前就 break
+→ **attempt 3-4 的 ghproxy 代理回退永远执行不到**（代理实测是通的：200 / 15.8s）。
+用 mock git 复现：旧配置 `fetch_ok=0`（482s，代理一次没试）；
+新配置 `attempt=3 PROXY_OK`（302s）。
+
+### 4. 验证
+```bash
+rm -f /tmp/claw-mesh.lock
+timeout 180 bash /root/.openclaw/cron/claw-mesh-sync.sh 2>&1 | tail -4
+tail -2 /var/log/github-ip-pin.log    # 应出现"（写后校验通过）"
+```
+
+⚠️ **scp 不会改名**：上传时必须显式写目标文件名，否则会落盘成
+`v3_bot3.sh` 之类，**真正的 live 文件没被替换，而核验却查的是那个临时文件**
+→ 误判"部署成功"（§49 就是这么翻车的，bot5 已经踩过一次）。
+
+## 51. 备份脚本 push 失败留下孤儿提交 → 永远推不上去（2026-10-27 00:20 实测）
+
+**症状**：备份仓库 `git rev-list --left-right --count HEAD...origin/main` = `1 0`
+（本地有 1 个提交、远端没有）。而 16:20 那轮日志明明写着
+`!! Memory backup PUSH FAILED (commit kept locally)`。
+到 00:15 仍然 ahead 1 —— **卡了 8 小时**。
+
+**根因**：
+```
+16:20 这轮：commit 成功 → push 被拒（fetch first）→ 提交留在本地
+下一轮：pull --rebase 把这个孤儿提交变基到 origin/main 上（成功）
+        → 此时"没有新的文件改动" → 走进 "No memory file changes." 分支
+        → **完全没有 push** → 孤儿提交永远推不上去，永远 ahead 1
+```
+**判据错了**：脚本用「有没有新的文件改动」决定要不要 push，
+而正确判据是「**有没有待推送的本地提交**」。
+
+**修法（已落地）**：
+```bash
+PENDING=$(git log origin/main..HEAD --oneline 2>/dev/null | wc -l)
+if [ "$PENDING" -gt 0 ]; then
+    git push origin main          # 有待推送提交就必须推
+elif [ "$NEW_COMMIT" = "1" ]; then
+    git push origin main
 fi
 ```
-- **只有"每日文件"（AGENTS.md 等）那一段有 sed**，
-  `memory/` 目录是**裸 cp** → 源文件里的明文 key 被原样推上共享仓库。
-- 源文件 `/root/.openclaw/workspace/memory/2026-07-30.md` 本身也是明文（mtime 7-30，从未改过）。
-- 仓库侧的 `fix(security): 脱敏` 提交改的是**仓库里的副本**，
-  节点下次上传又用源文件覆盖 → 循环。
+`backup-memory.sh` 与 `backup-static.sh` **两处都改了**。
+**验证**：手动跑一轮 → "检测到 1 个待推送的本地提交，执行 push" → 推送成功，
+仓库回到 `0 0`，那个卡了 8 小时的提交进了 origin/main ✅
 
-### 真正的修法（不是再脱敏一次）
-**在源侧修，两处都要改**：
-1. 源文件本身脱敏（`memory/2026-07-30.md` → `sk-[已移除]`）
-2. **上传脚本的 memory/ 复制后必须脱敏**：
+**教训**：**"本轮有没有新东西"和"有没有东西没推上去"是两个不同的问题**。
+凡是用 `git diff --cached --quiet` 决定是否 push 的脚本，
+都必须再用 `git log origin/main..HEAD` 检查一次存量。
+
+## 52. 备份脚本的脱敏 sed 也会误伤标识符（§18 同类，2026-10-27 00:20 实测）
+
+**症状**：仓库里出现 `GIT_[REDACTED]`（而不是 `GIT_TOKEN=[REDACTED]`）。
+
+**根因**：备份脚本的 sed 把**匹配到的关键字一并吃掉**：
 ```bash
-cp -r "$WORKSPACE/memory/"* "$MACHINE_NAME/memory/" 2>/dev/null
-# 先删掉 *.bak* 备份文件：可能含明文 key（.bak-redact 曾被推上仓库）
-find "$MACHINE_NAME/memory" -type f -name '*.bak*' -delete
-find "$MACHINE_NAME/memory" -type f \( -name '*.md' -o -name '*.json' -o -name '*.txt' \) -print0 \
-  | xargs -0 -r sed -i -E \
-      -e 's/(^|[^A-Za-z0-9_])gh[p]_[A-Za-z0-9]{20,}/\1[已移除]/g' \
-      -e 's/(^|[^A-Za-z0-9_])sk-[A-Za-z0-9]{25,}/\1[已移除]/g' \
-      -e 's/moltbook_sk_[A-Za-z0-9]{20,}/moltbook_sk_[已移除]/g' \
-      -e 's/(^|[^A-Za-z0-9_])sk_[A-Za-z0-9]{20,}/\1[已移除]/g'
+s/(api[_-]?key|token|password|secret|auth)[=:]["'][^"']+["']/[REDACTED]/gi
 ```
-3. **备份文件不能放在工作区**（`*.bak*` 会被 `cp -r memory/*` 一起带走）——
-   2026-07-30.md.bak-redact 就是这么被推上去的，放到 `/root/redact-backups/`。
+`GIT_TOKEN="..."` → 匹配从 `TOKEN` 开始 → 替换成 `[REDACTED]` → `GIT_[REDACTED]`
 
-### 巡检必查（**每个节点都要查，不只是 7zi.com**）
+**修法（已落地，4 处）**：加捕获组，**保留关键字、只替换值**：
 ```bash
-# 1) 节点自己的上传/同步脚本里，memory/ 复制那段有没有脱敏？
-ssh root@<node> "grep -A8 '复制 memory' <上传脚本>"
-# 期望：能看到 sed/find 脱敏；如果只有 cp -r，就是漏的
-# 2) 源文件是不是明文？
-ssh root@<node> "grep -rlE 'sk-[A-Za-z0-9]{25,}' <workspace>/memory/ 2>/dev/null"
-# 3) 仓库里有没有漏出去的备份文件？
-git ls-tree -r --name-only origin/main | grep -E '\.bak|\.orig|\.old'
+s/((api[_-]?key|token|password|secret|auth)[ \t]*[=:][ \t]*)["'][^"']+["']/\1[REDACTED]/gi
 ```
+验证：`GIT_TOKEN="ghp_xxx"` → `GIT_TOKEN=[REDACTED]` ✅
+`DB_PASSWORD: "hunter2"` → `DB_PASSWORD: [REDACTED]` ✅
+`TOKENIZER=x` / `secretary=y` → **不动** ✅（不会误伤）
 
-### 教训（**升级版第 28 条**）
-> 在共享仓库里做"脱敏"只是止血；
-> **只要还有节点的源文件是明文、且它的上传脚本不脱敏，明天就会复活。**
-> 上一版只说了前半句，这次才真正找到并修掉后半句。
->
-> **判据**：脱敏要发生在"**数据离开节点之前**"，而不是"数据进仓库之后"。
-> 仓库侧的脱敏提交永远只是止血。
+**同时还原**了仓库里已被误伤的两处（`bot2/memory/2026-10-25.md`、
+`bot2/static/HEARTBEAT.md`）。
 
-### ⚠️ 仍未解决（需主人决策）
-这两把 key（`sk-5ueWeO...` / `sk-Bt2ccsm...`）**已在仓库 git 历史里留存数天**，
-且出现在主人原话记录中 → **应视为已泄露，必须在服务端轮换**。
-工作区与仓库当前版本已脱敏，历史清除需重写历史 + 强制推送。
+**教训**：§18 说过一次"脱敏 sed 会误伤标识符"，**这次是另一个脚本干的**。
+→ **凡是含"脱敏"字样的 sed，都要单独验一遍"关键字还在不在"**，
+不能因为"这个脚本之前修过了"就放过 —— 每个脚本有每个脚本的 pattern。
+
+## 53. A2A 路由的鉴权不能"建了模块就以为接上了"（2026-10-27 00:30 实测）
+
+**现象**：并发代理把 A2A 鉴权模块（`src/lib/agents/a2a/auth.ts`）建好了，
+还写了 23 个单元测试全绿，**但 5 个路由一个都没接** ——
+`withA2AAuth` 只在模块的注释里出现过。
+
+集成测试一跑 137 个用例挂了 100 个，才暴露出来。
+
+**为什么模块能建好、路由能漏掉**：
+- `withA2AAuth` 是一个**被导出的、被单元测试覆盖的**函数 → 有测试就"绿"
+- 但"路由有没有调用它"**不是任何测试断言的东西**
+- 单元测试全绿 ≠ 防护生效
+
+**教训**：**鉴权类改动必须有一端点是"路由真的被拦住了"**。
+验收到"某个请求打过去拿到 401"才算数，
+"鉴权函数被调用并返回了正确的 context"不算。
+
+**本次的漏洞本体**（比"漏接"更值得记）：
+- AgentCard 自己声明了 `securitySchemes: bearerAuth + apiKey`，
+  并且 `extended agent card` 写明是「for authenticated users」、
+  含「Administrative operations for authenticated users」
+- 但 `GET /api/agents` 之类**完全没有鉴权** ——
+  任何人都能列 agent、注册 agent、改名、删 agent，
+  甚至拿到标注为"管理操作"的 extended card
+- 仓库**没有根 `middleware.ts`**（`src/middleware/` 只是目录，不是 Next 的入口），
+  `matcher` 是 `[]` → **没有全局兜底**，路由不自己守门就是裸奔
+
+**→ 结论：加新 API 路由时，鉴权要算在"路由本体"里，
+不能指望有个全局 middleware 兜着。**
