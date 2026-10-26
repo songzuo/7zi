@@ -1015,7 +1015,56 @@ s/((api[_-]?key|token|password|secret|auth)[ \t]*[=:][ \t]*)["'][^"']+["']/\1[RE
 → **凡是含"脱敏"字样的 sed，都要单独验一遍"关键字还在不在"**，
 不能因为"这个脚本之前修过了"就放过 —— 每个脚本有每个脚本的 pattern。
 
-## 53. A2A 路由的鉴权不能"建了模块就以为接上了"（2026-10-27 00:30 实测）
+## 53. 活跃 GitHub PAT 明文躺在会话记录和 /tmp 脚本里（2026-10-27 00:25 实测并清理）
+
+**这是本项目至今最严重的一次凭据暴露面**——不是仓库历史，是**本机磁盘**。
+
+**发现路径**（巡检 §6 只扫仓库和 cron 目录，没扫到）：
+```
+git config --global credential.helper=store
+→ ~/.git-credentials 里有 https://songzuo:ghp_xxx@github.com
+→ 拿这个 token 反查全盘 → 命中 5 个文件
+```
+
+**暴露点**：
+| 文件 | 命中次数 | 性质 |
+|---|---|---|
+| `agents/main/sessions/3cd04838-*.jsonl` | 17 | 会话记录 |
+| `agents/main/sessions/de3af4c5-*.jsonl.reset.*` | 108 | 会话记录 |
+| `agents/main/sessions/4f2a022d-*.jsonl.reset.*` | 8 | 会话记录 |
+| `/tmp/claw-mesh-sync-fixed.sh` | 1 | 旧脚本残留（`GIT_TOKEN="ghp_..."`） |
+| `/tmp/cms-wide.sh` | 1 | 旧脚本残留 |
+
+**危害**：会话记录里往往还包含**完整的工作上下文**——
+token + 它能用到的仓库 + 主机名 + 凭据路径，等于一把万能钥匙配了说明书。
+
+**处置（已落地）**：
+1. 先备份到 `sessions/.redacted-backup/`（**备份也必须一起脱敏**，否则等于没做）
+2. 逐个 `sed -i "s/<真实token>/ghp_[已移除]/g"`
+3. `/tmp` 两个脚本同样脱敏（脱敏后 `bash -n` 语法校验通过）
+4. **全盘复查**：`/root/ /var/log/ /tmp/ /etc/` 剩余命中 **0**
+
+**最终状态**：活跃 PAT 只存在于 3 个**有意为之**的位置，权限均 600：
+```
+/root/.git-credentials                       (git credential.helper store)
+/root/.openclaw/cron/.git-credential          (clawmesh-credential.sh 的源)
+/root/.openclaw/backups/github/.git-token     (备份脚本用；实际未被任何脚本引用)
+```
+⚠️ 三个副本内容相同 → **轮换时必须三处一起换**。
+
+**教训**：**巡检 §6 的扫描范围太窄**——只扫 `cron/` 和仓库，漏掉了
+`agents/*/sessions/`（会话记录）和 `/tmp`（临时脚本残留）。
+→ **凭据扫描要覆盖：仓库历史 + 工作区 + cron + 会话记录 + /tmp + 日志**。
+→ 而且要**用活跃 token 反查**，而不是用 pattern 猜——
+pattern 只能找到"长得像 token 的东西"，反查才能找到"就是它"。
+
+⚠️ **强烈建议主人轮换这个 PAT**（理由见下）：
+- 它已在会话记录里明文存在过（至少 10-22 起）
+- 仓库 git 历史里也有 14 处相关 key 痕迹
+- 轮换是**最彻底**的止血手段：老 token 立即失效，
+  历史里的明文变成垃圾数据
+
+## 54. A2A 路由的鉴权不能"建了模块就以为接上了"（2026-10-27 00:30 实测）
 
 **现象**：并发代理把 A2A 鉴权模块（`src/lib/agents/a2a/auth.ts`）建好了，
 还写了 23 个单元测试全绿，**但 5 个路由一个都没接** ——
