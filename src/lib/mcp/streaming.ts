@@ -314,9 +314,10 @@ export class MCPStreamServer extends EventEmitter {
     const stream = this.streams.get(streamId)
     if (!stream) return
 
-    stream.state = 'closed'
-
-    // Send close event
+    // 必须在置 state='closed' **之前**发 close 事件。
+    // sendEvent 对 state 为 'closed'/'error' 的流会抛 INVALID_STATE，
+    // 原实现先置 closed 再发送 → 事件被状态闸门挡掉，
+    // 而外层的 catch{} 又把它静默吞了 → 客户端永远收不到 close 事件。
     try {
       await this.sendEvent(streamId, {
         event: 'close',
@@ -326,8 +327,15 @@ export class MCPStreamServer extends EventEmitter {
       // Stream might already be closed
     }
 
-    // Cleanup
-    this.cleanupStream(streamId)
+    // 标记为已关闭并通知监听者。
+    //
+    // 这里**不**立刻删掉流：cleanupOldStreams() 专门回收 closed/completed 的流，
+    // getStats().closed 也要能统计到已关闭的流。立刻删除会让
+    // 「已关闭」这个状态无法被 getStream() 观察到，也让 cleanupOldStreams
+    // 里的 closed 判断变成死代码。真正的回收交给 ping 定时器。
+    stream.state = 'closed'
+    stream.lastActivity = new Date()
+    this.emit('stream:closed', stream)
   }
 
   /**
@@ -386,7 +394,13 @@ export class MCPStreamServer extends EventEmitter {
     for (const [id, stream] of this.streams) {
       const age = now - stream.lastActivity.getTime()
       if (age > maxAge || stream.state === 'closed' || stream.state === 'completed') {
+        // 已经由 closeStream() 通知过的流不要重复发 'stream:closed'，
+        // 否则一次关闭会收到两遍通知。
+        const alreadyNotified = stream.state === 'closed'
         this.cleanupStream(id)
+        if (!alreadyNotified) {
+          this.emit('stream:closed', stream)
+        }
         cleaned++
       }
     }
@@ -445,6 +459,11 @@ export class MCPStreamServer extends EventEmitter {
           }).catch(() => {})
         }
       }
+
+      // 回收已关闭/已完成的流。
+      // closeStream() 现在只标记状态不删除（好让 getStream() 能看到 'closed'），
+      // 真正的内存回收放在这里，否则 streams Map 会无限增长。
+      this.cleanupOldStreams()
     }, this.pingIntervalMs)
   }
 
@@ -468,9 +487,6 @@ export class MCPStreamServer extends EventEmitter {
 
     // Remove stream
     this.streams.delete(streamId)
-
-    // Emit cleanup event
-    this.emit('stream:closed', stream)
   }
 
   /**
@@ -508,7 +524,10 @@ export class StreamingToolExecutor {
     options: StreamingToolOptions,
     handler: (
       params: Record<string, unknown>,
-      progress: (info: Omit<ProgressInfo, 'id'>) => Promise<void>
+      progress: (
+        info: Omit<ProgressInfo, 'id'>,
+        options?: { record?: boolean }
+      ) => Promise<void>
     ) => Promise<unknown>
   ): Promise<StreamingToolResult> {
     const { toolName, arguments: args, onProgress, signal, timeout } = options
@@ -537,13 +556,21 @@ export class StreamingToolExecutor {
     }
 
     // Progress callback
-    const reportProgress = async (info: Omit<ProgressInfo, 'id'>): Promise<void> => {
+    //
+    // record=false 的调用（如「开始」「结束」这类生命周期事件）
+    // 仍然会透给 onProgress，但**不写入** progressHistory。
+    const reportProgress = async (
+      info: Omit<ProgressInfo, 'id'>,
+      options: { record?: boolean } = {}
+    ): Promise<void> => {
       const progress: ProgressInfo = {
         id: crypto.randomUUID(),
         ...info,
       }
 
-      progressHistory.push(progress)
+      if (options.record !== false) {
+        progressHistory.push(progress)
+      }
 
       // Call external callback
       if (onProgress) {
@@ -561,21 +588,34 @@ export class StreamingToolExecutor {
 
     try {
       // Report start
-      await reportProgress({
-        current: 0,
-        percentage: 0,
-        message: `Starting ${toolName}`,
-      })
+      //
+      // 「开始/结束」这两个**生命周期**进度不进 progressHistory。
+      // progressHistory 的语义是「工具自己上报的进度」——
+      // 混进生命周期事件会让调用方分不清哪几条是业务进度
+      // （例如画进度条时，start 的 0% 和 complete 的 100% 会与
+      // 业务自己报的 0%/100% 混在一起，出现"进度条倒退"）。
+      // 生命周期信息仍然通过 onProgress 回调透出，不丢信息。
+      await reportProgress(
+        {
+          current: 0,
+          percentage: 0,
+          message: `Starting ${toolName}`,
+        },
+        { record: false }
+      )
 
       // Execute handler
       result = await handler(args, reportProgress)
 
       // Report completion
-      await reportProgress({
-        current: 100,
-        percentage: 100,
-        message: `Completed ${toolName}`,
-      })
+      await reportProgress(
+        {
+          current: 100,
+          percentage: 100,
+          message: `Completed ${toolName}`,
+        },
+        { record: false }
+      )
     } catch (error) {
       if (abortController.signal.aborted) {
         cancelled = true

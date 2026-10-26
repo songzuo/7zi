@@ -263,7 +263,10 @@ describe('MCP Auth Manager', () => {
     })
 
     expect(decision.granted).toBe(false)
-    expect(decision.reason).toContain('insufficient')
+    // 大小写不敏感匹配：实现侧的 reason 一律是 Title Case
+    // （'Session not found' / 'Access granted' / 'Insufficient permissions'），
+    // 断言不该把大小写写死。
+    expect(decision.reason).toMatch(/insufficient/i)
   })
 
   it('should grant access for admin role', async () => {
