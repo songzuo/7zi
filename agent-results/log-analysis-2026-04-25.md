@@ -143,7 +143,7 @@ available: 3.9Gi
 ### 立即执行 (Critical)
 
 1. **更新 custom1 provider API Key**
-   - 当前 key `sk-0LNe1uYzhRRlivkafdn9vSnpl873SVPqXAVUdQU5CyvVmQib` 已过期
+   - 当前 key `[已移除]` 已过期
    - 需要到 code.coolyeah.net 获取新密钥
    - 命令: `openclaw config set models.providers.custom1.apiKey <NEW_KEY>`
 
