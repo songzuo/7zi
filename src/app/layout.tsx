@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Providers } from '@/components/Providers'
 import { ClientAnalytics } from '@/components/ClientAnalytics'
-import Image from 'next/image'
 import './globals.css'
 
 const geistSans = Geist({
@@ -150,7 +149,7 @@ export default function RootLayout({
         {/* Performance: DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
 
         {/* Theme Script - Prevents Flash of Unstyled Content (FOUC) */}
         <script

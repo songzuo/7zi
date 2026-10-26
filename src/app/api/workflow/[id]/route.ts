@@ -6,7 +6,8 @@
  */
 
 import { NextRequest } from 'next/server'
-import { WorkflowEngine, workflowEngine } from '@/lib/workflow/engine'
+import { workflowEngine } from '@/lib/workflow/engine'
+import type { WorkflowDefinition } from '@/types/workflow'
 import { workflowVersionService } from '@/lib/workflow/version-service'
 import {
   createSuccessResponse,
@@ -184,7 +185,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const settings = await workflowVersionService.getVersionSettings(id)
     if (settings.autoVersionOnUpdate) {
       try {
-        await workflowVersionService.createVersion(updatedWorkflow as any, {
+        await workflowVersionService.createVersion(updatedWorkflow as unknown as WorkflowDefinition, {
           changeSummary: body.changeSummary || '工作流更新',
           changeType: 'update',
           createdBy: body.userId || 'system',

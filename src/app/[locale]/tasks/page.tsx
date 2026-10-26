@@ -12,13 +12,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { TaskBoardSearch } from '@/components/TaskBoardSearch'
 import { Card } from '@/components/shared'
 import { TaskCardMobile } from '@/components/mobile/TaskCardMobile'
-import {
-  Skeleton,
-  SkeletonText,
-  SkeletonCard,
-  SkeletonTable,
-  SkeletonList,
-} from '@/components/ui/Skeleton'
+import { Skeleton, SkeletonList } from '@/components/ui/Skeleton'
 import type { GitHubIssue } from '@/types'
 import { logger } from '@/lib/logger'
 import { isBelowBreakpoint } from '@/lib/utils/breakpoints'

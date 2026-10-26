@@ -65,7 +65,7 @@ const DEFAULT_TEMPLATES: ReportTemplate[] = [
 
 // 模拟数据生成
 function generateMockData(parsedQuery: ParsedQuery): QueryResult {
-  const { intent, dimensions, metrics } = parsedQuery
+  const { intent: _intent, dimensions, metrics } = parsedQuery
   
   const data: Record<string, unknown>[] = []
   const baseData = [
@@ -123,7 +123,7 @@ export function AIReportGenerator({
   const [history, setHistory] = useState<{ query: string; timestamp: Date; status: string }[]>([])
   
   // Hooks
-  const { parse, isParsing: _isParsing, parsedQuery } = useQueryParser()
+  const { parse, isParsing: _isParsing, parsedQuery: _parsedQuery } = useQueryParser()
   const { generate } = useSQLGenerator()
   const { exportReport, isExporting: _isExporting } = useReportExport()
   

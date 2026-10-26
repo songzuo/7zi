@@ -178,7 +178,7 @@ export function TaskCreationChat({
 
       if (validation.errors.length > 0) {
         assistantContent += `**需要注意的问题**:\n`
-        validation.errors.forEach(_error_ => {
+        validation.errors.forEach(error => {
           assistantContent += `• ${error}\n`
         })
         assistantContent += '\n'

@@ -37,7 +37,7 @@ export interface RoomManagerProps {
 // ============================================================================
 
 export function RoomManager({
-  wsUrl = 'ws://localhost:3001',
+  wsUrl: _wsUrl = 'ws://localhost:3001',
   userId = 'user-' + Math.random().toString(36).substring(7),
   userName = '匿名用户',
   userAvatar,
@@ -51,7 +51,7 @@ export function RoomManager({
 
   const {
     currentRoomId,
-    currentUserId,
+    currentUserId: _currentUserId,
     currentUserName: _currentUserName,
     rooms,
     setCurrentRoom,

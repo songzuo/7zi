@@ -21,7 +21,7 @@ export async function revalidateBlogPost(slug?: string) {
   }
 
   // 重新验证标签
-  // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+  // @ts-expect-error - Next.js 16 requires 2 args but semantically 1 is valid
   revalidateTag('posts')
 }
 
@@ -40,7 +40,7 @@ export async function revalidateProject(slug?: string) {
   }
 
   // 重新验证标签
-  // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+  // @ts-expect-error - Next.js 16 requires 2 args but semantically 1 is valid
   revalidateTag('projects')
 }
 
@@ -69,8 +69,8 @@ export async function revalidateAll() {
   }
 
   // 重新验证标签
-  // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+  // @ts-expect-error - Next.js 16 requires 2 args but semantically 1 is valid
   revalidateTag('posts')
-  // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+  // @ts-expect-error - Next.js 16 requires 2 args but semantically 1 is valid
   revalidateTag('projects')
 }

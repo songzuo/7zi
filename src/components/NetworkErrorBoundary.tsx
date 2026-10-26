@@ -71,7 +71,7 @@ export function NetworkErrorBoundary({
       isOnline = false
     }
 
-    setStatus(prev => ({
+    setStatus(_prev => ({
       isOnline,
       isChecking: false,
       lastChecked: new Date(),

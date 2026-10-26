@@ -288,7 +288,7 @@ export class RedisClusterClient {
       this.connected = true
       
       return true
-    } catch (_error) {
+    } catch (error) {
       logger.error('[RedisCluster] Failed to connect', { 
         category: 'cache', 
         data: { error: String(error) } 
@@ -332,7 +332,7 @@ export class RedisClusterClient {
       this.updateAccessTime(startTime)
       
       return JSON.parse(value) as T
-    } catch (_error) {
+    } catch (error) {
       this.stats.errors++
       logger.error('[RedisCluster] Get error', { category: 'cache', data: { key, error: String(error) } })
       return null
@@ -354,7 +354,7 @@ export class RedisClusterClient {
       
       await this.client.set(key, serialized, 'EX', ttlSeconds)
       return true
-    } catch (_error) {
+    } catch (error) {
       this.stats.errors++
       logger.error('[RedisCluster] Set error', { category: 'cache', data: { key, error: String(error) } })
       return false

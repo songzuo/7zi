@@ -21,7 +21,9 @@ export default function WebSocketDemoPage() {
   const [isMounted, setIsMounted] = useState(false)
   const [messages, setMessages] = useState<string[]>([])
   const [roomId, setRoomId] = useState('demo-room')
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
+  // 值没被读取，但 setter 有用（点击任务卡片时选中它），
+  // 所以只给值加下划线前缀，setter 保持原名。
+  const [_selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   const ws = useWebSocket({
     autoConnect: false, // Let user control connection
@@ -95,7 +97,7 @@ export default function WebSocketDemoPage() {
   const handleSimulateTaskUpdate = () => {
     // Simulate a task status update (in real app, this would come from backend)
     const taskId = `task-${Date.now()}`
-    const mockUpdate: TaskStatusUpdate = {
+    const _mockUpdate: TaskStatusUpdate = {
       taskId,
       status: 'Processing',
       state: 'running',
