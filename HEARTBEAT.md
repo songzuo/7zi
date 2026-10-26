@@ -631,3 +631,72 @@ git show origin/main:botN/claw-mesh-sync.sh | wc -l
 ssh root@botN 'grep -c "git add \"\$MACHINE_NAME\"/" /root/.openclaw/cron/claw-mesh-sync.sh'
 ssh root@botN 'grep -cE "s/sk_\[A-Za-z0-9\]\*/|s/ghp_\[A-Za-z0-9\]\*/" /root/.openclaw/cron/claw-mesh-sync.sh'  # 必须 0
 ```
+
+## 41. 上传脚本不做脱敏 = 密钥每天"复活"（2026-10-26 10:44 根治）
+
+**这是第 28 条的真正根因。之前 4 轮"重新脱敏"全都只是止血。**
+
+### 症状
+仓库里 `7zi.com/memory/2026-07-30.md` 的两把明文 API key 反复出现：
+```
+01:09 脱敏 → 08:00 上传复活 → 10:31 脱敏 → 16:00 复活
+→ 20:36 脱敏 → 00:00 复活 → 00:06 脱敏 → 08:00 复活
+```
+四次修复，全部在仓库侧，**四次都被下一次上传覆盖回去**。
+
+### 根因（这次真正定位到了）
+7zi.com 节点的 `tools/github_upload_full.sh`：
+```bash
+# 复制 memory/ 目录（4小时推送）
+if [ -d "$WORKSPACE/memory" ]; then
+    cp -r "$WORKSPACE/memory/"* "$MACHINE_NAME/memory/" 2>/dev/null   # ← 没有任何脱敏！
+    echo "  - memory/ 目录 OK"
+fi
+```
+- **只有"每日文件"（AGENTS.md 等）那一段有 sed**，
+  `memory/` 目录是**裸 cp** → 源文件里的明文 key 被原样推上共享仓库。
+- 源文件 `/root/.openclaw/workspace/memory/2026-07-30.md` 本身也是明文（mtime 7-30，从未改过）。
+- 仓库侧的 `fix(security): 脱敏` 提交改的是**仓库里的副本**，
+  节点下次上传又用源文件覆盖 → 循环。
+
+### 真正的修法（不是再脱敏一次）
+**在源侧修，两处都要改**：
+1. 源文件本身脱敏（`memory/2026-07-30.md` → `sk-[已移除]`）
+2. **上传脚本的 memory/ 复制后必须脱敏**：
+```bash
+cp -r "$WORKSPACE/memory/"* "$MACHINE_NAME/memory/" 2>/dev/null
+# 先删掉 *.bak* 备份文件：可能含明文 key（.bak-redact 曾被推上仓库）
+find "$MACHINE_NAME/memory" -type f -name '*.bak*' -delete
+find "$MACHINE_NAME/memory" -type f \( -name '*.md' -o -name '*.json' -o -name '*.txt' \) -print0 \
+  | xargs -0 -r sed -i -E \
+      -e 's/(^|[^A-Za-z0-9_])gh[p]_[A-Za-z0-9]{20,}/\1[已移除]/g' \
+      -e 's/(^|[^A-Za-z0-9_])sk-[A-Za-z0-9]{25,}/\1[已移除]/g' \
+      -e 's/moltbook_sk_[A-Za-z0-9]{20,}/moltbook_sk_[已移除]/g' \
+      -e 's/(^|[^A-Za-z0-9_])sk_[A-Za-z0-9]{20,}/\1[已移除]/g'
+```
+3. **备份文件不能放在工作区**（`*.bak*` 会被 `cp -r memory/*` 一起带走）——
+   2026-07-30.md.bak-redact 就是这么被推上去的，放到 `/root/redact-backups/`。
+
+### 巡检必查（**每个节点都要查，不只是 7zi.com**）
+```bash
+# 1) 节点自己的上传/同步脚本里，memory/ 复制那段有没有脱敏？
+ssh root@<node> "grep -A8 '复制 memory' <上传脚本>"
+# 期望：能看到 sed/find 脱敏；如果只有 cp -r，就是漏的
+# 2) 源文件是不是明文？
+ssh root@<node> "grep -rlE 'sk-[A-Za-z0-9]{25,}' <workspace>/memory/ 2>/dev/null"
+# 3) 仓库里有没有漏出去的备份文件？
+git ls-tree -r --name-only origin/main | grep -E '\.bak|\.orig|\.old'
+```
+
+### 教训（**升级版第 28 条**）
+> 在共享仓库里做"脱敏"只是止血；
+> **只要还有节点的源文件是明文、且它的上传脚本不脱敏，明天就会复活。**
+> 上一版只说了前半句，这次才真正找到并修掉后半句。
+>
+> **判据**：脱敏要发生在"**数据离开节点之前**"，而不是"数据进仓库之后"。
+> 仓库侧的脱敏提交永远只是止血。
+
+### ⚠️ 仍未解决（需主人决策）
+这两把 key（`sk-5ueWeO...` / `sk-Bt2ccsm...`）**已在仓库 git 历史里留存数天**，
+且出现在主人原话记录中 → **应视为已泄露，必须在服务端轮换**。
+工作区与仓库当前版本已脱敏，历史清除需重写历史 + 强制推送。
