@@ -81,7 +81,12 @@ concurrency:
 # ============================================
 env:
   NODE_VERSION: '22'
-  LHCI_VERSION: '5.0.0'
+  # @lhci/cli 这个包整体都在 0.x 线（npm dist-tags: latest=0.15.1）。
+  # 原来这里写的 '5.0.0' 在 npm 上不存在，`npm install -g` 必报
+  #   npm error code ETARGET / No matching version found for @lhci/cli@5.0.0
+  # → Install 步 failure → Run Lighthouse CI 被判 skipped → Parse 再炸一次，
+  #   于是这个 job 在每次 push 上稳定红一次。
+  LHCI_VERSION: '0.15.1'
 
 # ============================================
 # Jobs
@@ -209,7 +214,19 @@ jobs:
           du -sh .next/standalone 2>/dev/null || true
 
       - name: Install Lighthouse CI
-        run: npm install -g @lhci/cli@${{ env.LHCI_VERSION }}
+        # 安装本身容错：指定版本装不上就退 latest，绝不让这一步成为硬门。
+        # 原先是裸 `npm install -g @lhci/cli@${{ env.LHCI_VERSION }}`，
+        # 版本号一错（v9 就是）整条 job 直接红。
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          echo "target: @lhci/cli@${LHCI_VERSION}"
+          if npm install -g "@lhci/cli@${LHCI_VERSION}"; then
+            echo "installed @lhci/cli@${LHCI_VERSION}"
+            exit 0
+          fi
+          echo "::warning::@lhci/cli@${LHCI_VERSION} 安装失败，回退 @latest"
+          npm install -g @lhci/cli@latest
 
       # 这一段是整条流水线里唯一「不可控」的部分：要真起一个 Node 服务、
       # 真起一个 Chrome。把它做成硬门 = 每次 push 稳定红一次、稳定一封邮件。
@@ -297,7 +314,7 @@ jobs:
               echo "lhci outcome = ${{ steps.lhci.outcome }}。常见原因："
               echo "standalone server 未在 45s 内监听 :3000，或 runner 上 Chrome 启动失败。"
             } >> "$GITHUB_STEP_SUMMARY"
-          fi"
+          fi
           if [ -f .lighthouseci/lhci.json ]; then
             cat .lighthouseci/lhci.json | jq -r '
               .results[0].categories // empty | to_entries[] |
@@ -328,7 +345,19 @@ jobs:
           path: .
 
       - name: Install Lighthouse CI
-        run: npm install -g @lhci/cli@${{ env.LHCI_VERSION }}
+        # 安装本身容错：指定版本装不上就退 latest，绝不让这一步成为硬门。
+        # 原先是裸 `npm install -g @lhci/cli@${{ env.LHCI_VERSION }}`，
+        # 版本号一错（v9 就是）整条 job 直接红。
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          echo "target: @lhci/cli@${LHCI_VERSION}"
+          if npm install -g "@lhci/cli@${LHCI_VERSION}"; then
+            echo "installed @lhci/cli@${LHCI_VERSION}"
+            exit 0
+          fi
+          echo "::warning::@lhci/cli@${LHCI_VERSION} 安装失败，回退 @latest"
+          npm install -g @lhci/cli@latest
 
       - name: Determine target URL
         id: target
