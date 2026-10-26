@@ -40,6 +40,21 @@ vi.mock('@/lib/api/error-handler', () => ({
       }),
     }
   }),
+  // route 实际 import 的是 createSuccessResponse
+  // （src/app/api/projects/route.ts:8 从 '@/lib/api/error-handler' 导入）。
+  // 之前的 mock 只在 '@/lib/api/utils' 上提供了它，导致 route 渲染时抛
+  //   [vitest] No "createSuccessResponse" export is defined on the
+  //            "@/lib/api/error-handler" mock
+  // 整个文件 27 个用例全挂。
+  createSuccessResponse: vi.fn((data: any, status?: number) => {
+    return {
+      status: status || 200,
+      json: async () => ({
+        success: true,
+        data,
+      }),
+    }
+  }),
 }))
 
 vi.mock('@/lib/api/utils', () => ({

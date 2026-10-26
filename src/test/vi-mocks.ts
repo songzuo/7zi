@@ -848,12 +848,15 @@ const mockDb: DatabaseConnection = {
 
   pragma: vi.fn().mockReturnValue(undefined),
 
+  // better-sqlite3 的 db.batch() 是**同步**的，直接返回结果数组。
+  // 之前这里 return Promise.resolve(results) —— 返回的是 Promise，
+  // 于是 `Array.isArray(results)` 为 false，batch 相关用例全挂。
   batch: vi.fn((statements: Array<{ sql: string; params?: unknown[] }>) => {
     const results: DatabaseResult[] = []
     for (const { sql, params } of statements) {
       results.push(executeRun(sql, params || []))
     }
-    return Promise.resolve(results)
+    return results
   }),
 
   queryRows: function(sql: string, params?: unknown[]): Record<string, unknown>[] {
@@ -974,6 +977,27 @@ vi.mock('../lib/db/index', () => ({
   getDatabaseHealth: vi.fn().mockResolvedValue({
     ok: true,
     message: 'Database is healthy',
+  }),
+  // 下面这几个 src/lib/db/index.ts 也有导出。mock 里缺一项，
+  // 业务代码 import 它时就会抛
+  //   [vitest] No "getDatabaseStats" export is defined on the
+  //            "../lib/db/index" mock
+  // 整个测试文件全挂（不是只有用到它的那个用例）。
+  getDatabaseStats: vi.fn().mockReturnValue({
+    connectionCount: 1,
+    isOpen: true,
+    isMemoryDatabase: false,
+  }),
+  vacuumDatabase: vi.fn(),
+  analyzeDatabase: vi.fn(),
+  // 字段要和 src/lib/db/connection.ts:419 的 getDatabaseSize() 返回结构一致：
+  // { pageSize, pageCount, freePages, sizeInBytes, sizeInMB }
+  getDatabaseSize: vi.fn().mockReturnValue({
+    pageSize: 4096,
+    pageCount: 1,
+    freePages: 0,
+    sizeInBytes: 4096,
+    sizeInMB: 0.004,
   }),
 }))
 

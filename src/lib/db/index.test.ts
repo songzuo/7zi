@@ -6,6 +6,23 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type { DatabaseConnection, DatabaseStatement, DatabaseResult } from './types'
+// 静态 import 拿导出。
+// 之前用的是 `require('./index')` / `require('../index')`：
+//   - '../index' 从 src/lib/db/ 解析成 src/lib/index —— 根本不存在
+//   - require() 在 Vitest 里解析不了 TS 模块，报 "Cannot find module './index'"
+// 两种写法都会让整文件 19-26 个用例全挂。
+import {
+  getDatabase,
+  getDatabaseAsync,
+  closeDatabase,
+  getDatabaseStats,
+  getDatabaseHealth,
+  getDatabaseSize,
+  vacuumDatabase,
+  analyzeDatabase,
+  optimizeDatabase,
+  migrate,
+} from './index'
 
 // Mock better-sqlite3 before importing the module
 vi.mock('better-sqlite3', () => {
@@ -140,67 +157,56 @@ describe('Database Helper Functions', () => {
   })
 
   it('should export getDatabase function', () => {
-    const { getDatabase } = require('../index')
     expect(getDatabase).toBeDefined()
     expect(typeof getDatabase).toBe('function')
   })
 
   it('should export getDatabaseAsync function', async () => {
-    const { getDatabaseAsync } = require('../index')
     expect(getDatabaseAsync).toBeDefined()
     expect(typeof getDatabaseAsync).toBe('function')
   })
 
   it('should export closeDatabase function', () => {
-    const { closeDatabase } = require('../index')
     expect(closeDatabase).toBeDefined()
     expect(typeof closeDatabase).toBe('function')
   })
 
   it('should export getDatabaseStats function', () => {
-    const { getDatabaseStats } = require('../index')
     expect(getDatabaseStats).toBeDefined()
     expect(typeof getDatabaseStats).toBe('function')
   })
 
   it('should export vacuumDatabase function', () => {
-    const { vacuumDatabase } = require('../index')
     expect(vacuumDatabase).toBeDefined()
     expect(typeof vacuumDatabase).toBe('function')
   })
 
   it('should export analyzeDatabase function', () => {
-    const { analyzeDatabase } = require('../index')
     expect(analyzeDatabase).toBeDefined()
     expect(typeof analyzeDatabase).toBe('function')
   })
 
   it('should export getDatabaseSize function', () => {
-    const { getDatabaseSize } = require('../index')
     expect(getDatabaseSize).toBeDefined()
     expect(typeof getDatabaseSize).toBe('function')
   })
 
   it('should export migrate function', () => {
-    const { migrate } = require('../index')
     expect(migrate).toBeDefined()
     expect(typeof migrate).toBe('function')
   })
 
   it('should export optimizeDatabase function', () => {
-    const { optimizeDatabase } = require('../index')
     expect(optimizeDatabase).toBeDefined()
     expect(typeof optimizeDatabase).toBe('function')
   })
 
   it('should export getDatabaseHealth function', () => {
-    const { getDatabaseHealth } = require('../index')
     expect(getDatabaseHealth).toBeDefined()
     expect(typeof getDatabaseHealth).toBe('function')
   })
 
   it('getDatabase should return connection object', () => {
-    const { getDatabase } = require('../index')
     const db = getDatabase()
     expect(db).toBeDefined()
     expect(db.query).toBeDefined()
@@ -210,7 +216,6 @@ describe('Database Helper Functions', () => {
   })
 
   it('getDatabaseAsync should return connection object', async () => {
-    const { getDatabaseAsync } = require('../index')
     const db = await getDatabaseAsync()
     expect(db).toBeDefined()
     expect(db.query).toBeDefined()
@@ -218,7 +223,6 @@ describe('Database Helper Functions', () => {
   })
 
   it('getDatabaseStats should return stats object', () => {
-    const { getDatabaseStats } = require('../index')
     const stats = getDatabaseStats()
     expect(stats).toBeDefined()
     expect(stats).toHaveProperty('connectionCount')
@@ -227,17 +231,14 @@ describe('Database Helper Functions', () => {
   })
 
   it('vacuumDatabase should not throw', () => {
-    const { vacuumDatabase } = require('../index')
     expect(() => vacuumDatabase()).not.toThrow()
   })
 
   it('analyzeDatabase should not throw', () => {
-    const { analyzeDatabase } = require('../index')
     expect(() => analyzeDatabase()).not.toThrow()
   })
 
   it('getDatabaseSize should return size info or null', () => {
-    const { getDatabaseSize } = require('../index')
     const size = getDatabaseSize()
     if (size !== null) {
       expect(size).toHaveProperty('pageSize')
@@ -249,7 +250,6 @@ describe('Database Helper Functions', () => {
   })
 
   it('closeDatabase should not throw', () => {
-    const { closeDatabase } = require('../index')
     expect(() => closeDatabase()).not.toThrow()
   })
 })
@@ -257,13 +257,11 @@ describe('Database Helper Functions', () => {
 describe('Batch Operations', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    const { getDatabase } = require('../index')
     const db = getDatabase()
     db.exec('CREATE TABLE IF NOT EXISTS batch_test (id INTEGER, value TEXT)')
   })
 
   it('should support batch operations', async () => {
-    const { getDatabase } = require('../index')
     const db = getDatabase()
 
     if (db.batch) {
@@ -278,7 +276,6 @@ describe('Batch Operations', () => {
   })
 
   it('should handle empty batch', async () => {
-    const { getDatabase } = require('../index')
     const db = getDatabase()
 
     if (db.batch) {
