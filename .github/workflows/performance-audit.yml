@@ -310,6 +310,33 @@ jobs:
             exit 1
           fi
 
+          # ── 首屏诊断（v17 新增）──────────────────────────────────────────
+          # 唯一目的：把「页面到底画没画、被什么挡住」变成日志里的**事实**，
+          # 而不是靠猜。四个观察点：
+          #   a) `/` 是 307 → 落到哪个 URL（next-intl 的 locale 重定向）
+          #   b) 响应里有没有 CSP 头、`script-src` 里有没有 'unsafe-inline'
+          #   c) 服务端吐的 <html> 标签上有没有 class（没有 = 主题守卫会生效）
+          #   d) 有多少内联 <script>（>0 且 CSP 不带 'unsafe-inline'/nonce 就必被拦）
+          # 注意必须 -L：`/` 是 307，直接抓拿不到首页正文。
+          echo "──────────── 首屏诊断 ────────────"
+          echo "[request /] $(curl -s -o /dev/null -w '%{http_code}' \
+            --max-time 5 http://127.0.0.1:3000/ 2>/dev/null || echo 000)"
+          curl -sSL --max-time 20 -o /tmp/_home.html \
+            -w '[follow -L] %{http_code} %{size_download}B final=%{url_effective}\n' \
+            http://127.0.0.1:3000/ 2>/dev/null || echo "[follow -L] curl 失败"
+          echo "[响应头]"
+          curl -sS -L -D - -o /dev/null --max-time 20 http://127.0.0.1:3000/ 2>/dev/null \
+            | tr -d '\r' \
+            | grep -iE '^(HTTP/|content-security-policy|content-type|cross-origin-embedder-policy)' \
+            | sed 's/^/    /' || true
+          echo "[<html> 标签] $(grep -o '<html[^>]*>' /tmp/_home.html 2>/dev/null | sed -n '1p')"
+          echo "[内联 <script> 数] $(grep -o '<script[^>]*>' /tmp/_home.html 2>/dev/null | grep -vc 'src=' || true)"
+          echo "[带 src 的 <script> 数] $(grep -o '<script[^>]*>' /tmp/_home.html 2>/dev/null | grep -c 'src=' || true)"
+          echo "[样式表 link]"
+          grep -o '<link[^>]*stylesheet[^>]*>' /tmp/_home.html 2>/dev/null | sed 's/^/    /' || true
+          echo "[样式表 link 数] $(grep -c 'stylesheet' /tmp/_home.html 2>/dev/null || true)"
+          echo "─────────────────────────────────"
+
           # 拆成 collect + assert，**不跑 upload**。理由：
           #   lighthouserc.json 原来 upload.target=temporary-public-storage，
           #   那要多一次到 Google 存储的往返 —— 纯外网依赖，白送一个失败面。

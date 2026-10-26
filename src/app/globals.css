@@ -305,10 +305,27 @@ body {
   text-size-adjust: 100%;
 }
 
-/* Prevent flash of wrong theme */
-html:not(.dark):not(.light) {
-  visibility: hidden;
-}
+/* ─────────────────────────────────────────────────────────────────────
+   ⚠️ 这里**绝对不能**再用 visibility:hidden 来防 FOUC。
+
+   v16 及之前是：
+       html:not(.dark):not(.light) { visibility: hidden; }
+
+   它依赖 layout.tsx <head> 里那段内联主题脚本把
+   document.documentElement.style.visibility 改成 'visible' 来解除。
+   但生产 CSP（next.config.ts）的 script-src 里没有 'unsafe-inline'，
+   也没有 nonce，于是浏览器直接拦掉那段内联脚本：
+       class 一次都加不上 → 选择器永远命中 → visibility 永远 hidden
+       → **整页一个像素都不画** → Lighthouse 报 NO_FCP。
+
+   顺带把 hydration 也一起废掉：Next App Router 的 flight 数据本身也是
+   内联 <script>self.__next_f.push(...)</script>，同一份 CSP 一并拦。
+
+   防 FOUC 本来不需要隐藏整个文档：下面
+   `@media (prefers-color-scheme: dark) { :root:not(.light) {…} }`
+   已经在 JS 跑起来之前就把系统主题的色板铺好了。
+   没有 class 时用系统主题，有 class 时再覆盖 —— 既不闪也不空白。
+   ───────────────────────────────────────────────────────────────────── */
 
 html.dark {
   color-scheme: dark;

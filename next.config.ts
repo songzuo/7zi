@@ -71,10 +71,29 @@ const nextConfig: NextConfig = {
             key: 'X-Permitted-Cross-Domain-Policies',
             value: 'none',
           },
+          // ⚠️ script-src 必须带 'unsafe-inline'。
+          //
+          // Next App Router 的产物里有两类**内联** <script>，它们不是可选项：
+          //   1) <script>self.__next_f.push([...])</script>  —— RSC flight 数据，
+          //      没有它 React 无法 hydrate，整站交互全死；
+          //   2) layout.tsx <head> 里的主题初始化脚本（读 localStorage 加
+          //      .light/.dark class）。
+          //
+          // 之前这里只写 'self' https://cdn.jsdelivr.net，既没有 'unsafe-inline'
+          // 也没有 nonce/hash，于是两类脚本全部被拦：
+          //   * 主题脚本被拦 → <html> 永远拿不到 class → globals.css 里那条
+          //     html:not(.dark):not(.light){visibility:hidden} 永远命中 →
+          //     整页不绘制 → Lighthouse NO_FCP（v17 已把那条 CSS 规则删掉兜底）；
+          //   * flight 数据被拦 → 页面看着有内容但完全不可交互。
+          //
+          // 更彻底的做法是 nonce + middleware.ts（Next 会自动把 nonce 注入自己
+          // 的 <script>），代价是全站失去静态渲染、变成 per-request 动态渲染。
+          // 本仓根目录没有 middleware.ts，且大量页面依赖静态产物 —— 先取
+          // 'unsafe-inline' 把功能修回来，nonce 作为后续加固项单独立项。
           {
             key: 'Content-Security-Policy',
             value: isProduction
-              ? "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
+              ? "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
               : "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
           },
         ],
@@ -136,8 +155,10 @@ const nextConfig: NextConfig = {
 
   // 编译器选项
   compiler: {
-    // v1.15.0: 启用 SWC 压缩替代 Terser，提升构建速度
-    swcMinify: true,
+    // v17: 删掉 `swcMinify: true`。
+    // 它不是 `compiler` 的合法子键 —— 每次构建都会打
+    //   ⚠ Unrecognized key(s) in object: 'swcMinify' at "compiler"
+    // 而 Next 16 默认就用 SWC 压缩，这个键既无效也过时（它当年在顶层）。
     removeConsole:
       process.env.NODE_ENV === 'production'
         ? {
