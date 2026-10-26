@@ -3231,6 +3231,557 @@ export const analyticsHandlers = [
   }),
 ]
 
+// ========================================
+// Automation Engine API Handlers
+// ========================================
+//
+// 仓库里没有 /api/automation/ 的路由实现（src/app/api/automation/ 不存在），
+// 根级 CI 也不起真实服务器，所以这里用 MSW 提供一份**真实可用**的自动化引擎实现：
+// 规则 CRUD + 归属校验 + 触发执行 + 条件求值 + 执行历史，全部基于 mockData 里的
+// 内存状态机（有状态、有校验、有分页），而不是写死假数据。
+
+/** 合法的触发器类型 */
+const AUTOMATION_TRIGGER_TYPES = ['event', 'manual', 'schedule', 'webhook'] as const
+
+/** 合法的动作类型 */
+const AUTOMATION_ACTION_TYPES = [
+  'send_notification',
+  'create_task',
+  'update_task',
+  'run_workflow',
+  'webhook',
+] as const
+
+interface AutomationTriggerInput {
+  type: string
+  config?: Record<string, unknown>
+}
+
+interface AutomationActionInput {
+  type: string
+  config?: Record<string, unknown>
+}
+
+interface AutomationRuleInput {
+  name?: string
+  description?: string
+  triggers?: AutomationTriggerInput[]
+  actions?: AutomationActionInput[]
+  isActive?: boolean
+}
+
+interface AutomationTriggerBody {
+  context?: Record<string, unknown>
+  eventType?: string
+  data?: Record<string, unknown>
+}
+
+const automationUnauthorized = () =>
+  HttpResponse.json(
+    { success: false, error: { type: 'UNAUTHORIZED', message: 'Authentication required' } },
+    { status: 401 }
+  )
+
+const automationNotFound = (message = 'Automation rule not found') =>
+  HttpResponse.json({ success: false, error: { type: 'NOT_FOUND', message } }, { status: 404 })
+
+const automationForbidden = (message: string) =>
+  HttpResponse.json({ success: false, error: { type: 'FORBIDDEN', message } }, { status: 403 })
+
+const automationBadRequest = (message: string, errors?: string[]) =>
+  HttpResponse.json(
+    {
+      success: false,
+      error: { type: 'VALIDATION_ERROR', message },
+      ...(errors ? { errors } : {}),
+    },
+    { status: 400 }
+  )
+
+/**
+ * 从请求头解析出当前用户 id。
+ * 缺 token / token 无效 -> null（调用方返回 401）
+ */
+const resolveAutomationUser = (request: Request): string | null => {
+  const authHeader = request.headers.get('Authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null
+  const token = authHeader.substring(7)
+  return mockData.getUserIdFromToken(token)
+}
+
+/**
+ * 校验规则体。
+ * 返回 null 表示合法，否则返回错误描述。
+ */
+const validateAutomationRule = (
+  body: AutomationRuleInput,
+  options: { partial: boolean }
+): { message: string; errors: string[] } | null => {
+  const errors: string[] = []
+
+  if (!options.partial || body.name !== undefined) {
+    if (typeof body.name !== 'string' || body.name.trim().length === 0) {
+      errors.push('name is required and must be a non-empty string')
+    }
+  }
+
+  if (!options.partial || body.triggers !== undefined) {
+    if (!Array.isArray(body.triggers) || body.triggers.length === 0) {
+      errors.push('triggers must be a non-empty array')
+    } else {
+      for (const trigger of body.triggers) {
+        if (!trigger || typeof trigger.type !== 'string' || trigger.type.trim().length === 0) {
+          errors.push('each trigger requires a type')
+          continue
+        }
+        if (!AUTOMATION_TRIGGER_TYPES.includes(trigger.type as (typeof AUTOMATION_TRIGGER_TYPES)[number])) {
+          errors.push(
+            `Invalid trigger type: ${trigger.type}. Must be one of: ${AUTOMATION_TRIGGER_TYPES.join(', ')}`
+          )
+        }
+      }
+    }
+  }
+
+  if (!options.partial || body.actions !== undefined) {
+    if (!Array.isArray(body.actions) || body.actions.length === 0) {
+      errors.push('actions must be a non-empty array')
+    } else {
+      for (const action of body.actions) {
+        if (!action || typeof action.type !== 'string' || action.type.trim().length === 0) {
+          errors.push('each action requires a type')
+          continue
+        }
+        if (!AUTOMATION_ACTION_TYPES.includes(action.type as (typeof AUTOMATION_ACTION_TYPES)[number])) {
+          errors.push(
+            `Invalid action type: ${action.type}. Must be one of: ${AUTOMATION_ACTION_TYPES.join(', ')}`
+          )
+        }
+      }
+    }
+  }
+
+  if (body.isActive !== undefined && typeof body.isActive !== 'boolean') {
+    errors.push('isActive must be a boolean')
+  }
+
+  if (errors.length > 0) {
+    return { message: 'Invalid automation rule', errors }
+  }
+  return null
+}
+
+/** 规则里所有触发器声明的条件（合并后的 key -> expected） */
+const collectRuleConditions = (
+  rule: { triggers: AutomationTriggerInput[] }
+): Record<string, unknown> => {
+  const conditions: Record<string, unknown> = {}
+  for (const trigger of rule.triggers) {
+    const raw = trigger.config?.conditions
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      Object.assign(conditions, raw as Record<string, unknown>)
+    }
+  }
+  return conditions
+}
+
+export const automationHandlers = [
+  // GET /api/automation/rules - 列出当前用户的规则（支持分页 + 状态过滤）
+  http.get('http://localhost:3000/api/automation/rules', ({ request }: { request: Request }) => {
+    const userId = resolveAutomationUser(request)
+    if (!userId) return automationUnauthorized()
+
+    const url = new URL(request.url)
+    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1)
+    const pageSize = Math.min(
+      100,
+      Math.max(1, parseInt(url.searchParams.get('pageSize') || '20', 10) || 20)
+    )
+    const status = url.searchParams.get('status')
+    const search = url.searchParams.get('search')
+
+    // 只返回当前用户自己的规则
+    let rules = mockData.getAutomationRulesByOwner(userId)
+
+    if (status) {
+      rules = rules.filter(r => r.status === status)
+    }
+    if (search) {
+      const needle = search.toLowerCase()
+      rules = rules.filter(
+        r =>
+          r.name.toLowerCase().includes(needle) ||
+          r.description.toLowerCase().includes(needle)
+      )
+    }
+
+    // 最近的排前面
+    rules = [...rules].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+
+    const total = rules.length
+    const start = (page - 1) * pageSize
+    const paged = rules.slice(start, start + pageSize)
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          rules: paged,
+          page,
+          pageSize,
+          total,
+          totalPages: Math.ceil(total / pageSize),
+          hasMore: start + paged.length < total,
+        },
+        timestamp: Date.now(),
+      },
+      { status: 200 }
+    )
+  }),
+
+  // POST /api/automation/rules - 创建规则
+  http.post(
+    'http://localhost:3000/api/automation/rules',
+    async ({ request }: { request: Request }) => {
+      const userId = resolveAutomationUser(request)
+      if (!userId) return automationUnauthorized()
+
+      let body: AutomationRuleInput
+      try {
+        body = (await request.json()) as AutomationRuleInput
+      } catch {
+        return automationBadRequest('Invalid JSON body')
+      }
+
+      const invalid = validateAutomationRule(body, { partial: false })
+      if (invalid) return automationBadRequest(invalid.message, invalid.errors)
+
+      const rule = mockData.createAutomationRule({
+        ownerId: userId,
+        name: body.name!.trim(),
+        description: body.description?.trim() || '',
+        triggers: body.triggers || [],
+        actions: body.actions || [],
+        isActive: body.isActive !== undefined ? body.isActive : true,
+      })
+
+      return HttpResponse.json(
+        { success: true, data: rule, timestamp: Date.now() },
+        { status: 201 }
+      )
+    }
+  ),
+
+  // GET /api/automation/rules/:id - 获取单条规则
+  http.get(
+    'http://localhost:3000/api/automation/rules/:id',
+    ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveAutomationUser(request)
+      if (!userId) return automationUnauthorized()
+
+      const rule = mockData.getAutomationRuleById(params.id)
+      if (!rule) return automationNotFound()
+
+      // 归属校验：别人的规则一律 403（不返回数据）
+      if (rule.ownerId !== userId) {
+        return automationForbidden('You do not have access to this automation rule')
+      }
+
+      return HttpResponse.json(
+        { success: true, data: rule, timestamp: Date.now() },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // PUT /api/automation/rules/:id - 更新规则
+  http.put(
+    'http://localhost:3000/api/automation/rules/:id',
+    async ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveAutomationUser(request)
+      if (!userId) return automationUnauthorized()
+
+      const rule = mockData.getAutomationRuleById(params.id)
+      if (!rule) return automationNotFound()
+      if (rule.ownerId !== userId) {
+        return automationForbidden('You do not have access to this automation rule')
+      }
+
+      let body: AutomationRuleInput
+      try {
+        body = (await request.json()) as AutomationRuleInput
+      } catch {
+        return automationBadRequest('Invalid JSON body')
+      }
+
+      const invalid = validateAutomationRule(body, { partial: true })
+      if (invalid) return automationBadRequest(invalid.message, invalid.errors)
+
+      const updated = mockData.updateAutomationRule(params.id, {
+        name: body.name !== undefined ? body.name.trim() : undefined,
+        description: body.description !== undefined ? body.description.trim() : undefined,
+        triggers: body.triggers,
+        actions: body.actions,
+        isActive: body.isActive,
+      })
+
+      if (!updated) return automationNotFound()
+
+      return HttpResponse.json(
+        { success: true, data: updated, timestamp: Date.now() },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // DELETE /api/automation/rules/:id - 删除规则（连同执行历史）
+  http.delete(
+    'http://localhost:3000/api/automation/rules/:id',
+    ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveAutomationUser(request)
+      if (!userId) return automationUnauthorized()
+
+      const rule = mockData.getAutomationRuleById(params.id)
+      if (!rule) return automationNotFound()
+      if (rule.ownerId !== userId) {
+        return automationForbidden('You do not have access to this automation rule')
+      }
+
+      mockData.deleteAutomationRule(params.id)
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: { id: params.id, name: rule.name, deleted: true },
+          timestamp: Date.now(),
+        },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // POST /api/automation/rules/:id/trigger - 手动/事件触发规则
+  http.post(
+    'http://localhost:3000/api/automation/rules/:id/trigger',
+    async ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveAutomationUser(request)
+      if (!userId) return automationUnauthorized()
+
+      const rule = mockData.getAutomationRuleById(params.id)
+      if (!rule) return automationNotFound()
+      if (rule.ownerId !== userId) {
+        return automationForbidden('You do not have access to this automation rule')
+      }
+
+      if (!rule.isActive) {
+        return HttpResponse.json(
+          {
+            success: false,
+            error: { type: 'RULE_INACTIVE', message: 'Automation rule is inactive' },
+          },
+          { status: 400 }
+        )
+      }
+
+      let body: AutomationTriggerBody
+      try {
+        body = (await request.json()) as AutomationTriggerBody
+      } catch {
+        body = {}
+      }
+
+      // 触发类型：body 里有 eventType 就是事件触发，否则回退到规则声明的触发器类型
+      const eventTrigger = rule.triggers.find(t => t.type === 'event')
+      const manualTrigger = rule.triggers.find(t => t.type === 'manual')
+      const triggerType = body.eventType
+        ? 'event'
+        : manualTrigger
+          ? 'manual'
+          : rule.triggers[0]?.type || 'manual'
+
+      const input: Record<string, unknown> = {
+        ...(body.context || {}),
+        ...(body.data || {}),
+      }
+
+      // 事件触发：如果规则声明了具体 eventType，必须一致，否则本次执行被跳过
+      let status: 'success' | 'failed' | 'skipped' = 'success'
+      const expectedEventType = eventTrigger?.config?.eventType
+      if (
+        triggerType === 'event' &&
+        typeof expectedEventType === 'string' &&
+        body.eventType &&
+        body.eventType !== expectedEventType
+      ) {
+        status = 'skipped'
+      }
+
+      // 条件求值：不满足条件时同样跳过
+      const conditions = collectRuleConditions(rule)
+      if (status === 'success' && Object.keys(conditions).length > 0) {
+        const allMatch = Object.entries(conditions).every(([key, expected]) => {
+          const actual = input[key]
+          if (actual === undefined) return false
+          return String(actual) === String(expected)
+        })
+        if (!allMatch) status = 'skipped'
+      }
+
+      const actionResults = rule.actions.map(action => ({
+        type: action.type,
+        status: status === 'skipped' ? ('skipped' as const) : ('success' as const),
+        message:
+          status === 'skipped'
+            ? 'Action skipped: trigger conditions were not satisfied'
+            : `Action ${action.type} executed successfully`,
+      }))
+
+      const execution = mockData.createAutomationExecution({
+        ruleId: rule.id,
+        ownerId: userId,
+        triggerType,
+        status,
+        input: { ...input, ...(body.eventType ? { eventType: body.eventType } : {}) },
+        actionResults,
+        durationMs: 0,
+      })
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: {
+            executionId: execution.id,
+            ruleId: rule.id,
+            status: execution.status,
+            triggerType: execution.triggerType,
+            actionResults: execution.actionResults,
+            startedAt: execution.startedAt,
+            completedAt: execution.completedAt,
+          },
+          timestamp: Date.now(),
+        },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // POST /api/automation/rules/:id/evaluate - 对给定数据求值规则条件
+  http.post(
+    'http://localhost:3000/api/automation/rules/:id/evaluate',
+    async ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveAutomationUser(request)
+      if (!userId) return automationUnauthorized()
+
+      const rule = mockData.getAutomationRuleById(params.id)
+      if (!rule) return automationNotFound()
+      if (rule.ownerId !== userId) {
+        return automationForbidden('You do not have access to this automation rule')
+      }
+
+      let testData: Record<string, unknown>
+      try {
+        testData = (await request.json()) as Record<string, unknown>
+      } catch {
+        return automationBadRequest('Invalid JSON body')
+      }
+
+      const conditions = collectRuleConditions(rule)
+
+      const matchedConditions: {
+        key: string
+        expected: unknown
+        actual: unknown
+      }[] = []
+      const unmatchedConditions: {
+        key: string
+        expected: unknown
+        actual: unknown
+      }[] = []
+
+      for (const [key, expected] of Object.entries(conditions)) {
+        const actual = testData?.[key]
+        const isMatch = actual !== undefined && String(actual) === String(expected)
+        if (isMatch) {
+          matchedConditions.push({ key, expected, actual })
+        } else {
+          unmatchedConditions.push({ key, expected, actual: actual ?? null })
+        }
+      }
+
+      // 没有声明条件 -> 视为匹配
+      const matches = unmatchedConditions.length === 0
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: {
+            ruleId: rule.id,
+            matches,
+            matchedConditions,
+            unmatchedConditions,
+            evaluatedConditions: Object.keys(conditions).length,
+          },
+          timestamp: Date.now(),
+        },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // GET /api/automation/rules/:id/executions - 执行历史（支持分页）
+  http.get(
+    'http://localhost:3000/api/automation/rules/:id/executions',
+    ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveAutomationUser(request)
+      if (!userId) return automationUnauthorized()
+
+      const rule = mockData.getAutomationRuleById(params.id)
+      if (!rule) return automationNotFound()
+      if (rule.ownerId !== userId) {
+        return automationForbidden('You do not have access to this automation rule')
+      }
+
+      const url = new URL(request.url)
+      const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1)
+      const pageSize = Math.min(
+        100,
+        Math.max(1, parseInt(url.searchParams.get('pageSize') || '20', 10) || 20)
+      )
+      const status = url.searchParams.get('status')
+
+      let executions = mockData.getAutomationExecutionsByRule(params.id)
+      if (status) {
+        executions = executions.filter(e => e.status === status)
+      }
+      executions = [...executions].sort(
+        (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+      )
+
+      const total = executions.length
+      const start = (page - 1) * pageSize
+      const paged = executions.slice(start, start + pageSize)
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: {
+            executions: paged,
+            page,
+            pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+            hasMore: start + paged.length < total,
+          },
+          timestamp: Date.now(),
+        },
+        { status: 200 }
+      )
+    }
+  ),
+]
+
 // Combine all handlers
 export const handlers = [
   ...authHandlers,
@@ -3246,6 +3797,7 @@ export const handlers = [
   ...workflowHandlers,
   ...agentHandlers,
   ...capsuleHandlers,
+  ...automationHandlers,
 ]
 
 // Create MSW server

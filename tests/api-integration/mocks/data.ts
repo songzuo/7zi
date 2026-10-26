@@ -143,6 +143,52 @@ export interface MockCapsule {
   updatedAt: string
 }
 
+/**
+ * Automation engine types
+ * Used by /api/automation/rules handlers
+ */
+export interface MockAutomationTrigger {
+  type: string
+  config?: Record<string, unknown>
+}
+
+export interface MockAutomationAction {
+  type: string
+  config?: Record<string, unknown>
+}
+
+export interface MockAutomationRule {
+  id: string
+  ownerId: string
+  name: string
+  description: string
+  triggers: MockAutomationTrigger[]
+  actions: MockAutomationAction[]
+  isActive: boolean
+  status: 'active' | 'inactive'
+  executionCount: number
+  lastExecutedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MockAutomationExecution {
+  id: string
+  ruleId: string
+  ownerId: string
+  triggerType: string
+  status: 'success' | 'failed' | 'skipped'
+  input: Record<string, unknown>
+  actionResults: {
+    type: string
+    status: 'success' | 'failed' | 'skipped'
+    message: string
+  }[]
+  startedAt: string
+  completedAt: string
+  durationMs: number
+}
+
 export class MockDataGenerator {
   private users: Map<string, MockUser> = new Map()
   private tasks: Map<string, MockTask> = new Map()
@@ -157,6 +203,8 @@ export class MockDataGenerator {
   private searchHistory: MockSearchHistory[] = []
   private agents: Map<string, MockAgent> = new Map()
   private capsules: Map<string, MockCapsule> = new Map()
+  private automationRules: Map<string, MockAutomationRule> = new Map()
+  private automationExecutions: Map<string, MockAutomationExecution> = new Map()
 
   constructor() {
     // Initialize with some test data
@@ -496,6 +544,8 @@ export class MockDataGenerator {
     this.users.clear()
     this.tokens.clear()
     this.refreshTokens.clear()
+    // 规则归属于用户，用户重置时自动化数据也要一起清掉
+    this.resetAutomation()
     this.initializeTestData()
   }
 
@@ -559,6 +609,7 @@ export class MockDataGenerator {
     this.feedbacks.clear()
     this.tokens.clear()
     this.refreshTokens.clear()
+    this.resetAutomation()
     this.initializeTestData()
   }
 
@@ -993,5 +1044,133 @@ export class MockDataGenerator {
     capsule.status = 'archived'
     capsule.updatedAt = new Date().toISOString()
     return capsule
+  }
+
+  // ========================================
+  // Automation engine methods
+  // ========================================
+  createAutomationRule(data: {
+    ownerId: string
+    name: string
+    description?: string
+    triggers?: MockAutomationTrigger[]
+    actions?: MockAutomationAction[]
+    isActive?: boolean
+  }): MockAutomationRule {
+    const now = new Date().toISOString()
+    const rule: MockAutomationRule = {
+      id: `rule-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ownerId: data.ownerId,
+      name: data.name,
+      description: data.description || '',
+      triggers: data.triggers || [],
+      actions: data.actions || [],
+      isActive: data.isActive !== undefined ? data.isActive : true,
+      status: data.isActive === false ? 'inactive' : 'active',
+      executionCount: 0,
+      lastExecutedAt: null,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    this.automationRules.set(rule.id, rule)
+    return rule
+  }
+
+  getAutomationRuleById(id: string): MockAutomationRule | null {
+    return this.automationRules.get(id) || null
+  }
+
+  getAutomationRulesByOwner(ownerId: string): MockAutomationRule[] {
+    return Array.from(this.automationRules.values()).filter(r => r.ownerId === ownerId)
+  }
+
+  getAllAutomationRules(): MockAutomationRule[] {
+    return Array.from(this.automationRules.values())
+  }
+
+  updateAutomationRule(
+    id: string,
+    data: Partial<{
+      name: string
+      description: string
+      triggers: MockAutomationTrigger[]
+      actions: MockAutomationAction[]
+      isActive: boolean
+    }>
+  ): MockAutomationRule | null {
+    const rule = this.automationRules.get(id)
+    if (!rule) return null
+
+    const isActive = data.isActive !== undefined ? data.isActive : rule.isActive
+    const updated: MockAutomationRule = {
+      ...rule,
+      ...data,
+      isActive,
+      status: isActive ? 'active' : 'inactive',
+      updatedAt: new Date().toISOString(),
+    }
+
+    this.automationRules.set(id, updated)
+    return updated
+  }
+
+  deleteAutomationRule(id: string): boolean {
+    // 规则删除时一并清掉它的执行历史
+    for (const [execId, exec] of this.automationExecutions) {
+      if (exec.ruleId === id) {
+        this.automationExecutions.delete(execId)
+      }
+    }
+    return this.automationRules.delete(id)
+  }
+
+  createAutomationExecution(data: {
+    ruleId: string
+    ownerId: string
+    triggerType: string
+    status: MockAutomationExecution['status']
+    input?: Record<string, unknown>
+    actionResults?: MockAutomationExecution['actionResults']
+    durationMs?: number
+  }): MockAutomationExecution {
+    const startedAt = new Date()
+    const durationMs = data.durationMs !== undefined ? data.durationMs : 0
+    const execution: MockAutomationExecution = {
+      id: `exec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ruleId: data.ruleId,
+      ownerId: data.ownerId,
+      triggerType: data.triggerType,
+      status: data.status,
+      input: data.input || {},
+      actionResults: data.actionResults || [],
+      startedAt: startedAt.toISOString(),
+      completedAt: new Date(startedAt.getTime() + durationMs).toISOString(),
+      durationMs,
+    }
+
+    this.automationExecutions.set(execution.id, execution)
+
+    // 更新规则的执行统计
+    const rule = this.automationRules.get(data.ruleId)
+    if (rule) {
+      rule.executionCount += 1
+      rule.lastExecutedAt = execution.completedAt
+    }
+
+    return execution
+  }
+
+  getAutomationExecutionsByRule(ruleId: string): MockAutomationExecution[] {
+    return Array.from(this.automationExecutions.values()).filter(e => e.ruleId === ruleId)
+  }
+
+  getAllAutomationExecutions(): MockAutomationExecution[] {
+    return Array.from(this.automationExecutions.values())
+  }
+
+  resetAutomation() {
+    this.automationRules.clear()
+    this.automationExecutions.clear()
   }
 }

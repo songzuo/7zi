@@ -295,13 +295,7 @@ const waitForEvent = (
 // ============================================================================
 
 describe('/api/ws - WebSocket Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
-  afterAll(() => {
-    server.close()
-  })
 
   beforeEach(() => {
     server.resetHandlers()

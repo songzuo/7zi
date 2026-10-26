@@ -18,20 +18,12 @@ function getAuthHeader(userId: string): HeadersInit {
 }
 
 describe('/api/workflow - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
-
   beforeEach(() => {
     mockData.resetUsers()
   })
 
   afterEach(() => {
     server.resetHandlers()
-  })
-
-  afterAll(() => {
-    server.close()
   })
 
   // ============================================================================
