@@ -14,7 +14,17 @@
     "portfolio": "ポートフォリオ",
     "dashboard": "ダッシュボード",
     "contact": "お問い合わせ",
-    "global": "7zi グローバル"
+    "global": "7zi グローバル",
+    "siteNameShort": "7ziStudio",
+    "tasks": "タスク",
+    "subagents": "サブエージェント",
+    "memory": "メモリ",
+    "language": "言語",
+    "theme": "テーマ",
+    "mobileMenu": {
+      "open": "メニューを開く",
+      "close": "メニューを閉じる"
+    }
   },
   "home": {
     "title": "ホーム - AI駆動の革新的デジタルスタジオ",

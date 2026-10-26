@@ -14,7 +14,17 @@
     "portfolio": "포트폴리오",
     "dashboard": "대시보드",
     "contact": "연락처",
-    "global": "7zi 글로벌"
+    "global": "7zi 글로벌",
+    "siteNameShort": "7ziStudio",
+    "tasks": "작업",
+    "subagents": "서브에이전트",
+    "memory": "메모리",
+    "language": "언어",
+    "theme": "테마",
+    "mobileMenu": {
+      "open": "메뉴 열기",
+      "close": "메뉴 닫기"
+    }
   },
   "home": {
     "title": "홈 - AI 기반 혁신 디지털 스튜디오",
