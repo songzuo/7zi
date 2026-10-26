@@ -67,3 +67,56 @@
 
 `main` 没有分支保护（`GET /branches/main/protection` 返回 `Branch not protected`），
 任何 push 都能直接进 main，红了也没人挡。CI 红了半年，失败通知被当噪音忽略。
+
+## 五、v12 已修：`draft-storage.test.ts` 挂死 —— 「分片 3/4 被 cancelled」的真凶
+
+| 现象 | 根因 | 处理 |
+|---|---|---|
+| `src/lib/storage/__tests__/draft-storage.test.ts (9 tests / 8 failed) 700456ms`；分片 3/4 撞 20 分钟上限 → job `conclusion: cancelled` → 整个 run 判红 | 测试里的 fake `IDBOpenDBRequest` 只把 `onsuccess` 初始化成 `null`，**从不回调**；而 `DraftStorage` 每个方法都是 `request.onsuccess = () => resolve()`，Promise 永不 settle → 撞 `testTimeout: 60000`，CI 里 `retry: 1` 再跑一遍 → 单用例 120s+ | 重写该测试文件，用会真正回调的 `fakeRequest()`；`afterEach` 不再 `await clearAllDrafts()`，`close()` 包 try/catch |
+
+还有两个连带因素：
+
+- `afterEach` 无条件 `await storage.clearAllDrafts()`：mock 的 `clear()` 不回调就吃满
+  `hookTimeout(10s)`，CI retry 再翻倍 —— 连**纯同步**的用例（「应该创建草稿从
+  WorkflowDefinition」）都被拖成 20s 红。
+- `afterEach` 里 `storage.close()` 直接 `this.db.close()`，而手工塞的 mock db 没有
+  `close` → `TypeError` 抛出 → 用例判红。
+
+判定「超时被杀」而不是「断言失败」的判据：job 的 `conclusion` 是 `cancelled`，
+日志末尾是 `##[error]The operation was canceled.` + `Terminate orphan process: pid (...)`
+并且**没有** `Test Suites:` 汇总行。
+
+顺带清掉：
+
+- `vitest.config.ts` 的 `fileTimeout: 120000` **不是 vitest 的合法选项**，一直被静默忽略。
+- CI 里 `retry: 1`（失败用例重试一次，耗时翻倍）→ 改为 `retry: 0`。
+- `timeout-minutes` 20 → 25，留一点余量。
+
+判据：`单元测试 (分片 3/4)` 的 `conclusion` 从 `cancelled` 变 `success`，耗时 ≤ 8 分钟。
+
+## 六、v12 已修：Lighthouse 第三层 —— 应用自身渲染崩溃
+
+`.next/standalone/.next/**`（BUILD_ID / required-server-files.json / server/）与
+探活判据都修好之后，服务器终于起得来（`server up, first status=307 (after 2s)`），
+于是暴露出真正的第三层：**页面自己 500**。
+
+    TypeError: Cannot destructure property 'locale' of '(intermediate value)'
+                as it is undefined.
+        digest: '356995916'   chunk src_app_[locale]_not-found_tsx
+    Error:                                    ← 没有消息
+        digest: '97180869'    chunk _0ym-q82le7ws5
+    TypeError: Cannot read properties of undefined (reading 'siteName')
+        digest: '630639053'   chunk _0d-50zh49tb-h
+
+| 错误 | 根因 | 处理 |
+|---|---|---|
+| digest `97180869`（无消息） | `src/app/layout.tsx` 与 `src/app/[locale]/layout.tsx` **都**渲染了 `<html>`/`<body>`，SSR 结果是嵌套 `<html>`；Next.js 16 只允许根 layout 渲染一次 | `[locale]/layout.tsx` 去掉 `<html>/<head>/<body>`、字体、`globals.css`、`Providers`，只保留 i18n 消息 / 导航 / 页脚 / 结构化数据 |
+| digest `356995916` | `src/app/[locale]/not-found.tsx` 对 `params` 做 `await` 解构，而 Next.js 16 的 `not-found` **不传 params** | 改为 `getLocale()` + `defaultLocale` 兜底，不再碰 `params` |
+| digest `630639053` | `src/lib/seo-metadata.ts` 直接 `seoConfig[locale].siteName`，而 `seoConfig` 只有 `zh`/`en`，`src/i18n/config.ts` 的 `locales` 有 7 项 | 新增 `normalizeSeoLocale()`，不在表里的语言一律落到 `zh`；`SEOProps.locale` 从 `'zh' \| 'en'` 宽成 `string` |
+
+判据：`lhci 步骤结论: success`，Parse 打出 performance / accessibility /
+best-practices / seo 四项分数，`.lighthouseci/` 非空。
+
+附注：`7zi.studio` 目前**没有上线**（本机与服务器双向 curl 全 `000`，
+`/etc/nginx/sites-enabled/` 里没有它的配置），所以这些崩溃只影响 CI 采集，
+不影响真实用户 —— 但它同样是线上部署后必然踩到的坑。

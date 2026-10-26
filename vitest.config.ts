@@ -48,11 +48,17 @@ export default defineConfig({
     testTimeout: 60000,   // 60 seconds per test
     hookTimeout: 10000,   // 10 seconds for hooks
 
-    // No retry in dev, 1 retry in CI
-    retry: process.env.CI ? 1 : 0,
+    // v12：CI 里不再 retry。
+    // 原来 `retry: process.env.CI ? 1 : 0` 会让每个失败/挂死的用例跑两遍，
+    // 而 draft-storage.test.ts 的 fake IDBRequest 从不回调 → 单个用例吃满
+    // testTimeout(60s) × 2 = 120s，9 个用例 700s，直接把分片 3/4 顶穿
+    // 20 分钟上限（job conclusion = cancelled，这才是 CI 恒红的真因）。
+    // 测试本身已修，这里去掉 retry 再省一半时间。
+    retry: 0,
 
-    // File timeout (per test file)
-    fileTimeout: 120000,  // 2 minutes per file
+    // v12：删掉 `fileTimeout: 120000`。它不是 vitest 的合法选项，一直被静默
+    // 忽略，真正生效的只有上面的 testTimeout（每用例 60s）。留一个假开关比
+    // 没有更危险。
 
     // Test isolation enabled
     isolate: true,

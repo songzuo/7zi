@@ -3,16 +3,34 @@
  * 当访问不存在的路由时显示
  */
 import Link from 'next/link'
-import { setRequestLocale, getTranslations } from 'next-intl/server'
+import { getLocale, getTranslations, setRequestLocale } from 'next-intl/server'
 import { Locale, locales, defaultLocale } from '@/i18n/config'
 
-type Params = Promise<{ locale: string }>
-
-export default async function NotFound({ params }: { params: Params }) {
-  const { locale } = await params
-
-  // Use default locale if invalid
-  const validLocale = locales.includes(locale as Locale) ? locale : defaultLocale
+/**
+ * v12 结构性修复
+ * ---------------------------------------------------------------
+ * Next.js 16 的 not-found 组件**不接收 params**（它不属于任何动态段的
+ * 有序渲染路径），签名里的 params 恒为 undefined。原来的
+ *
+ *     const { locale } = await params
+ *
+ * 必然抛
+ *   TypeError: Cannot destructure property 'locale' of '(intermediate value)'
+ *   as it is undefined.
+ *   （digest 356995916，chunk src_app_[locale]_not-found_tsx）
+ *
+ * 改成主动向 next-intl 要当前 locale，取不到再回落默认语言。
+ */
+export default async function NotFound() {
+  let validLocale: Locale = defaultLocale
+  try {
+    const current = await getLocale()
+    if (current && locales.includes(current as Locale)) {
+      validLocale = current as Locale
+    }
+  } catch {
+    validLocale = defaultLocale
+  }
 
   setRequestLocale(validLocale)
 

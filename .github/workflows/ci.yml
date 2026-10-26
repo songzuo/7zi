@@ -253,7 +253,7 @@ jobs:
     # 被杀后 conclusion 是 cancelled（不是 failure），日志末尾只有
     #   ##[error]The operation was canceled. / Terminate orphan process ...
     # 且没有 `Test Suites:` 汇总行。分片 1 已用 6m56s，10 分钟没有余量。
-    timeout-minutes: 20
+    timeout-minutes: 25
     needs: [setup]
     if: inputs.skip_tests != true
     strategy:

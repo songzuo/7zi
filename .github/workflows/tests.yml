@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     # 同 ci.yml：vitest 分片耗时高度不均（实测 3m15s ~ 10m16s），
     # 10 分钟会把最慢的那个分片直接杀掉。放宽到 20。
-    timeout-minutes: 20
+    timeout-minutes: 25
     # ✅ Optimization: Parallel test execution
     strategy:
       fail-fast: false
