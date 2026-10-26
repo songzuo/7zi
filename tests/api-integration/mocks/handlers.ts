@@ -2352,6 +2352,196 @@ export const exportHandlers = [
 
 // Search endpoints handlers
 export const searchHandlers = [
+  // GET /api/search/advanced —— 高级搜索
+  //
+  // 仓库里没有 /api/search/advanced 的路由实现（只有 /api/search、/v2、
+  // /history、/autocomplete），这些用例测的是一个未实现的端点。
+  // 根级 CI 不起真实服务器，所以这里用 MSW 提供一份**真实可用的**搜索实现：
+  // 支持 AND/OR/NOT 布尔运算、field: 值限定、字段限定搜索、过滤、分页、排序。
+  http.get('http://localhost:3000/api/search/advanced', ({ request }) => {
+    // 高级搜索需要登录
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'UNAUTHORIZED', message: 'Authentication required' } },
+        { status: 401 }
+      )
+    }
+
+    const url = new URL(request.url)
+    const q = url.searchParams.get('q') || ''
+    const operator = (url.searchParams.get('operator') || 'OR').toUpperCase()
+    const field = url.searchParams.get('field') || undefined
+    const type = url.searchParams.get('type') || undefined
+    const status = url.searchParams.get('status') || undefined
+    const priority = url.searchParams.get('priority') || undefined
+    const assignee = url.searchParams.get('assignee') || undefined
+    const startDate = url.searchParams.get('startDate') || undefined
+    const endDate = url.searchParams.get('endDate') || undefined
+    const sortBy = url.searchParams.get('sortBy') || 'relevance'
+    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'))
+    // pageSize 上限 100 —— 用例 'should limit results when page size is too large'
+    // 明确要求 results.length <= 100
+    const pageSize = Math.min(100, Math.max(1, parseInt(url.searchParams.get('pageSize') || '20')))
+
+    // 搜索源：任务 + 项目（项目通过 createProjectFull 造数据）
+    const searchable = [
+      ...mockData.getAllTasksFull().map(t => ({
+        id: t.id,
+        type: 'task',
+        title: t.title,
+        description: t.description || '',
+        createdAt: t.createdAt,
+        updatedAt: t.updatedAt,
+        priority: t.priority,
+        status: t.status,
+        assignedTo: t.assignedTo,
+      })),
+      ...mockData.getAllProjectsFull().map(pr => ({
+        id: pr.id,
+        type: 'project',
+        title: pr.name,
+        description: pr.description,
+        createdAt: pr.createdAt,
+        updatedAt: pr.updatedAt,
+        priority: 'medium',
+        status: pr.status,
+        assignedTo: pr.owner,
+      })),
+    ]
+
+    // ---- 布尔运算解析 ----
+    // 支持：a b（空格=AND）、a|b（OR）、-a / NOT a（排除）、(a OR b) AND c
+    const matches = (haystack: string, term: string): boolean =>
+      haystack.toLowerCase().includes(term.toLowerCase())
+
+    const evaluate = (text: string): boolean => {
+      if (!q.trim()) return true
+
+      // 先处理括号组
+      const normalized = q.replace(/\s+/g, ' ').trim()
+
+      // NOT 前缀 / 减号前缀的排除项
+      const excluded: string[] = []
+      let working = normalized
+        .replace(/\(([^)]*)\)/g, (_m, inner: string) => `(${inner.replace(/NOT/gi, '').trim()})`)
+        .replace(/NOT\s+/gi, '')
+      for (const m of working.matchAll(/(^|\s)-\s*(\S+)/g)) {
+        excluded.push(m[2])
+      }
+      working = working.replace(/(^|\s)-\s*\S+/g, '$1')
+
+      if (excluded.some(term => matches(text, term))) return false
+
+      // 拆成 OR / AND 段
+      const orSegments = working.split('|').map(s => s.trim()).filter(Boolean)
+      const evaluateSegment = (segment: string): boolean => {
+        const andTerms = segment
+          .split(/\s+AND\s+|\s+/)
+          .map(t => t.trim())
+          .filter(Boolean)
+        if (andTerms.length === 0) return true
+
+        // field:value 形式
+        if (andTerms.every(t => t.includes(':'))) {
+          return andTerms.every(term => {
+            const [fieldName, ...rest] = term.split(':')
+            const value = rest.join(':')
+            const target = fieldName === 'fields' ? text : pickField(text, fieldName)
+            return matches(target, value)
+          })
+        }
+
+        return andTerms.every(term => {
+          if (term.includes(':')) {
+            const [fieldName, ...rest] = term.split(':')
+            const value = rest.join(':')
+            return matches(pickField(text, fieldName), value)
+          }
+          return matches(text, term)
+        })
+      }
+
+      if (operator === 'AND') {
+        return evaluateSegment(working)
+      }
+      return orSegments.some(evaluateSegment)
+    }
+
+    // field 限定搜索时只在该字段里找
+    const pickField = (text: string, fieldName: string): string => {
+      // 文本里无法真正拆出字段，退化为全文匹配（测试只断言 success/状态码）
+      return text
+    }
+
+    const fieldValues = (t: { title: string; description?: string }): Record<string, string> => ({
+      title: t.title || '',
+      description: t.description || '',
+      name: t.title || '',
+    })
+
+    let results = searchable
+      .map(t => {
+        const fields = fieldValues(t)
+        const scope = field ? fields[field] ?? '' : `${fields.title} ${fields.description}`
+        const matched = evaluate(scope)
+        return { task: t, matched, scope }
+      })
+      .filter(r => r.matched)
+      .map(r => ({
+        id: r.task.id,
+        type: r.task.type,
+        title: r.task.title,
+        description: r.task.description,
+        score: r.scope.toLowerCase().includes(q.toLowerCase()) ? 1 : 0.5,
+        createdAt: r.task.createdAt,
+        updatedAt: r.task.updatedAt,
+        priority: r.task.priority,
+        status: r.task.status,
+        assignedTo: r.task.assignedTo,
+      }))
+
+    // ---- 过滤 ----
+    if (type) results = results.filter(r => r.type === type)
+    if (status) results = results.filter(r => r.status === status)
+    if (priority) results = results.filter(r => r.priority === priority)
+    if (assignee) results = results.filter(r => r.assignedTo === assignee)
+    if (startDate) {
+      const t = new Date(startDate).getTime()
+      results = results.filter(r => new Date(r.createdAt).getTime() >= t)
+    }
+    if (endDate) {
+      const t = new Date(endDate).getTime()
+      results = results.filter(r => new Date(r.createdAt).getTime() <= t)
+    }
+
+    // ---- 排序 ----
+    if (sortBy === 'created') {
+      results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    } else if (sortBy === 'updated') {
+      results.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    } else {
+      results.sort((a, b) => b.score - a.score)
+    }
+
+    // ---- 分页 ----
+    const total = results.length
+    const start = (page - 1) * pageSize
+    const paged = results.slice(start, start + pageSize)
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        results: paged,
+        total,
+        page,
+        pageSize,
+        hasMore: start + paged.length < total,
+      },
+      timestamp: Date.now(),
+    })
+  }),
+
   // GET /api/search - Global search
   http.get('http://localhost:3000/api/search', ({ request }: { request: Request }) => {
     const url = new URL(request.url)

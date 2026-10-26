@@ -44,6 +44,16 @@ export interface MockTaskFull {
   updatedAt: string
 }
 
+export interface MockProjectFull {
+  id: string
+  name: string
+  description: string
+  owner: string
+  status: 'active' | 'archived'
+  createdAt: string
+  updatedAt: string
+}
+
 export interface MockProject {
   id: string
   name: string
@@ -137,6 +147,7 @@ export class MockDataGenerator {
   private users: Map<string, MockUser> = new Map()
   private tasks: Map<string, MockTask> = new Map()
   private tasksFull: Map<string, MockTaskFull> = new Map()
+  private projectsFull: Map<string, MockProjectFull> = new Map()
   private projects: Map<string, MockProject> = new Map()
   private feedbacks: Map<string, MockFeedback> = new Map()
   private tokens: Map<string, string> = new Map()
@@ -324,6 +335,30 @@ export class MockDataGenerator {
   }
 
   // Full task methods (matching actual API Task interface)
+  createProjectFull(data: {
+    name: string
+    description?: string
+    owner: string
+    status?: 'active' | 'archived'
+  }): MockProjectFull {
+    const project: MockProjectFull = {
+      id: `project-full-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: data.name,
+      description: data.description || '',
+      owner: data.owner,
+      status: data.status || 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    this.projectsFull.set(project.id, project)
+    return project
+  }
+
+  getAllProjectsFull(): MockProjectFull[] {
+    return Array.from(this.projectsFull.values())
+  }
+
   createTaskFull(data: {
     title: string
     description?: string
@@ -469,8 +504,13 @@ export class MockDataGenerator {
     this.tasksFull.clear()
   }
 
+  resetProjectsFull() {
+    this.projectsFull.clear()
+  }
+
   resetProjects() {
     this.projects.clear()
+    this.projectsFull.clear()
   }
 
   resetFeedbacks() {
