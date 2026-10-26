@@ -247,7 +247,13 @@ jobs:
   test-unit:
     name: 单元测试 (分片 ${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # v10 实证（run 40297719840，四个分片同一时刻起跑）：
+    #   分片 1 → 6m56s    分片 2 → 3m15s
+    #   分片 4 → 4m25s    分片 3 → 10m16s ← 撞 10 分钟上限被杀
+    # 被杀后 conclusion 是 cancelled（不是 failure），日志末尾只有
+    #   ##[error]The operation was canceled. / Terminate orphan process ...
+    # 且没有 `Test Suites:` 汇总行。分片 1 已用 6m56s，10 分钟没有余量。
+    timeout-minutes: 20
     needs: [setup]
     if: inputs.skip_tests != true
     strategy:
@@ -379,6 +385,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build
+          # 和 performance-audit.yml 同一个坑：include-hidden-files 默认 false，
+          # `path: .next/standalone` 里面的 `.next/` 是隐藏目录，会被整棵跳过。
+          # 这里长期没暴露，是因为下游「验证构建完整性」只用 test -d/-f，
+          # 而 server.js 和 .next/static 恰好都还在 —— 真正起服务才会炸。
+          include-hidden-files: true
           path: |
             .next/standalone
             .next/static
@@ -548,6 +559,17 @@ jobs:
           test -d .next/static || { echo "❌ 缺少静态文件"; exit 1; }
           test -d public || { echo "❌ 缺少 public 目录"; exit 1; }
           test -f .next/standalone/server.js || { echo "❌ 缺少 server.js"; exit 1; }
+          # 上面四个 test 都反映不出「.next/BUILD_ID 在不在」——
+          # artifact 丢了隐藏目录时它们照样全过（v10 实证）。
+          # 补两条只告警的探针，不制造新的红灯。
+          for f in .next/standalone/.next/BUILD_ID \
+                   .next/standalone/.next/required-server-files.json; do
+            if [ -e "$f" ]; then
+              echo "✅ $f"
+            else
+              echo "::warning::缺少 $f —— 构建产物可能不完整"
+            fi
+          done
           echo "✅ 所有预部署检查通过！"
 
       - name: 安全扫描

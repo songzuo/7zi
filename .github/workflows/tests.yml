@@ -27,7 +27,9 @@ jobs:
   unit-tests:
     name: Unit Tests (shard ${{ matrix.shard }})
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # 同 ci.yml：vitest 分片耗时高度不均（实测 3m15s ~ 10m16s），
+    # 10 分钟会把最慢的那个分片直接杀掉。放宽到 20。
+    timeout-minutes: 20
     # ✅ Optimization: Parallel test execution
     strategy:
       fail-fast: false

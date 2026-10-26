@@ -119,10 +119,24 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           NODE_ENV: production
 
+      # ⚠️ include-hidden-files 必须显式打开。
+      # upload-artifact@v4 默认 false，且排除是**相对每个 path 根**判定的：
+      #   path: .next/static      → 根下没有以 `.` 开头的段 → 94 条全进
+      #   path: .next/standalone  → 里面的 `.next/` 正好是隐藏目录 → 整棵丢
+      # 这导致 artifact 看着有 64MB（server.js + node_modules 都在），
+      # 但真正让 next 认出「这是一份 production build」的元数据全没了。
+      # 实测 v10 run 40299770117 的 artifact（ID 12640161574）：
+      #   .next/standalone/server.js                         1
+      #   .next/standalone/.next/BUILD_ID                    0  ← 丢
+      #   .next/standalone/.next/required-server-files.json  0  ← 丢
+      #   .next/standalone/.next/server                      0  ← 丢
+      # 后果见 lighthouse-local：server 起得来，一访问就
+      #   Error: Could not find a production build in the './.next' directory.
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build
+          include-hidden-files: true
           path: |
             .next/standalone
             .next/static
@@ -200,14 +214,33 @@ jobs:
           else
             echo "no public/ dir, skip"
           fi
+          # 检查项必须能反映「production build 在不在」。
+          # v10 这里只查 server.js / node_modules / .next/static / public，
+          # 四项全 ok 却仍然起不来 —— 因为真正缺的是 .next/BUILD_ID
+          # （`next start` / standalone server.js 靠它判定目录里有一个可用构建，
+          #   缺失时的报错就是 production-start-no-build-id）。
           echo "--- .next/standalone 关键产物 ---"
-          for f in server.js node_modules .next/static public; do
+          MISS=0
+          for f in server.js .next/BUILD_ID .next/required-server-files.json \
+                   .next/server node_modules .next/static public; do
             if [ -e ".next/standalone/$f" ]; then
               echo "  ok       $f"
             else
               echo "  MISSING  $f"
+              MISS=1
             fi
           done
+          if [ "$MISS" -ne 0 ]; then
+            # 只告警不判红：这个 job 的红灯只会换来一封没用的邮件。
+            # 但要把现场打全 —— 下次一眼就能看出是 artifact 丢了哪一层。
+            echo "::warning::standalone 产物不完整，node server.js 会报 Could not find a production build"
+            echo "--- .next 目录树（前 40 行）---"
+            find .next -maxdepth 2 -print 2>/dev/null | sed -n '1,40p' || true
+            echo "--- 全盘找 BUILD_ID ---"
+            find . -maxdepth 6 -name BUILD_ID 2>/dev/null | sed -n '1,10p' || true
+            echo "--- 工作区顶层（下载后，前 20 行）---"
+            ls -1a . 2>/dev/null | sed -n '1,20p' || true
+          fi
           echo "--- .next/standalone 顶层（前 15 项）---"
           # 同上前提：不用 `| head`，避免 SIGPIPE + pipefail 判红。
           ls -1 .next/standalone 2>/dev/null | sed -n '1,15p' || true
@@ -246,10 +279,21 @@ jobs:
 
           echo "Waiting for server on :3000 ..."
           READY=0
+          CODE=""
           for i in $(seq 1 45); do
-            # 任何 HTTP 状态码（含 3xx/4xx/5xx）都算"进程起来了"，
-            # 页面内容对不对交给 lighthouse 的断言去判。
-            CODE=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/ || echo 000)
+            # 只认 2xx/3xx。原写法有两个坑：
+            #  1) `CODE=$(curl -s -o /dev/null -w '%{http_code}' URL || echo 000)`
+            #     curl 自己失败时 -w 已经输出 000，`|| echo 000` 再补一次 →
+            #     CODE 变成 "000000"，`!= "000"` 判真 → 服务根本没起来就被
+            #     认定 ready。v10 日志实证：first status=000000 (after 1s)。
+            #  2) 任何码都算「起来了」，包括 5xx —— 等于拿错误页去跑
+            #     Lighthouse，Chrome 直接 CHROME_INTERSTITIAL_ERROR，采集全空。
+            raw=$(curl -s -o /tmp/_probe.html -w '%{http_code}' \
+                    --max-time 5 http://127.0.0.1:3000/ 2>/dev/null) || raw=""
+            case "$raw" in
+              2??|3??) CODE="$raw" ;;
+              *)       CODE="000" ;;
+            esac
             if [ "$CODE" != "000" ]; then
               echo "server up, first status=$CODE (after ${i}s)"
               READY=1
@@ -258,7 +302,11 @@ jobs:
             sleep 1
           done
           if [ "$READY" -ne 1 ]; then
-            echo "::error::standalone server 45s 内未监听 :3000"
+            echo "::error::standalone server 45s 内未在 :3000 返回 2xx/3xx"
+            echo "--- 最后一次响应体（前 30 行）---"
+            sed -n '1,30p' /tmp/_probe.html 2>/dev/null || true
+            echo "--- .next/standalone/.next 目录 ---"
+            ls -la .next/standalone/.next 2>/dev/null | sed -n '1,20p' || true
             exit 1
           fi
 
