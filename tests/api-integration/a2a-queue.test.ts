@@ -6,12 +6,15 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { agentScheduler } from '@/lib/agent-scheduler/scheduler'
+import { agentScheduler } from './mocks/agent-scheduler-compat'
 import { GET, POST, PUT, DELETE } from '@/app/api/a2a/queue/route'
 
 // Mock auth
-vi.mock('@/lib/auth/api-auth', () => ({
-  authenticateJWT: vi.fn(),
+// A2A 路由的鉴权走 src/lib/agents/a2a/auth.ts，
+// 它内部用的是 @/lib/auth/service 的 authenticateToken。
+// （原测试 mock 的是早已不存在的 @/lib/auth/api-auth。）
+vi.mock('@/lib/auth/service', () => ({
+  authenticateToken: vi.fn(),
 }))
 
 // Mock error handler
@@ -33,7 +36,19 @@ vi.mock('@/lib/api/error-handler', () => ({
   }),
 }))
 
-import { authenticateJWT } from '@/lib/auth/api-auth'
+import { authenticateToken } from '@/lib/auth/service'
+
+
+/** 构造一个带有效 Bearer 凭据的请求 */
+function authRequest(url: string, init?: RequestInit): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: {
+      Authorization: 'Bearer test-jwt-token-for-a2a-tests',
+      ...(init?.headers as Record<string, string> | undefined),
+    },
+  })
+}
 
 describe('A2A Queue API - GET /api/a2a/queue', () => {
   beforeEach(() => {
@@ -53,7 +68,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
         error: 'Invalid or expired JWT token',
       })
 
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'GET',
       })
 
@@ -74,7 +89,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
         authMethod: 'jwt',
       })
 
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'GET',
       })
 
@@ -99,7 +114,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
     })
 
     it('should return empty tasks array when no tasks scheduled', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'GET',
       })
 
@@ -121,7 +136,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
         input: { data: 'test2' },
       })
 
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'GET',
       })
 
@@ -144,7 +159,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
         output: { result: 'success' },
       })
 
-      const request = new NextRequest('http://localhost/api/a2a/queue?status=completed', {
+      const request = authRequest('http://localhost/api/a2a/queue?status=completed', {
         method: 'GET',
       })
 
@@ -160,7 +175,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
       agentScheduler.scheduleTask({ type: 'test-task', input: { data: 'test1' } })
       agentScheduler.scheduleTask({ type: 'other-task', input: { data: 'test2' } })
 
-      const request = new NextRequest('http://localhost/api/a2a/queue?type=test-task', {
+      const request = authRequest('http://localhost/api/a2a/queue?type=test-task', {
         method: 'GET',
       })
 
@@ -184,7 +199,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
         agentId: 'agent-2',
       })
 
-      const request = new NextRequest('http://localhost/api/a2a/queue?agentId=agent-1', {
+      const request = authRequest('http://localhost/api/a2a/queue?agentId=agent-1', {
         method: 'GET',
       })
 
@@ -202,7 +217,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
       const tasks = agentScheduler.getAllTasks()
       const taskId = tasks[0].id
 
-      const request = new NextRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
+      const request = authRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
         method: 'GET',
       })
 
@@ -214,7 +229,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
     })
 
     it('should return 404 for non-existent task ID', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue?id=non-existent', {
+      const request = authRequest('http://localhost/api/a2a/queue?id=non-existent', {
         method: 'GET',
       })
 
@@ -245,7 +260,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
       agentScheduler.scheduleTask({ type: 'test-task', input: { data: 'test2' } })
       agentScheduler.scheduleTask({ type: 'test-task', input: { data: 'test3' } })
 
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'GET',
       })
 
@@ -276,7 +291,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
         output: { result: 'success' },
       })
 
-      const getRequest = new NextRequest('http://localhost/api/a2a/queue', {
+      const getRequest = authRequest('http://localhost/api/a2a/queue', {
         method: 'GET',
       })
 
@@ -305,7 +320,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
         error: 'Task failed',
       })
 
-      const getRequest = new NextRequest('http://localhost/api/a2a/queue', {
+      const getRequest = authRequest('http://localhost/api/a2a/queue', {
         method: 'GET',
       })
 
@@ -338,7 +353,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
 
   describe('Validation', () => {
     it('should return 400 when type is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -351,7 +366,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
     })
 
     it('should return 400 when input is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -364,7 +379,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
     })
 
     it('should return 400 when input is not an object', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -380,7 +395,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
 
   describe('Task Scheduling', () => {
     it('should schedule a task successfully', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -401,7 +416,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
     })
 
     it('should schedule task with default priority', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -417,7 +432,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
     })
 
     it('should schedule task with custom priority', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -434,7 +449,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
     })
 
     it('should schedule task with specific agent', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -452,7 +467,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
     })
 
     it('should schedule task with metadata', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -475,7 +490,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
     })
 
     it('should schedule task with custom maxRetries', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -492,7 +507,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
     })
 
     it('should set default maxRetries to 3', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -508,7 +523,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
     })
 
     it('should assign task to idle agent automatically', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -528,7 +543,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
       // Make agent busy
       agentScheduler.updateAgentStatus('agent-1', 'busy')
 
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -567,7 +582,7 @@ describe('A2A Queue API - PUT /api/a2a/queue', () => {
 
   describe('Validation', () => {
     it('should return 400 when taskId is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -580,7 +595,7 @@ describe('A2A Queue API - PUT /api/a2a/queue', () => {
     })
 
     it('should return 404 for non-existent task', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -606,7 +621,7 @@ describe('A2A Queue API - PUT /api/a2a/queue', () => {
       const tasks = agentScheduler.getAllTasks()
       const taskId = tasks[0].id
 
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -643,7 +658,7 @@ describe('A2A Queue API - PUT /api/a2a/queue', () => {
       expect(tasks[0].status).toBe('pending')
 
       // Now update to failed
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -668,7 +683,7 @@ describe('A2A Queue API - PUT /api/a2a/queue', () => {
       const tasks = agentScheduler.getAllTasks()
       const taskId = tasks[0].id
 
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -759,7 +774,7 @@ describe('A2A Queue API - DELETE /api/a2a/queue', () => {
 
   describe('Validation', () => {
     it('should return 400 when taskId is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue', {
+      const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'DELETE',
       })
 
@@ -768,7 +783,7 @@ describe('A2A Queue API - DELETE /api/a2a/queue', () => {
     })
 
     it('should return 404 for non-existent task', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/queue?id=non-existent', {
+      const request = authRequest('http://localhost/api/a2a/queue?id=non-existent', {
         method: 'DELETE',
       })
 
@@ -785,7 +800,7 @@ describe('A2A Queue API - DELETE /api/a2a/queue', () => {
       const tasks = agentScheduler.getAllTasks()
       const taskId = tasks[0].id
 
-      const request = new NextRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
+      const request = authRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
         method: 'DELETE',
       })
 
@@ -803,7 +818,7 @@ describe('A2A Queue API - DELETE /api/a2a/queue', () => {
       const taskId = tasks[0].id
       const agentId = tasks[0].agentId
 
-      const request = new NextRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
+      const request = authRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
         method: 'DELETE',
       })
 
@@ -822,7 +837,7 @@ describe('A2A Queue API - DELETE /api/a2a/queue', () => {
       const taskId = tasks[0].id
 
       // Cancel first time
-      const request1 = new NextRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
+      const request1 = authRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
         method: 'DELETE',
       })
       await DELETE(request1)
@@ -830,7 +845,7 @@ describe('A2A Queue API - DELETE /api/a2a/queue', () => {
       // Try to cancel again - note that cancelled tasks are still in the scheduler
       // but the API might return 200 for "already cancelled" as a no-op
       // Let's check what actually happens
-      const request2 = new NextRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
+      const request2 = authRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
         method: 'DELETE',
       })
       const response2 = await DELETE(request2)
@@ -863,7 +878,7 @@ describe('A2A Queue API - Integration Tests', () => {
 
   it('should complete full task lifecycle', async () => {
     // Schedule task
-    const postRequest = new NextRequest('http://localhost/api/a2a/queue', {
+    const postRequest = authRequest('http://localhost/api/a2a/queue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -879,7 +894,7 @@ describe('A2A Queue API - Integration Tests', () => {
     expect(postResponse.status).toBe(201)
 
     // Check task status
-    const getRequest = new NextRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
+    const getRequest = authRequest(`http://localhost/api/a2a/queue?id=${taskId}`, {
       method: 'GET',
     })
 
@@ -887,7 +902,7 @@ describe('A2A Queue API - Integration Tests', () => {
     expect(getResponse.status).toBe(200)
 
     // Complete task
-    const putRequest = new NextRequest('http://localhost/api/a2a/queue', {
+    const putRequest = authRequest('http://localhost/api/a2a/queue', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -903,7 +918,7 @@ describe('A2A Queue API - Integration Tests', () => {
 
   it('should handle task with retry on failure', async () => {
     // Schedule task
-    const postRequest = new NextRequest('http://localhost/api/a2a/queue', {
+    const postRequest = authRequest('http://localhost/api/a2a/queue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -918,7 +933,7 @@ describe('A2A Queue API - Integration Tests', () => {
     const taskId = postJson.data.taskId
 
     // Fail task
-    const putRequest1 = new NextRequest('http://localhost/api/a2a/queue', {
+    const putRequest1 = authRequest('http://localhost/api/a2a/queue', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -951,7 +966,7 @@ describe('A2A Queue API - Integration Tests', () => {
     })
 
     // Filter by type and status
-    const getRequest = new NextRequest(
+    const getRequest = authRequest(
       'http://localhost/api/a2a/queue?type=test-task&status=running',
       { method: 'GET' }
     )
@@ -969,7 +984,7 @@ describe('A2A Queue API - Integration Tests', () => {
     agentScheduler.updateAgentStatus('agent-2', 'busy')
 
     await POST(
-      new NextRequest('http://localhost/api/a2a/queue', {
+      authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -981,7 +996,7 @@ describe('A2A Queue API - Integration Tests', () => {
     )
 
     await POST(
-      new NextRequest('http://localhost/api/a2a/queue', {
+      authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -993,7 +1008,7 @@ describe('A2A Queue API - Integration Tests', () => {
     )
 
     await POST(
-      new NextRequest('http://localhost/api/a2a/queue', {
+      authRequest('http://localhost/api/a2a/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1008,7 +1023,7 @@ describe('A2A Queue API - Integration Tests', () => {
     agentScheduler.updateAgentStatus('agent-1', 'idle')
 
     // Urgent task should be assigned first
-    const getRequest = new NextRequest('http://localhost/api/a2a/queue', {
+    const getRequest = authRequest('http://localhost/api/a2a/queue', {
       method: 'GET',
     })
 

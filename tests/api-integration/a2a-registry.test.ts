@@ -6,13 +6,20 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { agentScheduler } from '@/lib/agent-scheduler/scheduler'
+import { agentScheduler } from './mocks/agent-scheduler-compat'
 import { GET, POST, PUT, DELETE } from '@/app/api/a2a/registry/route'
 
 // Mock auth
-vi.mock('@/lib/auth/api-auth', () => ({
-  authenticateJWT: vi.fn(),
+// A2A 路由的鉴权走 src/lib/agents/a2a/auth.ts，
+// 它内部用的是 @/lib/auth/service 的 authenticateToken。
+// （原测试 mock 的是早已不存在的 @/lib/auth/api-auth。）
+vi.mock('@/lib/auth/service', () => ({
+  authenticateToken: vi.fn(),
 }))
+
+// A2A 的 X-API-Key 方式按 AgentCard 声明的 apiKey securityScheme 校验，
+// 合法值从环境变量读（部署时决定）。这里声明测试用的 key。
+process.env.A2A_API_KEY = 'test-api-key'
 
 // Mock error handler
 vi.mock('@/lib/api/error-handler', () => ({
@@ -33,7 +40,19 @@ vi.mock('@/lib/api/error-handler', () => ({
   }),
 }))
 
-import { authenticateJWT } from '@/lib/auth/api-auth'
+import { authenticateToken } from '@/lib/auth/service'
+
+
+/** 构造一个带有效 Bearer 凭据的请求 */
+function authRequest(url: string, init?: RequestInit): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: {
+      Authorization: 'Bearer test-jwt-token-for-a2a-tests',
+      ...(init?.headers as Record<string, string> | undefined),
+    },
+  })
+}
 
 describe('A2A Registry API - GET /api/a2a/registry', () => {
   beforeEach(() => {
@@ -53,7 +72,7 @@ describe('A2A Registry API - GET /api/a2a/registry', () => {
         error: 'Invalid or expired JWT token',
       })
 
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'GET',
       })
 
@@ -77,7 +96,7 @@ describe('A2A Registry API - GET /api/a2a/registry', () => {
       // Register a test agent
       agentScheduler.registerAgent('agent-1', 'Test Agent', 'test', ['test-capability'])
 
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'GET',
       })
 
@@ -98,7 +117,7 @@ describe('A2A Registry API - GET /api/a2a/registry', () => {
     })
 
     it('should return empty array when no agents registered', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'GET',
       })
 
@@ -116,7 +135,7 @@ describe('A2A Registry API - GET /api/a2a/registry', () => {
       agentScheduler.registerAgent('agent-2', 'Agent 2', 'type-b', ['cap-b'])
       agentScheduler.registerAgent('agent-3', 'Agent 3', 'type-a', ['cap-a', 'cap-b'])
 
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'GET',
       })
 
@@ -133,7 +152,7 @@ describe('A2A Registry API - GET /api/a2a/registry', () => {
       agentScheduler.registerAgent('agent-2', 'Agent 2', 'type-b', ['cap-b'])
       agentScheduler.registerAgent('agent-3', 'Agent 3', 'type-a', ['cap-a', 'cap-b'])
 
-      const request = new NextRequest('http://localhost/api/a2a/registry?capability=cap-a', {
+      const request = authRequest('http://localhost/api/a2a/registry?capability=cap-a', {
         method: 'GET',
       })
 
@@ -147,7 +166,7 @@ describe('A2A Registry API - GET /api/a2a/registry', () => {
     it('should return single agent by ID', async () => {
       agentScheduler.registerAgent('agent-1', 'Agent 1', 'type-a', ['cap-a'])
 
-      const request = new NextRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const request = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
         method: 'GET',
       })
 
@@ -159,7 +178,7 @@ describe('A2A Registry API - GET /api/a2a/registry', () => {
     })
 
     it('should return 404 for non-existent agent ID', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry?id=non-existent', {
+      const request = authRequest('http://localhost/api/a2a/registry?id=non-existent', {
         method: 'GET',
       })
 
@@ -192,7 +211,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
 
   describe('Validation', () => {
     it('should return 400 when name is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -206,7 +225,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
     })
 
     it('should return 400 when type is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -220,7 +239,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
     })
 
     it('should return 400 when capabilities is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -234,7 +253,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
     })
 
     it('should return 400 when capabilities is not an array', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -251,7 +270,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
 
   describe('Agent Registration', () => {
     it('should register a new agent successfully', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -273,7 +292,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
     })
 
     it('should register agent with metadata', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -298,7 +317,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
     })
 
     it('should generate unique agent IDs', async () => {
-      const request1 = new NextRequest('http://localhost/api/a2a/registry', {
+      const request1 = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -308,7 +327,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
         }),
       })
 
-      const request2 = new NextRequest('http://localhost/api/a2a/registry', {
+      const request2 = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -328,7 +347,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
     })
 
     it('should set initial status to idle', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -347,7 +366,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
     it('should record creation timestamp', async () => {
       const beforeRegister = Date.now()
 
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -369,7 +388,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
     it('should record last heartbeat timestamp', async () => {
       const beforeRegister = Date.now()
 
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -411,7 +430,7 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
 
   describe('Validation', () => {
     it('should return 400 when agentId is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -424,7 +443,7 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
     })
 
     it('should return 400 when status is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -437,7 +456,7 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
     })
 
     it('should return 400 for invalid status', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -451,7 +470,7 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
     })
 
     it('should return 404 for non-existent agent', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -467,7 +486,7 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
 
   describe('Status Updates', () => {
     it('should update agent status to busy', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -484,7 +503,7 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
     })
 
     it('should update agent status to idle', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -501,7 +520,7 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
     })
 
     it('should update agent status to offline', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -518,7 +537,7 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
     })
 
     it('should update agent status to error', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -537,7 +556,7 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
     it('should update lastHeartbeat on status change', async () => {
       const beforeUpdate = Date.now()
 
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -577,7 +596,7 @@ describe('A2A Registry API - DELETE /api/a2a/registry', () => {
 
   describe('Validation', () => {
     it('should return 400 when agentId is missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'DELETE',
       })
 
@@ -586,7 +605,7 @@ describe('A2A Registry API - DELETE /api/a2a/registry', () => {
     })
 
     it('should return 404 for non-existent agent', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/registry?id=non-existent', {
+      const request = authRequest('http://localhost/api/a2a/registry?id=non-existent', {
         method: 'DELETE',
       })
 
@@ -599,7 +618,7 @@ describe('A2A Registry API - DELETE /api/a2a/registry', () => {
     it('should unregister an agent successfully', async () => {
       agentScheduler.registerAgent('agent-1', 'Test Agent', 'test', ['cap-a'])
 
-      const request = new NextRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const request = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
         method: 'DELETE',
       })
 
@@ -614,7 +633,7 @@ describe('A2A Registry API - DELETE /api/a2a/registry', () => {
     it('should remove agent from registry', async () => {
       agentScheduler.registerAgent('agent-1', 'Test Agent', 'test', ['cap-a'])
 
-      const deleteRequest = new NextRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const deleteRequest = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
         method: 'DELETE',
       })
 
@@ -627,13 +646,13 @@ describe('A2A Registry API - DELETE /api/a2a/registry', () => {
     it('should handle unregistering already removed agent', async () => {
       agentScheduler.registerAgent('agent-1', 'Test Agent', 'test', ['cap-a'])
 
-      const deleteRequest1 = new NextRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const deleteRequest1 = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
         method: 'DELETE',
       })
 
       await DELETE(deleteRequest1)
 
-      const deleteRequest2 = new NextRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const deleteRequest2 = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
         method: 'DELETE',
       })
 
@@ -663,7 +682,7 @@ describe('A2A Registry API - Integration Tests', () => {
 
   it('should complete full lifecycle: register, update, unregister', async () => {
     // Register
-    const postRequest = new NextRequest('http://localhost/api/a2a/registry', {
+    const postRequest = authRequest('http://localhost/api/a2a/registry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -680,7 +699,7 @@ describe('A2A Registry API - Integration Tests', () => {
     expect(postResponse.status).toBe(201)
 
     // Update status
-    const putRequest = new NextRequest('http://localhost/api/a2a/registry', {
+    const putRequest = authRequest('http://localhost/api/a2a/registry', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -693,7 +712,7 @@ describe('A2A Registry API - Integration Tests', () => {
     expect(putResponse.status).toBe(200)
 
     // Unregister
-    const deleteRequest = new NextRequest(`http://localhost/api/a2a/registry?id=${agentId}`, {
+    const deleteRequest = authRequest(`http://localhost/api/a2a/registry?id=${agentId}`, {
       method: 'DELETE',
     })
 
@@ -703,7 +722,7 @@ describe('A2A Registry API - Integration Tests', () => {
 
   it('should list multiple registered agents', async () => {
     await POST(
-      new NextRequest('http://localhost/api/a2a/registry', {
+      authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -715,7 +734,7 @@ describe('A2A Registry API - Integration Tests', () => {
     )
 
     await POST(
-      new NextRequest('http://localhost/api/a2a/registry', {
+      authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -727,7 +746,7 @@ describe('A2A Registry API - Integration Tests', () => {
     )
 
     await POST(
-      new NextRequest('http://localhost/api/a2a/registry', {
+      authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -738,7 +757,7 @@ describe('A2A Registry API - Integration Tests', () => {
       })
     )
 
-    const getRequest = new NextRequest('http://localhost/api/a2a/registry', {
+    const getRequest = authRequest('http://localhost/api/a2a/registry', {
       method: 'GET',
     })
 

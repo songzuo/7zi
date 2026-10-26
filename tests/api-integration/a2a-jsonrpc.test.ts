@@ -6,16 +6,33 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { agentScheduler } from '@/lib/agent-scheduler/scheduler'
+import { agentScheduler } from './mocks/agent-scheduler-compat'
 import { POST, OPTIONS } from '@/app/api/a2a/jsonrpc/route'
-import type { JSONRPCRequest } from '@/lib/agent-scheduler/types'
+// JSONRPCRequest 来自早已删除的 src/lib/agent-scheduler/，
+// 现在 A2A 用的是 @/lib/agents/a2a/types 的 JsonRpcRequest。
+import type { JsonRpcRequest as JSONRPCRequest } from '@/lib/agents/a2a/types'
 
 // Mock auth
-vi.mock('@/lib/auth/api-auth', () => ({
-  authenticateJWT: vi.fn(),
+// A2A 路由的鉴权走 src/lib/agents/a2a/auth.ts，
+// 它内部用的是 @/lib/auth/service 的 authenticateToken。
+// （原测试 mock 的是早已不存在的 @/lib/auth/api-auth。）
+vi.mock('@/lib/auth/service', () => ({
+  authenticateToken: vi.fn(),
 }))
 
-import { authenticateJWT } from '@/lib/auth/api-auth'
+import { authenticateToken } from '@/lib/auth/service'
+
+
+/** 构造一个带有效 Bearer 凭据的请求 */
+function authRequest(url: string, init?: RequestInit): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: {
+      Authorization: 'Bearer test-jwt-token-for-a2a-tests',
+      ...(init?.headers as Record<string, string> | undefined),
+    },
+  })
+}
 
 describe('A2A JSON-RPC API - Protocol Validation', () => {
   beforeEach(() => {
@@ -30,7 +47,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
 
   describe('JSON-RPC 2.0 Format', () => {
     it('should reject requests without jsonrpc version', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -51,7 +68,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
     })
 
     it('should reject requests with wrong jsonrpc version', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -70,7 +87,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
     })
 
     it('should reject requests without method', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -89,7 +106,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
     })
 
     it('should handle invalid JSON', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: 'invalid json',
@@ -113,7 +130,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
         authMethod: 'jwt',
       })
 
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -139,7 +156,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
         authMethod: 'jwt',
       })
 
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -165,7 +182,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
         authMethod: 'jwt',
       })
 
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -207,7 +224,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
 
   describe('agent.list', () => {
     it('should list all agents', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -230,7 +247,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
     it('should return empty array when no agents', async () => {
       agentScheduler.clear()
 
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -251,7 +268,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
 
   describe('agent.get', () => {
     it('should get agent by ID', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -271,7 +288,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
     })
 
     it('should return error when agentId missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -291,7 +308,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
     })
 
     it('should return error when agent not found', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -313,7 +330,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
 
   describe('agent.discover', () => {
     it('should discover all agents when no capability specified', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -331,7 +348,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
     })
 
     it('should discover agents by capability', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -350,7 +367,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
     })
 
     it('should return empty array for unknown capability', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -370,7 +387,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
 
   describe('agent.heartbeat', () => {
     it('should record heartbeat', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -389,7 +406,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
     })
 
     it('should return error when agentId missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -407,7 +424,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
     })
 
     it('should return error when agent not found', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -449,7 +466,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
 
   describe('task.create', () => {
     it('should create task successfully', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -475,7 +492,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should create task with priority', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -497,7 +514,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should create task with specific agent', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -519,7 +536,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should return error when type missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -540,7 +557,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should return error when input missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -567,7 +584,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
       const tasks = agentScheduler.getAllTasks()
       const taskId = tasks[0].id
 
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -585,7 +602,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should return error when taskId missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -603,7 +620,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should return error when task not found', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -628,7 +645,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
       const tasks = agentScheduler.getAllTasks()
       const taskId = tasks[0].id
 
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -647,7 +664,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should return error when taskId missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -671,7 +688,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
       const tasks = agentScheduler.getAllTasks()
       const taskId = tasks[0].id
 
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -703,7 +720,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
       const tasks = agentScheduler.getAllTasks()
       const taskId = tasks[0].id
 
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -726,7 +743,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should return error when taskId missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -746,7 +763,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should return error when task not found', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -774,7 +791,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
       const tasks = agentScheduler.getAllTasks()
       const taskId = tasks[0].id
 
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -796,7 +813,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should return error when taskId missing', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -814,7 +831,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
     })
 
     it('should return error when task not found', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -854,7 +871,7 @@ describe('A2A JSON-RPC API - Queue Methods', () => {
 
   describe('queue.stats', () => {
     it('should return queue statistics', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -877,7 +894,7 @@ describe('A2A JSON-RPC API - Queue Methods', () => {
     })
 
     it('should return all zeros when no tasks', async () => {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -919,7 +936,7 @@ describe('A2A JSON-RPC API - Unknown Methods', () => {
   })
 
   it('should return method not found error', async () => {
-    const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+    const request = authRequest('http://localhost/api/a2a/jsonrpc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -942,7 +959,7 @@ describe('A2A JSON-RPC API - Unknown Methods', () => {
 
 describe('A2A JSON-RPC API - CORS Support', () => {
   it('should handle OPTIONS request', async () => {
-    const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+    const request = authRequest('http://localhost/api/a2a/jsonrpc', {
       method: 'OPTIONS',
     })
 
@@ -976,7 +993,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
 
   it('should complete full task lifecycle via JSON-RPC', async () => {
     // Create task
-    const createRequest = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+    const createRequest = authRequest('http://localhost/api/a2a/jsonrpc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -997,7 +1014,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
     expect(createResponse.status).toBe(200) // JSON-RPC uses 200 for success
 
     // Get task status
-    const statusRequest = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+    const statusRequest = authRequest('http://localhost/api/a2a/jsonrpc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1012,7 +1029,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
     expect(statusResponse.status).toBe(200)
 
     // Complete task
-    const updateRequest = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+    const updateRequest = authRequest('http://localhost/api/a2a/jsonrpc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1031,7 +1048,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
     expect(updateResponse.status).toBe(200)
 
     // Check stats
-    const statsRequest = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+    const statsRequest = authRequest('http://localhost/api/a2a/jsonrpc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1050,7 +1067,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
 
   it('should handle multiple sequential requests', async () => {
     // List agents
-    const listRequest = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+    const listRequest = authRequest('http://localhost/api/a2a/jsonrpc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1064,7 +1081,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
     await POST(listRequest)
 
     // Create task
-    const createRequest = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+    const createRequest = authRequest('http://localhost/api/a2a/jsonrpc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1081,7 +1098,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
     await POST(createRequest)
 
     // Get stats
-    const statsRequest = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+    const statsRequest = authRequest('http://localhost/api/a2a/jsonrpc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1102,7 +1119,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
     const ids = ['req-1', 'req-2', 'req-3', 'req-4']
 
     for (const id of ids) {
-      const request = new NextRequest('http://localhost/api/a2a/jsonrpc', {
+      const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

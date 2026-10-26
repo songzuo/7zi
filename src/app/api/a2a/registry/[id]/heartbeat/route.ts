@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { withA2AAuth } from '@/lib/agents/a2a/auth'
 import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry'
 
 interface RouteContext {
@@ -12,11 +13,15 @@ interface RouteContext {
   }
 }
 
+export async function POST(request: NextRequest, context: RouteContext) {
+  return withA2AAuth(request, (req) => POSTHandler(req, context))
+}
+
 /**
  * POST /api/a2a/registry/[id]/heartbeat
  * Update agent heartbeat and status
  */
-export async function POST(request: NextRequest, context: RouteContext) {
+async function POSTHandler(request: NextRequest, context: RouteContext) {
   try {
     const { id } = context.params
     const body = await request.json()

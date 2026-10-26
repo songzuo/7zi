@@ -7,6 +7,7 @@
  */
 
 import { NextRequest } from 'next/server'
+import { withA2AAuth, canAccessAgent } from '@/lib/agents/a2a/auth'
 import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry'
 import { AgentRegistration } from '@/lib/agents/a2a/types'
 import {
@@ -19,11 +20,15 @@ interface RouteContext {
   params: Promise<{ id: string }>
 }
 
+export async function GET(request: NextRequest) {
+  return withA2AAuth(request, (req) => GETHandler(req, context))
+}
+
 /**
  * GET /api/a2a/registry/[id]
  * Get a specific agent
  */
-export async function GET(request: NextRequest, context: RouteContext) {
+async function GETHandler(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
     const registry = getAgentRegistry()
@@ -39,11 +44,15 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
+export async function PUT(request: NextRequest) {
+  return withA2AAuth(request, (req) => PUTHandler(req, context))
+}
+
 /**
  * PUT /api/a2a/registry/[id]
  * Update agent information
  */
-export async function PUT(request: NextRequest, context: RouteContext) {
+async function PUTHandler(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
     const body = await request.json()
@@ -81,11 +90,15 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  return withA2AAuth(request, (req) => DELETEHandler(req, context))
+}
+
 /**
  * DELETE /api/a2a/registry/[id]
  * Unregister an agent
  */
-export async function DELETE(request: NextRequest, context: RouteContext) {
+async function DELETEHandler(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
     const registry = getAgentRegistry()
@@ -104,11 +117,15 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  return withA2AAuth(request, (req) => PATCHHandler(req, context))
+}
+
 /**
  * PATCH /api/a2a/registry/[id]/heartbeat
  * Update agent heartbeat (keep-alive)
  */
-export async function PATCH(request: NextRequest, context: RouteContext) {
+async function PATCHHandler(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
     const registry = getAgentRegistry()

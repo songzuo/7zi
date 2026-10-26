@@ -5,6 +5,7 @@
  */
 
 import { NextRequest } from 'next/server'
+import { withA2AAuth, canAccessAgent } from '@/lib/agents/a2a/auth'
 import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry'
 import { AgentRegistration } from '@/lib/agents/a2a/types'
 import {
@@ -13,11 +14,15 @@ import {
   createValidationError,
 } from '@/lib/api/error-handler'
 
+export async function GET(request: NextRequest) {
+  return withA2AAuth(request, GETHandler)
+}
+
 /**
  * GET /api/a2a/registry
  * List all registered agents
  */
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const capability = searchParams.get('capability')
@@ -57,11 +62,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  return withA2AAuth(request, POSTHandler)
+}
+
 /**
  * POST /api/a2a/registry
  * Register a new agent
  */
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const body = await request.json()
 
