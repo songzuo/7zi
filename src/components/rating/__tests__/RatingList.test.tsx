@@ -287,9 +287,12 @@ describe('RatingList', () => {
       stats: mockResponse.stats,
     }
 
+    // 组件读的是 res.data.meta.* —— 响应必须是 { success, data } 信封，
+    // 直接返回 multiPageResponse 的话 res.success 是 undefined，
+    // 组件走不到 setTotal，pagination 不会出现。
     ;(global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => multiPageResponse,
+      json: async () => ({ success: true, data: multiPageResponse }),
     })
 
     render(<RatingList />)
@@ -312,9 +315,12 @@ describe('RatingList', () => {
       stats: mockResponse.stats,
     }
 
+    // 组件读的是 res.data.meta.* —— 响应必须是 { success, data } 信封，
+    // 直接返回 multiPageResponse 的话 res.success 是 undefined，
+    // 组件走不到 setTotal，pagination 不会出现。
     ;(global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => multiPageResponse,
+      json: async () => ({ success: true, data: multiPageResponse }),
     })
 
     render(<RatingList />)

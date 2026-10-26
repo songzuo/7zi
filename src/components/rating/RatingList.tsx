@@ -79,7 +79,10 @@ export function RatingList({
       params.append('page', page.toString())
       params.append('per_page', perPage.toString())
 
-      const response = await fetch(`/api/ratings?${params.toString()}`)
+      const response = await fetch(`/api/ratings?${params.toString()}`, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      })
 
       if (!response.ok) {
         throw new Error('Failed to fetch ratings')

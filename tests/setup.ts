@@ -8,7 +8,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom'
-import { vi, beforeAll, afterAll } from 'vitest'
+import { vi, afterAll } from 'vitest'
 
 // Set test environment variables first
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-key'
@@ -34,16 +34,35 @@ import '@/test/vi-mocks'
 // global.WebSocket 定义成只读，而本文件后面还要给 global.WebSocket 赋 MockWebSocket
 // —— 静态 import 会让那行抛 'Cannot assign to read only property WebSocket'，
 // 结果整个文件 0 test。
-let mswServer: { listen: (o: unknown) => void; close: () => void } | undefined
+import { server as mswServer } from './api-integration/mocks/handlers'
 
-beforeAll(async () => {
-  const mod = await import('./api-integration/mocks/handlers')
-  mswServer = mod.server as unknown as typeof mswServer
-  mswServer!.listen({ onUnhandledRequest: 'warn' })
+// listen() 必须在**模块顶层**调用，不能放 beforeAll。
+//
+// vitest 的执行顺序是：
+//   1. import setupFiles（tests/setup.ts）
+//   2. import 测试文件 —— 测试文件的顶层代码在这里跑
+//   3. 跑 beforeAll / beforeEach
+//
+// MSW 的 listen() 会**替换 global.fetch**。如果放在 beforeAll（第 3 步），
+// 它就把第 2 步里测试自己设的 `global.fetch = vi.fn()` 覆盖掉了 ——
+// 于是测试里 `(global.fetch as any).mockResolvedValue(...)` 报
+// 'global.fetch.mockResolvedValue is not a function'。
+//
+// 放在顶层（第 1 步）就对了：
+//   - 需要 MSW 拦截的测试（api-integration）：它们不自己改 global.fetch，
+//     用的是 MSW 包装后的 fetch。
+//   - 自己 mock fetch 的测试（组件测试）：第 2 步顶层 `global.fetch = vi.fn()`
+//     在 MSW 之后执行，测试的 mock 覆盖 MSW 的包装，互不干扰。
+//
+// 静态 import 的副作用（msw/node 在模块求值时把 global.WebSocket 定义成
+// 只读）已经被下面的 Object.defineProperty 修掉了 —— 顺序是
+//   import msw（WebSocket 变只读）→ defineProperty 改回可写。
+mswServer.listen({
+  onUnhandledRequest: 'warn',
 })
 
 afterAll(() => {
-  mswServer?.close()
+  mswServer.close()
 })
 
 // Add TextEncoder/TextDecoder polyfill for jsdom environment
