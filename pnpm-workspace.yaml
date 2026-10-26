@@ -3,7 +3,7 @@
 #
 # 背景（2026-10-26 事故二）：
 #   pnpm 12 起不再读取 package.json 中的 `pnpm` 字段，配置统一迁到
-#   pnpm-workspace.yaml。两处必须迁移，否则部署期直接失败：
+#   pnpm-workspace.yaml。三处必须迁移，否则部署期直接失败：
 #
 #   1) overrides —— 原 package.json 的 pnpm.overrides（brace-expansion /
 #      flatted / serialize-javascript 的安全版本下限）会被静默忽略，
@@ -14,9 +14,32 @@
 #      未批准列表中的包（@swc/core、better-sqlite3、sharp、unrs-resolver 等）
 #      需要编译/下载原生产物，必须显式批准。
 #
-# 本文件必须随代码一起入库（git archive 会覆盖部署目录），
-# 否则 hook 解包后配置丢失，pnpm install 必然报 ERR_PNPM_IGNORED_BUILDS。
+#   3) nodeLinker —— pnpm 12 在存在 pnpm-workspace.yaml 时**不再读取项目级
+#      .npmrc**（实测 `pnpm config get nodeLinker` 返回 undefined）。
+#      node-linker 必须写在本文件里才会生效。
+#
+# nodeLinker: hoisted 的理由
+#   ------------------------------------------------------------------
+#   pnpm 默认 isolated 布局下，node_modules/ 顶层条目是指向 .pnpm/ 的
+#   **符号链接**。Next.js 16 的 Turbopack 构建器解析 CSS 的
+#   `@import 'tailwindcss'` 时无法穿过 symlink 解析包入口：
+#       CssSyntaxError: tailwindcss: .../globals.css:1:1:
+#       Can't resolve 'tailwindcss' in '.../src/app'
+#   改成相对路径导入（../node_modules/tailwindcss/index.css）同样失败
+#   —— Turbopack 会拒绝解析 node_modules 内的路径。
+#
+#   hoisted 布局把依赖平铺到 node_modules/ 顶层（全部为真实目录），
+#   与 npm 行为一致，Turbopack / webpack 均可正常解析，从根上消除
+#   这类解析脆弱性。
+#
+#   副作用：node_modules 体积增大（与 npm 相当）。可接受 ——
+#   相比构建期硬失败，没有选择余地。
+#
+#   注：109 服务器上的 node_modules 本就是 hoisted 布局（944 个顶层条目），
+#   统一后两台机器行为一致。
 # ==========================================================================
+
+nodeLinker: hoisted
 
 overrides:
   brace-expansion@>=4.0.0 <5.0.5: '>=5.0.5'

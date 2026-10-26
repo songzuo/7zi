@@ -34,12 +34,14 @@ cd "$PROJECT_DIR" || { echo "[deps] 项目目录不存在: $PROJECT_DIR" | tee -
 
 STAMP_FILE="node_modules/.deps-stamp"
 sha_of_pkg() {
-  # 把 package.json 与 .npmrc 一起纳入 stamp：
-  # .npmrc 决定 node-linker（isolated/hoisted），它一变就必须重装。
+  # 把 package.json / pnpm-workspace.yaml / .npmrc 一起纳入 stamp：
+  # pnpm-workspace.yaml 决定 nodeLinker 与 overrides，.npmrc 影响 npm 侧行为，
+  # 它们一变就必须重装。
+  local files="package.json pnpm-workspace.yaml .npmrc"
   if command -v sha256sum >/dev/null 2>&1; then
-    { sha256sum package.json; [ -f .npmrc ] && sha256sum .npmrc; } | awk '{print $1}' | tr '\n' '-'
+    for f in $files; do [ -f "$f" ] && sha256sum "$f"; done | awk '{print $1}' | tr '\n' '-'
   else
-    { shasum -a 256 package.json; [ -f .npmrc ] && shasum -a 256 .npmrc; } | awk '{print $1}' | tr '\n' '-'
+    for f in $files; do [ -f "$f" ] && shasum -a 256 "$f"; done | awk '{print $1}' | tr '\n' '-'
   fi
 }
 
@@ -62,12 +64,17 @@ fi
 if [ "$PM" = pnpm ]; then
   # linker 切换（isolated ↔ hoisted）时，pnpm 不会自动重排已有布局，
   # 必须清空 node_modules 重装，否则旧布局残留导致 Turbopack 解析失败。
-  WANT_LINKER="hoisted"
-  if [ -f .npmrc ] && grep -qE '^\s*node-linker\s*=\s*isolated' .npmrc; then
-    WANT_LINKER="isolated"
+  #
+  # 注意：pnpm 12 在存在 pnpm-workspace.yaml 时不读项目级 .npmrc，
+  # node-linker 需写在 pnpm-workspace.yaml 的 nodeLinker 字段。
+  WANT_LINKER="isolated"
+  if [ -f pnpm-workspace.yaml ] && grep -qE '^\s*nodeLinker\s*:\s*hoisted' pnpm-workspace.yaml; then
+    WANT_LINKER="hoisted"
+  elif [ -f .npmrc ] && grep -qE '^\s*node-linker\s*=\s*hoisted' .npmrc; then
+    WANT_LINKER="hoisted"
   fi
   CUR_LINKER=""
-  [ -f node_modules/.modules.yaml ] && CUR_LINKER="$(grep -m1 'nodeLinker:' node_modules/.modules.yaml 2>/dev/null | awk '{print $2}')"
+  [ -f node_modules/.modules.yaml ] && CUR_LINKER="$(grep -m1 '"nodeLinker"' node_modules/.modules.yaml 2>/dev/null | sed 's/.*: *"\([^"]*\)".*/\1/')"
   if [ -n "$CUR_LINKER" ] && [ "$CUR_LINKER" != "$WANT_LINKER" ]; then
     echo "[deps] node-linker 变更（$CUR_LINKER → $WANT_LINKER）—— 清空 node_modules 重装" | tee -a "$LOG"
     rm -rf node_modules
@@ -75,6 +82,8 @@ if [ "$PM" = pnpm ]; then
 
   if [ ! -f pnpm-workspace.yaml ]; then
     cat > pnpm-workspace.yaml << 'YAML'
+nodeLinker: hoisted
+
 overrides:
   brace-expansion@>=4.0.0 <5.0.5: '>=5.0.5'
   flatted@<=3.4.1: '>=3.4.2'
@@ -90,10 +99,11 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 YAML
-    echo "[deps] pnpm-workspace.yaml 缺失 —— 已自动补齐（overrides + allowBuilds）" | tee -a "$LOG"
-  elif ! grep -q "allowBuilds" pnpm-workspace.yaml; then
-    echo "[deps] pnpm-workspace.yaml 缺 allowBuilds —— 追加构建白名单" | tee -a "$LOG"
-    cat >> pnpm-workspace.yaml << 'YAML'
+    echo "[deps] pnpm-workspace.yaml 缺失 —— 已自动补齐（nodeLinker + overrides + allowBuilds）" | tee -a "$LOG"
+  else
+    if ! grep -q "allowBuilds" pnpm-workspace.yaml; then
+      echo "[deps] pnpm-workspace.yaml 缺 allowBuilds —— 追加构建白名单" | tee -a "$LOG"
+      cat >> pnpm-workspace.yaml << 'YAML'
 
 allowBuilds:
   '@parcel/watcher': true
@@ -105,6 +115,11 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 YAML
+    fi
+    if ! grep -q "nodeLinker" pnpm-workspace.yaml; then
+      echo "[deps] pnpm-workspace.yaml 缺 nodeLinker —— 补为 hoisted" | tee -a "$LOG"
+      printf '\nnodeLinker: hoisted\n' >> pnpm-workspace.yaml
+    fi
   fi
 fi
 
