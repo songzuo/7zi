@@ -84,6 +84,9 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
     } else if (formData.message.trim().length < 10) {
       newErrors.message =
         locale === 'zh' ? '消息内容至少需要 10 个字符' : 'Message must be at least 10 characters'
+    } else if (formData.message.trim().length > 500) {
+      newErrors.message =
+        locale === 'zh' ? '留言内容不能超过 500 个字符' : 'Message cannot exceed 500 characters'
     }
 
     setErrors(newErrors)
@@ -180,7 +183,11 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
   )
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    // noValidate：输入框带 `required` 属性（语义/无障碍需要），但校验逻辑
+    // 由下面的 validateForm 统一负责并渲染中文错误文案。
+    // 不加 noValidate 的话，浏览器原生校验会先拦下提交，
+    // onSubmit 根本不会执行 —— 自定义错误信息也就永远不会显示。
+    <form noValidate onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
           <label
@@ -193,6 +200,8 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
             type="text"
             id="name"
             name="name"
+            required
+            aria-required="true"
             value={formData.name}
             onChange={handleChange}
             placeholder={locale === 'zh' ? '您的姓名' : 'Your name'}
@@ -215,6 +224,8 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
             type="email"
             id="email"
             name="email"
+            required
+            aria-required="true"
             value={formData.email}
             onChange={handleChange}
             placeholder="your@email.com"
@@ -279,6 +290,8 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
           id="message"
           name="message"
           rows={6}
+          required
+          aria-required="true"
           value={formData.message}
           onChange={handleChange}
           placeholder={locale === 'zh' ? '请描述您的需求...' : 'Describe your needs...'}

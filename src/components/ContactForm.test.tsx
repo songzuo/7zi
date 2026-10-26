@@ -24,6 +24,31 @@ describe('ContactForm Component', () => {
     vi.restoreAllMocks()
   })
 
+  /**
+   * 按 URL 给 fetch 分流。
+   *
+   * 组件挂载时会先请求 /api/csrf-token 拿 CSRF token，提交时再请求 /api/contact。
+   * 之前这些用例用的是 mockRejectedValueOnce / mockImplementationOnce ——
+   * 「一次性」的 mock 会被**挂载时那次 CSRF 请求**吃掉，真正要测的
+   * 提交请求反而走了 beforeEach 里的默认实现（ok: true）。
+   *
+   * 结果就是：
+   *   - 「提交失败」用例永远看不到错误态（提交其实成功了）
+   *   - 「加载中」用例的 100ms 延迟作用在了 CSRF 请求上，
+   *     提交瞬间就 resolve，按钮根本没进入 disabled 状态
+   */
+  function routeFetch(contactImpl: () => Promise<unknown>): void {
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((input: unknown) => {
+      if (String(input).includes('/api/contact')) {
+        return contactImpl()
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ csrfToken: 'mock-csrf-token' }),
+      } as Response)
+    })
+  }
+
   describe('Rendering', () => {
     it('should render form fields correctly', () => {
       render(<ContactForm />)
@@ -70,7 +95,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText(/name is required/i)).toBeInTheDocument()
+        expect(screen.getByText(/请输入您的姓名/)).toBeInTheDocument()
       })
     })
 
@@ -83,7 +108,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText(/email is required/i)).toBeInTheDocument()
+        expect(screen.getByText(/请输入您的邮箱/)).toBeInTheDocument()
       })
     })
 
@@ -101,7 +126,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText(/invalid email format/i)).toBeInTheDocument()
+        expect(screen.getByText(/邮箱格式不正确/)).toBeInTheDocument()
       })
     })
 
@@ -127,7 +152,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText(/message is required/i)).toBeInTheDocument()
+        expect(screen.getByText(/请输入消息内容/)).toBeInTheDocument()
       })
     })
 
@@ -145,7 +170,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText(/message must be at least/i)).toBeInTheDocument()
+        expect(screen.getByText(/消息内容至少需要 10 个字符/)).toBeInTheDocument()
       })
     })
 
@@ -164,7 +189,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText(/message is too long/i)).toBeInTheDocument()
+        expect(screen.getByText(/留言内容不能超过 500 个字符/)).toBeInTheDocument()
       })
     })
 
@@ -206,7 +231,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText(/name is required/i)).toBeInTheDocument()
+        expect(screen.getByText(/请输入您的姓名/)).toBeInTheDocument()
       })
 
       // Start typing
@@ -215,7 +240,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        expect(screen.queryByText(/name is required/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/请输入您的姓名/)).not.toBeInTheDocument()
       })
     })
   })
@@ -247,7 +272,7 @@ describe('ContactForm Component', () => {
 
     it('should handle submission error', async () => {
       // Mock failed submission
-      ;(global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'))
+      routeFetch(() => Promise.reject(new Error('Network error')))
 
       render(<ContactForm />)
 
@@ -274,11 +299,13 @@ describe('ContactForm Component', () => {
 
     it('should handle API error response', async () => {
       // Mock API error
-      ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({ error: 'Bad Request' }),
-      } as Response)
+      routeFetch(() =>
+        Promise.resolve({
+          ok: false,
+          status: 400,
+          json: async () => ({ error: 'Bad Request' }),
+        } as Response)
+      )
 
       render(<ContactForm />)
 
@@ -375,7 +402,7 @@ describe('ContactForm Component', () => {
   describe('Loading State', () => {
     it('should show loading state during submission', async () => {
       // Mock slow response
-      ;(global.fetch as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      routeFetch(
         () =>
           new Promise(resolve =>
             setTimeout(
@@ -416,7 +443,7 @@ describe('ContactForm Component', () => {
 
     it('should disable submit button during submission', async () => {
       // Mock slow response
-      ;(global.fetch as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      routeFetch(
         () =>
           new Promise(resolve =>
             setTimeout(
@@ -472,7 +499,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        const errorMessage = screen.getByText(/name is required/i)
+        const errorMessage = screen.getByText(/请输入您的姓名/)
         expect(errorMessage).toBeInTheDocument()
       })
     })
@@ -486,7 +513,7 @@ describe('ContactForm Component', () => {
       })
 
       await waitFor(() => {
-        const errorMessage = screen.getByText(/name is required/i)
+        const errorMessage = screen.getByText(/请输入您的姓名/)
         expect(errorMessage).toBeInTheDocument()
       })
     })
@@ -508,7 +535,7 @@ describe('ContactForm Component', () => {
       })
 
       // Should not show validation immediately
-      expect(screen.queryByText(/invalid email format/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/邮箱格式不正确/)).not.toBeInTheDocument()
     })
 
     it('should handle multiple rapid submissions', async () => {
