@@ -116,9 +116,9 @@ class PerformanceCollector {
           route: window.location.pathname,
         }
 
+        // recordMetric 内部已经负责 checkAlerts + notifyCallbacks，
+        // 这里再调一次会导致同一条指标触发两次告警。
         this.recordMetric(perfMetric)
-        this.checkAlerts(perfMetric)
-        this.notifyCallbacks(perfMetric)
       }
 
     // 注册所有 Core Web Vitals 监听器
@@ -363,6 +363,23 @@ class PerformanceCollector {
 
     // 上报到 Sentry
     this.reportToSentry(metric)
+
+    // 告警检查。
+    //
+    // 之前只有 initWebVitals 那条路径会调 checkAlerts，
+    // 其它走 recordMetric 的记录（比如 API 性能、渲染性能）
+    // 永远不会被告警逻辑看到 —— 指标记了，坏值却没人报警。
+    // 统一在 recordMetric 里检查。
+    this.checkAlerts(metric)
+
+    // 通知 onMetric 订阅者。
+    //
+    // 之前这里**漏了**通知 —— 订阅者注册了却永远收不到回调。
+    // initWebVitals 里的路径是手动调 notifyCallbacks 的，
+    // 所以只有 Web Vitals 走通；其它所有走 recordMetric 的路径
+    // （比如测试直接调 recordMetric）全都收不到。
+    // 统一在这里通知，避免每条调用路径都要记得调。
+    this.notifyCallbacks(metric)
   }
 
   /**
@@ -370,6 +387,7 @@ class PerformanceCollector {
    */
   private recordCustomMetric(metric: CustomMetric) {
     this.customMetrics.push(metric)
+
 
     // 限制存储大小
     if (this.customMetrics.length > 100) {

@@ -16,6 +16,11 @@ import {
   trackRenderPerformance,
 } from '../performance.monitor'
 import type { PerformanceMetric, CustomMetric, PerformanceAlert } from '../performance.monitor'
+// 用 ESM import 拿 mock 出来的 spy。
+// 之前用 `const { setMeasurement } = require('@sentry/nextjs')` ——
+// Vitest 的 vi.mock 拦截的是 ESM import 链，require 拿到的是**另一个**
+// 模块实例，断言 "is not a spy or a call to a spy!"。
+import { setMeasurement, captureMessage } from '@sentry/nextjs'
 
 // Mock Sentry
 vi.mock('@sentry/nextjs', () => ({
@@ -40,6 +45,13 @@ vi.mock('web-vitals', () => ({
 
 describe('Performance Monitor Module', () => {
   const originalPerformance = global.performance
+  // 必须存下原始 window —— 'should not initialize when window is undefined'
+  // 这个用例把 global.window 设成了 undefined，而 afterEach 里没有还原，
+  // 于是**后面所有用例**的 global.window 都是 undefined，
+  // beforeEach 的 Object.defineProperty(window, ...) 直接抛
+  //   TypeError: Object.defineProperty called on non-object
+  // 整文件 49 个用例一起挂。
+  const originalWindow = global.window
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -54,7 +66,15 @@ describe('Performance Monitor Module', () => {
     })
 
     window.addEventListener = vi.fn()
-    document.visibilityState = 'visible'
+    // document.visibilityState 在 jsdom 里是**只读 getter**，
+    // 直接赋值会抛
+    //   TypeError: Cannot set property visibilityState of [object Document]
+    //                which has only a getter
+    // 用 defineProperty 覆盖，configurable 才能在 afterEach 还原。
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      get: () => 'visible',
+    })
     document.addEventListener = vi.fn()
 
     // Setup performance mock
@@ -72,6 +92,7 @@ describe('Performance Monitor Module', () => {
   afterEach(() => {
     performanceCollector.destroy()
     global.performance = originalPerformance
+    global.window = originalWindow
     vi.unstubAllEnvs()
     vi.clearAllMocks()
   })
@@ -160,8 +181,6 @@ describe('Performance Monitor Module', () => {
       })
 
       it('should report to Sentry', async () => {
-        const { setMeasurement } = require('@sentry/nextjs')
-
         await performanceCollector.init()
 
         performanceCollector['recordMetric']({
@@ -353,8 +372,6 @@ describe('Performance Monitor Module', () => {
       })
 
       it('should send to Sentry for warning and critical', async () => {
-        const { captureMessage } = require('@sentry/nextjs')
-
         await performanceCollector.init()
 
         const alert: PerformanceAlert = {
@@ -373,8 +390,6 @@ describe('Performance Monitor Module', () => {
       })
 
       it('should not send to Sentry for info alerts', async () => {
-        const { captureMessage } = require('@sentry/nextjs')
-
         await performanceCollector.init()
 
         const alert: PerformanceAlert = {
