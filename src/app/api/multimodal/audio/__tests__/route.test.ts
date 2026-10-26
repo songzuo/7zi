@@ -5,6 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { POST } from '@/app/api/multimodal/audio/route'
 import { NextRequest } from 'next/server'
+import { processAudio } from '@/lib/multimodal/bailian-provider'
 
 // Mock dependencies
 vi.mock('@/lib/multimodal/bailian-provider', () => ({
@@ -184,8 +185,7 @@ describe('POST /api/multimodal/audio', () => {
   })
 
   it('should handle transcription errors', async () => {
-    const { processAudio } = require('@/lib/multimodal/bailian-provider')
-    processAudio.mockRejectedValueOnce(new Error('Transcription failed'))
+    vi.mocked(processAudio).mockRejectedValueOnce(new Error('Transcription failed'))
 
     const formData = new FormData()
     formData.append('audio', new Blob(['audio data'], { type: 'audio/mpeg' }), 'test.mp3')
