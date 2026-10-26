@@ -113,8 +113,28 @@ vi.mock('next/navigation', () => ({
 }))
 
 // Mock next-intl
+//
+// 之前一律返回 `namespace:key`（例如 `contact.form:submit`）——
+// 这不是真实 i18n 的行为：真实 next-intl 返回的是**文案**，不是 key 路径。
+// 结果组件测试里 getByRole('button', { name: /send message/i }) 这种
+// 按可见文案查的断言全查不到（组件测试失败的真实原因之一）。
+//
+// 这里给一小份常用 key 的**真实英文文案**，其余仍回落到 key 路径。
+const MOCK_I18N_STRINGS: Record<string, string> = {
+  'contact.form.name': 'Your Name',
+  'contact.form.email': 'Your Email',
+  'contact.form.company': 'Company',
+  'contact.form.subject': 'Subject',
+  'contact.form.message': 'Message',
+  'contact.form.submit': 'Send Message',
+  'contact.form.sending': 'Sending...',
+  'contact.form.success': 'Message sent successfully',
+  'contact.form.error': 'Failed to send message',
+}
+
 const mockUseTranslations = (namespace?: string) => (key: string) => {
-  return namespace ? `${namespace}:${key}` : key
+  const full = namespace ? `${namespace}.${key}` : key
+  return MOCK_I18N_STRINGS[full] ?? (namespace ? `${namespace}:${key}` : key)
 }
 
 vi.mock('next-intl', () => ({
@@ -139,30 +159,114 @@ vi.mock('next/image', () => ({
 }))
 
 // Mock lucide-react icons
+//
+// 这里必须覆盖**代码库实际用到的全部**图标名。
+// 之前只列了 25 个，组件里用到清单外的图标（如 RefreshCw）时，
+// Vitest 会在渲染阶段抛
+//   [vitest] No "RefreshCw" export is defined on the "lucide-react" mock
+// 而异常发生在 render() 里 —— 结果是**整个测试文件**的用例全部失败，
+// 不是只有用到该图标的那一个失败。
+//
+// 说明：曾试过用 Proxy 兜底，但 Vitest 不接受 Proxy 作为 mock 工厂的返回值
+// （报 "Cannot create proxy with a non-object as target or handler"），
+// 所以改为生成显式清单。
+//
+// 该清单由脚本扫描 src/ tests/ app/ 下所有
+//   import { ... } from 'lucide-react'
+// 语句自动生成。新增图标时请一并更新。
 vi.mock('lucide-react', () => ({
-  Bell: vi.fn(() => null),
-  Settings: vi.fn(() => null),
-  User: vi.fn(() => null),
-  X: vi.fn(() => null),
-  Check: vi.fn(() => null),
+  Activity: vi.fn(() => null),
+  AlertCircle: vi.fn(() => null),
   AlertTriangle: vi.fn(() => null),
-  Info: vi.fn(() => null),
-  Search: vi.fn(() => null),
-  Plus: vi.fn(() => null),
-  Trash: vi.fn(() => null),
-  Trash2: vi.fn(() => null),
-  Star: vi.fn(() => null),
-  StarHalf: vi.fn(() => null),
-  TrendingUp: vi.fn(() => null),
-  ThumbsUp: vi.fn(() => null),
-  Filter: vi.fn(() => null),
+  ArrowDown: vi.fn(() => null),
+  ArrowRight: vi.fn(() => null),
+  ArrowUp: vi.fn(() => null),
   ArrowUpDown: vi.fn(() => null),
+  BarChart3: vi.fn(() => null),
+  Bell: vi.fn(() => null),
+  BookOpen: vi.fn(() => null),
+  Bot: vi.fn(() => null),
+  Calendar: vi.fn(() => null),
+  Check: vi.fn(() => null),
+  CheckCircle: vi.fn(() => null),
+  CheckCircle2: vi.fn(() => null),
+  ChevronDown: vi.fn(() => null),
   ChevronLeft: vi.fn(() => null),
   ChevronRight: vi.fn(() => null),
-  ChevronDown: vi.fn(() => null),
   ChevronUp: vi.fn(() => null),
-  MessageCircle: vi.fn(() => null),
+  Clock: vi.fn(() => null),
+  Copy: vi.fn(() => null),
+  Cpu: vi.fn(() => null),
+  Crown: vi.fn(() => null),
+  Database: vi.fn(() => null),
+  DollarSign: vi.fn(() => null),
+  Download: vi.fn(() => null),
+  Edit3: vi.fn(() => null),
+  Eye: vi.fn(() => null),
+  EyeOff: vi.fn(() => null),
+  FileJson: vi.fn(() => null),
+  FileSpreadsheet: vi.fn(() => null),
+  FileText: vi.fn(() => null),
+  Filter: vi.fn(() => null),
   Flag: vi.fn(() => null),
+  GitCompare: vi.fn(() => null),
+  Globe: vi.fn(() => null),
+  GripVertical: vi.fn(() => null),
+  HardDrive: vi.fn(() => null),
+  HelpCircle: vi.fn(() => null),
+  History: vi.fn(() => null),
+  Home: vi.fn(() => null),
+  Image: vi.fn(() => null),
+  Info: vi.fn(() => null),
+  Layout: vi.fn(() => null),
+  LayoutDashboard: vi.fn(() => null),
+  LineChart: vi.fn(() => null),
+  ListTodo: vi.fn(() => null),
+  Loader2: vi.fn(() => null),
+  Lock: vi.fn(() => null),
+  LucideIcon: vi.fn(() => null),
+  Mail: vi.fn(() => null),
+  MessageCircle: vi.fn(() => null),
+  MessageSquare: vi.fn(() => null),
+  Mic: vi.fn(() => null),
+  MicOff: vi.fn(() => null),
+  Minus: vi.fn(() => null),
+  MoreHorizontal: vi.fn(() => null),
+  MoreVertical: vi.fn(() => null),
+  MousePointer: vi.fn(() => null),
+  Pause: vi.fn(() => null),
+  PauseCircle: vi.fn(() => null),
+  Phone: vi.fn(() => null),
+  PieChart: vi.fn(() => null),
+  Play: vi.fn(() => null),
+  Plus: vi.fn(() => null),
+  Redo2: vi.fn(() => null),
+  RefreshCw: vi.fn(() => null),
+  RotateCcw: vi.fn(() => null),
+  Save: vi.fn(() => null),
+  Search: vi.fn(() => null),
+  Send: vi.fn(() => null),
+  Server: vi.fn(() => null),
+  Settings: vi.fn(() => null),
+  Shield: vi.fn(() => null),
+  Star: vi.fn(() => null),
+  StarHalf: vi.fn(() => null),
+  Subscript: vi.fn(() => null),
+  ThumbsUp: vi.fn(() => null),
+  Timer: vi.fn(() => null),
+  Trash2: vi.fn(() => null),
+  TrendingDown: vi.fn(() => null),
+  TrendingUp: vi.fn(() => null),
+  Undo2: vi.fn(() => null),
+  Upload: vi.fn(() => null),
+  User: vi.fn(() => null),
+  UserPlus: vi.fn(() => null),
+  Users: vi.fn(() => null),
+  Wifi: vi.fn(() => null),
+  WifiOff: vi.fn(() => null),
+  X: vi.fn(() => null),
+  XCircle: vi.fn(() => null),
+  Zap: vi.fn(() => null),
 }))
 
 // Mock WebSocket
