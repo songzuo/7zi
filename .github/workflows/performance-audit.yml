@@ -424,7 +424,7 @@ jobs:
             if (!a) return "";
             const v = a.numericValue;
             const shown = v == null ? "n/a"
-              : (m[3] === "ms" ? Math.round(v) + " ms" : String(Math.round(v * 1000) / 1000));
+              : (m[3] === "ms" ? Math.round(v) + " ms" : v.toFixed(3));
             const lim = m[3] === "ms" ? "≤ " + m[2] + " ms" : "≤ " + m[2];
             const bad = v != null && v > m[2];
             return `  <tr><td>${m[1]}</td><td>${shown}</td><td>${lim}</td><td class="${bad ? "bad" : "good"}">${bad ? "超标" : "达标"}</td></tr>`;
@@ -695,6 +695,9 @@ jobs:
             }'
           }
           ms()    { if [ -z "$1" ] || [ "$1" = "N/A" ]; then echo "N/A"; else awk -v v="$1" 'BEGIN{printf "%.0f", v}'; fi; }
+          # CLS 是无量纲小数，原始值长这样：0.009720534629404616。
+          # 直接 ${CLS} 打印会把预算表撑满一行，人眼抓不到量级 → 一律 3 位。
+          f3()    { if [ -z "$1" ] || [ "$1" = "N/A" ] || [ "$1" = "null" ]; then echo "N/A"; else awk -v v="$1" 'BEGIN{printf "%.3f", v}'; fi; }
 
           PERF_SCORE=$(cat_s performance)
           A11Y_SCORE=$(cat_s accessibility)
@@ -716,7 +719,7 @@ jobs:
           echo "⚡ Core Web Vitals:"
           echo "==================="
           echo "  LCP:  $(ms "$LCP")ms  (threshold: <= 2500ms)  $(cmp "$LCP" le 2500)"
-          echo "  CLS:  ${CLS}  (threshold: <= 0.1)  $(cmp "$CLS" le 0.1)"
+          echo "  CLS:  $(f3 "$CLS")  (threshold: <= 0.1)  $(cmp "$CLS" le 0.1)"
           echo "  FCP:  $(ms "$FCP")ms  (threshold: <= 1800ms)  $(cmp "$FCP" le 1800)"
           echo "  TBT:  $(ms "$TBT")ms  (threshold: <= 300ms)  $(cmp "$TBT" le 300)"
           echo ""
@@ -774,7 +777,7 @@ jobs:
             echo "| LCP | $(ms "$LCP") ms | <= 2500 ms | $(cmp "$LCP" le 2500) |"
             echo "| FCP | $(ms "$FCP") ms | <= 1800 ms | $(cmp "$FCP" le 1800) |"
             echo "| TBT | $(ms "$TBT") ms | <= 300 ms | $(cmp "$TBT" le 300) |"
-            echo "| CLS | ${CLS} | <= 0.1 | $(cmp "$CLS" le 0.1) |"
+            echo "| CLS | $(f3 "$CLS") | <= 0.1 | $(cmp "$CLS" le 0.1) |"
             echo ""
             if [ $FAILED -eq 1 ]; then
               echo "> ⚠️ 有指标超出预算。当前为 **report-only**（只告警不阻断），"

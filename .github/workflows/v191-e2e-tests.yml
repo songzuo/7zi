@@ -44,6 +44,13 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    # 2026-10-26 教训：本 job 原先没有 timeout，`Run unit tests` 在
+    # 2026-10-26T07:28:17Z 之后就再没动过（vitest + @vitest/coverage-v8 在
+    # 这份仓库上偶发挂死），一直挂到 GitHub 默认的 **360 分钟**上限。
+    # 后果不是「失败」而是「静默 6 小时 + 到点转 failure + 一封失败邮件」——
+    # 当天有 4 个 run 同时挂在 in_progress（最长 330 分钟），
+    # 差半小时就陆续超时转红。已手工 cancel，并从根上补两道闸。
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -57,9 +64,13 @@ jobs:
         run: npm ci
 
       # 既有断言失败约 15 项/分片，与 tests.yml 同源。清空前非阻断。
+      # step 级 timeout-minutes 是关键：它和 continue-on-error 组合起来，
+      # 挂死会变成「本步失败 → 记 outcome=failure → job 继续 → run 仍绿」，
+      # 而不是「挂 6 小时 → job 超时 → run 红 → 邮件」。
       - name: Run unit tests
         id: unit
         continue-on-error: true
+        timeout-minutes: 20
         run: npm run test:coverage
 
       - name: 汇总单元测试结果
@@ -83,6 +94,7 @@ jobs:
   e2e-tests:
     name: E2E Tests (${{ matrix.project }})
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     # 去掉 needs: unit-tests —— 单元测试红不该顺手把 E2E 也 skipped，
     # 那会让"E2E 现在到底什么状态"永远无从得知。
     strategy:
@@ -110,6 +122,7 @@ jobs:
       - name: Run E2E tests
         id: e2e
         continue-on-error: true
+        timeout-minutes: 25
         run: npx playwright test --config=playwright.v191.config.ts --project=${{ matrix.project }}
         env:
           E2E_BASE_URL: http://localhost:3000
@@ -138,6 +151,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: e2e-tests
     if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -159,6 +173,7 @@ jobs:
       - name: Run stress tests
         id: stress
         continue-on-error: true
+        timeout-minutes: 20
         run: npx playwright test --config=playwright.v191.config.ts --project=stress-test
         env:
           E2E_BASE_URL: http://localhost:3000
@@ -180,6 +195,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [unit-tests, e2e-tests]
     if: always()
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -221,6 +237,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [unit-tests, e2e-tests]
     if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
