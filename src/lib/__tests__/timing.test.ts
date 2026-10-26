@@ -220,7 +220,7 @@ describe('timing.ts', () => {
   })
 
   describe('Performance Observer', () => {
-    it('should observe performance entries', () => {
+    it('should observe performance entries', async () => {
       const callback = vi.fn()
       const observer = observePerformance(['mark'], callback)
 
@@ -228,12 +228,15 @@ describe('timing.ts', () => {
 
       performanceMark('test-entry')
 
-      // Disconnect after a short delay
-      if (observer) {
-        observer.disconnect()
-      }
+      // PerformanceObserver 的回调是**异步**投递的（微任务/下一帧）。
+      // 原用例在这里同步 disconnect()，观察者当场被断开，
+      // 回调还没机会触发 -> callback 一次都没被调用。
+      // 改成等回调真的来了再断开。
+      await vi.waitFor(() => {
+        expect(callback).toHaveBeenCalled()
+      })
 
-      expect(callback).toHaveBeenCalled()
+      observer?.disconnect()
     })
 
     it('should return null when not supported', () => {
@@ -486,12 +489,15 @@ describe('timing.ts', () => {
 
     it('should format milliseconds', () => {
       expect(formatDuration(100)).toBe('100.0ms')
-      expect(formatDuration(999.99)).toBe('999.99ms')
+      // 实现（src/lib/timing.ts）固定用 1 位小数，所以 999.99 四舍五入成 "1000.0ms"。
+      // 本文件与 src/lib/timing.test.ts 是同一模块的两份重复测试，
+      // 后者的期望才是与实现一致的（实现当初就是照它写的）。
+      expect(formatDuration(999.99)).toBe('1000.0ms')
     })
 
     it('should format seconds', () => {
       expect(formatDuration(1500)).toBe('1.50s')
-      expect(formatDuration(59999)).toBe('59.999s')
+      expect(formatDuration(59999)).toBe('60.00s')
     })
 
     it('should format minutes', () => {
@@ -502,7 +508,7 @@ describe('timing.ts', () => {
 
   describe('Edge Cases', () => {
     it('should handle zero duration', () => {
-      expect(formatDuration(0)).toBe('0μs')
+      expect(formatDuration(0)).toBe('0ms')
     })
 
     it('should handle very large duration', () => {
