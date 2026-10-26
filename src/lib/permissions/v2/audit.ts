@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * v1.12.0 Permission Audit Logging
  * 权限变更审计日志系统
@@ -10,7 +9,17 @@ import {
   PermissionCheckRequest,
   PermissionCheckResultV2,
 } from './types'
-import { getDatabaseAsync, type DatabaseConnection } from '../db'
+import { getDatabaseAsync, type DatabaseConnection } from '../../db'
+
+/**
+ * 底层 SQLite 连接的扩展类型：better-sqlite3 的 `transaction()` 辅助方法
+ * (DatabaseConnection 接口未声明，但运行时由 better-sqlite3 提供)
+ */
+type TransactionCapableConnection = DatabaseConnection & {
+  transaction: <TArgs extends unknown[]>(
+    fn: (...args: TArgs) => void
+  ) => (...args: TArgs) => void
+}
 
 /**
  * 审计日志配置
@@ -225,7 +234,7 @@ export class AuditLogManager {
    * 批量写入日志
    */
   private async writeLogs(entries: AuditLogEntry[]): Promise<void> {
-    const db = await getDatabaseAsync()
+    const db = (await getDatabaseAsync()) as TransactionCapableConnection
     await this.initializeAuditTable(db)
 
     const stmt = db.prepare(`

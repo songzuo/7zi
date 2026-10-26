@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 interface _ServiceWorkerEventMap {
   'sw-updated': { version: string }
@@ -151,7 +151,7 @@ export function ServiceWorkerRegistration() {
     }
   }, [])
 
-  const handleUpdate = async () => {
+  const handleUpdate = useCallback(async () => {
     if (!swRegistration || !swRegistration.waiting) {
       window.location.reload()
       return
@@ -164,9 +164,9 @@ export function ServiceWorkerRegistration() {
     swRegistration.waiting.addEventListener('controllerchange', () => {
       window.location.reload()
     })
-  }
+  }, [swRegistration])
 
-  const clearCache = async () => {
+  const clearCache = useCallback(async () => {
     if (!swRegistration) return
 
     try {
@@ -185,7 +185,7 @@ export function ServiceWorkerRegistration() {
         console.error('[SW] Failed to clear cache:', error)
       }
     }
-  }
+  }, [swRegistration])
 
   // Expose functions to window for manual control
   useEffect(() => {

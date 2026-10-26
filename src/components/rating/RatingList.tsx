@@ -3,7 +3,7 @@
  * Displays a list of ratings with pagination, filtering, and sorting
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { Star, Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button, Input } from '@/components/ui'
@@ -63,7 +63,7 @@ export function RatingList({
   /**
    * Fetch ratings from API
    */
-  const fetchRatings = async () => {
+  const fetchRatings = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -97,11 +97,11 @@ export function RatingList({
     } finally {
       setLoading(false)
     }
-  }
+  }, [targetType, targetId, sortBy, sortOrder, ratingMin, ratingMax, searchQuery, page, perPage])
 
   useEffect(() => {
-    fetchRatings()
-  }, [targetType, targetId, sortBy, sortOrder, ratingMin, ratingMax, searchQuery, page])
+    void fetchRatings()
+  }, [fetchRatings])
 
   /**
    * Handle sort change

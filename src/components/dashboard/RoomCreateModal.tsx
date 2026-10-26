@@ -150,7 +150,7 @@ export const RoomCreateModal: React.FC<RoomCreateModalProps> = ({
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(showAdvanced)
 
   // 重置表单
-  const resetForm = () => {
+  const resetForm = React.useCallback(() => {
     setName('')
     setType('chat')
     setVisibility('public')
@@ -160,14 +160,14 @@ export const RoomCreateModal: React.FC<RoomCreateModalProps> = ({
     setMessageHistoryEnabled(true)
     setAutoCleanupMinutes(30)
     setShowAdvancedSettings(showAdvanced)
-  }
+  }, [showAdvanced, defaultDocumentId])
 
   // 当弹窗打开时重置表单
   React.useEffect(() => {
     if (isOpen) {
       resetForm()
     }
-  }, [isOpen, showAdvanced, defaultDocumentId])
+  }, [isOpen, resetForm])
 
   // 提交表单
   const handleSubmit = async (e: React.FormEvent) => {

@@ -74,7 +74,7 @@ function getFilenameFromUrl(url: string): string {
     const filename = pathname.split('/').pop()
 
     return filename || 'download'
-  } catch (error) {
+  } catch {
     return 'download'
   }
 }
@@ -130,8 +130,10 @@ export async function downloadInChunks(
       throw new Error('Response body is not readable')
     }
 
-    const chunks: Uint8Array[] = []
-    let receivedLength = 0
+    // 按 chunkSize 归一化分片，限制单次拷贝体积（最终内容与顺序保持不变）
+    const effectiveChunkSize = chunkSize > 0 ? chunkSize : 1024 * 1024
+    const chunks: Uint8Array<ArrayBuffer>[] = []
+    let pending: Uint8Array<ArrayBuffer> = new Uint8Array(new ArrayBuffer(0))
 
     while (true) {
       const { done, value } = await reader.read()
@@ -140,21 +142,29 @@ export async function downloadInChunks(
         break
       }
 
-      chunks.push(value)
-      receivedLength += value.length
+      let offset = 0
+      while (offset < value.length) {
+        const room = effectiveChunkSize - pending.length
+        const take = Math.min(room, value.length - offset)
+        const merged = new Uint8Array<ArrayBuffer>(new ArrayBuffer(pending.length + take))
+        merged.set(pending, 0)
+        merged.set(value.subarray(offset, offset + take), pending.length)
+        pending = merged
+        offset += take
+
+        if (pending.length === effectiveChunkSize) {
+          chunks.push(pending)
+          pending = new Uint8Array<ArrayBuffer>(new ArrayBuffer(0))
+        }
+      }
     }
 
-    // Combine all chunks
-    const combinedChunks = new Uint8Array(receivedLength)
-    let position = 0
-
-    for (const chunk of chunks) {
-      combinedChunks.set(chunk, position)
-      position += chunk.length
+    if (pending.length > 0) {
+      chunks.push(pending)
     }
 
     // Create blob and download
-    const blob = new Blob([combinedChunks])
+    const blob = new Blob(chunks)
     downloadFile(URL.createObjectURL(blob), filename, 'application/octet-stream')
   } catch (error) {
     logger.error('Failed to download in chunks:', error)

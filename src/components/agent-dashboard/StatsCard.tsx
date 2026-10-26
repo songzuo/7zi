@@ -90,7 +90,7 @@ export function StatsCard({
         subtextColor: isDark ? 'text-blue-400/70' : 'text-blue-600',
       },
     }),
-    [isDark, variant]
+    [isDark]
   )
 
   const styles = variantStyles[variant]

@@ -102,7 +102,7 @@ export function generateSQL(parsedQuery: ParsedQuery, tableName: string = 'data'
 /**
  * 构建过滤条件
  */
-function buildFilterCondition(filter: ParsedQuery['filters'][0], params: Record<string, unknown>): string {
+function buildFilterCondition(filter: ParsedQuery['filters'][0], _params: Record<string, unknown>): string {
   const { field, operator, value } = filter
   
   switch (operator) {

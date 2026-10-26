@@ -188,7 +188,7 @@ export function WorkflowEditor({
         isEditing: false,
       })
     },
-    [state.nodes, state.edges, history, updateWorkflow]
+    [state.nodes, state.edges, state.selectedNodeId, history, updateWorkflow]
   )
 
   // 节点移动

@@ -253,7 +253,7 @@ export function WorkflowEditorEnhanced({
       nodes: [...editorState.nodes, newNode],
       edges: editorState.edges,
     })
-  }, [readOnly, editorState.nodes, updateWorkflow, addToHistory, createWorkflowDefinition])
+  }, [readOnly, editorState.nodes, editorState.edges, updateWorkflow, addToHistory, createWorkflowDefinition])
 
   // 设置开始节点
   const handleNodeSetStart = useCallback((nodeId: string) => {

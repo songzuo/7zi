@@ -93,8 +93,8 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
 
   // 动画效果
   useEffect(() => {
+    const animState = animationRef.current
     const animate = (timestamp: number) => {
-      const animState = animationRef.current
       if (animState.startTime === null) {
         animState.startTime = timestamp
         animState.startValue = displayValue
@@ -121,10 +121,10 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
       }
     }
 
-    animationRef.current.animationFrame = requestAnimationFrame(animate)
+    animState.animationFrame = requestAnimationFrame(animate)
 
     return () => {
-      const animationFrame = animationRef.current.animationFrame
+      const animationFrame = animState.animationFrame
       if (animationFrame !== null) {
         cancelAnimationFrame(animationFrame)
       }
@@ -258,11 +258,11 @@ export const WaveProgress = memo(function WaveProgress({
 
   useEffect(() => {
     const durationValue = duration
-    animStateRef.current.startTime = Date.now()
-    animStateRef.current.startValue = displayValue
+    const animState = animStateRef.current
+    animState.startTime = Date.now()
+    animState.startValue = displayValue
 
     const animate = () => {
-      const animState = animStateRef.current
       if (animState.startTime === null) return
 
       const elapsed = Date.now() - animState.startTime
@@ -278,10 +278,10 @@ export const WaveProgress = memo(function WaveProgress({
       }
     }
 
-    animStateRef.current.animationFrame = requestAnimationFrame(animate)
+    animState.animationFrame = requestAnimationFrame(animate)
 
     return () => {
-      const animationFrame = animStateRef.current.animationFrame
+      const animationFrame = animState.animationFrame
       if (animationFrame !== null) {
         cancelAnimationFrame(animationFrame)
       }
@@ -366,11 +366,11 @@ export const SegmentedProgress = memo(function SegmentedProgress({
   useEffect(() => {
     if (animated) {
       const durationValue = duration
-      animStateRef.current.startTime = Date.now()
-      animStateRef.current.startValue = animatedCurrent
+      const animState = animStateRef.current
+      animState.startTime = Date.now()
+      animState.startValue = animatedCurrent
 
       const animate = () => {
-        const animState = animStateRef.current
         if (animState.startTime === null) return
 
         const elapsed = Date.now() - animState.startTime
@@ -385,10 +385,10 @@ export const SegmentedProgress = memo(function SegmentedProgress({
         }
       }
 
-      animStateRef.current.animationFrame = requestAnimationFrame(animate)
+      animState.animationFrame = requestAnimationFrame(animate)
 
       return () => {
-        const animationFrame = animStateRef.current.animationFrame
+        const animationFrame = animState.animationFrame
         if (animationFrame !== null) {
           cancelAnimationFrame(animationFrame)
         }
@@ -489,11 +489,11 @@ export const GradientProgress = memo(function GradientProgress({
   useEffect(() => {
     if (animated) {
       const durationValue = duration
-      animStateRef.current.startTime = Date.now()
-      animStateRef.current.startValue = displayValue
+      const animState = animStateRef.current
+      animState.startTime = Date.now()
+      animState.startValue = displayValue
 
       const animate = () => {
-        const animState = animStateRef.current
         if (animState.startTime === null) return
 
         const elapsed = Date.now() - animState.startTime
@@ -509,10 +509,10 @@ export const GradientProgress = memo(function GradientProgress({
         }
       }
 
-      animStateRef.current.animationFrame = requestAnimationFrame(animate)
+      animState.animationFrame = requestAnimationFrame(animate)
 
       return () => {
-        const animationFrame = animStateRef.current.animationFrame
+        const animationFrame = animState.animationFrame
         if (animationFrame !== null) {
           cancelAnimationFrame(animationFrame)
         }

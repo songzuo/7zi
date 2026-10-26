@@ -19,7 +19,7 @@ interface ThemeToggleProps {
   cycle?: boolean
 }
 
-export function ThemeToggle({ className = '', cycle = false }: ThemeToggleProps) {
+export function ThemeToggle({ className = '', cycle: _cycle = false }: ThemeToggleProps) {
   const { toggleTheme, isDark, theme } = useTheme()
 
   const handleClick = () => {

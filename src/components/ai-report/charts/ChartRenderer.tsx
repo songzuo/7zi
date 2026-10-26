@@ -493,18 +493,23 @@ function PieChart({
     }))
     
     const total = values.reduce((sum, v) => sum + v.value, 0)
-    let currentAngle = -90
-    
+
+    // 用前缀累计算角度，避免在渲染期间对 let 变量做原地赋值
+    const angleOffsets = values.reduce<number[]>((acc, v, i) => {
+      const previous = i === 0 ? 0 : acc[i - 1]
+      acc.push(previous + (v.value / total) * 360)
+      return acc
+    }, [])
+
     const sliceData = values.map((v, i) => {
-      const angle = (v.value / total) * 360
-      const startAngle = currentAngle
-      currentAngle += angle
+      const startAngle = i === 0 ? -90 : angleOffsets[i - 1] - 90
+      const endAngle = angleOffsets[i] - 90
       return {
         label: v.label,
         value: v.value,
         percentage: ((v.value / total) * 100).toFixed(1),
         startAngle,
-        endAngle: currentAngle,
+        endAngle,
         color: config.colors?.[i % (config.colors?.length || 7)] || '#06b6d4'
       }
     })
@@ -587,9 +592,9 @@ function ScatterChart({
   width: number
 }) {
   const chartHeight = config.height || 400
-  const padding = { top: 20, right: 20, bottom: 40, left: 50 }
-  
+
   const points = useMemo(() => {
+    const padding = { top: 20, right: 20, bottom: 40, left: 50 }
     const xField = config.xAxis?.field || 'x'
     const yField = config.yAxis?.field || 'y'
     
@@ -607,7 +612,7 @@ function ScatterChart({
       cx: padding.left + (v.x / (xMax || 1)) * innerWidth,
       cy: chartHeight - padding.bottom - (v.y / (yMax || 1)) * innerHeight
     }))
-  }, [data, width, chartHeight, padding, config.xAxis, config.yAxis])
+  }, [data, width, chartHeight, config.xAxis, config.yAxis])
   
   return (
     <svg width="100%" height={chartHeight}>

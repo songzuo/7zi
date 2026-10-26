@@ -247,14 +247,16 @@ export function NodeEditorPanel({
         updates[key] = value as string
       } else {
         // 根据节点类型更新对应的配置
+        // 说明：配置对象字段固定，这里用 as 断言把「未知键值的合并结果」收敛到
+        // 对应的节点配置类型，避免使用 any。
         if (prev.type === NodeType.AGENT) {
-          updates.agentConfig = { ...prev.agentConfig, [key]: value } as any
+          updates.agentConfig = { ...prev.agentConfig, [key]: value } as NonNullable<WorkflowNode['agentConfig']>
         } else if (prev.type === NodeType.CONDITION) {
-          updates.conditionConfig = { ...prev.conditionConfig, [key]: value } as any
+          updates.conditionConfig = { ...prev.conditionConfig, [key]: value } as NonNullable<WorkflowNode['conditionConfig']>
         } else if (prev.type === NodeType.WAIT) {
-          updates.waitConfig = { ...prev.waitConfig, [key]: value } as any
+          updates.waitConfig = { ...prev.waitConfig, [key]: value } as NonNullable<WorkflowNode['waitConfig']>
         } else if (prev.type === NodeType.HUMAN_INPUT) {
-          updates.humanInputConfig = { ...prev.humanInputConfig, [key]: value } as any
+          updates.humanInputConfig = { ...prev.humanInputConfig, [key]: value } as NonNullable<WorkflowNode['humanInputConfig']>
         }
       }
 

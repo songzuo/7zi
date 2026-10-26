@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview Search history manager
  * @description Manages search history with localStorage persistence

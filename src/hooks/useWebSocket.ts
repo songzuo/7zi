@@ -197,13 +197,13 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
       })
 
       // Reconnect attempt
-      socket.on('reconnect_attempt', attemptNumber => {
+      socket.on('reconnect_attempt', _attemptNumber => {
         // Reconnect attempt - state updated via event
         updateState({ connecting: true })
       })
 
       // Reconnect successful
-      socket.on('reconnect', attemptNumber => {
+      socket.on('reconnect', _attemptNumber => {
         // Reconnected - state already updated
         updateState({
           connected: true,
@@ -223,7 +223,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
       })
 
       // Disconnect
-      socket.on('disconnect', reason => {
+      socket.on('disconnect', _reason => {
         // Disconnected - state already updated
         stopHeartbeat()
         updateState({
@@ -368,19 +368,35 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
     }
   }, [])
 
+  // 始终指向最新的 connect/disconnect，避免把它们的标识变化引入到
+  // 自动连接 effect 的依赖里（那会导致配置变化时意外重连）。
+  const connectRef = useRef(connect)
+  const disconnectRef = useRef(disconnect)
+  useEffect(() => {
+    connectRef.current = connect
+    disconnectRef.current = disconnect
+  }, [connect, disconnect])
+
   // Auto-connect on mount
   useEffect(() => {
     if (autoConnect) {
-      connect()
+      connectRef.current()
     }
 
     return () => {
-      disconnect()
+      disconnectRef.current()
     }
   }, [autoConnect])
 
+  // socket 存放在 ref 中，通过 state 暴露当前实例，
+  // 避免在渲染期间读取 ref（React 19 规则）。
+  const [socket, setSocket] = useState<Socket | null>(null)
+  useEffect(() => {
+    setSocket(socketRef.current)
+  }, [state.connected, state.connecting])
+
   return {
-    socket: socketRef.current,
+    socket,
     state,
     connect,
     disconnect,

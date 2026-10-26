@@ -818,9 +818,11 @@ export function CachedQuery(keyPrefix: string, ttl?: number) {
 // Export
 // ============================================
 
-export default {
+const dbModule = {
   getQueryCache,
   QueryCacheManager,
   QueryCacheKeys,
   CachedQuery,
 }
+
+export default dbModule

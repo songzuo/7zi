@@ -11,8 +11,6 @@
  * @module mcp/auth
  */
 
-import { z } from 'zod'
-
 /**
  * Permission level
  */
@@ -699,7 +697,7 @@ export class FileAuditLogger implements AuditLogger {
     this.buffer.push(entry)
   }
 
-  async query(filter: AuditQuery): Promise<AuditLogEntry[]> {
+  async query(_filter: AuditQuery): Promise<AuditLogEntry[]> {
     // For file logger, this would read from file
     // Simplified implementation
     return []

@@ -6,7 +6,6 @@
 import {
   IMonitorEvent,
   MonitorEventType,
-  MonitorEventHandler,
   IQueueStats,
   IConsumerStats
 } from '../types';

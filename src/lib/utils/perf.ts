@@ -4,8 +4,6 @@
  * @module lib/utils/perf
  */
 
-import { isClient } from './env'
-
 /**
  * Optimize image URL with Next.js Image Optimization
  * @param {string} url - Original image URL

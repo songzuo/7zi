@@ -542,7 +542,7 @@ export function analyzeBatchPerformance(
   }
 }
 
-export default {
+const dbModule = {
   batchInsert,
   batchUpdate,
   batchDelete,
@@ -550,3 +550,6 @@ export default {
   calculateOptimalBatchSize,
   analyzeBatchPerformance,
 }
+
+export default dbModule
+

@@ -11,8 +11,6 @@
  * @module mcp/prompts
  */
 
-import { z } from 'zod'
-
 /**
  * Prompt category
  */
@@ -610,24 +608,24 @@ export interface MarketplaceClient {
  * Default marketplace client (placeholder)
  */
 export class DefaultMarketplaceClient implements MarketplaceClient {
-  async search(filter: MarketplaceFilter = {}): Promise<MarketplaceTemplate[]> {
+  async search(_filter: MarketplaceFilter = {}): Promise<MarketplaceTemplate[]> {
     // Placeholder implementation - should be replaced with actual marketplace API
     return []
   }
 
-  async getTemplate(id: string): Promise<PromptTemplate> {
+  async getTemplate(_id: string): Promise<PromptTemplate> {
     throw new Error('Marketplace not configured')
   }
 
-  async publish(template: PromptTemplate): Promise<string> {
+  async publish(_template: PromptTemplate): Promise<string> {
     throw new Error('Marketplace not configured')
   }
 
-  async rate(id: string, rating: number): Promise<void> {
+  async rate(_id: string, _rating: number): Promise<void> {
     throw new Error('Marketplace not configured')
   }
 
-  async download(id: string): Promise<PromptTemplate> {
+  async download(_id: string): Promise<PromptTemplate> {
     throw new Error('Marketplace not configured')
   }
 }

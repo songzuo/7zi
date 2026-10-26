@@ -107,7 +107,8 @@ export class EncryptionService {
    * 旋转租户密钥
    */
   async rotateTenantKey(tenantId: string): Promise<void> {
-    const oldKey = await this.getTenantEncryptionKey(tenantId)
+    // 确保租户密钥记录存在（无记录时会先创建），旧密钥本身不再需要持有
+    await this.getTenantEncryptionKey(tenantId)
     const newKey = crypto.randomBytes(this.keyLength).toString('hex')
     const encryptedKey = this.encrypt(newKey)
     

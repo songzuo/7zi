@@ -12,7 +12,7 @@ import {
 /**
  * 消息类
  */
-export class Message<T = any> implements IMessage<T> {
+export class Message<T = unknown> implements IMessage<T> {
   /** 消息唯一ID */
   public id: string;
 
@@ -50,7 +50,7 @@ export class Message<T = any> implements IMessage<T> {
   public processingStartedAt?: number;
 
   /** 元数据 */
-  public metadata?: Record<string, any>;
+  public metadata?: Record<string, unknown>;
 
   constructor(
     queueName: string,

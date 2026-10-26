@@ -11,7 +11,6 @@ import {
   ITopicSubscriber,
   ITopicStats,
   IConsumerConfig,
-  IConsumerStats,
   QueueType,
   MessageStatus
 } from '../types';

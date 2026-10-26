@@ -5,7 +5,6 @@
  */
 
 import { debounce, throttle } from './async'
-import { logger } from '../logger'
 
 /**
  * Check if an element is in the viewport

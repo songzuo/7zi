@@ -335,7 +335,7 @@ export function mergePaginationMeta<T, M extends PaginationMeta | CursorPaginati
   }
 }
 
-export default {
+const dbModule = {
   parsePaginationOptions,
   buildPaginationClause,
   paginate,
@@ -347,3 +347,6 @@ export default {
   validatePaginationParams,
   getDefaultPaginationOptions,
 }
+
+export default dbModule
+

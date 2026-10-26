@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained RBAC System
  * 细粒度权限管理系统入口

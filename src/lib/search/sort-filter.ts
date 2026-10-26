@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview Enhanced search sorting and filtering logic
  * @description Provides advanced sorting (relevance + time hybrid) and filter combination

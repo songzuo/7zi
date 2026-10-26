@@ -32,7 +32,6 @@ import type {
   ConfigCenterOptions,
   ConfigEnvironment,
   ConfigItem,
-  StorageAdapter,
 } from './types';
 
 /**

@@ -8,8 +8,7 @@ import {
   IMessageHandler,
   IConsumerConfig,
   IConsumerStats,
-  ConsumerStatus,
-  MessageStatus
+  ConsumerStatus
 } from '../types';
 import { Queue } from '../core/queue';
 import { DeadLetterQueue } from '../queues/dead-letter-queue';

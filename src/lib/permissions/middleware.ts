@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * RBAC Middleware - Permission and role-based middleware for API routes
  */

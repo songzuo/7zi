@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained RBAC Types
  * 细粒度权限管理系统类型定义
@@ -224,6 +223,8 @@ export interface EnhancedRoleDefinition {
   policies?: string[]
   /** 父角色 (继承) */
   inheritsFrom?: string[]
+  /** 继承模式: extend | restrict | override */
+  mode?: 'extend' | 'restrict' | 'override'
   /** 继承深度 */
   inheritanceDepth: number
   /** 计算后的所有权限 (包括继承的) */

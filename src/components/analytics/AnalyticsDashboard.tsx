@@ -267,7 +267,7 @@ const AnalyticsDashboardComponent: React.FC<AnalyticsDashboardProps> = ({
   )
 
   // Create statistics from metrics
-  const createStatistics = (): Statistic[] => {
+  const createStatistics = React.useCallback((): Statistic[] => {
     if (!metrics) return []
 
     return [
@@ -312,10 +312,10 @@ const AnalyticsDashboardComponent: React.FC<AnalyticsDashboardProps> = ({
         },
       },
     ]
-  }
+  }, [metrics, locale])
 
   // 使用 useMemo 优化 statistics 数组，避免每次渲染都重新创建
-  const statistics = React.useMemo(() => createStatistics(), [metrics, locale])
+  const statistics = React.useMemo(() => createStatistics(), [createStatistics])
 
   const icons = React.useMemo(() => [Activity, Users, CheckCircle, DollarSign], [])
 

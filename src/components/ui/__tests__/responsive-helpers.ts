@@ -252,7 +252,7 @@ export function expectAccessibleName(element: HTMLElement, name: string) {
 /**
  * Export all helpers as a default object for convenience
  */
-export default {
+const responsiveHelpers = {
   resizeTo,
   resizeToWidth,
   isBreakpoint,
@@ -274,3 +274,5 @@ export default {
   expectAccessibleName,
   BREAKPOINTS,
 }
+
+export default responsiveHelpers

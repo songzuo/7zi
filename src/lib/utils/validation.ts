@@ -740,8 +740,7 @@ export function validateChinaSocialCreditCode(
 
   // 校验码验证
   const weights = [1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28]
-  const chars = '0123456789ABCDEFGHJKLMNPQRTUWXY'
-  const excluded = ['I', 'O', 'Z', 'S', 'V'] // 排除的字符
+  const chars = '0123456789ABCDEFGHJKLMNPQRTUWXY' // 已排除 I/O/Z/S/V 等易混淆字符
 
   let sum = 0
   for (let i = 0; i < 17; i++) {

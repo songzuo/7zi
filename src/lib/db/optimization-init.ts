@@ -82,8 +82,11 @@ if (typeof window === 'undefined') {
 }
 
 // 导出给应用使用
-export default {
+const optimizationInit = {
   initialize: initializeDatabaseOptimization,
   cleanup: cleanupDatabaseOptimization,
   getStatus: getOptimizationStatus,
 }
+
+export default optimizationInit
+

@@ -7,7 +7,6 @@ import * as http from 'http';
 import { WebSocketServer, WebSocket as WSWebSocket } from 'ws';
 import {
   IMonitorEvent,
-  MonitorEventType,
   IWSMessage
 } from '../types';
 import { Broker } from '../core/broker';

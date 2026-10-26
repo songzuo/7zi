@@ -257,7 +257,7 @@ export const TTL_PRESETS = {
 // Export
 // ============================================
 
-export default {
+const dbModule = {
   DEFAULT_QUERY_CACHE_CONFIG,
   getQueryCacheConfig,
   CACHE_INVALIDATION_RULES,
@@ -265,3 +265,6 @@ export default {
   getWarmupConfig,
   TTL_PRESETS,
 }
+
+export default dbModule
+

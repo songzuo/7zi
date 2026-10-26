@@ -102,7 +102,6 @@ export function throttle<T extends (...args: never[]) => void>(
   let inThrottle: boolean = false
   let timeout: NodeJS.Timeout | null = null
   let lastArgs: Parameters<T> | null = null
-  let pendingTrailing: boolean = false // True if trailing call is pending execution
 
   const throttled = (...args: Parameters<T>): void => {
     // Handle zero limit case - just call the function
@@ -110,9 +109,6 @@ export function throttle<T extends (...args: never[]) => void>(
       func(...args)
       return
     }
-
-    // Clear any pending trailing execution
-    pendingTrailing = false
 
     if (!inThrottle) {
       // Not in throttle window - execute immediately
@@ -131,11 +127,9 @@ export function throttle<T extends (...args: never[]) => void>(
 
         // If we have buffered args, execute trailing call immediately
         if (lastArgs !== null) {
-          pendingTrailing = true
           const argsToExecute = lastArgs
           lastArgs = null
           func(...argsToExecute)
-          pendingTrailing = false
 
           // Trailing call starts a new throttle window
           inThrottle = true
@@ -159,7 +153,6 @@ export function throttle<T extends (...args: never[]) => void>(
     }
     inThrottle = false
     lastArgs = null
-    pendingTrailing = false
   }
 
   throttled.pending = (): boolean => inThrottle

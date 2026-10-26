@@ -381,7 +381,7 @@ export function useResponsiveValue<T>(values: Partial<Record<Breakpoint, T>>): T
 // Exports
 // ============================================================================
 
-export default {
+const responsiveHooks = {
   useScreenSize,
   useIsTouchDevice,
   useMediaQuery,
@@ -392,3 +392,5 @@ export default {
   useBreakpoint,
   useResponsiveValue,
 }
+
+export default responsiveHooks

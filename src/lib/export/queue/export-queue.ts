@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview 导出任务队列 - 后台异步导出
  * @description 使用 Bull 队列管理导出任务，支持任务状态追踪和进度报告
@@ -33,13 +32,25 @@ export interface ExportJobProgress {
 }
 
 /**
+ * 判断是否为导出任务进度数据
+ */
+function isExportJobProgress(value: unknown): value is ExportJobProgress {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as ExportJobProgress).percentage === 'number' &&
+    typeof (value as ExportJobProgress).stage === 'string'
+  )
+}
+
+/**
  * 导出任务
  */
-export interface ExportJob {
+export interface ExportJob<T = Record<string, unknown>> {
   id: string
   requestId: string
   status: ExportJobStatus
-  request: ExportRequest<unknown>
+  request: ExportRequest<T>
   progress: ExportJobProgress
   result?: {
     filename: string
@@ -97,10 +108,10 @@ const DEFAULT_CONFIG: Required<ExportQueueConfig> = {
  * 导出任务队列
  * 使用 Bull 队列管理后台导出任务
  */
-export class ExportQueue {
+export class ExportQueue<T = Record<string, unknown>> {
   private queue: Queue
   private config: Required<ExportQueueConfig>
-  private jobStore: Map<string, ExportJob> = new Map()
+  private jobStore: Map<string, ExportJob<T>> = new Map()
   private initialized: boolean = false
 
   constructor(config: ExportQueueConfig = {}) {
@@ -150,7 +161,7 @@ export class ExportQueue {
   /**
    * 提交导出任务
    */
-  async submitJob(job: ExportJob): Promise<void> {
+  async submitJob(job: ExportJob<T>): Promise<void> {
     if (!this.initialized) {
       await this.initialize()
     }
@@ -173,7 +184,7 @@ export class ExportQueue {
   /**
    * 获取任务
    */
-  async getJob(jobId: string): Promise<ExportJob | null> {
+  async getJob(jobId: string): Promise<ExportJob<T> | null> {
     // 从内存中获取
     const memoryJob = this.jobStore.get(jobId)
     if (memoryJob) {
@@ -197,7 +208,7 @@ export class ExportQueue {
     userId?: string
     page?: number
     pageSize?: number
-  } = {}): Promise<{ jobs: ExportJob[]; total: number; page: number; pageSize: number }> {
+  } = {}): Promise<{ jobs: ExportJob<T>[]; total: number; page: number; pageSize: number }> {
     const page = options.page || 1
     const pageSize = options.pageSize || 20
     const offset = (page - 1) * pageSize
@@ -355,7 +366,7 @@ export class ExportQueue {
    * 设置事件处理器
    */
   private setupEventHandlers(): void {
-    this.queue.on('completed', async (job: Job) => {
+    this.queue.on('completed', async (_event: string, job: Job) => {
       const exportJob = this.jobStore.get(job.id.toString())
       if (exportJob) {
         exportJob.status = 'completed'
@@ -366,19 +377,21 @@ export class ExportQueue {
       logger.info('[ExportQueue] 任务完成', { jobId: job.id })
     })
 
-    this.queue.on('failed', async (job: Job, error: Error) => {
+    this.queue.on('failed', async (_event: string, job: Job, extra?: unknown) => {
+      const error = extra instanceof Error ? extra : undefined
       const exportJob = this.jobStore.get(job.id?.toString() || '')
       if (exportJob) {
         exportJob.status = 'failed'
-        exportJob.error = error.message
+        exportJob.error = error?.message || job.failedReason || '未知错误'
         exportJob.updatedAt = new Date().toISOString()
       }
       logger.error('[ExportQueue] 任务失败', { jobId: job.id, error })
     })
 
-    this.queue.on('progress', async (job: Job, progress: ExportJobProgress) => {
+    this.queue.on('progress', async (_event: string, job: Job, extra?: unknown) => {
+      const progress = isExportJobProgress(extra) ? extra : undefined
       const exportJob = this.jobStore.get(job.id.toString())
-      if (exportJob) {
+      if (exportJob && progress) {
         exportJob.progress = progress
         exportJob.updatedAt = new Date().toISOString()
       }
@@ -398,7 +411,7 @@ export class ExportQueue {
    */
   private startWorker(): void {
     this.queue.process(this.config.maxConcurrent, async (job: Job) => {
-      const exportJob = job.data as ExportJob
+      const exportJob = job.data as ExportJob<T>
 
       try {
         // 更新状态
@@ -426,7 +439,7 @@ export class ExportQueue {
   /**
    * 处理导出任务
    */
-  private async processExportJob(exportJob: ExportJob, job: Job): Promise<void> {
+  private async processExportJob(exportJob: ExportJob<T>, job: Job): Promise<void> {
     const { request } = exportJob
 
     // 模拟导出过程
@@ -460,8 +473,8 @@ export class ExportQueue {
   /**
    * 从 Bull Job 构建 ExportJob
    */
-  private async buildJobFromBullJob(bullJob: Job): Promise<ExportJob | null> {
-    const data = bullJob.data as ExportJob
+  private async buildJobFromBullJob(bullJob: Job): Promise<ExportJob<T> | null> {
+    const data = bullJob.data as ExportJob<T>
     
     return {
       ...data,
@@ -472,7 +485,7 @@ export class ExportQueue {
   /**
    * 获取任务优先级
    */
-  private getPriority(request: ExportRequest<unknown>): number {
+  private getPriority(request: ExportRequest<T>): number {
     // 根据请求类型返回优先级
     // 1-10, 10 为最高优先级
     if ('background' in request && request.background) {

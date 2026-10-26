@@ -262,7 +262,7 @@ function ParticipantSidebar({ participants }: { participants: Map<string, Meetin
 }
 
 function AudioLevelMonitor({
-  participants,
+  participants: _participants,
   remoteStreams,
   onAudioLevelChange,
 }: {
@@ -340,7 +340,7 @@ function AudioLevelMonitor({
 
 function SettingsPanel({
   isOpen,
-  onClose,
+  onClose: _onClose,
   settings,
   onSettingsChange,
 }: {

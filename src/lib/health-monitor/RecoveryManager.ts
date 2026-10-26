@@ -9,10 +9,8 @@
  */
 
 import type {
-  HealthStatus,
   HealthSeverity,
   InstanceHealth,
-  HealthAlert,
   HealthEvent,
   HealthEventType,
   NotificationChannel
@@ -488,7 +486,7 @@ export class RecoveryManager {
   private async executeAction(
     action: RecoveryAction,
     instanceId: string,
-    instanceHealth: InstanceHealth
+    _instanceHealth: InstanceHealth
   ): Promise<RecoveryActionExecution> {
     const startTime = Date.now()
     const result: RecoveryActionExecution = {
@@ -560,55 +558,55 @@ export class RecoveryManager {
     }
   }
 
-  private async resetCircuitBreaker(instanceId: string): Promise<boolean> {
+  private async resetCircuitBreaker(_instanceId: string): Promise<boolean> {
     // In a real implementation, this would call the service's circuit breaker reset endpoint
     // For now, we simulate success
     return true
   }
 
-  private async restartService(instanceId: string, params: Record<string, unknown>): Promise<boolean> {
+  private async restartService(_instanceId: string, _params: Record<string, unknown>): Promise<boolean> {
     // In a real implementation, this would call the orchestration API to restart the service
     // For now, we simulate success
     return true
   }
 
-  private async scaleUp(instanceId: string, params: Record<string, unknown>): Promise<boolean> {
+  private async scaleUp(_instanceId: string, _params: Record<string, unknown>): Promise<boolean> {
     // In a real implementation, this would call the orchestration API to scale up
     // For now, we simulate success
     return true
   }
 
-  private async scaleDown(instanceId: string, params: Record<string, unknown>): Promise<boolean> {
+  private async scaleDown(_instanceId: string, _params: Record<string, unknown>): Promise<boolean> {
     // In a real implementation, this would call the orchestration API to scale down
     // For now, we simulate success
     return true
   }
 
-  private async clearCache(instanceId: string): Promise<boolean> {
+  private async clearCache(_instanceId: string): Promise<boolean> {
     // In a real implementation, this would call the service's cache clear endpoint
     // For now, we simulate success
     return true
   }
 
-  private async notifyTeam(instanceId: string, params: Record<string, unknown>): Promise<boolean> {
+  private async notifyTeam(_instanceId: string, _params: Record<string, unknown>): Promise<boolean> {
     // In a real implementation, this would send notifications via configured channels
     // For now, we simulate success
     return true
   }
 
-  private async runDiagnostic(instanceId: string, params: Record<string, unknown>): Promise<boolean> {
+  private async runDiagnostic(_instanceId: string, _params: Record<string, unknown>): Promise<boolean> {
     // In a real implementation, this would run diagnostic checks
     // For now, we simulate success
     return true
   }
 
-  private async rollbackDeployment(instanceId: string): Promise<boolean> {
+  private async rollbackDeployment(_instanceId: string): Promise<boolean> {
     // In a real implementation, this would trigger a deployment rollback
     // For now, we simulate success
     return true
   }
 
-  private async executeCustomAction(instanceId: string, params: Record<string, unknown>): Promise<boolean> {
+  private async executeCustomAction(_instanceId: string, _params: Record<string, unknown>): Promise<boolean> {
     // In a real implementation, this would execute custom logic
     // For now, we simulate success
     return true

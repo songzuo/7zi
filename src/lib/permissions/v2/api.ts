@@ -1,5 +1,3 @@
-// @ts-nocheck
-// @ts-nocheck
 /**
  * v1.12.0 Permission Management API
  * 权限管理 API 路由
@@ -21,11 +19,8 @@ import {
   removeRoleFromUser,
   getPermissions,
   createPermission,
-  updatePermission,
-  deletePermission,
   getUserPermissionContextV2,
 } from '../v2/repository-v2'
-import { PermissionChangeType } from '../v2/types'
 
 /**
  * GET /api/v2/permissions/roles
@@ -39,7 +34,7 @@ export async function GET_roles(request: NextRequest): Promise<NextResponse> {
       detailedErrors: true,
       enableProfiling: true,
     }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, _userContext) => {
     try {
       const roles = await getEnhancedRoles()
       return NextResponse.json({
@@ -50,7 +45,7 @@ export async function GET_roles(request: NextRequest): Promise<NextResponse> {
           count: roles.length,
         },
       })
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         {
           success: false,
@@ -76,7 +71,7 @@ export async function POST_roles(request: NextRequest): Promise<NextResponse> {
     {
       detailedErrors: true,
     }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, userContext) => {
     try {
       const body = await request.json()
       const { name, description, permissions, inheritsFrom, level } = body
@@ -142,7 +137,7 @@ export async function GET_role_by_id(
     ResourceType.SYSTEM,
     ActionType.READ,
     { detailedErrors: true }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, _userContext) => {
     try {
       const role = await getEnhancedRoleById(params.id)
 
@@ -166,7 +161,7 @@ export async function GET_role_by_id(
           timestamp: new Date().toISOString(),
         },
       })
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         {
           success: false,
@@ -193,7 +188,7 @@ export async function PUT_role_by_id(
     ResourceType.SYSTEM,
     ActionType.MANAGE,
     { detailedErrors: true }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, userContext) => {
     try {
       const body = await request.json()
       const { name, description, permissions, inheritsFrom, level } = body
@@ -258,7 +253,7 @@ export async function DELETE_role_by_id(
     ResourceType.SYSTEM,
     ActionType.MANAGE,
     { detailedErrors: true }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, userContext) => {
     try {
       const success = await deleteEnhancedRole(
         params.id,
@@ -285,7 +280,7 @@ export async function DELETE_role_by_id(
           timestamp: new Date().toISOString(),
         },
       })
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         {
           success: false,
@@ -309,7 +304,7 @@ export async function GET_permissions(request: NextRequest): Promise<NextRespons
     ResourceType.SYSTEM,
     ActionType.READ,
     { detailedErrors: true }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, _userContext) => {
     try {
       const permissions = await getPermissions()
 
@@ -321,7 +316,7 @@ export async function GET_permissions(request: NextRequest): Promise<NextRespons
           count: permissions.length,
         },
       })
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         {
           success: false,
@@ -345,7 +340,7 @@ export async function POST_permissions(request: NextRequest): Promise<NextRespon
     ResourceType.SYSTEM,
     ActionType.MANAGE,
     { detailedErrors: true }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, userContext) => {
     try {
       const body = await request.json()
       const { name, description, resourceType, action, conditions, scope, priority, isDeny } = body
@@ -409,7 +404,7 @@ export async function POST_assign_role(request: NextRequest): Promise<NextRespon
     ResourceType.USER,
     ActionType.MANAGE,
     { detailedErrors: true }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, userContext) => {
     try {
       const body = await request.json()
       const { userId, roleId, tenantId, expiresAt } = body
@@ -465,7 +460,7 @@ export async function POST_remove_role(request: NextRequest): Promise<NextRespon
     ResourceType.USER,
     ActionType.MANAGE,
     { detailedErrors: true }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, userContext) => {
     try {
       const body = await request.json()
       const { userId, roleId } = body
@@ -518,7 +513,7 @@ export async function GET_user_permissions(
     ResourceType.USER,
     ActionType.READ,
     { detailedErrors: true }
-  )(request, async (req, userContext) => {
+  )(request, async (_req, _userContext) => {
     try {
       const context = await getUserPermissionContextV2(params.id)
 
@@ -542,7 +537,7 @@ export async function GET_user_permissions(
           timestamp: new Date().toISOString(),
         },
       })
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         {
           success: false,

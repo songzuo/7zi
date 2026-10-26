@@ -522,7 +522,7 @@ export * from './batch-operations'
 // Export query optimizations
 export * from './query-optimizations'
 
-export default {
+const dbModule = {
   getDatabase,
   getDatabaseAsync,
   closeDatabase,
@@ -534,3 +534,6 @@ export default {
   optimizeDatabase,
   getDatabaseHealth,
 }
+
+export default dbModule
+

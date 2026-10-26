@@ -164,7 +164,7 @@ interface TimingBarProps {
   locale: 'en' | 'zh'
 }
 
-const TimingBar: React.FC<TimingBarProps> = ({ timing, totalDuration, locale }) => {
+const TimingBar: React.FC<TimingBarProps> = ({ timing, totalDuration }) => {
   const leftPercent = (timing.startTime / totalDuration) * 100
   const widthPercent = (timing.duration / totalDuration) * 100
 
@@ -199,7 +199,6 @@ const ResourceRow: React.FC<ResourceRowProps> = ({
   resource,
   totalDuration,
   showDetails,
-  locale,
 }) => {
   const color =
     RESOURCE_COLORS[resource.initiatorType as keyof typeof RESOURCE_COLORS] || RESOURCE_COLORS.other
@@ -247,7 +246,6 @@ const ResourceRow: React.FC<ResourceRowProps> = ({
 
 export const PageLoadWaterfall: React.FC<PageLoadWaterfallProps> = ({
   metrics,
-  history = [],
   locale = 'en',
   showDetails = true,
   maxResources = 15,

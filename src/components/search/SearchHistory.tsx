@@ -5,7 +5,7 @@
  * @description Displays and manages search history with trending and popular searches
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { Clock, TrendingUp, X, Trash2, Search } from 'lucide-react'
 import type { SearchHistoryEntry } from '@/lib/search/types'
 
@@ -36,7 +36,7 @@ export function SearchHistory({
   const [loading, setLoading] = useState(true)
 
   // Fetch history data
-  const fetchHistory = async (tab: HistoryTab) => {
+  const fetchHistory = useCallback(async (tab: HistoryTab) => {
     setLoading(true)
     try {
       const response = await fetch(`/api/search/history?limit=${maxEntries}&type=${tab}`)
@@ -51,7 +51,7 @@ export function SearchHistory({
     } finally {
       setLoading(false)
     }
-  }
+  }, [maxEntries])
 
   // Delete history entry
   const deleteEntry = async (query: string, event: React.MouseEvent) => {
@@ -96,8 +96,8 @@ export function SearchHistory({
 
   // Load initial history
   useEffect(() => {
-    fetchHistory(defaultTab)
-  }, [defaultTab, maxEntries])
+    void fetchHistory(defaultTab)
+  }, [fetchHistory, defaultTab])
 
   // Tab configurations
   const tabs: Array<{ id: HistoryTab; label: string; icon: React.ReactNode }> = [

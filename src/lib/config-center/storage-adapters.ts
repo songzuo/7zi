@@ -83,7 +83,7 @@ export class MemoryStorageAdapter implements StorageAdapter {
   async getAllConfigs(environment: ConfigEnvironment): Promise<ConfigItem[]> {
     const result: ConfigItem[] = [];
 
-    for (const [key, config] of this.configs) {
+    for (const config of this.configs.values()) {
       if (config.environment === environment) {
         result.push(config);
       }
@@ -234,30 +234,30 @@ export class RedisStorageAdapter implements StorageAdapter {
     // this.client = new Redis(this.config);
   }
 
-  async getConfig(key: string, environment: ConfigEnvironment): Promise<ConfigItem | null> {
+  async getConfig(_key: string, _environment: ConfigEnvironment): Promise<ConfigItem | null> {
     // Redis GET 操作
     return null;
   }
 
-  async setConfig(config: ConfigItem): Promise<void> {
+  async setConfig(_config: ConfigItem): Promise<void> {
     // Redis SET 操作
   }
 
-  async deleteConfig(key: string, environment: ConfigEnvironment): Promise<void> {
+  async deleteConfig(_key: string, _environment: ConfigEnvironment): Promise<void> {
     // Redis DEL 操作
   }
 
-  async getConfigs(keys: string[], environment: ConfigEnvironment): Promise<ConfigItem[]> {
+  async getConfigs(_keys: string[], _environment: ConfigEnvironment): Promise<ConfigItem[]> {
     // Redis MGET 操作
     return [];
   }
 
-  async getAllConfigs(environment: ConfigEnvironment): Promise<ConfigItem[]> {
+  async getAllConfigs(_environment: ConfigEnvironment): Promise<ConfigItem[]> {
     // Redis SCAN 操作
     return [];
   }
 
-  async queryConfigs(query: ConfigQuery): Promise<ConfigItem[]> {
+  async queryConfigs(_query: ConfigQuery): Promise<ConfigItem[]> {
     // Redis 查询操作
     return [];
   }
@@ -291,30 +291,30 @@ export class DatabaseStorageAdapter implements StorageAdapter {
     // 数据库连接初始化
   }
 
-  async getConfig(key: string, environment: ConfigEnvironment): Promise<ConfigItem | null> {
+  async getConfig(_key: string, _environment: ConfigEnvironment): Promise<ConfigItem | null> {
     // 数据库查询操作
     return null;
   }
 
-  async setConfig(config: ConfigItem): Promise<void> {
+  async setConfig(_config: ConfigItem): Promise<void> {
     // 数据库插入/更新操作
   }
 
-  async deleteConfig(key: string, environment: ConfigEnvironment): Promise<void> {
+  async deleteConfig(_key: string, _environment: ConfigEnvironment): Promise<void> {
     // 数据库删除操作
   }
 
-  async getConfigs(keys: string[], environment: ConfigEnvironment): Promise<ConfigItem[]> {
+  async getConfigs(_keys: string[], _environment: ConfigEnvironment): Promise<ConfigItem[]> {
     // 数据库批量查询操作
     return [];
   }
 
-  async getAllConfigs(environment: ConfigEnvironment): Promise<ConfigItem[]> {
+  async getAllConfigs(_environment: ConfigEnvironment): Promise<ConfigItem[]> {
     // 数据库查询所有配置
     return [];
   }
 
-  async queryConfigs(query: ConfigQuery): Promise<ConfigItem[]> {
+  async queryConfigs(_query: ConfigQuery): Promise<ConfigItem[]> {
     // 数据库高级查询操作
     return [];
   }
@@ -347,30 +347,30 @@ export class FileStorageAdapter implements StorageAdapter {
     // 文件存储初始化
   }
 
-  async getConfig(key: string, environment: ConfigEnvironment): Promise<ConfigItem | null> {
+  async getConfig(_key: string, _environment: ConfigEnvironment): Promise<ConfigItem | null> {
     // 从文件读取配置
     return null;
   }
 
-  async setConfig(config: ConfigItem): Promise<void> {
+  async setConfig(_config: ConfigItem): Promise<void> {
     // 写入文件
   }
 
-  async deleteConfig(key: string, environment: ConfigEnvironment): Promise<void> {
+  async deleteConfig(_key: string, _environment: ConfigEnvironment): Promise<void> {
     // 从文件删除配置
   }
 
-  async getConfigs(keys: string[], environment: ConfigEnvironment): Promise<ConfigItem[]> {
+  async getConfigs(_keys: string[], _environment: ConfigEnvironment): Promise<ConfigItem[]> {
     // 批量读取配置
     return [];
   }
 
-  async getAllConfigs(environment: ConfigEnvironment): Promise<ConfigItem[]> {
+  async getAllConfigs(_environment: ConfigEnvironment): Promise<ConfigItem[]> {
     // 读取所有配置
     return [];
   }
 
-  async queryConfigs(query: ConfigQuery): Promise<ConfigItem[]> {
+  async queryConfigs(_query: ConfigQuery): Promise<ConfigItem[]> {
     // 查询配置
     return [];
   }

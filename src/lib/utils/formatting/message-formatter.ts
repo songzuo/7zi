@@ -76,7 +76,11 @@ export interface SlackFormatOptions extends FormatOptions {
  * Email-specific formatting options
  */
 export interface EmailFormatOptions extends FormatOptions {
-  /** Email priority override */
+  /**
+   * Email priority override.
+   * 注意：当前实现未把该字段渲染进正文（邮件优先级由调用方
+   * EmailChannel 通过 nodemailer 的 priority 选项单独设置），保留字段仅为兼容现有调用方。
+   */
   priority?: 'high' | 'normal' | 'low'
   /** Include HTML formatting */
   html?: boolean
@@ -414,7 +418,7 @@ export function formatEmailAlert(
   alert: AlertData,
   options: EmailFormatOptions = {}
 ): { subject: string; text: string; html: string } {
-  const { includeMetadata = false, includeMetric = true, priority } = options
+  const { includeMetadata = false, includeMetric = true } = options
   const levelEmoji = getLevelEmoji(alert.level)
   const timestamp = formatTimestamp(alert.createdAt)
 
@@ -666,7 +670,7 @@ export function formatMarkdownAlert(alert: AlertData, options: FormatOptions = {
 // Exports
 // ============================================
 
-export default {
+const MessageFormatter = {
   getLevelEmoji,
   getSlackLevelEmoji,
   getLevelColor,
@@ -677,3 +681,5 @@ export default {
   formatEmailAlert,
   formatMarkdownAlert,
 }
+
+export default MessageFormatter

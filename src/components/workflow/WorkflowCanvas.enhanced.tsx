@@ -189,7 +189,7 @@ export const WorkflowCanvas = forwardRef<WorkflowCanvasRef, WorkflowCanvasProps>
           y: Math.round(position.y / gridSize) * gridSize,
         }
       },
-      [canvasState.snapToGrid, canvasState.gridSize]
+      [canvasState]
     )
 
     // 获取鼠标在画布中的位置

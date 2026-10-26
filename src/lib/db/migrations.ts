@@ -596,7 +596,7 @@ export async function getDatabaseHealth(): Promise<DatabaseHealthResult> {
   }
 }
 
-export default {
+const dbModule = {
   migrate,
   rollback,
   optimizeDatabase,
@@ -605,3 +605,6 @@ export default {
   getDatabaseHealth,
   getCurrentVersion,
 }
+
+export default dbModule
+

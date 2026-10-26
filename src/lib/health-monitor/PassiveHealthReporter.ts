@@ -9,8 +9,6 @@
  */
 
 import type {
-  ServiceInstance,
-  HealthCheckResponse,
   HealthStatus,
   InstanceHealth,
   HealthEvent,

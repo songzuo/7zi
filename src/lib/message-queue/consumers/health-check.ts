@@ -3,10 +3,7 @@
  * 实现消费者健康状态监控
  */
 
-import {
-  ConsumerStatus,
-  IConsumerStats
-} from '../types';
+import { ConsumerStatus } from '../types';
 import { Consumer } from './consumer';
 import { ConsumerGroup } from './consumer-group';
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview JSON Parser
  * @description 支持 JSON 和 JSON Lines 格式的解析器

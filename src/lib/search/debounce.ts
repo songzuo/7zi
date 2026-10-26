@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview 防抖工具函数
  * @description 提供搜索输入防抖功能，优化性能

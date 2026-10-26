@@ -104,7 +104,7 @@ interface GeneralTabProps {
 
 const GeneralTab: React.FC<GeneralTabProps> = ({
   room,
-  currentUserId,
+  currentUserId: _currentUserId,
   currentUserRole,
   onUpdateRoom,
   onUpdateConfig,
@@ -322,7 +322,7 @@ interface MembersTabProps {
 
 const MembersTab: React.FC<MembersTabProps> = ({
   room,
-  currentUserId,
+  currentUserId: _currentUserId,
   currentUserRole,
   isLoading,
 }) => {
@@ -423,10 +423,10 @@ interface PermissionsTabProps {
 }
 
 const PermissionsTab: React.FC<PermissionsTabProps> = ({
-  room,
-  currentUserId,
+  room: _room,
+  currentUserId: _currentUserId,
   currentUserRole,
-  isLoading,
+  isLoading: _isLoading,
 }) => {
   const t = useTranslations('room.settings.permissions')
 
@@ -609,7 +609,11 @@ interface NotificationsTabProps {
   isLoading: boolean
 }
 
-const NotificationsTab: React.FC<NotificationsTabProps> = ({ room, currentUserId, isLoading }) => {
+const NotificationsTab: React.FC<NotificationsTabProps> = ({
+  room: _room,
+  currentUserId: _currentUserId,
+  isLoading,
+}) => {
   const t = useTranslations('room.settings.notifications')
 
   const [messageNotifications, setMessageNotifications] = useState(true)

@@ -149,7 +149,7 @@ export function isLegacyPermissionFormat(permission: string): boolean {
     return false
   }
 
-  const [action, resource] = permission.split(':')
+  const [action] = permission.split(':')
 
   // Legacy format has action first (read, write, delete, manage, access, etc.)
   const legacyActions = ['read', 'write', 'create', 'update', 'delete', 'manage', 'access', 'settings', 'approval', 'reports', 'system', 'logs', 'agent', 'wallet']

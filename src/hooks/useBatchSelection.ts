@@ -69,7 +69,7 @@ export function useBatchSelection<T>({
 }: UseBatchSelectionOptions<T>): UseBatchSelectionReturn<T> {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isSelectionMode, setIsSelectionMode] = useState(false)
-  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null)
+  const [_lastSelectedId, setLastSelectedId] = useState<string | null>(null)
   const [firstSelectedId, setFirstSelectedId] = useState<string | null>(null)
 
   // Use a ref to track firstSelectedId to avoid stale closure issues

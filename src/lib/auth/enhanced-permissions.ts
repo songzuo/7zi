@@ -315,7 +315,8 @@ export async function checkPermission(params: {
 }): Promise<PermissionCheckResult> {
   await initializePermissionTables()
 
-  const db = await getDatabaseAsync()
+  // 确保数据库连接已初始化（与其它检查函数保持一致）
+  await getDatabaseAsync()
   const matchedPermissions: string[] = []
   let inheritedFrom: string | undefined
 

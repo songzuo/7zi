@@ -28,15 +28,6 @@ export interface ReviewItemProps {
   className?: string
 }
 
-interface Reply {
-  id: string
-  rating_id: string
-  user_id: string
-  user_name?: string
-  content: string
-  created_at: string
-}
-
 export function ReviewItem({
   rating,
   isOwner = false,

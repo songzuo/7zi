@@ -223,7 +223,7 @@ export function WorkflowVersionHistory({
 
       if (!response.ok) throw new Error('Failed to rollback')
 
-      const data = await response.json()
+      await response.json()
       setRollbackConfirm(null)
       fetchVersions()
 

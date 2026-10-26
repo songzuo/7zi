@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained RBAC Middleware
  * 细粒度权限检查中间件
@@ -9,7 +8,7 @@ import { ResourceType, ActionType, PermissionCheckRequest, PermissionCheckResult
 import { PermissionEngine, createPermissionEngine } from './engine'
 import { AuditLogManager, createAuditLogManager } from './audit'
 import { getUserPermissionContextV2, getPermissions } from './repository-v2'
-import { logger } from '../logger'
+import { logger } from '../../logger'
 
 /**
  * 中间件配置
@@ -98,7 +97,7 @@ async function extractUserContext(request: NextRequest): Promise<{
   }
 
   try {
-    const { authenticateToken } = await import('../auth/service')
+    const { authenticateToken } = await import('../../auth/service')
     const authResult = await authenticateToken(token)
 
     if (!authResult) {
@@ -106,6 +105,9 @@ async function extractUserContext(request: NextRequest): Promise<{
     }
 
     const { user } = authResult
+    // 租户信息并非所有用户都有，需做运行时判定
+    const tenantId =
+      'tenantId' in user && typeof user.tenantId === 'string' ? user.tenantId : undefined
 
     // 获取完整的权限上下文
     const permissionContext = await getUserPermissionContextV2(user.id)
@@ -119,7 +121,7 @@ async function extractUserContext(request: NextRequest): Promise<{
       roles: user.roles || [],
       permissions: user.permissions || [],
       customPermissions: user.customPermissions,
-      tenantId: user.tenantId,
+      tenantId,
       teamIds: permissionContext.teamIds,
     }
   } catch (error) {

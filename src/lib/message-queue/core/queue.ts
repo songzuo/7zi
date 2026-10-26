@@ -8,8 +8,7 @@ import {
   IMessageOptions,
   IQueueConfig,
   IQueueStats,
-  QueueType,
-  MessageStatus
+  QueueType
 } from '../types';
 import { Message } from './message';
 
@@ -263,8 +262,8 @@ export abstract class Queue {
   protected async onClose(): Promise<void> {}
   protected abstract onPublish(message: Message): Promise<void>;
   protected abstract onConsume(consumerId?: string): Promise<Message | null>;
-  protected async onAcknowledge(message: Message): Promise<void> {}
-  protected async onReject(message: Message): Promise<void> {}
-  protected async onRequeue(message: Message): Promise<void> {}
+  protected async onAcknowledge(_message: Message): Promise<void> {}
+  protected async onReject(_message: Message): Promise<void> {}
+  protected async onRequeue(_message: Message): Promise<void> {}
   protected async onClear(): Promise<void> {}
 }

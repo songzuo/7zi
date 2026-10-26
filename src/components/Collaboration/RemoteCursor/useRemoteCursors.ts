@@ -52,7 +52,7 @@ function getUserColor(userId: string): string {
  * @param func 要节流的函数
  * @param limit 时间间隔（毫秒）
  */
-function throttle<T extends (...args: any[]) => any>(
+function throttle<T extends (...args: never[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
@@ -230,17 +230,30 @@ export function useRemoteCursors(wsManager: WebSocketManager) {
    * 更新本地光标位置（节流）
    * 发送光标位置到服务器，节流到 60fps
    */
-  const updateLocalCursor = useCallback(
-    throttle((x: number, y: number, selection?: RemoteCursor['selection']) => {
-      if (wsManager.getState() !== 'disconnected') {
-        return
-      }
+  // 节流后的发送函数保存在 ref 中，保证节流窗口在整个生命周期内稳定
+  const throttledSendRef = useRef<
+    ((x: number, y: number, selection?: RemoteCursor['selection']) => void) | null
+  >(null)
 
-      wsManager.emit('collab:update-cursor', {
-        position: { x, y },
-        selection,
-      })
-    }, PERFORMANCE_CONFIG.CURSOR_UPDATE_THROTTLE),
+  const updateLocalCursor = useCallback(
+    (x: number, y: number, selection?: RemoteCursor['selection']) => {
+      if (!throttledSendRef.current) {
+        throttledSendRef.current = throttle(
+          (tx: number, ty: number, tSelection?: RemoteCursor['selection']) => {
+            if (wsManager.getState() !== 'disconnected') {
+              return
+            }
+
+            wsManager.emit('collab:update-cursor', {
+              position: { x: tx, y: ty },
+              selection: tSelection,
+            })
+          },
+          PERFORMANCE_CONFIG.CURSOR_UPDATE_THROTTLE
+        )
+      }
+      throttledSendRef.current(x, y, selection)
+    },
     [wsManager]
   )
 

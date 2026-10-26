@@ -19,7 +19,7 @@ import type {
   ICache,
   WarmupConfig,
 } from './types'
-import { DEFAULT_L1_CONFIG, DEFAULT_L2_CONFIG, DEFAULT_L3_CONFIG, LEVEL_PRIORITY } from './types'
+import { DEFAULT_L1_CONFIG, DEFAULT_L2_CONFIG, DEFAULT_L3_CONFIG } from './types'
 import { createStrategy, IEvictionStrategy } from './strategies'
 import { logger } from '../logger'
 
@@ -98,7 +98,7 @@ class L1Cache implements ICache {
     
     // Check memory limit
     if (this.shouldEvict(size)) {
-      await this.evict(size)
+      await this.evict()
     }
     
     const entry: CacheEntry = {
@@ -177,7 +177,7 @@ class L1Cache implements ICache {
     return currentMemory + newSize > memoryLimit || this.entries.size >= this.config.maxSize
   }
   
-  private async evict(requiredSize: number): Promise<void> {
+  private async evict(): Promise<void> {
     const keysToEvict = this.strategy.selectForEviction(this.entries, 10)
     
     for (const key of keysToEvict) {

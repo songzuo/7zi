@@ -1012,7 +1012,7 @@ export async function warmupCache(): Promise<void> {
   }
 }
 
-export default {
+const dbModule = {
   cached,
   cachedWithInvalidation,
   cachedQuery,
@@ -1027,3 +1027,6 @@ export default {
   memoizedQuery,
   MemoizationCache,
 }
+
+export default dbModule
+

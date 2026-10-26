@@ -7,7 +7,6 @@
 import {
   ConfigItem,
   ConfigEnvironment,
-  ConfigStatus,
   ConfigQuery,
   ConfigChangeListener,
   ConfigChangeEvent,

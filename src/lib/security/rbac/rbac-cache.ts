@@ -319,8 +319,10 @@ export class RBACCache<T = Permission[]> {
    * 批量失效（基于角色）
    * 注意：这需要额外存储用户-角色映射
    */
-  async invalidateByRole(roleId: string): Promise<void> {
+  async invalidateByRole(_roleId: string): Promise<void> {
     // 删除所有与该角色相关的缓存
+    // 注意：当前实现缺少用户-角色映射，无法按角色精确筛选，
+    // 因此退化为清空全部用户缓存（roleId 暂未使用）
     const pattern = this.generateKey(`user:*`)
 
     // 从内存缓存删除

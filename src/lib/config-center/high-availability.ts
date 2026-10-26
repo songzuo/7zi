@@ -6,7 +6,6 @@
 
 import {
   ConfigSyncStatus,
-  ConfigItem,
   ConfigEnvironment,
   ConfigHealthCheck,
   HealthCheckResult,
@@ -211,7 +210,7 @@ export class HighAvailabilityManager {
    */
   async syncFromNode(
     sourceNodeId: string,
-    environment?: ConfigEnvironment
+    _environment?: ConfigEnvironment
   ): Promise<ConfigSyncStatus> {
     const sourceNode = this.nodes.get(sourceNodeId);
     if (!sourceNode) {

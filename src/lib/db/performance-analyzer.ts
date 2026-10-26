@@ -504,7 +504,7 @@ export async function findMissingIndexes(): Promise<
   return missingIndexes
 }
 
-export default {
+const dbModule = {
   executeQueryWithMetrics,
   analyzeSlowQueries,
   analyzeTables,
@@ -512,3 +512,6 @@ export default {
   explainQueryPlan,
   findMissingIndexes,
 }
+
+export default dbModule
+

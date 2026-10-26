@@ -94,7 +94,7 @@ class ResponseUtil {
 /**
  * Async handler wrapper that standardizes error handling
  */
-async function wrapHandler<T>(
+async function wrapHandler(
   handler: () => Promise<string>
 ): Promise<{ content: Array<{ type: string; text: string }>; isError?: boolean }> {
   try {

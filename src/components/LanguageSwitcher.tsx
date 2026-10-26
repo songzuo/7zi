@@ -1,6 +1,5 @@
 'use client'
 
-import { useRouter, usePathname } from '@/i18n/routing'
 import { useLocale } from 'next-intl'
 import { locales, type Locale } from '@/i18n/config'
 import { useUserPreferences } from '@/lib/user-preferences'
@@ -19,8 +18,6 @@ interface LanguageSwitcherProps {
 }
 
 export function LanguageSwitcher({ className = '' }: LanguageSwitcherProps) {
-  const router = useRouter()
-  const pathname = usePathname()
   const currentLocale = useLocale() as Locale
   const { updateLocale } = useUserPreferences()
 
@@ -81,8 +78,6 @@ export function LanguageSwitcher({ className = '' }: LanguageSwitcherProps) {
 
 // 简洁版语言切换器（仅显示图标）
 export function LanguageSwitcherCompact({ className = '' }: LanguageSwitcherProps) {
-  const router = useRouter()
-  const pathname = usePathname()
   const currentLocale = useLocale() as Locale
   const { updateLocale } = useUserPreferences()
 

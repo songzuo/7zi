@@ -9,7 +9,7 @@ export interface JobOptions {
   backoff?: { type: 'exponential' | 'fixed'; delay: number };
 }
 
-export type BullEventHandler = (event: string, job: Job<unknown>) => void;
+export type BullEventHandler = (event: string, job: Job<unknown>, extra?: unknown) => void;
 
 export interface Job<T = unknown> {
   id: string;

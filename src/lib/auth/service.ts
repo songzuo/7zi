@@ -6,15 +6,12 @@
 import { SignJWT, jwtVerify } from 'jose'
 import {
   User,
-  UserToken,
   LoginRequest,
-  LoginResponse,
   LoginSuccessResponse,
   LoginFailureResponse,
   RegisterRequest,
   RegisterResponse,
   RefreshTokenRequest,
-  RefreshTokenResponse,
   RefreshTokenSuccessResponse,
   RefreshTokenFailureResponse,
   UserContext,
@@ -108,7 +105,7 @@ export async function verifyJwtToken(token: string): Promise<UserContext | null>
       permissions: (payload.permissions as string[]) || [],
       customPermissions: (payload.customPermissions as string[]) || [],
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -145,7 +142,7 @@ export async function registerUser(request: RegisterRequest): Promise<RegisterRe
     })
 
     // Remove password from response
-    const { password, ...userWithoutPassword } = user
+    const { password: _password, ...userWithoutPassword } = user
 
     return {
       success: true,
@@ -229,7 +226,7 @@ export async function loginUser(
     await updateLastLogin(user.id)
 
     // Remove password from response
-    const { password, ...userWithoutPassword } = user
+    const { password: _password, ...userWithoutPassword } = user
 
     return {
       success: true,

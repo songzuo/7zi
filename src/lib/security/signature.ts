@@ -123,7 +123,7 @@ export function validateSignature(
 
     // Use timing-safe comparison to prevent timing attacks
     return timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSignature, 'hex'))
-  } catch (error) {
+  } catch {
     return false
   }
 }
@@ -343,7 +343,7 @@ export function validateNextRequest(
   let body: unknown
   try {
     body = request.method !== 'GET' && request.method !== 'HEAD' ? request.json() : undefined
-  } catch (error) {
+  } catch {
     // Failed to parse body, use undefined
   }
 

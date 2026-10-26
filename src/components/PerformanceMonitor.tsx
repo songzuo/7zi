@@ -137,9 +137,10 @@ export function PerformanceMonitor() {
     }
 
     window.addEventListener('keydown', handleKeyDown)
+    // 在 effect 内捕获 observer，保证 cleanup 关闭的是当前这个 observer
+    const observer = observerRef.current
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
-      const observer = observerRef.current
       observer?.disconnect()
     }
   }, [])

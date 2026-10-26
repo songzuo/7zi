@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * v1.12.0 Permission Inheritance & Composition
  * 权限继承和组合机制

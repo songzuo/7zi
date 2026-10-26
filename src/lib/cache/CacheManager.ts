@@ -22,11 +22,6 @@ interface CacheStats {
   size: number
 }
 
-interface CacheOptions {
-  ttl?: number // Time to live in milliseconds (default: 60000 = 1 minute)
-  key?: string // Custom cache key (default: auto-generated from args)
-}
-
 export class CacheManager {
   private cache: Map<string, CacheEntry<unknown>> = new Map()
   private stats: CacheStats = { hits: 0, misses: 0, size: 0 }

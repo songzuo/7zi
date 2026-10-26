@@ -5,7 +5,6 @@
 
 import {
   createMemoryConfigCenter,
-  ConfigManager,
   ConfigCenterUtils,
 } from '../index';
 

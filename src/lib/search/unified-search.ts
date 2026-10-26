@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview Unified Search API
  * @description High-level search API that integrates all search components
@@ -304,7 +303,7 @@ export class UnifiedSearchManager {
    * Apply pagination to results
    */
   private applyPagination<T>(
-    results: T[],
+    results: SearchResult<T>[],
     offset: number,
     limit: number
   ): PaginatedSearchResult<T> {
@@ -313,7 +312,7 @@ export class UnifiedSearchManager {
     const page = Math.floor(offset / limit) + 1
 
     return {
-      results: paginatedResults as T[],
+      results: paginatedResults,
       total,
       page,
       pageSize: limit,

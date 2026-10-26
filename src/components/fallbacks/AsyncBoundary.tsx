@@ -7,7 +7,7 @@
 
 'use client'
 
-import React, { ReactNode, useCallback, useEffect, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { ComponentFallback, FallbackVariant } from './ComponentFallback'
 
 export type AsyncStatus = 'idle' | 'pending' | 'success' | 'error'
@@ -104,7 +104,9 @@ export function AsyncBoundary<T = unknown>({
   const [retryCount, setRetryCount] = useState(0)
   const [reloadKey, setReloadKey] = useState(0)
 
-  // Execute async operation
+  // 保存最新的 execute，供自动重试定时器调用（避免在初始化表达式中自引用）
+  const executeRef = useRef<() => Promise<void>>(() => Promise.resolve())
+
   const execute = useCallback(async () => {
     setStatus('pending')
     setError(null)
@@ -126,11 +128,17 @@ export function AsyncBoundary<T = unknown>({
       if (autoRetry && retryCount < maxAutoRetry) {
         setTimeout(() => {
           setRetryCount(prev => prev + 1)
-          execute()
+          // 通过 ref 调用自身，避免在初始化表达式中引用未声明的变量
+          executeRef.current()
         }, autoRetryDelay)
       }
     }
   }, [autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onError])
+
+  useEffect(() => {
+    executeRef.current = execute
+  }, [execute])
+
 
   // Reload function
   const reload = useCallback(() => {
@@ -148,8 +156,9 @@ export function AsyncBoundary<T = unknown>({
   // Execute on mount or when dependencies change
   useEffect(() => {
     if (executeOnMount) {
-      execute()
+      void executeRef.current()
     }
+    // dependencies 为调用方传入的动态依赖数组（元素级比较，语义与展开一致）
   }, [executeOnMount, reloadKey, ...dependencies])
 
   // Call on success
@@ -256,6 +265,9 @@ export function AsyncBoundaryFn<T = unknown>({
   const [retryCount, setRetryCount] = useState(0)
   const [reloadKey, setReloadKey] = useState(0)
 
+  // 保存最新的 execute，供自动重试定时器调用（避免在初始化表达式中自引用）
+  const executeRef = useRef<() => Promise<void>>(() => Promise.resolve())
+
   // Execute async operation
   const execute = useCallback(async () => {
     setStatus('pending')
@@ -282,11 +294,17 @@ export function AsyncBoundaryFn<T = unknown>({
       if (autoRetry && retryCount < maxAutoRetry) {
         setTimeout(() => {
           setRetryCount(prev => prev + 1)
-          execute()
+          // 通过 ref 调用自身，避免在初始化表达式中引用未声明的变量
+          executeRef.current()
         }, autoRetryDelay)
       }
     }
   }, [fn, autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onSuccess, onError])
+
+  useEffect(() => {
+    executeRef.current = execute
+  }, [execute])
+
 
   // Reload function
   const reload = useCallback(() => {
@@ -304,8 +322,9 @@ export function AsyncBoundaryFn<T = unknown>({
   // Execute on mount or when dependencies change
   useEffect(() => {
     if (executeOnMount) {
-      execute()
+      void executeRef.current()
     }
+    // dependencies 为调用方传入的动态依赖数组（元素级比较，语义与展开一致）
   }, [executeOnMount, reloadKey, fn, ...dependencies])
 
   // Loading state

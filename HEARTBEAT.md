@@ -557,79 +557,77 @@ cd /root/.openclaw/backups/github/repo && git rev-list --left-right --count HEAD
 别默认是冲突。（这跟第 35 节"rebase 冲突只 abort → 等于什么都没做"是同一类问题：
 **看真实错误信息，不要按预设的剧本处理**。）
 
----
+## 39. watchdog 改写 status → 同步脚本每轮都误判"未完成"并重置工作副本（2026-10-26 05:35 实测）
 
-# 🔴 根级 CI 测试基建：已修的「系统性」坑（2026-10-26 归档）
-
-这些都不是单个用例的问题，是**整片文件红**的根因。优先级最高。
-
-## A. `tests/setup.ts` 顶层抛异常 → 整片文件 0 用例
-
-`global.WebSocket = MockWebSocket as any` 直接赋值会抛
-`TypeError: Cannot assign to read only property 'WebSocket'` ——
-jsdom 把 WebSocket 定义成**只读的 getter 属性**（没有 setter）。
-setup 在顶层抛异常 → 所有依赖 global.WebSocket 的文件全部收集失败。
-
-**修法**：`Object.defineProperty(global, 'WebSocket', { value, writable: true, configurable: true })`。
-（msw/node 也会在模块求值时把 WebSocket define 成只读，所以必须抢在它前面。）
-
-## B. `vi.mock` 工厂缺具名导出 → 收集失败
-
-`vi.mock('@/lib/logger', () => ({ default: {...} }))` 但被测代码用的是
-`import { logger } from '@/lib/logger'` → 抛 `No "logger" export is defined` → 文件 0 用例。
-根级共 **60 个文件**踩这个坑。工厂里必须同时给 default 和具名导出。
-
-## C. mock 工厂返回函数而不是 Promise → 全部假失败
-
-```ts
-vi.mock('@/lib/auth/service', () => ({ loginUser: () => mockLoginUser }))
+**症状**：`/var/log/claw-mesh.log` 里每天 00:00 / 04:00 固定出现：
 ```
-`loginUser` 返回的是**函数**，不是 Promise。路由 `await loginUser(...)` 之后
-`result.success` 是 undefined → 走 401 分支 → 所有成功用例假失败。
-要写成 `loginUser: (...args) => mockLoginUser(...args)`。
+[WARN] [bot2] 检测到未完成的同步，触发恢复
+[INFO] [bot2] 启动故障恢复...
+HEAD is now at <sha> ...
+```
+看起来像"节点总在故障恢复"，但每次同步其实都成功了。
 
-## D. 动态 `await import()` 拿不到 `vi.mock` 的替换
+**根因（两层）**：
+1. `claw-mesh-watchdog.sh` 每 5 分钟执行
+   `sed -i 's/"status": "[^"]*"/"status": "healthy"/' $STATE_FILE`
+   → **status 永远是 `healthy`，永远不会回到 `idle`**。
+2. 同步脚本的恢复判据是
+   `status != "idle" && (now - lastUpdate) > 3600`
+   → `lastUpdate` 只有同步脚本自己更新，watchdog 不碰它
+   → **距上次同步超过 1 小时后，每一轮同步都满足条件**
+   → 每轮都执行 `recover_from_failure()`（`git reset --hard` + `git clean -fd`）
+   → **反复清空同步工作副本**，看起来"在同步"其实一直在重置。
 
-`await import('@/lib/db/connection')` 走的是真实模块，连到真 SQLite 报
-`no such table: revenue`。改静态 import。
+**修法（已落地）**：判据改用 **step**。
+`step > 0` 才表示"上轮真的停在中途"（step 0 = 正常完成）。
+```bash
+local step=$(echo "$state" | grep -o '"step": [0-9]*' | cut -d' ' -f2)
+[ -z "$step" ] && step=0
+if [ "$step" -gt 0 ] && [ $((now - last_update)) -gt 3600 ]; then
+    log "WARN" "检测到未完成的同步（step=$step），触发恢复"
+    recover_from_failure
+fi
+```
+已同步到模板 + bot2/3/5/6 脚本副本（commit `9df0476a89`），
+bot2 / bot6 的 live 脚本也已更新并实跑验证（日志不再出现恢复刷屏）。
 
-## E. mock 路径必须用 `@/` 别名
+**教训**：**多个组件写同一个状态字段时，"谁写谁读"要一起看**。
+watchdog 只写 `status`，同步脚本却拿 `status` 当"是否正常"的判据 →
+两个组件对同一个字段的语义理解不一致，就出现这种"每天定时误报"。
+→ **状态文件里每个字段都要有唯一语义归属**；
+→ 判据要选**不会被别的组件覆盖**的字段（step / lastSync，而不是 status）。
 
-`vi.mock('../lib/db/connection')` 和 `vi.mock('@/lib/db/connection')` 在 vitest 里
-是**两个不同的模块 ID**。用相对路径 → 业务代码里的别名导入拿到**真实模块**。
+## 40. 节点 live 脚本可能落后仓库副本很远（2026-10-26 05:35 实测）
 
-## F. 全局 mock DB 没有实现 SQLite 系统表
+**症状**：bot6 每 4 小时把自己的 17 个文件改坏（`ta[已移除]`），
+仓库侧却已经有修好的脚本副本 —— 一直以为是"selfheal 在打补丁"。
 
-`src/test/vi-mocks.ts` 的 mock DB 原来：
-- `CREATE INDEX` 直接被忽略（只认 CREATE TABLE）
-- 查 `sqlite_master` 返回 `[]`
-- 不支持 `SELECT ... AS` 别名、不支持 `WHERE ... NOT LIKE`
+**实测**（用 `~/.ssh/b6_ed25519` 登上 bot6，比之前所有节点都好使）：
+- bot6 live 脚本：**589 行**，含破坏性 sed
+  `-e 's/sk_[A-Za-z0-9]*/[已移除]/g'`（会吃掉 `task_request` / `disk_usage`）
+- 仓库里 bot6/claw-mesh-sync.sh 副本：**700 行**，破坏性 sed 已删
+- 差距 = **111 行 / 4 天**，期间 bot6 一直在用旧规则破坏自己
 
-于是凡是查索引/表结构的代码全部拿不到数据。已补 `dbIndexes` 登记表、
-sqlite_master 支持、别名映射、NOT LIKE 过滤。
+**同时发现 bot2 自己的 live 脚本也落后**（676 行 vs 仓库 700 行），
+缺三处防护：清理遗留 rebase 状态 / 拷贝跳过空文件 / merge-heartbeat 合并。
 
-## G. zustand v5：selector 返回对象字面量 = 无限重渲染
+**修法（已落地）**：
+- 从仓库副本（已修复版本）出发，替换 `MACHINE_NAME` 后下发到节点
+  `scp -i ~/.ssh/b6_ed25519 bot6/claw-mesh-sync.sh root@bot6:/root/.openclaw/cron/`
+- 同时补上节点缺失的依赖：`/usr/local/bin/merge-heartbeat.py`
+  （bot6 上原本没有 → 脚本里的 merge 分支永远走不到 → 共享清单只能 cp 覆盖）
+- 下发后**实跑一次**并核对：提交只动 `bot6/` 目录、无标识符损坏
 
-zustand v5 用 `Object.is` 比较 selector 返回值。返回**新对象**每次渲染都判定为
-「变了」→ 无限循环 → `Maximum update depth exceeded`。
-必须用 `useShallow`（`zustand/react/shallow`）。
+**教训（再次应验第 21 条）**：
+**"仓库里改了"≠"节点上生效"** —— 而且这次差了 4 天没人发现，
+因为巡检只看了"提交里有没有损坏"，没看**节点上那份脚本是第几版**。
 
-## H. zustand v5：`set` 用 Object.assign，getter 派生字段会被拍平成快照
-
-`get canUndo() { return history.past.length > 0 }` 挂在 store 对象上 ——
-第一次 `set` 之后 state 里只剩普通值，getter 再也不求值 → `canUndo` 永远 false。
-派生值必须是**真实状态字段**，每次变动后同步写回。
-
-## I. 生产代码里的真实缺陷（已修，值得记住的模式）
-
-- `parseIndexColumns` 没去掉 `DESC` 后缀 → 拿到 `'created_at DESC'`
-- `analyzeNavigation` 返回 `{routes,predictions,insights}`，**没有** `patterns` 字段
-- `b4889d4e1` 把 `navigate()` 改名 `recordPath()`，改了主测试但漏了 `prefetch.test.ts`
-- `isDark` 存快照而非实时推导 → theme='system' 时不同步
-- `getErrorCode` 委托 `toUnifiedError` 时**丢失 statusCode 映射** → 401/403/404 全判成 UNKNOWN
-- `shouldRecordAction` / `excludeActionTypes` / `getActionType` 声明了但**实现里一次没用**
-
-## J. 诊断手法（很好用）
-
-写一个临时 `dbg.test.ts` 把中间值 console.log 出来，比反复猜快得多。
-注意：**同一个文件里**已有用例的 mock 路径要和被测代码一致，否则打的是真实模块。
+**巡检必查（比什么都要靠前）**：
+```bash
+# 节点的 live 脚本 vs 仓库副本 —— 行数/关键防护一眼见分晓
+ssh root@botN 'wc -l /root/.openclaw/cron/claw-mesh-sync.sh'
+git show origin/main:botN/claw-mesh-sync.sh | wc -l
+# 关键防护是否在位
+ssh root@botN 'grep -c "git add \"\$MACHINE_NAME\"/" /root/.openclaw/cron/claw-mesh-sync.sh'
+ssh root@botN 'grep -cE "s/sk_\[A-Za-z0-9\]\*/|s/ghp_\[A-Za-z0-9\]\*/" /root/.openclaw/cron/claw-mesh-sync.sh'  # 必须 0
+```

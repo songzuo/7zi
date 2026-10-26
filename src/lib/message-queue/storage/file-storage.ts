@@ -201,7 +201,7 @@ export class FileStorage implements IStorage {
       this.enqueueWrite(async () => {
         try {
           await fs.unlink(filePath);
-        } catch (error) {
+        } catch {
           // 文件可能不存在
         }
       });
@@ -224,7 +224,7 @@ export class FileStorage implements IStorage {
       this.enqueueWrite(async () => {
         try {
           await fs.unlink(filePath);
-        } catch (error) {
+        } catch {
           // 文件可能不存在
         }
       });

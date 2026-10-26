@@ -322,7 +322,7 @@ export class MCPStreamServer extends EventEmitter {
         event: 'close',
         data: { reason: reason || 'Stream closed' },
       })
-    } catch (error) {
+    } catch {
       // Stream might already be closed
     }
 
@@ -632,9 +632,11 @@ export class SSEResponse {
   private stream: ReadableStream<Uint8Array>
   private controller: ReadableStreamDefaultController<Uint8Array>
   private encoder = new TextEncoder()
+  private headers: HeadersInit
 
   constructor(headers: HeadersInit = {}) {
     this.controller = undefined as unknown as ReadableStreamDefaultController<Uint8Array>
+    this.headers = headers
 
     this.stream = new ReadableStream<Uint8Array>({
       start: controller => {
@@ -681,6 +683,7 @@ export class SSEResponse {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         Connection: 'keep-alive',
+        ...this.headers,
       },
     })
   }

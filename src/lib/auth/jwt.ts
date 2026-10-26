@@ -4,8 +4,6 @@
  */
 
 import { SignJWT, jwtVerify, decodeJwt, type JWTPayload } from 'jose'
-import crypto from 'crypto'
-import type { KeyObject } from 'crypto'
 
 // Temporarily disable logger to avoid circular dependencies in tests
 // import { logger } from '../logger/index';

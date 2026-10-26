@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview 数据导出服务 - 通用导出架构
  * @description 支持 CSV/Excel/JSON 格式，支持大文件流式处理、分页过滤、后台任务队列
@@ -140,8 +139,8 @@ export interface ExportJobResponse {
 /**
  * 导出任务查询结果
  */
-export interface ExportJobQueryResult {
-  jobs: ExportJob[]
+export interface ExportJobQueryResult<T = Record<string, unknown>> {
+  jobs: ExportJob<T>[]
   total: number
   page: number
   pageSize: number
@@ -172,7 +171,7 @@ const DEFAULT_CONFIG: Required<ExportServiceConfig> = {
 export class ExportService<T extends Record<string, unknown> = Record<string, unknown>> {
   private config: Required<ExportServiceConfig>
   private exporter: DataExporter<T>
-  private queue?: ExportQueue
+  private queue?: ExportQueue<T>
   private filterParser: FilterParser
 
   constructor(config: ExportServiceConfig = {}) {
@@ -182,7 +181,7 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
     
     // 初始化任务队列（如果启用）
     if (this.config.enableQueue) {
-      this.queue = new ExportQueue({
+      this.queue = new ExportQueue<T>({
         maxConcurrent: this.config.maxConcurrentExports,
         timeoutMs: this.config.exportTimeoutMs,
         tempDir: this.config.tempDir,
@@ -292,7 +291,7 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
       throw new Error('任务队列未启用')
     }
 
-    const job: ExportJob = {
+    const job: ExportJob<T> = {
       id: `export_${Date.now()}_${Math.random().toString(36).substring(7)}`,
       requestId: request.requestId,
       status: 'pending',
@@ -305,6 +304,7 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      expiresAt: this.getExpirationTime(),
     }
 
     // 提交到队列
@@ -360,7 +360,7 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
     userId?: string
     page?: number
     pageSize?: number
-  } = {}): Promise<ExportJobQueryResult> {
+  } = {}): Promise<ExportJobQueryResult<T>> {
     if (!this.queue) {
       return { jobs: [], total: 0, page: 1, pageSize: 20 }
     }
@@ -551,11 +551,9 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
 // 导出
 // ============================================================================
 
-export { ExportServiceConfig, ExportRequest, ExportResponse }
 export type {
   ExportJobStatus,
   ExportJobProgress,
-  ExportJobQueryResult,
 }
 export { default as DataExporter } from '../core/exporter'
 export type { ExportConfig, ExportResult, ExportField } from '../core/exporter'

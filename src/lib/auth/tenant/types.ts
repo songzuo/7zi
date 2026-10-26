@@ -4,7 +4,6 @@
  */
 
 import type { UserContext } from '../../auth/types'
-import type { TenantContext } from '../../tenant/types'
 import type {
   TenantMemberRole,
   TenantPlan,

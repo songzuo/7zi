@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * RBAC Database Migrations
  * Add support for multi-role RBAC system
@@ -149,8 +148,10 @@ export async function getMigrationStatus(): Promise<{
   }
 }
 
-export default {
+const rbacMigrations = {
   migrate,
   rollback,
   getMigrationStatus,
 }
+
+export default rbacMigrations

@@ -106,6 +106,18 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
   const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map())
   const audioElementsRef = useRef<Map<string, HTMLAudioElement>>(new Map())
   const isCleanupRef = useRef(false)
+  // 以下处理函数在 initializeSocket / createPeerConnection 中被引用，
+  // 但它们的定义位于其后；通过 ref 转发可避免「声明前引用」并保持运行时行为不变。
+  const cleanupPeerConnectionRef = useRef<(peerId: string) => void>(() => undefined)
+  const handleOfferRef = useRef<
+    (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => Promise<void>
+  >(async () => undefined)
+  const handleAnswerRef = useRef<
+    (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => Promise<void>
+  >(async () => undefined)
+  const handleIceCandidateRef = useRef<
+    (data: { candidate: RTCIceCandidateInit; senderId: string }) => Promise<void>
+  >(async () => undefined)
 
   // State
   const [isConnected, setIsConnected] = useState(false)
@@ -177,25 +189,25 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
       onParticipantLeft?.(data.participantId)
 
       // Clean up peer connection
-      cleanupPeerConnection(data.participantId)
+      cleanupPeerConnectionRef.current(data.participantId)
     })
 
     // Signaling handlers
     socket.on('offer', async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
       logger.info('[WebRTC] Received offer', { senderId: data.senderId })
-      await handleOffer(data)
+      await handleOfferRef.current(data)
     })
 
     socket.on('answer', async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
       logger.info('[WebRTC] Received answer', { senderId: data.senderId })
-      await handleAnswer(data)
+      await handleAnswerRef.current(data)
     })
 
     socket.on(
       'ice-candidate',
       async (data: { candidate: RTCIceCandidateInit; senderId: string }) => {
         logger.info('[WebRTC] Received ICE candidate', { senderId: data.senderId })
-        await handleIceCandidate(data)
+        await handleIceCandidateRef.current(data)
       }
     )
 
@@ -259,7 +271,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
       pc.oniceconnectionstatechange = () => {
         logger.info('[WebRTC] ICE connection state', { peerId, state: pc.iceConnectionState })
         if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
-          cleanupPeerConnection(peerId)
+          cleanupPeerConnectionRef.current(peerId)
         }
       }
 
@@ -499,7 +511,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     }
 
     // Clean up all peer connections
-    peerConnectionsRef.current.forEach((pc, peerId) => {
+    peerConnectionsRef.current.forEach((pc, _peerId) => {
       pc.close()
     })
     peerConnectionsRef.current.clear()
@@ -536,14 +548,6 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
   /**
    * Toggle mute state
    */
-  const toggleMute = useCallback(async () => {
-    if (isMuted) {
-      await enableAudio()
-    } else {
-      await disableAudio()
-    }
-  }, [isMuted])
-
   /**
    * Enable audio
    */
@@ -579,6 +583,17 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
   }, [])
 
   /**
+   * Toggle mute state
+   */
+  const toggleMute = useCallback(async () => {
+    if (isMuted) {
+      await enableAudio()
+    } else {
+      await disableAudio()
+    }
+  }, [isMuted, enableAudio, disableAudio])
+
+  /**
    * Get or create audio element for remote stream
    */
   const getAudioElement = useCallback(
@@ -602,6 +617,14 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     },
     [remoteStreams]
   )
+
+  // 同步处理函数到 ref（避免在声明前引用，同时保持行为不变）
+  useEffect(() => {
+    cleanupPeerConnectionRef.current = cleanupPeerConnection
+    handleOfferRef.current = handleOffer
+    handleAnswerRef.current = handleAnswer
+    handleIceCandidateRef.current = handleIceCandidate
+  }, [cleanupPeerConnection, handleOffer, handleAnswer, handleIceCandidate])
 
   // Auto-join on mount if enabled
   useEffect(() => {

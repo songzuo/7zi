@@ -11,8 +11,6 @@
  * @module mcp/resources
  */
 
-import { z } from 'zod'
-
 /**
  * Resource type
  */
@@ -367,7 +365,7 @@ export class MCPResourceManager {
     let previous: ResourceContent | undefined
     try {
       previous = await provider.read(uri, { ...options, metadataOnly: true })
-    } catch (error) {
+    } catch {
       // Resource might not exist
     }
 
@@ -682,7 +680,7 @@ export class FileSystemResourceProvider implements ResourceProvider {
           requiresAuth: false,
           custom: {},
         })
-      } catch (error) {
+      } catch {
         // Skip inaccessible files
       }
     }

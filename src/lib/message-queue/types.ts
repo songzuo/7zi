@@ -67,7 +67,7 @@ export type StorageType = 'memory' | 'file';
 /**
  * 消息接口
  */
-export interface IMessage<T = any> {
+export interface IMessage<T = unknown> {
   /** 消息唯一ID */
   id: string;
   /** 队列名称 */
@@ -93,7 +93,7 @@ export interface IMessage<T = any> {
   /** 开始处理时间 */
   processingStartedAt?: number;
   /** 元数据 */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -109,7 +109,7 @@ export interface IMessageOptions {
   /** 最大重试次数 */
   maxRetries?: number;
   /** 元数据 */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -150,7 +150,7 @@ export interface IQueueConfig {
     maxRetries?: number;
   };
   /** 自定义配置 */
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
 }
 
 /**
@@ -241,7 +241,7 @@ export interface IConsumerStats {
 /**
  * 消费者处理器
  */
-export type IMessageHandler<T = any> = (message: IMessage<T>) => Promise<boolean>;
+export type IMessageHandler<T = unknown> = (message: IMessage<T>) => Promise<boolean>;
 
 // ============================================================================
 // 事务相关类型

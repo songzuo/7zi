@@ -4,7 +4,6 @@
  */
 
 import {
-  IMessage,
   IMessageOptions,
   ITransaction,
   TransactionStatus

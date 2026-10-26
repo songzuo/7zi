@@ -6,12 +6,11 @@
  */
 
 import { AsyncLocalStorage } from 'async_hooks'
-import type { 
-  TenantUserContext, 
+import type {
+  TenantUserContext,
   TenantJwtPayload,
-  PermissionCheckConfig 
 } from './types'
-import type { TenantContext, TenantMemberRole, TenantPlan, TenantStatus } from '../../tenant/types'
+import type { TenantContext, TenantMemberRole } from '../../tenant/types'
 
 /**
  * 租户上下文存储

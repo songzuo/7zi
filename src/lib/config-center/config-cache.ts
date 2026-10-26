@@ -329,7 +329,6 @@ export class ConfigCache {
    */
   cleanup(): number {
     let cleaned = 0;
-    const now = Date.now();
 
     for (const [key, item] of this.cache) {
       if (this.isExpired(item)) {

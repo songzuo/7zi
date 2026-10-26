@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview Excel Parser
  * @description 支持 .xlsx 和 .xls 格式的 Excel 解析器

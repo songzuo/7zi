@@ -9,7 +9,6 @@
  */
 
 import type {
-  HealthStatus,
   HealthSeverity,
   InstanceHealth,
   HealthAlert,

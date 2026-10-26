@@ -10,8 +10,6 @@
 import { createHmac } from 'node:crypto'
 
 let globalCounter = 0
-const currentTimestamp = Math.floor(Date.now() / 1000)
-const lastSecret = ''
 
 // JWT Payload interface
 interface JWTPayload {
@@ -122,7 +120,7 @@ const mockDecode = (token: string) => {
     const parts = token.split('.')
     if (parts.length !== 3) throw new Error('Invalid token format')
     return JSON.parse(Buffer.from(parts[1], 'base64').toString())
-  } catch (error) {
+  } catch {
     throw new Error('Token decoding failed')
   }
 }

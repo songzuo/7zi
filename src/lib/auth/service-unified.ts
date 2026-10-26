@@ -16,7 +16,7 @@
  */
 
 import { SignJWT, jwtVerify } from 'jose'
-import { User, UserToken, UserContext, UserRole } from './types'
+import { User, UserContext, UserRole } from './types'
 import { Role } from '@/lib/permissions/types'
 import {
   createUser,
@@ -37,7 +37,6 @@ import {
 import { verifyPasswordWithDummyHash } from './password'
 import { logger } from '../logger'
 import { UnifiedAppError, isUnifiedError } from '../errors/unified-error'
-import { ErrorCodes } from '../errors/unified-types'
 
 /**
  * Get JWT secret
@@ -106,7 +105,7 @@ export async function verifyJwtToken(token: string): Promise<UserContext | null>
       permissions: (payload.permissions as string[]) || [],
       customPermissions: (payload.customPermissions as string[]) || [],
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -143,7 +142,7 @@ export async function registerUser(request: {
   })
 
   // Remove password from response
-  const { password, ...userWithoutPassword } = user
+  const { password: _password, ...userWithoutPassword } = user
 
   return userWithoutPassword
 }
@@ -193,7 +192,7 @@ export async function loginUser(request: {
   await updateLastLogin(user.id)
 
   // Remove password from response
-  const { password, ...userWithoutPassword } = user
+  const { password: _password, ...userWithoutPassword } = user
 
   return {
     user: userWithoutPassword,

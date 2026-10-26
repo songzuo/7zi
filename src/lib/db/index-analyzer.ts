@@ -413,9 +413,12 @@ export async function createIndexReport(): Promise<string> {
   return reportText
 }
 
-export default {
+const dbModule = {
   getAllIndexes,
   analyzeIndexUsage,
   generateIndexOptimizationSuggestions,
   createIndexReport,
 }
+
+export default dbModule
+

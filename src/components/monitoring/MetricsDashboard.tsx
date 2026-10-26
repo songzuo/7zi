@@ -12,7 +12,7 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import {
@@ -70,17 +70,7 @@ export function MetricsDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // 获取指标数据
-  useEffect(() => {
-    fetchMetrics()
-
-    // 每30秒刷新一次
-    const interval = setInterval(fetchMetrics, 30000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch('/api/metrics/performance?category=all')
@@ -125,7 +115,19 @@ export function MetricsDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  // 获取指标数据
+  useEffect(() => {
+    void fetchMetrics()
+
+    // 每30秒刷新一次
+    const interval = setInterval(() => {
+      void fetchMetrics()
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [fetchMetrics])
 
   if (loading && !data) {
     return (

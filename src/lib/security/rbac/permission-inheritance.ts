@@ -8,9 +8,9 @@
  * - 权限合并和优先级
  */
 
-import { Permission, Role, RoleDefinition } from '@/lib/permissions/types'
+import { Permission, Role } from '@/lib/permissions/types'
 import { logger } from '@/lib/logger'
-import { DEFAULT_ROLE_DEFINITIONS, getRoleDefinition } from '@/lib/permissions/rbac'
+import { getRoleDefinition } from '@/lib/permissions/rbac'
 
 /**
  * 权限继承策略
@@ -345,7 +345,7 @@ export class PermissionInheritance {
     }
 
     // 检查资源级别的冲突
-    for (const [resource, perms] of resourceMap.entries()) {
+    for (const [, perms] of resourceMap.entries()) {
       if (perms.length > 1) {
         // 如果一个资源有多个权限，标记为潜在冲突
         // 实际应用中可能需要更复杂的规则

@@ -4,7 +4,6 @@
  * 整合租户登录、认证、上下文管理等功能
  */
 
-import { db } from '../../db'
 import { logger } from '../../logger'
 import { tenantService } from '../../tenant/service'
 import { TenantContextManager } from './context'
@@ -17,8 +16,6 @@ import { crossTenantAccessControl } from './cross-tenant'
 import type {
   TenantLoginRequest,
   TenantLoginResponse,
-  TenantLoginSuccessResponse,
-  TenantLoginFailureResponse,
   TenantUserContext,
   TenantSwitchResponseType,
   CrossTenantInviteRequest,
@@ -26,7 +23,6 @@ import type {
   CrossTenantTransferRequest,
   CrossTenantTransferResponse,
 } from './types'
-import type { TenantMemberRole } from '../../tenant/types'
 import { verifyPassword, getUserByEmail, getUserById, createUserToken, updateLastLogin } from '../repository'
 import { verifyPasswordWithDummyHash } from '../password'
 import { UserStatus } from '../types'

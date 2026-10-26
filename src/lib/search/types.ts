@@ -238,6 +238,12 @@ export interface SearchableEntity {
   description?: string
   /** Search keywords/tags */
   keywords?: string[]
+  /** Created date (optional for entities that do not track creation) */
+  createdAt?: string
+  /** Updated date (optional for entities that do not track updates) */
+  updatedAt?: string
+  /** Allow indexing by dynamic keys so the entity satisfies Record<string, unknown> */
+  [key: string]: unknown
 }
 
 /**

@@ -17,6 +17,15 @@ interface FormErrors {
   message?: string
 }
 
+// Empty form data object for reset（模块级常量，避免每次渲染重建）
+const EMPTY_FORM_DATA: FormData = {
+  name: '',
+  email: '',
+  company: '',
+  subject: '',
+  message: '',
+}
+
 interface ContactFormProps {
   locale?: 'zh' | 'en'
 }
@@ -81,14 +90,6 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
     return Object.keys(newErrors).length === 0
   }, [formData, locale])
 
-  // Empty form data object for reset
-  const emptyFormData: FormData = {
-    name: '',
-    email: '',
-    company: '',
-    subject: '',
-    message: '',
-  }
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
@@ -126,7 +127,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
 
         // 成功处理
         setSubmitStatus('success')
-        setFormData(emptyFormData)
+        setFormData(EMPTY_FORM_DATA)
       } catch (error) {
         // Silently handle error in production
         if (process.env.NODE_ENV === 'development') {

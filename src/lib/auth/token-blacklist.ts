@@ -3,6 +3,7 @@
  * Implements secure token revocation and blacklist management
  */
 
+import { createHash } from 'node:crypto'
 import { getDatabaseAsync } from '../db'
 import { logger } from '../logger'
 
@@ -66,8 +67,7 @@ export async function initializeBlacklistTable(): Promise<void> {
  * We store only the hash for security
  */
 export function hashToken(token: string): string {
-  const crypto = require('crypto')
-  return crypto.createHash('sha256').update(token).digest('hex')
+  return createHash('sha256').update(token).digest('hex')
 }
 
 /**

@@ -13,7 +13,7 @@
  * This hook now integrates with preferencesStore (Zustand) for unified state management.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Theme } from '@/stores/preferencesStore'
 import { useTheme as useThemeFromStore } from '@/stores/preferencesStore'
 
@@ -35,7 +35,7 @@ export interface UseThemeEnhancedReturn {
 }
 
 export function useThemeEnhanced(): UseThemeEnhancedReturn {
-  const { theme, setTheme: setStoreTheme, toggleTheme, isDark } = useThemeFromStore()
+  const { theme, setTheme: setStoreTheme, toggleTheme } = useThemeFromStore()
   const [systemPrefersDark, setSystemPrefersDark] = useState(false)
 
   // Track system preference changes
@@ -55,6 +55,16 @@ export function useThemeEnhanced(): UseThemeEnhancedReturn {
     return () => mediaQuery.removeEventListener('change', handler)
   }, [])
 
+  // isDark 必须**实时推导**，不能用 store 里的快照。
+  //
+  // 快照的问题：store 的 isDark 只在 setTheme / hydrate 时算一次。
+  // 当 theme === 'system' 时，它取决于 window.matchMedia 的**当前**结果 ——
+  // 而快照是过期的（系统偏好变了、或 hydrate 发生在 matchMedia mock 之前）。
+  //
+  // 本 hook 自己就在实时跟踪 systemPrefersDark（useEffect + change 事件），
+  // 所以直接用它推导：theme='system' 时跟随系统偏好，否则跟随显式主题。
+  const effectiveIsDark = theme === 'system' ? systemPrefersDark : theme === 'dark'
+
   // Cycle through themes
   const cycleTheme = useCallback(() => {
     const themes: Theme[] = ['light', 'dark', 'system']
@@ -70,7 +80,7 @@ export function useThemeEnhanced(): UseThemeEnhancedReturn {
 
   return {
     theme,
-    isDark,
+    isDark: effectiveIsDark,
     systemPrefersDark,
     setTheme: setStoreTheme,
     toggleTheme,

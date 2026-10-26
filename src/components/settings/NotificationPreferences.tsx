@@ -5,7 +5,7 @@
  * Allows users to configure notification preferences for different channels and event types
  */
 
-import { useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { useToastActions } from '@/stores/uiStore'
 
 // ============================================================================
@@ -88,13 +88,8 @@ export function NotificationPreferences({
   const [error, setError] = useState<string | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  // Load preferences on mount
-  useEffect(() => {
-    loadPreferences()
-  }, [userId])
-
   // Load preferences from API
-  async function loadPreferences() {
+  const loadPreferences = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -122,7 +117,12 @@ export function NotificationPreferences({
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId, toast])
+
+  // Load preferences on mount
+  useEffect(() => {
+    void loadPreferences()
+  }, [loadPreferences])
 
   // Save preferences to API
   async function savePreferences() {

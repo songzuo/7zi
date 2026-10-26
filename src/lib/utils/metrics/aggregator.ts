@@ -400,7 +400,7 @@ export function isAnomalyZScore(
 // Exports
 // ============================================
 
-export default {
+const MetricsAggregator = {
   sum,
   average,
   median,
@@ -413,3 +413,5 @@ export default {
   zScore,
   isAnomalyZScore,
 }
+
+export default MetricsAggregator

@@ -509,7 +509,7 @@ export function createSQLInjectionMiddleware(config: SQLInjectionConfig = {}) {
   ): Promise<Response> {
     // Check URL parameters
     const url = new URL(req.url)
-    for (const [key, value] of url.searchParams) {
+    for (const [, value] of url.searchParams) {
       const result = checkSQLInjection(value, config)
 
       if (!result.safe) {
@@ -544,7 +544,7 @@ export function createSQLInjectionMiddleware(config: SQLInjectionConfig = {}) {
             { status: 400 }
           )
         }
-      } catch (error) {
+      } catch {
         // Not JSON, skip body check
       }
     }

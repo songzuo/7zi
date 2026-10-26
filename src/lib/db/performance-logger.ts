@@ -413,7 +413,7 @@ export function getPerformanceHealth() {
   return getPerformanceLogger().getHealthStatus()
 }
 
-export default {
+const dbModule = {
   getPerformanceLogger,
   resetPerformanceLogger,
   wrapDatabaseWithLogging,
@@ -422,3 +422,6 @@ export default {
   getPerformanceReport,
   getPerformanceHealth,
 }
+
+export default dbModule
+

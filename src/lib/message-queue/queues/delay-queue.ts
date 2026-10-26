@@ -5,7 +5,6 @@
 
 import { Queue } from '../core/queue';
 import { Message } from '../core/message';
-import { IMessage, IMessageOptions } from '../types';
 
 /**
  * 延迟队列
@@ -95,7 +94,7 @@ export class DelayQueue extends Queue {
   /**
    * 延迟消息就绪回调
    */
-  protected onDelayMessageReady(messageId: string): void {
+  protected onDelayMessageReady(_messageId: string): void {
     // 子类可重写此方法触发事件
   }
 
@@ -149,7 +148,7 @@ export class DelayQueue extends Queue {
   public getDelayedCount(): number {
     let count = 0;
     
-    for (const [messageId, executeAt] of this.delayedMessages) {
+    for (const executeAt of this.delayedMessages.values()) {
       if (Date.now() < executeAt) {
         count++;
       }

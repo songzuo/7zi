@@ -18,8 +18,6 @@ import { Transaction } from './core/transaction';
 import { Monitor } from './utils/monitor';
 import { RestAPI } from './api/rest-api';
 import { WebSocketAPI } from './api/websocket-api';
-import { MemoryStorage } from './storage/memory-storage';
-import { FileStorage } from './storage/file-storage';
 import { ConsumerGroup } from './consumers/consumer-group';
 
 /**

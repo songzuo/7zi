@@ -89,6 +89,20 @@ export function useWorkflowDraft(options: UseWorkflowDraftOptions = {}): UseWork
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
 
   /**
+   * 刷新草稿列表
+   */
+  const refreshDraftList = useCallback(async () => {
+    if (!storageRef.current) return
+
+    try {
+      const list = await storageRef.current.getAllDraftMetadata()
+      setDraftList(list)
+    } catch (error) {
+      onError?.(error instanceof Error ? error : new Error('Failed to refresh draft list'))
+    }
+  }, [onError])
+
+  /**
    * 初始化
    */
   useEffect(() => {
@@ -115,7 +129,7 @@ export function useWorkflowDraft(options: UseWorkflowDraftOptions = {}): UseWork
         clearInterval(autoSaveTimerRef.current)
       }
     }
-  }, [])
+  }, [onError, refreshDraftList])
 
   /**
    * 自动保存逻辑
@@ -149,7 +163,7 @@ export function useWorkflowDraft(options: UseWorkflowDraftOptions = {}): UseWork
         clearInterval(autoSaveTimerRef.current)
       }
     }
-  }, [enableAutoSave, autoSaveInterval, isAvailable, onAutoSave, onError])
+  }, [enableAutoSave, autoSaveInterval, isAvailable, onAutoSave, onError, refreshDraftList])
 
   /**
    * 保存草稿
@@ -174,7 +188,7 @@ export function useWorkflowDraft(options: UseWorkflowDraftOptions = {}): UseWork
     } finally {
       setIsSaving(false)
     }
-  }, [onDraftChange, onError])
+  }, [onDraftChange, onError, refreshDraftList])
 
   /**
    * 加载草稿
@@ -223,21 +237,7 @@ export function useWorkflowDraft(options: UseWorkflowDraftOptions = {}): UseWork
       onError?.(error instanceof Error ? error : new Error('Failed to delete draft'))
       throw error
     }
-  }, [currentDraft, onDraftChange, onError])
-
-  /**
-   * 刷新草稿列表
-   */
-  const refreshDraftList = useCallback(async () => {
-    if (!storageRef.current) return
-
-    try {
-      const list = await storageRef.current.getAllDraftMetadata()
-      setDraftList(list)
-    } catch (error) {
-      onError?.(error instanceof Error ? error : new Error('Failed to refresh draft list'))
-    }
-  }, [onError])
+  }, [currentDraft, onDraftChange, onError, refreshDraftList])
 
   /**
    * 手动触发自动保存

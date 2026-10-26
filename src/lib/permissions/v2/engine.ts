@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained Permission Engine
  * 细粒度权限检查引擎 - 性能优化 (< 1ms)
@@ -553,7 +552,9 @@ export class PermissionEngine {
     if (this.cache.size >= this.config.maxCacheSize) {
       // 删除最旧的条目
       const oldestKey = this.cache.keys().next().value
-      this.cache.delete(oldestKey)
+      if (oldestKey !== undefined) {
+        this.cache.delete(oldestKey)
+      }
     }
 
     this.cache.set(key, {

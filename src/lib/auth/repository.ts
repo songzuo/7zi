@@ -719,7 +719,7 @@ function mapRowToUser(row: Record<string, unknown>): User {
       try {
         const parsed = JSON.parse(value)
         return Array.isArray(parsed) ? parsed : defaultValue
-      } catch (error) {
+      } catch {
         return defaultValue
       }
     }
@@ -736,7 +736,7 @@ function mapRowToUser(row: Record<string, unknown>): User {
         return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
           ? parsed
           : defaultValue
-      } catch (error) {
+      } catch {
         return defaultValue
       }
     }

@@ -5,7 +5,6 @@
 
 import { Queue } from '../core/queue';
 import { Message } from '../core/message';
-import { IMessage, IMessageOptions } from '../types';
 
 /**
  * 优先级队列

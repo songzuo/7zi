@@ -530,7 +530,7 @@ export function sanitizeURL(url: string, config: SanitizationConfig = {}): strin
       parsedUrl.pathname +
       (searchParams.toString() ? `?${searchParams.toString()}` : '')
     )
-  } catch (error) {
+  } catch {
     // Invalid URL, return sanitized string
     return sanitizeStringValue(url, config)
   }

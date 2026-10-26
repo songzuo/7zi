@@ -15,11 +15,6 @@ import { TenantContextManager } from './context'
 import type {
   TenantUserContext,
   TenantJwtPayload,
-  TenantLoginRequest,
-  TenantLoginResponse,
-  TenantLoginSuccessResponse,
-  TenantSwitchResponseType,
-  PermissionCheckConfig,
 } from './types'
 import { TenantStatus, type TenantMemberRole } from '../../tenant/types'
 
@@ -105,7 +100,7 @@ export async function verifyTenantToken(token: string): Promise<TenantUserContex
 /**
  * 从请求中提取租户信息
  */
-function extractTenantInfo(request: NextRequest): {
+export function extractTenantInfo(request: NextRequest): {
   tenantId?: string
   tenantSlug?: string
 } {
@@ -446,7 +441,7 @@ export async function getUserTenantContexts(
 /**
  * 默认导出
  */
-export default {
+const tenantAuthMiddlewareExports = {
   generateTenantToken,
   verifyTenantToken,
   tenantAuthMiddleware,
@@ -457,3 +452,5 @@ export default {
   checkUserPermission,
   getUserTenantContexts,
 }
+
+export default tenantAuthMiddlewareExports

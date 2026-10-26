@@ -2,7 +2,7 @@
  * @fileoverview Long press gesture hook for mobile interactions
  */
 
-import { RefObject, useCallback, useRef, useState, useEffect } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 export interface UseLongPressOptions {
   delay?: number
@@ -16,7 +16,7 @@ export interface UseLongPressOptions {
  * Hook for long press gesture detection
  * Prevents click from firing after long press
  */
-export function useLongPress<T extends HTMLElement>(options: UseLongPressOptions = {}) {
+export function useLongPress(options: UseLongPressOptions = {}) {
   const { delay = 500, threshold = 10, onLongPress, onClick, shouldPreventDefault = true } = options
 
   const [isLongPressing, setIsLongPressing] = useState(false)

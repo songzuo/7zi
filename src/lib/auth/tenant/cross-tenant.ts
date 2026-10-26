@@ -20,7 +20,6 @@ import type {
   CrossTenantTransferResponse,
   SwitchTenantRequest,
   SwitchTenantResponse,
-  CrossTenantPermission,
   TenantInvite,
   TenantUserContext,
 } from './types'

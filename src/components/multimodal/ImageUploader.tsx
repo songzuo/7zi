@@ -32,6 +32,33 @@ export function ImageUploader({
   const [error, setError] = useState<string | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
+  const analyzeImage = useCallback(async (file: File) => {
+    setIsAnalyzing(true)
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      formData.append('compress', 'true')
+      formData.append('quality', '0.8')
+
+      const response = await fetch('/api/multimodal/image', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        onAnalysisResult?.(result.data)
+      } else {
+        setError(result.error || t('analysisFailed'))
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('analysisFailed'))
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }, [onAnalysisResult, t])
+
   const processFile = useCallback(
     async (file: File) => {
       setError(null)
@@ -63,35 +90,9 @@ export function ImageUploader({
         await analyzeImage(file)
       }
     },
-    [acceptedTypes, maxSize, onImageSelect, onAnalysisResult, t]
+    [acceptedTypes, maxSize, onImageSelect, onAnalysisResult, analyzeImage, t]
   )
 
-  const analyzeImage = async (file: File) => {
-    setIsAnalyzing(true)
-    try {
-      const formData = new FormData()
-      formData.append('image', file)
-      formData.append('compress', 'true')
-      formData.append('quality', '0.8')
-
-      const response = await fetch('/api/multimodal/image', {
-        method: 'POST',
-        body: formData,
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        onAnalysisResult?.(result.data)
-      } else {
-        setError(result.error || t('analysisFailed'))
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('analysisFailed'))
-    } finally {
-      setIsAnalyzing(false)
-    }
-  }
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()

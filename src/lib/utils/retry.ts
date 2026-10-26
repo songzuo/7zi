@@ -210,8 +210,6 @@ async function withTimeout<T>(
  * ```
  */
 export async function retry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
-  const startTime = Date.now()
-
   const {
     maxRetries = 3,
     initialDelay = 1000,

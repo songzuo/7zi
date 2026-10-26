@@ -10,8 +10,7 @@
  */
 
 import { getDatabaseAsync } from '../db'
-import { User, UserStatus, UserRole, CreateUserRequest, UpdateUserRequest } from './types'
-import { hashPassword, verifyPassword } from './repository'
+import { User, UserStatus, UserRole } from './types'
 
 // ============================================================================
 // Cache Key Generation

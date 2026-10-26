@@ -98,7 +98,7 @@ export function validateCSRFToken(token: string, secret: string, salt?: string):
 
     // Use timing-safe comparison to prevent timing attacks
     return timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSignature, 'hex'))
-  } catch (error) {
+  } catch {
     return false
   }
 }
@@ -171,7 +171,7 @@ export function validateSessionCSRFToken(
     const expectedSignature = createHMAC(data, secret)
 
     return timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSignature, 'hex'))
-  } catch (error) {
+  } catch {
     return false
   }
 }

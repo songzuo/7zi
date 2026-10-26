@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * RBAC Repository - Database operations for roles and permissions
  */
@@ -553,7 +552,7 @@ export async function deleteRole(role: string): Promise<boolean> {
     db.prepare('DELETE FROM roles WHERE id = ?').run(role)
 
     return true
-  } catch (error) {
+  } catch {
     return false
   }
 }

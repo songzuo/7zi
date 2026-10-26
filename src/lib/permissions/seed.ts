@@ -1,9 +1,8 @@
-// @ts-nocheck
 /**
  * RBAC Seeding - Initialize default roles and permissions
  */
 
-import { Role, Permission } from './types'
+import { Role } from './types'
 import { initializeRbacTables, getRoleById, assignPermissionsToRole } from './repository'
 import { getRoleDefinition } from './rbac'
 import { logger } from '../logger'
@@ -105,7 +104,7 @@ export async function needsSeeding(): Promise<boolean> {
     }
 
     return false
-  } catch (error) {
+  } catch {
     return true
   }
 }

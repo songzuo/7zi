@@ -16,16 +16,13 @@ import type {
   CacheGetOptions,
   CacheStats,
   CacheEntry,
-  CacheResult,
   BatchResult,
   HashRingConfig,
   L3Config,
   ICache,
 } from '../types'
-import { DEFAULT_L1_CONFIG, DEFAULT_L2_CONFIG, DEFAULT_L3_CONFIG } from '../types'
 import { HashRing } from './HashRing'
 import { RedisClusterClient } from './RedisClusterClient'
-import { MultiLevelCache } from '../MultiLevelCache'
 import { logger } from '../../logger'
 
 /**
@@ -490,6 +487,11 @@ export class DistributedCacheManager implements ICache {
   }
   
   private async getFromReplicas<T>(key: string, options?: CacheGetOptions): Promise<T | null> {
+    // A level-scoped read must not fall back to distributed (L3) replicas.
+    if (options?.level && options.level !== 'L3') {
+      return null
+    }
+
     const nodes = this.hashRing.getNodesForKey(key, this.distributedConfig.replicationFactor)
     
     for (const node of nodes) {

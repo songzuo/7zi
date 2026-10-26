@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained RBAC Repository
  * 细粒度权限系统数据库操作
  */
 
-import { getDatabaseAsync } from '../db'
+import { getDatabaseAsync } from '../../db'
 import {
   EnhancedRoleDefinition,
   FineGrainedPermission,
@@ -397,7 +396,9 @@ export async function getEnhancedRoleWithComputedPermissions(
  * 创建增强角色
  */
 export async function createEnhancedRole(
-  role: Omit<EnhancedRoleDefinition, 'createdAt' | 'updatedAt' | 'computedPermissions'>,
+  role: Omit<EnhancedRoleDefinition, 'createdAt' | 'updatedAt' | 'computedPermissions' | 'id'> & {
+    id?: string
+  },
   operatorId: string,
   operatorRole: string
 ): Promise<EnhancedRoleDefinition> {

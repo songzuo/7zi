@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview Advanced search library with Fuse.js integration
  * @description Provides high-performance fuzzy search with indexing, history management, and autocomplete
@@ -520,7 +519,16 @@ export class AdvancedSearchManager<T extends Record<string, unknown>> {
 // Global search manager instance
 // ============================================================================
 
-let globalSearchManager: AdvancedSearchManager<Record<string, unknown>> | null = null
+/**
+ * Global search manager instance.
+ *
+ * The concrete entity type is only known at the call site, so the instance is
+ * kept type-erased here and restored to the requested type by
+ * `getGlobalSearchManager`. This keeps `AdvancedSearchManager<T>` invariant
+ * (it stores `T` in caches) without forcing every caller to share one entity
+ * type.
+ */
+let globalSearchManager: unknown = null
 
 /**
  * Get or create the global search manager instance
@@ -538,9 +546,12 @@ export function getGlobalSearchManager<T extends Record<string, unknown>>(
  * Reset the global search manager instance
  */
 export function resetGlobalSearchManager(): void {
-  if (globalSearchManager) {
-    globalSearchManager.clearCaches()
-    globalSearchManager.clearHistory()
+  const manager = globalSearchManager as
+    | Pick<AdvancedSearchManager<Record<string, unknown>>, 'clearCaches' | 'clearHistory'>
+    | null
+  if (manager) {
+    manager.clearCaches()
+    manager.clearHistory()
   }
   globalSearchManager = null
 }

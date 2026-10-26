@@ -17,12 +17,8 @@ import type {
   HealthReport,
   HealthTrendPoint,
   HealthRecommendation,
-  HealthIncident,
-  ServiceInstance
+  HealthIncident
 } from './types'
-import type { HealthCheckResult } from './types'
-import type { FailureRecord } from './FailureDetector'
-import type { RecoveryAttempt } from './RecoveryManager'
 
 // ============================================
 // Dashboard Types

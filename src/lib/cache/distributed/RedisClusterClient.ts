@@ -6,7 +6,7 @@
  * @module lib/cache/distributed/RedisClusterClient
  */
 
-import type { RedisNodeConfig, L3Config, CacheStats, CacheEntry } from '../types'
+import type { RedisNodeConfig, L3Config, CacheStats } from '../types'
 import { logger } from '../../logger'
 
 /**
@@ -172,13 +172,6 @@ class MockRedisClient implements RedisClient {
   disconnect(): void {
     this.store.clear()
   }
-}
-
-/**
- * Redis Cluster client interface (for type checking)
- */
-interface RedisClusterClientInterface {
-  new(nodes: Array<{ host: string; port: number }>, options: { redisOptions: RedisOptions }): RedisClient
 }
 
 /**
@@ -379,7 +372,7 @@ export class RedisClusterClient {
     try {
       const result = await this.client.del(key)
       return result > 0
-    } catch (error) {
+    } catch {
       this.stats.errors++
       return false
     }
@@ -396,7 +389,7 @@ export class RedisClusterClient {
     try {
       const result = await this.client.exists(key)
       return result === 1
-    } catch (error) {
+    } catch {
       return false
     }
   }
@@ -422,7 +415,7 @@ export class RedisClusterClient {
       }
       
       return result
-    } catch (error) {
+    } catch {
       this.stats.errors++
       return result
     }
@@ -454,7 +447,7 @@ export class RedisClusterClient {
       }
       
       return true
-    } catch (error) {
+    } catch {
       this.stats.errors++
       return false
     }
@@ -479,7 +472,7 @@ export class RedisClusterClient {
           await Promise.all(batch.map(k => this.client!.del(k)))
         }
       }
-    } catch (error) {
+    } catch {
       this.stats.errors++
     }
   }

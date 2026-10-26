@@ -12,7 +12,6 @@ import type {
   ServiceInstance,
   ServiceHealth,
   InstanceHealth,
-  HealthCheckConfig,
   HealthMonitorConfig,
   HealthEvent,
   HealthEventType,
@@ -188,7 +187,7 @@ export class HealthMonitor {
     const results = await this.healthChecker.checkAll()
 
     // Process results through failure detector
-    for (const [instanceId, result] of results) {
+    for (const instanceId of results.keys()) {
       const instanceHealth = this.healthChecker.getInstanceHealth(instanceId)
       if (instanceHealth) {
         const recentResults = this.healthChecker.getCheckHistory(instanceId, 10)

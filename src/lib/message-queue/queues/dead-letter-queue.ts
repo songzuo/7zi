@@ -5,7 +5,7 @@
 
 import { Queue } from '../core/queue';
 import { Message } from '../core/message';
-import { IMessage, IMessageOptions, IQueueStats } from '../types';
+import { IMessage, IQueueStats } from '../types';
 
 /**
  * 死信队列
@@ -29,7 +29,7 @@ export class DeadLetterQueue extends Queue {
     reason: string
   ): Promise<void> {
     // 创建 Message 实例
-    const messageInstance = new Message(message.data, {
+    const messageInstance = new Message(message.queueName, message.data, {
       priority: message.priority,
       delay: message.delay,
       ttl: message.expiresAt ? message.expiresAt - Date.now() : undefined,
@@ -66,7 +66,7 @@ export class DeadLetterQueue extends Queue {
   /**
    * 发布消息 (不推荐直接发布到死信队列)
    */
-  protected async onPublish(message: Message): Promise<void> {
+  protected async onPublish(_message: Message): Promise<void> {
     // 死信队列通常由系统自动添加，不建议手动发布
     throw new Error('Direct publishing to dead letter queue is not recommended');
   }
@@ -94,7 +94,7 @@ export class DeadLetterQueue extends Queue {
    */
   public async retryMessage(
     messageId: string,
-    targetQueue: string
+    _targetQueue: string
   ): Promise<void> {
     const message = this.messages.get(messageId);
     if (!message) {

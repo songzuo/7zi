@@ -46,11 +46,6 @@ export default function UserProfile({ userId }: { userId: string }) {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
 
-  // Load user data
-  useEffect(() => {
-    loadUser()
-  }, [userId])
-
   const loadUser = useCallback(async () => {
     try {
       const response = await fetch(`/api/users/${userId}`)
@@ -72,6 +67,11 @@ export default function UserProfile({ userId }: { userId: string }) {
       setIsLoading(false)
     }
   }, [userId])
+
+  // Load user data
+  useEffect(() => {
+    void loadUser()
+  }, [loadUser])
 
   // Handle avatar file selection
   const handleAvatarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

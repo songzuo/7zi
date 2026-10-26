@@ -211,7 +211,7 @@ export class AccessController {
   /**
    * 评估IP条件
    */
-  private evaluateIpCondition(condition: PermissionCondition): boolean {
+  private evaluateIpCondition(_condition: PermissionCondition): boolean {
     // 实际实现需要获取客户端IP
     return true;
   }

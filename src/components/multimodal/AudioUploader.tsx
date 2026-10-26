@@ -42,6 +42,33 @@ export function AudioUploader({
   const [recordingTime, setRecordingTime] = useState(0)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
 
+  const transcribeAudio = useCallback(async (file: File) => {
+    setIsTranscribing(true)
+    try {
+      const formData = new FormData()
+      formData.append('audio', file)
+      formData.append('timestamps', 'true')
+      formData.append('speakerDiarization', 'true')
+
+      const response = await fetch('/api/multimodal/audio', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        onTranscriptionResult?.(result.data)
+      } else {
+        setError(result.error || t('transcriptionFailed'))
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('transcriptionFailed'))
+    } finally {
+      setIsTranscribing(false)
+    }
+  }, [onTranscriptionResult, t])
+
   const processFile = useCallback(
     async (file: File) => {
       setError(null)
@@ -70,35 +97,9 @@ export function AudioUploader({
         await transcribeAudio(file)
       }
     },
-    [acceptedTypes, maxSize, onAudioSelect, onTranscriptionResult, t]
+    [acceptedTypes, maxSize, onAudioSelect, onTranscriptionResult, transcribeAudio, t]
   )
 
-  const transcribeAudio = async (file: File) => {
-    setIsTranscribing(true)
-    try {
-      const formData = new FormData()
-      formData.append('audio', file)
-      formData.append('timestamps', 'true')
-      formData.append('speakerDiarization', 'true')
-
-      const response = await fetch('/api/multimodal/audio', {
-        method: 'POST',
-        body: formData,
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        onTranscriptionResult?.(result.data)
-      } else {
-        setError(result.error || t('transcriptionFailed'))
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('transcriptionFailed'))
-    } finally {
-      setIsTranscribing(false)
-    }
-  }
 
   const startRecording = useCallback(async () => {
     try {

@@ -9,7 +9,6 @@ import {
   IApiResponse,
   IQueueConfig,
   IMessageOptions,
-  IConsumerConfig,
   QueueType
 } from '../types';
 import { Broker } from '../core/broker';
@@ -282,7 +281,7 @@ export class RestAPI {
 
     // POST /api/consumers - 创建消费者
     if (method === 'POST' && path === '/api/consumers') {
-      const body = await this.parseBody(req);
+      await this.parseBody(req);
       // 注意: 实际创建消费者需要提供处理器函数
       // 这里简化处理
 
@@ -350,7 +349,7 @@ export class RestAPI {
       req.on('end', () => {
         try {
           resolve(body ? JSON.parse(body) : {});
-        } catch (error) {
+        } catch {
           reject(new Error('Invalid JSON'));
         }
       });

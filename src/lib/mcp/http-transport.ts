@@ -164,7 +164,7 @@ export class MCPHttpTransport {
           const allowedUrl = new URL(allowed)
           const originUrl = new URL(origin)
           return allowedUrl.origin === originUrl.origin
-        } catch (error) {
+        } catch {
           return false
         }
       })
@@ -228,7 +228,7 @@ export class MCPHttpTransport {
         return null
       }
       return message
-    } catch (error) {
+    } catch {
       return null
     }
   }
