@@ -26,6 +26,7 @@ import { StorageError } from '../types'
  * 5. Return result
  */
 const SLIDING_WINDOW_LUA = `
+-- @script sliding-window:check
 local key = KEYS[1]
 local now = tonumber(ARGV[1])
 local windowMs = tonumber(ARGV[2])
@@ -68,6 +69,7 @@ return {allowed and 1 or 0, count, resetTime}
  * Lua script for getting sliding window status
  */
 const SLIDING_WINDOW_STATUS_LUA = `
+-- @script sliding-window:status
 local key = KEYS[1]
 local now = tonumber(ARGV[1])
 local windowMs = tonumber(ARGV[2])

@@ -26,6 +26,7 @@ import { StorageError } from '../types'
  * 5. Update state and return result
  */
 const TOKEN_BUCKET_LUA = `
+-- @script token-bucket:check
 local key = KEYS[1]
 local now = tonumber(ARGV[1])
 local capacity = tonumber(ARGV[2])
@@ -85,6 +86,7 @@ return {allowed and 1 or 0, tokens, resetTime}
  * Lua script for batch token consumption
  */
 const CONSUME_TOKENS_LUA = `
+-- @script token-bucket:consume
 local key = KEYS[1]
 local tokensToConsume = tonumber(ARGV[1])
 local now = tonumber(ARGV[2])
@@ -268,6 +270,7 @@ export class TokenBucket {
 
     // Update tokens atomically
     const addTokensLua = `
+      -- @script token-bucket:add-tokens
 local key = KEYS[1]
 local tokensToAdd = tonumber(ARGV[1])
 local maxCapacity = tonumber(ARGV[2])
