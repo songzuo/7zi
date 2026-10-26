@@ -8,7 +8,7 @@
  * - GET /api/capsules/:id - Get capsule details
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 function getAuthHeader(userId: string): HeadersInit {

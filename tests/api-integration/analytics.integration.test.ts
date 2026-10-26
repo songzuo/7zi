@@ -3,22 +3,13 @@
  * @description Tests for /api/analytics/* endpoints using MSW
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server } from './mocks/handlers'
 import { MockDataGenerator } from './mocks/data'
 
 const mockData = new MockDataGenerator()
 
 describe('/api/analytics - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen({
-      onUnhandledRequest: 'warn',
-    })
-  })
-
-  afterAll(() => {
-    server.close()
-  })
 
   beforeEach(() => {
     server.resetHandlers()

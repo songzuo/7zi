@@ -3,7 +3,7 @@
  * @description Tests for /api/auth/* endpoints using MSW
  */
 
-import { describe, it, expect, beforeAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server } from './mocks/handlers'
 import { MockDataGenerator } from './mocks/data'
 

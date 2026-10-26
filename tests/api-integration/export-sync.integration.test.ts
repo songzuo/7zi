@@ -3,7 +3,7 @@
  * @description Tests for /api/export/sync endpoint
  */
 
-import { describe, it, expect, beforeAll, afterEach } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 function getAuthHeader(userId: string): HeadersInit {
@@ -12,9 +12,6 @@ function getAuthHeader(userId: string): HeadersInit {
 }
 
 describe('/api/export/sync - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   afterEach(() => {
     server.resetHandlers()

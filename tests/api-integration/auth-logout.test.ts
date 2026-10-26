@@ -3,7 +3,7 @@
  * @description Tests for /api/auth/logout endpoint
  */
 
-import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 function getAuthHeader(userId: string): HeadersInit {

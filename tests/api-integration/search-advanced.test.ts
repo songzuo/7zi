@@ -3,7 +3,7 @@
  * @description Tests for /api/search/advanced endpoint
  */
 
-import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 function getAuthHeader(userId: string): HeadersInit {
@@ -12,9 +12,6 @@ function getAuthHeader(userId: string): HeadersInit {
 }
 
 describe('/api/search/advanced - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   beforeEach(() => {
     mockData.resetUsers()
@@ -25,10 +22,6 @@ describe('/api/search/advanced - Integration Tests', () => {
 
   afterEach(() => {
     server.resetHandlers()
-  })
-
-  afterAll(() => {
-    server.close()
   })
 
   describe('GET /api/search/advanced - Basic Advanced Search', () => {

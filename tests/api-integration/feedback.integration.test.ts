@@ -3,19 +3,10 @@
  * @description Tests for /api/feedback/* endpoints using MSW
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 describe('/api/feedback - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen({
-      onUnhandledRequest: 'warn',
-    })
-  })
-
-  afterAll(() => {
-    server.close()
-  })
 
   beforeEach(() => {
     server.resetHandlers()

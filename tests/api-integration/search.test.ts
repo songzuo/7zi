@@ -3,13 +3,10 @@
  * @description Tests for /api/search endpoint
  */
 
-import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 describe('/api/search - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   beforeEach(() => {
     mockData.resetTasks()
@@ -19,10 +16,6 @@ describe('/api/search - Integration Tests', () => {
 
   afterEach(() => {
     server.resetHandlers()
-  })
-
-  afterAll(() => {
-    server.close()
   })
 
   describe('GET /api/search - Basic Search', () => {

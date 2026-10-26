@@ -3,7 +3,7 @@
  * @description Tests for /api/database/health endpoint
  */
 
-import { describe, it, expect, beforeAll, afterEach } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import { server } from './mocks/handlers'
 
 describe('/api/database/health - Integration Tests', () => {

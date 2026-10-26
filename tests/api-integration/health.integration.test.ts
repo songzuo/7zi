@@ -3,17 +3,10 @@
  * @description Tests for /api/health/* endpoints using MSW
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 describe('/api/health - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
-
-  afterAll(() => {
-    server.close()
-  })
 
   beforeEach(() => {
     server.resetHandlers()

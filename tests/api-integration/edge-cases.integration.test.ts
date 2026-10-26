@@ -4,7 +4,7 @@
  * Covers: empty input, overly long input, special characters, concurrent requests, timeout
  */
 
-import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 describe('API Edge Cases Integration Tests', () => {
