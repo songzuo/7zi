@@ -360,9 +360,6 @@ interface RateLimitRedisEnv {
   REDIS_DB?: string
 }
 
-// `process.env` 是 `ProcessEnv`（索引签名 + 任意字符串），不能整体赋值给
-// `RateLimitRedisEnv`（弱类型：字段全部可选，TS2559 —— "no properties in common"）。
-// 这里显式列出需要的字段做一次窄化映射，运行时取值完全等价。
 const redisEnv: RateLimitRedisEnv = {
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: process.env.REDIS_PORT,

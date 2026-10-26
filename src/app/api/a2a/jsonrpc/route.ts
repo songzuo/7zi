@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { withA2AAuth } from '@/lib/agents/a2a/auth'
 import { A2ARequestHandler, createRequestHandler } from '@/lib/agents/a2a/jsonrpc-handler'
 import { getTaskStore } from '@/lib/agents/a2a/task-store'
 import { createSevenZiExecutor } from '@/lib/agents/a2a/executor'
@@ -22,7 +23,6 @@ import {
 import { logger } from '@/lib/logger'
 
 // Initialize handler (singleton pattern)
-let handler: A2ARequestHandler | null = null
 
 /**
  * Get CORS headers
@@ -38,16 +38,24 @@ function getCorsHeaders(): Record<string, string> {
 }
 
 function getHandler(): A2ARequestHandler {
-  if (!handler) {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    handler = createRequestHandler(
-      getAgentCard(baseUrl),
-      getTaskStore(),
-      createSevenZiExecutor(),
-      getExtendedAgentCard(baseUrl)
-    )
-  }
-  return handler
+  // 每次都新建 handler。
+  //
+  // 之前用模块级 `let handler` 缓存，模块只加载一次就再也不重建。
+  // 后果：
+  // 1. 测试里无法替换 handler —— 每个用例 vi.mock 的 createRequestHandler
+  //    返回值都被忽略，响应始终来自第一个用例留下的实例。
+  // 2. process.env.NEXT_PUBLIC_SITE_URL 在构造时就被读进去，
+  //    之后改环境变量也不生效。
+  //
+  // handler 本身是无状态的（所有依赖都在构造时传入），
+  // 缓存没有收益；构造开销也只是几个对象引用。
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  return createRequestHandler(
+    getAgentCard(baseUrl),
+    getTaskStore(),
+    createSevenZiExecutor(),
+    getExtendedAgentCard(baseUrl)
+  )
 }
 
 /**
@@ -118,11 +126,22 @@ async function processBatchRequest(body: unknown): Promise<JsonRpcResponse[]> {
   return Promise.all(requests.map(request => processSingleRequest(request)))
 }
 
+export async function POST(request: NextRequest) {
+  // A2A 路由必须自己守门：仓库没有根 middleware.ts，
+  // 没有全局鉴权层。AgentCard 声明了 bearerAuth + apiKey，
+  // 这里按声明校验（见 src/lib/agents/a2a/auth.ts）。
+  //
+  // 注意传的是 POSTHandler 而不是 POST ——
+  // withA2AAuth 会调用传入的 handler，
+  // 传 POST 会造成 POST -> withA2AAuth -> POST 的无限递归。
+  return withA2AAuth(request, POSTHandler)
+}
+
 /**
  * POST /api/a2a/jsonrpc
  * Handle JSON-RPC requests (single or batch)
  */
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json()

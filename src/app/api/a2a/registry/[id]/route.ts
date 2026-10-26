@@ -20,7 +20,7 @@ interface RouteContext {
   params: Promise<{ id: string }>
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, context: RouteContext) {
   return withA2AAuth(request, (req) => GETHandler(req, context))
 }
 
@@ -44,7 +44,7 @@ async function GETHandler(request: NextRequest, context: RouteContext) {
   }
 }
 
-export async function PUT(request: NextRequest) {
+export async function PUT(request: NextRequest, context: RouteContext) {
   return withA2AAuth(request, (req) => PUTHandler(req, context))
 }
 
@@ -90,7 +90,7 @@ async function PUTHandler(request: NextRequest, context: RouteContext) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
   return withA2AAuth(request, (req) => DELETEHandler(req, context))
 }
 
@@ -117,7 +117,7 @@ async function DELETEHandler(request: NextRequest, context: RouteContext) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
   return withA2AAuth(request, (req) => PATCHHandler(req, context))
 }
 

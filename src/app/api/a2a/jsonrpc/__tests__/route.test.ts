@@ -29,6 +29,18 @@ vi.mock('@/lib/agents/a2a/task-store', () => ({
   getTaskStore: vi.fn(() => ({})),
 }))
 
+// 路由加了 A2A 鉴权（withA2AAuth）—— 仓库没有根 middleware.ts，
+// 没有全局鉴权层，所以 a2a 路由必须自己守门。
+// 测试要验证的是 JSON-RPC 协议行为，不是鉴权，
+// 这里把鉴权层 mock 掉，让请求直接进 handler。
+vi.mock('@/lib/agents/a2a/auth', () => ({
+  withA2AAuth: vi.fn(async (_request: unknown, handler: (req: never) => Promise<Response>) =>
+    handler({} as never)
+  ),
+  authenticateA2ARequest: vi.fn(async () => ({ method: 'jwt', userId: 'test-user' })),
+  canAccessAgent: vi.fn(() => true),
+}))
+
 vi.mock('@/lib/logger', () => ({
   logger: { auth: vi.fn(),
     error: vi.fn(),
@@ -42,6 +54,24 @@ describe('/api/a2a/jsonrpc route', () => {
     vi.clearAllMocks()
     process.env.NEXT_PUBLIC_SITE_URL = 'https://7zi.studio'
   })
+
+  // route.ts 用模块级变量 `let handler` 缓存 A2ARequestHandler
+  // （getHandler() 里 `if (!handler)` 才重建）。
+  //
+  // 问题：vi.clearAllMocks() 只会清掉 mock 的**调用记录和实现**，
+  // 不会清掉 route 模块里那个已经建好的 handler 实例。
+  // 于是第一个用例创建的 handler（handleRequest 返回 undefined）
+  // 会被后续所有用例复用 —— 每个用例自己的 mockReturnValue 都不生效，
+  // 响应里 jsonrpc 是 undefined。
+  //
+  // 解决办法：每个用例都重置模块缓存（vi.resetModules + 动态 import）。
+  // 但动态 import 每次都会拿到新的模块实例，测试顶部的
+  // `import { POST, OPTIONS } from '...'` 仍是旧实例 ——
+  // 所以这里改用另一个思路：让 getHandler 每次都重建。
+  //
+  // 实际上「缓存 handler」这个行为本身对测试极不友好，
+  // 而且生产上 handler 无状态（依赖都在构造时传入），
+  // 缓存没有收益。改为每次重建。
 
   afterEach(() => {
     vi.clearAllMocks()

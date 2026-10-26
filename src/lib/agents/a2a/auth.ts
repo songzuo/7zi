@@ -39,12 +39,28 @@ export interface A2AAuthContext {
   agentId?: string
 }
 
-/** A2A 专用的错误响应（不依赖 @/lib/api/error-handler，保持 a2a 模块自洽） */
+/**
+ * A2A 专用的错误响应。
+ *
+ * 形状与仓库统一的 ErrorResponse 契约一致：
+ *   { success: false, error: { type, message, timestamp } }
+ * 见 src/lib/api/error-handler.ts 的 ErrorResponse / buildErrorResponse。
+ *
+ * 这里不直接调 @/lib/api/error-handler，因为：
+ *   1. 它的 createErrorResponse 是 async，且会做 locale 化的 userMessage 扩展，
+ *      对 401 这种热路径是额外开销；
+ *   2. a2a 模块要保持自洽（错误处理不依赖 api 层）。
+ * 但**字段名和语义必须一致**，否则调用方解析会出错。
+ */
 function unauthorized(message: string): Response {
   return new Response(
     JSON.stringify({
       success: false,
-      error: { code: 'UNAUTHORIZED', message },
+      error: {
+        type: 'UNAUTHORIZED',
+        message,
+        timestamp: new Date().toISOString(),
+      },
     }),
     {
       status: 401,

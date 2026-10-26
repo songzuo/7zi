@@ -10,12 +10,23 @@ import { getMessageQueue } from '@/lib/agents/a2a/message-queue'
 import { QueueMessage } from '@/lib/agents/a2a/types'
 import type { TaskPriority } from '@/lib/agents/a2a/types'
 import { logger } from '@/lib/logger'
+import { withA2AAuth } from '@/lib/agents/a2a/auth'
 
 /**
  * GET /api/a2a/queue
  * Get queue status and statistics
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // A2A 路由必须自己守门：仓库没有根 middleware.ts，没有全局鉴权层。
+  // 队列里是待执行的任务消息，属于管理面数据。
+  return withA2AAuth(request, GETHandler)
+}
+
+/**
+ * GET /api/a2a/queue
+ * Get queue status and statistics
+ */
+async function GETHandler() {
   try {
     const queue = getMessageQueue()
     const stats = queue.getStats()
@@ -50,6 +61,14 @@ export async function GET() {
  * Enqueue a new message
  */
 export async function POST(request: NextRequest) {
+  return withA2AAuth(request, POSTHandler)
+}
+
+/**
+ * POST /api/a2a/queue
+ * Enqueue a new message
+ */
+async function POSTHandler(request: NextRequest) {
   try {
     const body = await request.json()
 
@@ -104,6 +123,14 @@ export async function POST(request: NextRequest) {
  * Clear all messages from the queue
  */
 export async function DELETE(request: NextRequest) {
+  return withA2AAuth(request, DELETEHandler)
+}
+
+/**
+ * DELETE /api/a2a/queue
+ * Clear all messages from the queue
+ */
+async function DELETEHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const agentId = searchParams.get('agentId')
