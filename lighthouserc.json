@@ -96,8 +96,10 @@
         "third-party-summary": "off"
       }
     },
+    "_comment_upload": "原为 temporary-public-storage，每跑一次都要往 Google 存储往返；CI 里报告本来就用 upload-artifact 自己存，没必要。改成 filesystem，去掉这个外网失败面。",
     "upload": {
-      "target": "temporary-public-storage"
+      "target": "filesystem",
+      "outputDir": "./lhci_reports"
     }
   }
 }

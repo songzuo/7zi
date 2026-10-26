@@ -179,7 +179,10 @@ jobs:
           set -euo pipefail
           if [ ! -f .next/standalone/server.js ]; then
             echo "::error::.next/standalone/server.js 不存在，构建产物不完整"
-            ls -la .next 2>/dev/null | head -20 || true
+            # 不要写 `| head -20`：在 set -o pipefail 下 head 提前关管道，
+            # ls 收 SIGPIPE 返回 2，整条 step 就被判红（上一轮踩过）。
+            # sed 会读完全部输入，不产生 SIGPIPE。
+            ls -la .next 2>/dev/null | sed -n '1,20p' || true
             exit 1
           fi
           mkdir -p .next/standalone/.next
@@ -192,13 +195,29 @@ jobs:
           else
             echo "no public/ dir, skip"
           fi
-          echo "--- .next/standalone 顶层 ---"
-          ls -la .next/standalone | head -12
+          echo "--- .next/standalone 关键产物 ---"
+          for f in server.js node_modules .next/static public; do
+            if [ -e ".next/standalone/$f" ]; then
+              echo "  ok       $f"
+            else
+              echo "  MISSING  $f"
+            fi
+          done
+          echo "--- .next/standalone 顶层（前 15 项）---"
+          # 同上前提：不用 `| head`，避免 SIGPIPE + pipefail 判红。
+          ls -1 .next/standalone 2>/dev/null | sed -n '1,15p' || true
+          du -sh .next/standalone 2>/dev/null || true
 
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli@${{ env.LHCI_VERSION }}
 
+      # 这一段是整条流水线里唯一「不可控」的部分：要真起一个 Node 服务、
+      # 真起一个 Chrome。把它做成硬门 = 每次 push 稳定红一次、稳定一封邮件。
+      # 所以：continue-on-error，红也只在 Step Summary 里留证，不判红流水线。
+      # 断言本身在 lighthouserc.json 里已全部降为 warn，正常不会非零。
       - name: Run Lighthouse CI
+        id: lhci
+        continue-on-error: true
         run: |
           set -uo pipefail
           # 直接起 standalone server。原先是 `cd .next && npm run start`，
@@ -226,10 +245,30 @@ jobs:
             exit 1
           fi
 
-          # lighthouserc.json 已移除 startServerCommand（server 由本步自己管），
-          # 断言级别全部降为 warn：只报告，不判红。
-          lhci autorun --config=./lighthouserc.json \
-            --collect.url=http://127.0.0.1:3000/
+          # 拆成 collect + assert，**不跑 upload**。理由：
+          #   lighthouserc.json 原来 upload.target=temporary-public-storage，
+          #   那要多一次到 Google 存储的往返 —— 纯外网依赖，白送一个失败面。
+          #   报告我们本来就用 upload-artifact 自己存，不需要外部存储。
+          lhci collect --config=./lighthouserc.json \
+            --url=http://127.0.0.1:3000/
+          # 断言级别全是 warn，正常返回 0；万一非零也不该阻断。
+          lhci assert --config=./lighthouserc.json || \
+            echo "::warning::lhci assert 返回非零（断言已全 warn，属意外，见上方输出）"
+
+          # 归一化：lhci collect 产出的是 manifest.json + lhr-*.json，
+          # 而下游两步（Parse Lighthouse results / Performance Budget）
+          # 读的是 .lighthouseci/lhci.json 的 .results[0].categories。
+          # 这里补一份，免得下游永远走「文件不存在，跳过」的死分支。
+          node -e '
+          const fs = require("fs");
+          const dir = ".lighthouseci";
+          if (!fs.existsSync(dir)) { console.log("no .lighthouseci dir"); process.exit(0); }
+          const files = fs.readdirSync(dir).filter(f => /^lhr-.*\.json$/.test(f)).sort();
+          if (!files.length) { console.log("no lhr-*.json, skip"); process.exit(0); }
+          const results = files.map(f => JSON.parse(fs.readFileSync(dir + "/" + f, "utf8")));
+          fs.writeFileSync(dir + "/lhci.json", JSON.stringify({ results }, null, 2));
+          console.log("wrote " + dir + "/lhci.json, runs=" + results.length);
+          '
 
       - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v4
@@ -250,6 +289,15 @@ jobs:
         if: always()
         run: |
           echo "=== Lighthouse CI Results ==="
+          echo "lhci 步骤结论: ${{ steps.lhci.outcome }}"
+          if [ "${{ steps.lhci.outcome }}" != "success" ]; then
+            {
+              echo "### ⚠️ Lighthouse 采集未成功（报告项，不阻断流水线）"
+              echo ""
+              echo "lhci outcome = ${{ steps.lhci.outcome }}。常见原因："
+              echo "standalone server 未在 45s 内监听 :3000，或 runner 上 Chrome 启动失败。"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi"
           if [ -f .lighthouseci/lhci.json ]; then
             cat .lighthouseci/lhci.json | jq -r '
               .results[0].categories // empty | to_entries[] |

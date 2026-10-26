@@ -110,9 +110,15 @@ docs/
 !README.md
 !CHANGELOG.md
 
-# TypeScript configs (not needed at runtime)
-tsconfig.json
-tsconfig.*.json
+# TypeScript 配置 —— tsconfig.json **必须**保留在构建上下文里！
+#
+# tsconfig.json 的 compilerOptions.paths 定义了 `@/* -> ./src/*`。
+# 一旦它被排除，`COPY . .` 就拷不进去，镜像内 `npm run build` 会把每一处
+# `@/...` 当成外部包去 node_modules 里找 —— 422 条 Module not found，
+# 构建必失败（security-scan 的 container job 从 2026-03 起因此每天红）。
+#
+# 只有 tsconfig.strict.json 是纯编辑器 / 单独 CI 用途，可以继续排除。
+tsconfig.strict.json
 
 # Playwright/Vitest configs
 playwright.config.ts
