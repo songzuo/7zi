@@ -37,6 +37,38 @@ vi.mock('@/lib/api/error-handler', () => ({
 }))
 
 import { authenticateToken } from '@/lib/auth/service'
+import { UserRole, UserStatus } from '@/lib/auth/types'
+
+/**
+ * 构造 authenticateToken 的成功返回值（真实契约：{ user, context }）
+ * 见 src/lib/auth/service.ts:345 —— authenticateToken 返回
+ * { user: User, context: UserContext } 或 null。
+ */
+function authenticatedResult() {
+  return {
+    user: {
+      id: 'user-1',
+      email: 'testuser@example.com',
+      password: 'hashed-password',
+      name: 'testuser',
+      role: UserRole.MEMBER,
+      roles: [],
+      status: UserStatus.ACTIVE,
+      permissions: [],
+      metadata: {},
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    },
+    context: {
+      userId: 'user-1',
+      email: 'testuser@example.com',
+      role: UserRole.MEMBER,
+      roles: [],
+      permissions: [],
+      customPermissions: [],
+    },
+  }
+}
 
 
 /** 构造一个带有效 Bearer 凭据的请求 */
@@ -53,6 +85,9 @@ function authRequest(url: string, init?: RequestInit): NextRequest {
 describe('A2A Queue API - GET /api/a2a/queue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // A2A 路由自己守门（withA2AAuth），默认给一份有效凭据；
+    // 需要匿名访问的用例在自己的 beforeEach 里覆盖成 null。
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
     agentScheduler.clear()
   })
 
@@ -63,10 +98,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
 
   describe('Authentication', () => {
     it('should return 401 for unauthenticated requests', async () => {
-      vi.mocked(authenticateJWT).mockResolvedValue({
-        authenticated: false,
-        error: 'Invalid or expired JWT token',
-      })
+      vi.mocked(authenticateToken).mockResolvedValue(null)
 
       const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'GET',
@@ -81,13 +113,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
     })
 
     it('should allow authenticated user to list tasks', async () => {
-      vi.mocked(authenticateJWT).mockResolvedValue({
-        authenticated: true,
-        userId: 'user-1',
-        username: 'testuser',
-        role: 'user',
-        authMethod: 'jwt',
-      })
+      vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
 
       const request = authRequest('http://localhost/api/a2a/queue', {
         method: 'GET',
@@ -100,13 +126,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
 
   describe('Task Listing', () => {
     beforeEach(() => {
-      vi.mocked(authenticateJWT).mockResolvedValue({
-        authenticated: true,
-        userId: 'user-1',
-        username: 'testuser',
-        role: 'user',
-        authMethod: 'jwt',
-      })
+      vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
 
       // Register agents for testing
       agentScheduler.registerAgent('agent-1', 'Agent 1', 'test', ['test-task'])
@@ -243,13 +263,7 @@ describe('A2A Queue API - GET /api/a2a/queue', () => {
 
   describe('Queue Statistics', () => {
     beforeEach(() => {
-      vi.mocked(authenticateJWT).mockResolvedValue({
-        authenticated: true,
-        userId: 'user-1',
-        username: 'testuser',
-        role: 'user',
-        authMethod: 'jwt',
-      })
+      vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
 
       agentScheduler.registerAgent('agent-1', 'Agent 1', 'test', ['test-task'])
     })
@@ -336,13 +350,7 @@ describe('A2A Queue API - POST /api/a2a/queue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
-    vi.mocked(authenticateJWT).mockResolvedValue({
-      authenticated: true,
-      userId: 'user-1',
-      username: 'testuser',
-      role: 'user',
-      authMethod: 'jwt',
-    })
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
     agentScheduler.registerAgent('agent-1', 'Agent 1', 'test', ['test-task'])
   })
 
@@ -565,13 +573,7 @@ describe('A2A Queue API - PUT /api/a2a/queue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
-    vi.mocked(authenticateJWT).mockResolvedValue({
-      authenticated: true,
-      userId: 'user-1',
-      username: 'testuser',
-      role: 'user',
-      authMethod: 'jwt',
-    })
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
     agentScheduler.registerAgent('agent-1', 'Agent 1', 'test', ['test-task'])
   })
 
@@ -757,13 +759,7 @@ describe('A2A Queue API - DELETE /api/a2a/queue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
-    vi.mocked(authenticateJWT).mockResolvedValue({
-      authenticated: true,
-      userId: 'user-1',
-      username: 'testuser',
-      role: 'user',
-      authMethod: 'jwt',
-    })
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
     agentScheduler.registerAgent('agent-1', 'Agent 1', 'test', ['test-task'])
   })
 
@@ -860,13 +856,7 @@ describe('A2A Queue API - Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
-    vi.mocked(authenticateJWT).mockResolvedValue({
-      authenticated: true,
-      userId: 'user-1',
-      username: 'testuser',
-      role: 'user',
-      authMethod: 'jwt',
-    })
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
     agentScheduler.registerAgent('agent-1', 'Agent 1', 'test', ['test-task'])
     agentScheduler.registerAgent('agent-2', 'Agent 2', 'test', ['test-task'])
   })

@@ -21,6 +21,38 @@ vi.mock('@/lib/auth/service', () => ({
 }))
 
 import { authenticateToken } from '@/lib/auth/service'
+import { UserRole, UserStatus } from '@/lib/auth/types'
+
+/**
+ * 构造 authenticateToken 的成功返回值（真实契约：{ user, context }）
+ * 见 src/lib/auth/service.ts:345 —— authenticateToken 返回
+ * { user: User, context: UserContext } 或 null。
+ */
+function authenticatedResult() {
+  return {
+    user: {
+      id: 'user-1',
+      email: 'testuser@example.com',
+      password: 'hashed-password',
+      name: 'testuser',
+      role: UserRole.MEMBER,
+      roles: [],
+      status: UserStatus.ACTIVE,
+      permissions: [],
+      metadata: {},
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    },
+    context: {
+      userId: 'user-1',
+      email: 'testuser@example.com',
+      role: UserRole.MEMBER,
+      roles: [],
+      permissions: [],
+      customPermissions: [],
+    },
+  }
+}
 
 
 /** 构造一个带有效 Bearer 凭据的请求 */
@@ -37,6 +69,9 @@ function authRequest(url: string, init?: RequestInit): NextRequest {
 describe('A2A JSON-RPC API - Protocol Validation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // A2A 路由自己守门（withA2AAuth），默认给一份有效凭据；
+    // 需要匿名访问的用例在自己的 beforeEach 里覆盖成 null。
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
     agentScheduler.clear()
   })
 
@@ -122,13 +157,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
     })
 
     it('should return jsonrpc version in response', async () => {
-      vi.mocked(authenticateJWT).mockResolvedValue({
-        authenticated: true,
-        userId: 'user-1',
-        username: 'testuser',
-        role: 'user',
-        authMethod: 'jwt',
-      })
+      vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
 
       const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
@@ -148,13 +177,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
     })
 
     it('should echo request ID in response', async () => {
-      vi.mocked(authenticateJWT).mockResolvedValue({
-        authenticated: true,
-        userId: 'user-1',
-        username: 'testuser',
-        role: 'user',
-        authMethod: 'jwt',
-      })
+      vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
 
       const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
@@ -174,13 +197,7 @@ describe('A2A JSON-RPC API - Protocol Validation', () => {
     })
 
     it('should handle numeric IDs', async () => {
-      vi.mocked(authenticateJWT).mockResolvedValue({
-        authenticated: true,
-        userId: 'user-1',
-        username: 'testuser',
-        role: 'user',
-        authMethod: 'jwt',
-      })
+      vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
 
       const request = authRequest('http://localhost/api/a2a/jsonrpc', {
         method: 'POST',
@@ -205,13 +222,7 @@ describe('A2A JSON-RPC API - Agent Methods', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
-    vi.mocked(authenticateJWT).mockResolvedValue({
-      authenticated: true,
-      userId: 'user-1',
-      username: 'testuser',
-      role: 'user',
-      authMethod: 'jwt',
-    })
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
 
     agentScheduler.registerAgent('agent-1', 'Agent 1', 'test', ['cap-a'])
     agentScheduler.registerAgent('agent-2', 'Agent 2', 'test', ['cap-b', 'cap-a'])
@@ -448,13 +459,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
-    vi.mocked(authenticateJWT).mockResolvedValue({
-      authenticated: true,
-      userId: 'user-1',
-      username: 'testuser',
-      role: 'user',
-      authMethod: 'jwt',
-    })
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
 
     agentScheduler.registerAgent('agent-1', 'Agent 1', 'test', ['test-task'])
   })
@@ -855,13 +860,7 @@ describe('A2A JSON-RPC API - Queue Methods', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
-    vi.mocked(authenticateJWT).mockResolvedValue({
-      authenticated: true,
-      userId: 'user-1',
-      username: 'testuser',
-      role: 'user',
-      authMethod: 'jwt',
-    })
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
   })
 
   afterEach(() => {
@@ -921,13 +920,7 @@ describe('A2A JSON-RPC API - Unknown Methods', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
-    vi.mocked(authenticateJWT).mockResolvedValue({
-      authenticated: true,
-      userId: 'user-1',
-      username: 'testuser',
-      role: 'user',
-      authMethod: 'jwt',
-    })
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
   })
 
   afterEach(() => {
@@ -975,13 +968,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
-    vi.mocked(authenticateJWT).mockResolvedValue({
-      authenticated: true,
-      userId: 'user-1',
-      username: 'testuser',
-      role: 'user',
-      authMethod: 'jwt',
-    })
+    vi.mocked(authenticateToken).mockResolvedValue(authenticatedResult())
 
     agentScheduler.registerAgent('agent-1', 'Agent 1', 'test', ['test-task'])
   })
