@@ -4,7 +4,7 @@
  */
 
 import { NodeExecutor, ExecutionContext, ExecutionResult, addLog } from '../../lib/workflow/types'
-import { NodeType, NodeStatus, WorkflowNode } from '@/types/workflow'
+import { NodeStatus, WorkflowNode } from '@/types/workflow'
 
 /**
  * 循环类型
@@ -75,8 +75,8 @@ export class LoopNodeExecutor implements NodeExecutor {
     if (!node.loopConfig) {
       errors.push('循环节点必须配置 loopConfig')
     } else {
-      // @ts-ignore - LoopConfig from types/workflow uses loopType, local uses type
-      const config = node.loopConfig as LoopConfig
+      // LoopConfig from types/workflow uses loopType, local uses type
+      const config = node.loopConfig as unknown as LoopConfig
 
       if (!config.type) {
         errors.push('循环节点必须指定循环类型')
@@ -132,8 +132,8 @@ export class LoopNodeExecutor implements NodeExecutor {
   async execute(context: ExecutionContext): Promise<ExecutionResult> {
     const startTime = new Date()
     const { node, inputs, variables } = context
-    // @ts-ignore - LoopConfig from types/workflow uses loopType, local uses type
-    const config = node.loopConfig as LoopConfig
+    // LoopConfig from types/workflow uses loopType, local uses type
+    const config = node.loopConfig as unknown as LoopConfig
 
     addLog(context, 'info', `开始执行循环节点: ${node.name} (类型: ${config.type})`)
 
@@ -463,10 +463,10 @@ export class LoopNodeExecutor implements NodeExecutor {
    * 模拟循环体执行
    */
   private async simulateLoopBody(
-    node: WorkflowNode,
-    index: number,
-    context: ExecutionContext,
-    runtimeVars?: Record<string, unknown>
+    _node: WorkflowNode,
+    _index: number,
+    _context: ExecutionContext,
+    _runtimeVars?: Record<string, unknown>
   ): Promise<void> {
     // 模拟循环体执行延迟
     // 实际实现需要调用子工作流引擎执行循环内的节点

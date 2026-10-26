@@ -442,7 +442,7 @@ export class ParallelNodeExecutor implements NodeExecutor {
     try {
       const settledResults = await Promise.all(racePromises)
       results.push(...settledResults)
-    } catch (error) {
+    } catch (_error) {
       // 有分支失败，停止执行
       addLog(context, 'error', `检测到失败，停止执行所有分支`)
 
@@ -510,7 +510,7 @@ export class ParallelNodeExecutor implements NodeExecutor {
    */
   private async simulateBranchExecution(
     branch: ParallelBranch,
-    context: Record<string, unknown>,
+    _context: Record<string, unknown>,
     _parentContext: ExecutionContext
   ): Promise<void> {
     // 模拟执行延迟

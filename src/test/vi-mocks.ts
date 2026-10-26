@@ -780,7 +780,22 @@ function executeRun(sql: string, params: unknown[]): DatabaseResult {
 // MOCK DATABASE
 // ============================================================================
 
-const mockDb: DatabaseConnection = {
+/**
+ * 替身数据库（mock）的类型。
+ *
+ * `DatabaseConnection`（src/lib/db/connection.ts:36）把 `batch` 声明成
+ * `Promise<DatabaseResult[]>`，但真实实现（connection.ts:259 的 batch）与
+ * better-sqlite3 本身都是**同步**返回 `DatabaseResult[]` 数组。
+ * 替身按运行时真相建模：只把 `batch` 的签名覆盖成同步版本，其余字段沿用
+ * `DatabaseConnection`。否则给替身安一个假 Promise 会让
+ * `const results = db.batch(stmts); Array.isArray(results)` 这类同步用法失效
+ * （与 src/test/mocks/db.ts、src/test/setup-db-mock.ts 的既有约定一致）。
+ */
+type MockDatabaseConnection = Omit<DatabaseConnection, 'batch'> & {
+  batch: (statements: Array<{ sql: string; params?: unknown[] }>) => DatabaseResult[]
+}
+
+const mockDb: MockDatabaseConnection = {
   query: vi.fn(),
   get: vi.fn((sql: string, params?: unknown[]) => {
     return executeGet(sql, params) as Record<string, unknown> | null
@@ -1387,7 +1402,7 @@ export function clearTable(tableName: string): void {
 /**
  * Get the mock database instance
  */
-export function getMockDb(): DatabaseConnection {
+export function getMockDb(): MockDatabaseConnection {
   return mockDb
 }
 

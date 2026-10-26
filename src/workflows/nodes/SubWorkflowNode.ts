@@ -4,7 +4,7 @@
  */
 
 import { NodeExecutor, ExecutionContext, ExecutionResult, addLog } from '../../lib/workflow/types'
-import { NodeType, NodeStatus, WorkflowNode } from '@/types/workflow'
+import { NodeStatus, WorkflowNode } from '@/types/workflow'
 
 /**
  * 子工作流调用配置
@@ -61,8 +61,8 @@ export class SubWorkflowNodeExecutor implements NodeExecutor {
     if (!node.subWorkflowConfig) {
       errors.push('子工作流节点必须配置 subWorkflowConfig')
     } else {
-      // @ts-ignore - SubWorkflowConfig type mismatch with types/workflow.ts
-      const config = node.subWorkflowConfig as SubWorkflowConfig
+      // SubWorkflowConfig type mismatch with types/workflow.ts
+      const config = node.subWorkflowConfig as unknown as SubWorkflowConfig
 
       if (!config.workflowId) {
         errors.push('子工作流节点必须指定 workflowId')
@@ -90,8 +90,8 @@ export class SubWorkflowNodeExecutor implements NodeExecutor {
   async execute(context: ExecutionContext): Promise<ExecutionResult> {
     const startTime = new Date()
     const { node, inputs, variables } = context
-    // @ts-ignore - SubWorkflowConfig type mismatch with types/workflow.ts
-    const config = node.subWorkflowConfig as SubWorkflowConfig
+    // SubWorkflowConfig type mismatch with types/workflow.ts
+    const config = node.subWorkflowConfig as unknown as SubWorkflowConfig
 
     addLog(context, 'info', `开始执行子工作流节点: ${node.name}`)
     addLog(context, 'info', `调用子工作流: ${config.workflowId}`)
@@ -141,8 +141,8 @@ export class SubWorkflowNodeExecutor implements NodeExecutor {
       )
 
       // 根据错误处理策略决定是否失败
-      // @ts-ignore - SubWorkflowConfig type mismatch with types/workflow.ts
-      const config = node.subWorkflowConfig as SubWorkflowConfig
+      // SubWorkflowConfig type mismatch with types/workflow.ts
+      const config = node.subWorkflowConfig as unknown as SubWorkflowConfig
       const shouldFail = config.onError !== 'continue'
 
       return {
