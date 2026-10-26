@@ -69,15 +69,19 @@
           }
         ],
         "uses-optimized-images": "warn",
-        "uses-webp-images": "warn",
         "uses-text-compression": "warn",
         "uses-responsive-images": "warn",
-        "render-blocking-resources": "warn",
-        "unused-css-rules": "warn",
-        "unused-javascript": "warn",
         "uses-rel-preconnect": "warn",
-        "uses-rel-preload": "warn",
         "font-display": "warn",
+
+        "_comment_removed_unknown_audits": "v18 删掉 uses-webp-images / uses-rel-preload。v17 run 40319723741 的 lhci assert 原文：\"uses-rel-preload\" is not a known audit / \"uses-webp-images\" is not a known audit —— 这两个 audit 在当前 Lighthouse 里已经不存在（webp 并入 uses-optimized-images，preload 并入 preconnect/priority-hints 的建议项）。每条断言都会刷一行 ⚠️ warning，纯噪声，而且噪声会掩盖真问题。",
+
+        "_comment_disabled_score_audits": "v18 把 render-blocking-resources / unused-css-rules / unused-javascript / mainthread-work-breakdown 从 \"warn\" 改成 \"off\"。原因：lighthouserc 里裸写一个级别字符串，lhci 默认按 minScore=0.9 断言；而这四个 audit 在当前版本里已是 info/diagnostic（score 为 null，被 lhci 记成 0），于是每条都恒刷 \"expected >=0.9 found 0\"。实测 v17 就是这四行 + 上面两行未知 audit = 每次 6 行 ⚠️。真要看这几项，等确认 Lighthouse 版本后改成数值断言，例如：\"render-blocking-resources\": [\"warn\", {\"maxNumericValue\": 0}]。性能红线目前由下面的 LCP / TBT / CLS / SI / FCP 数值断言承担，不受此影响。",
+        "render-blocking-resources": "off",
+        "unused-css-rules": "off",
+        "unused-javascript": "off",
+        "mainthread-work-breakdown": "off",
+
         "network-requests": [
           "warn",
           {
@@ -90,7 +94,6 @@
             "maxNumericValue": 1048576
           }
         ],
-        "mainthread-work-breakdown": "warn",
         "bootup-time": "warn",
         "resource-summary": "off",
         "third-party-summary": "off"

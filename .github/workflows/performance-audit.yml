@@ -362,11 +362,137 @@ jobs:
           console.log("wrote " + dir + "/lhci.json, runs=" + results.length);
           '
 
+      # ── 报告清单（v18 新增）────────────────────────────────────────────
+      # 唯一职责：把「到底写了几个文件、叫什么名字」变成日志里的**事实**。
+      # v17 的现场是自相矛盾的两行：
+      #   L509  wrote .lighthouseci/lhci.json, runs=1
+      #   L525  ##[warning]No files were found with the provided path:
+      #         .lighthouseci/. No artifacts will be uploaded.
+      # 文件写出来了、artifact 却是空的 —— 没有这份清单，只能靠猜。
+      # if: always() ：lhci 步骤红掉时也要看见现场。
+      - name: Lighthouse report inventory
+        if: always()
+        run: |
+          echo "──────────── Lighthouse 报告清单 ────────────"
+          if [ -d .lighthouseci ]; then
+            ls -la .lighthouseci
+            echo "文件数: $(find .lighthouseci -maxdepth 1 -type f | wc -l)"
+            echo "总体积: $(du -sh .lighthouseci | cut -f1)"
+            echo "--- 逐个文件 ---"
+            find .lighthouseci -maxdepth 1 -type f -printf '%10s  %p\n' 2>/dev/null \
+              | sort -k2 || true
+          else
+            echo "!! .lighthouseci 目录不存在（lhci collect 没写任何东西）"
+          fi
+          echo "─────────────────────────────────────────────"
+
+      # ── 可直读的报告（v18 新增）────────────────────────────────────────
+      # 光有 lhr-*.json 不算「报告」：那是给程序读的，下载下来打开是一坨 JSON。
+      # 这里从 lhci.json 生成一份**零依赖单文件 HTML**（内联样式，不引外网），
+      # 随 artifact 一起下载，双击就能看分数、Core Web Vitals、未满分审计。
+      # 不调 lighthouse 自带的 report generator —— 那要 `npm i -g lighthouse`
+      # 且版本一变 API 就变，又是一条会红的路。
+      - name: Generate readable report
+        if: always()
+        run: |
+          node -e '
+          const fs = require("fs");
+          const p = ".lighthouseci/lhci.json";
+          if (!fs.existsSync(p)) {
+            console.log("[report] 没有 .lighthouseci/lhci.json，跳过 index.html");
+            process.exit(0);
+          }
+          const r = JSON.parse(fs.readFileSync(p, "utf8")).results[0] || {};
+          const cats = r.categories || {};
+          const audits = r.audits || {};
+          const METRICS = [
+            ["first-contentful-paint",   "FCP", 1800, "ms"],
+            ["largest-contentful-paint", "LCP", 2500, "ms"],
+            ["total-blocking-time",      "TBT",  300, "ms"],
+            ["cumulative-layout-shift",  "CLS",  0.1, ""],
+            ["speed-index",              "SI",  3400, "ms"],
+            ["interactive",              "TTI", 3800, "ms"]
+          ];
+          const catRows = Object.keys(cats).map(function (k) {
+            const c = cats[k];
+            const s = c.score == null ? null : Math.round(c.score * 100);
+            const cls = s == null ? "na" : s >= 90 ? "good" : s >= 50 ? "avg" : "bad";
+            return `  <tr><td>${c.title || k}</td><td class="${cls}">${s == null ? "n/a" : s + "%"}</td></tr>`;
+          }).join("\n");
+          const metRows = METRICS.map(function (m) {
+            const a = audits[m[0]];
+            if (!a) return "";
+            const v = a.numericValue;
+            const shown = v == null ? "n/a"
+              : (m[3] === "ms" ? Math.round(v) + " ms" : String(Math.round(v * 1000) / 1000));
+            const lim = m[3] === "ms" ? "≤ " + m[2] + " ms" : "≤ " + m[2];
+            const bad = v != null && v > m[2];
+            return `  <tr><td>${m[1]}</td><td>${shown}</td><td>${lim}</td><td class="${bad ? "bad" : "good"}">${bad ? "超标" : "达标"}</td></tr>`;
+          }).join("\n");
+          const fails = Object.keys(audits).map(function (k) { return [k, audits[k]]; })
+            .filter(function (e) {
+              const a = e[1];
+              return a && a.score != null && a.score < 1
+                && a.scoreDisplayMode !== "informative"
+                && a.scoreDisplayMode !== "notApplicable";
+            })
+            .sort(function (x, y) { return x[1].score - y[1].score; })
+            .slice(0, 30);
+          const failRows = fails.map(function (e) {
+            const a = e[1];
+            const disp = a.displayValue ? " (" + a.displayValue + ")" : "";
+            return `  <tr><td>${Math.round(a.score * 100)}</td><td>${a.title || e[0]}${disp}</td><td><code>${e[0]}</code></td></tr>`;
+          }).join("\n");
+          const html = `<!doctype html>
+          <html lang="zh-CN"><head><meta charset="utf-8">
+          <title>Lighthouse ${r.finalUrl || ""}</title>
+          <style>
+           body{font:14px/1.65 -apple-system,Segoe UI,system-ui,sans-serif;margin:28px;color:#111;max-width:960px}
+           h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:26px 0 8px}
+           .meta{color:#555;font-size:12px}
+           table{border-collapse:collapse;width:100%;margin:6px 0}
+           th,td{border:1px solid #e3e3e3;padding:6px 10px;text-align:left;vertical-align:top}
+           th{background:#fafafa;font-weight:600}
+           .good{color:#0a7b34;font-weight:600}.avg{color:#b45309;font-weight:600}
+           .bad{color:#b91c1c;font-weight:600}.na{color:#888}
+           code{font:12px ui-monospace,Consolas,monospace;color:#444}
+          </style></head><body>
+          <h1>Lighthouse 报告</h1>
+          <p class="meta">URL: <code>${r.finalUrl || ""}</code><br>
+          采集时间: ${r.fetchTime || "n/a"} &nbsp;|&nbsp; Lighthouse ${r.lighthouseVersion || "n/a"}<br>
+          本文件由 CI 在 lhci collect 之后从 lhci.json 生成，随 artifact 下载，双击即可查看。</p>
+          <h2>分类得分</h2>
+          <table><tr><th>分类</th><th>得分</th></tr>
+          ${catRows}
+          </table>
+          <h2>Core Web Vitals</h2>
+          <table><tr><th>指标</th><th>实测</th><th>阈值</th><th>结论</th></tr>
+          ${metRows}
+          </table>
+          <h2>未满分审计（前 30，按得分升序）</h2>
+          <table><tr><th>得分</th><th>项目</th><th>audit id</th></tr>
+          ${failRows || `  <tr><td colspan="3" class="na">无</td></tr>`}
+          </table>
+          </body></html>`;
+          fs.writeFileSync(".lighthouseci/index.html", html, "utf8");
+          console.log("[report] wrote .lighthouseci/index.html, "
+            + html.length + " bytes, 未满分审计 " + fails.length + " 条");
+          '
+
+      # ── 修 v17「报告是空的」──────────────────────────────────────────────
+      # 根因：upload-artifact@v4 的 include-hidden-files 默认 **false**，
+      # 而 `.lighthouseci` 的**路径根本身**就是点开头的隐藏目录，于是整棵被
+      # 排除 → 明明写了 4 个文件，上传时搜到 0 个。
+      # 本文件 L122-127 早就为 `.next/standalone/.next` 记过一模一样的坑，
+      # 这处漏了。加 include-hidden-files: true 即可。
+      # if-no-files-found: warn —— 真为空时留一条 warning，不静默装绿。
       - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: lighthouse-reports-local
+          include-hidden-files: true
+          if-no-files-found: warn
           path: .lighthouseci/
           retention-days: 7
 
@@ -465,7 +591,16 @@ jobs:
         if: always()
         with:
           name: lighthouse-reports-staging
-          path: .lighthouseci/
+          # 同 lighthouse-local：点开头目录默认被排除，必须显式打开。
+          include-hidden-files: true
+          if-no-files-found: warn
+          # staging 这跑的是 `lhci autorun`，而 lighthouserc.json 里
+          # upload.target=filesystem / outputDir=./lhci_reports，
+          # 所以正式报告落在 lhci_reports/，.lighthouseci/ 只剩 manifest。
+          # 两个都要，别只传那个只剩清单的。
+          path: |
+            .lighthouseci/
+            lhci_reports/
           retention-days: 7
 
   # ============================================
@@ -488,97 +623,192 @@ jobs:
           path: .lighthouseci/
         continue-on-error: true
 
+      # artifact 的目录层级取决于 upload-artifact 对单个 path 的 LCA 处理：
+      # 有可能平铺成 `.lighthouseci/lhci.json`，也可能保留首段变成
+      # `.lighthouseci/.lighthouseci/lhci.json`。两种都接住，别让下游
+      # `[ -f .lighthouseci/lhci.json ]` 因为一层目录而恒假。
+      - name: Normalize report layout
+        if: always()
+        run: |
+          if [ -f .lighthouseci/.lighthouseci/lhci.json ]; then
+            echo "检测到双层嵌套（.lighthouseci/.lighthouseci/），下沉一层"
+            cp -a .lighthouseci/.lighthouseci/. .lighthouseci/
+            rm -rf .lighthouseci/.lighthouseci
+          fi
+          echo "--- 归一化后 layout ---"
+          find .lighthouseci -maxdepth 2 -type f -printf '%10s  %p\n' 2>/dev/null \
+            | sed -n '1,20p' || true
+
       - name: Check Performance Budget
         run: |
           echo "=== Performance Budget Check ==="
           echo ""
+          echo "--- 从 artifact 拿到的文件 ---"
+          ls -la .lighthouseci 2>/dev/null || echo "(没有 .lighthouseci 目录)"
 
-          # Parse Lighthouse results
-          if [ -f .lighthouseci/lhci.json ]; then
-            RESULTS=$(cat .lighthouseci/lhci.json)
-
-            # Extract category scores
-            PERF_SCORE=$(echo "$RESULTS" | jq -r '.results[0].categories.performance.score * 100 | floor' 2>/dev/null || echo "N/A")
-            A11Y_SCORE=$(echo "$RESULTS" | jq -r '.results[0].categories.accessibility.score * 100 | floor' 2>/dev/null || echo "N/A")
-            BP_SCORE=$(echo "$RESULTS" | jq -r '.results[0].categories.best-practices.score * 100 | floor' 2>/dev/null || echo "N/A")
-            SEO_SCORE=$(echo "$RESULTS" | jq -r '.results[0].categories.seo.score * 100 | floor' 2>/dev/null || echo "N/A")
-
-            echo "📊 Category Scores:"
-            echo "==================="
-            echo "  Performance:     ${PERF_SCORE}% (threshold: 80%)"
-            echo "  Accessibility:   ${A11Y_SCORE}% (threshold: 85%)"
-            echo "  Best Practices: ${BP_SCORE}% (threshold: 85%)"
-            echo "  SEO:             ${SEO_SCORE}% (threshold: 85%)"
-            echo ""
-
-            # Extract Core Web Vitals
-            LCP=$(echo "$RESULTS" | jq -r '.results[0].audits."largest-contentful-paint".numericValue' 2>/dev/null || echo "N/A")
-            CLS=$(echo "$RESULTS" | jq -r '.results[0].audits."cumulative-layout-shift".numericValue' 2>/dev/null || echo "N/A")
-            FCP=$(echo "$RESULTS" | jq -r '.results[0].audits."first-contentful-paint".numericValue' 2>/dev/null || echo "N/A")
-            TBT=$(echo "$RESULTS" | jq -r '.results[0].audits."total-blocking-time".numericValue' 2>/dev/null || echo "N/A")
-
-            echo "⚡ Core Web Vitals:"
-            echo "==================="
-            echo "  LCP:  ${LCP}ms (threshold: 2500ms)"
-            echo "  CLS:  ${CLS} (threshold: 0.1)"
-            echo "  FCP:  ${FCP}ms (threshold: 1800ms)"
-            echo "  TBT:  ${TBT}ms (threshold: 300ms)"
-            echo ""
-
-            # Check thresholds
-            FAILED=0
-
-            if [ "$PERF_SCORE" != "N/A" ] && [ "$PERF_SCORE" -lt 80 ]; then
-              echo "❌ Performance score below threshold!"
-              FAILED=1
-            fi
-
-            if [ "$LCP" != "N/A" ] && [ "$LCP" -gt 2500 ]; then
-              echo "❌ LCP above threshold!"
-              FAILED=1
-            fi
-
-            if [ "$CLS" != "N/A" ] && [ "$(echo "$CLS > 0.1" | bc -l 2>/dev/null || echo 0)" -eq 1 ]; then
-              echo "❌ CLS above threshold!"
-              FAILED=1
-            fi
-
-            # 预算只报告、不判红。理由：这套阈值（perf>=80 / LCP<=2500ms /
-            # CLS<=0.1）从来没通过过 —— 因为 server 一直起不来，根本没人见过
-            # 真实数字。拿到第一份可信基线之前，红灯只是噪音。
-            # 等基线稳定、确认阈值合理，再把 warning 改回 exit 1。
-            if [ $FAILED -eq 1 ]; then
-              echo "::warning::Performance budget exceeded (report-only)"
-              echo "### ⚠️ 性能预算超出（仅报告，不阻断）" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "✅ Performance budget check PASSED"
-              echo "### ✅ 性能预算通过" >> $GITHUB_STEP_SUMMARY
-            fi
-
-          else
-            echo "⚠️  No Lighthouse results found, skipping budget check"
-            echo "   (This is expected if Lighthouse CI failed to run)"
+          # v17 实测：没报告时这里静默装绿 ——
+          #   artifact 空 → download-artifact 只留一条 warning →
+          #   本步骤打一句 "skipping budget check" 就 success →
+          #   Performance Budget / Audit Summary 两个 job 全绿。
+          # 结果就是「报告没了，但流水线一片绿，没人知道」。
+          # 现在改成「早退守卫」：明确说「没数据 ≠ 通过」，写进 Step Summary
+          # 和预算报告，然后正常退出（exit 0，不判红 —— 报告缺失的火要算在
+          # 上游 lighthouse-local 头上，不该在这里连坐）。
+          if [ ! -f .lighthouseci/lhci.json ]; then
+            echo "::warning::没有 .lighthouseci/lhci.json —— 性能预算无法计算。这是「没有数据」，不是「通过」。"
+            {
+              echo "### ⚠️ 性能预算未计算：报告缺失"
+              echo ""
+              echo "lighthouse-local 的 artifact 下来是空的，本 job 拿不到 lhci.json。"
+              echo "先看 lighthouse-local 的 **Lighthouse report inventory** 步骤，"
+              echo "确认 .lighthouseci 里到底写了几个文件；再看"
+              echo "**Upload Lighthouse reports** 那一步（include-hidden-files）。"
+            } >> $GITHUB_STEP_SUMMARY
+            {
+              echo "# Performance Budget Report"
+              echo ""
+              echo "⚠️ **报告缺失，未能计算预算。**"
+              echo ""
+              echo "lighthouse-local 的 artifact 为空。这不是「通过」，是「没有数据」。"
+              echo ""
+              echo "Generated at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            } > performance-budget-report.md
+            exit 0
           fi
 
-      - name: Generate budget report
+          RESULTS=$(cat .lighthouseci/lhci.json)
+
+          # ── 取值 helper ──────────────────────────────────────────────────
+          # 两个必须踩的坑（v18 用假 lhci.json 自测出来；之前一直没暴露，
+          # 因为 artifact 恒空、下面整段死分支从来没真正跑过）：
+          #  1) jq 里 `.categories.best-practices` 会被解析成 best **减** practices
+          #     → null → 恒打印 "N/A%"。必须写 .categories["best-practices"]。
+          #  2) `[ "$LCP" -gt 2500 ]` 只吃整数，而 numericValue 是 3964.9474
+          #     这种浮点 → `[: 3964.9474: integer expected` 报错。比较一律走 awk。
+          num()   { echo "$RESULTS" | jq -r ".results[0].audits[\"$1\"].numericValue // \"N/A\"" 2>/dev/null || echo "N/A"; }
+          cat_s() { echo "$RESULTS" | jq -r ".results[0].categories[\"$1\"].score * 100 | floor" 2>/dev/null || echo "N/A"; }
+          cmp()   { # $1=值 $2=ge|le $3=阈值 → PASS / FAIL / N/A
+            if [ -z "$1" ] || [ "$1" = "N/A" ] || [ "$1" = "null" ]; then echo "N/A"; return 0; fi
+            awk -v v="$1" -v t="$3" -v op="$2" 'BEGIN{
+              if (op == "ge") print (v + 0 >= t + 0) ? "PASS" : "FAIL";
+              else            print (v + 0 <= t + 0) ? "PASS" : "FAIL";
+            }'
+          }
+          ms()    { if [ -z "$1" ] || [ "$1" = "N/A" ]; then echo "N/A"; else awk -v v="$1" 'BEGIN{printf "%.0f", v}'; fi; }
+
+          PERF_SCORE=$(cat_s performance)
+          A11Y_SCORE=$(cat_s accessibility)
+          BP_SCORE=$(cat_s best-practices)
+          SEO_SCORE=$(cat_s seo)
+          LCP=$(num largest-contentful-paint)
+          CLS=$(num cumulative-layout-shift)
+          FCP=$(num first-contentful-paint)
+          TBT=$(num total-blocking-time)
+
+          echo "📊 Category Scores:"
+          echo "==================="
+          echo "  Performance:     ${PERF_SCORE}%  (threshold: >= 80%)  $(cmp "$PERF_SCORE" ge 80)"
+          echo "  Accessibility:   ${A11Y_SCORE}%  (threshold: >= 85%)  $(cmp "$A11Y_SCORE" ge 85)"
+          echo "  Best Practices:  ${BP_SCORE}%  (threshold: >= 85%)  $(cmp "$BP_SCORE" ge 85)"
+          echo "  SEO:             ${SEO_SCORE}%  (threshold: >= 85%)  $(cmp "$SEO_SCORE" ge 85)"
+          echo ""
+
+          echo "⚡ Core Web Vitals:"
+          echo "==================="
+          echo "  LCP:  $(ms "$LCP")ms  (threshold: <= 2500ms)  $(cmp "$LCP" le 2500)"
+          echo "  CLS:  ${CLS}  (threshold: <= 0.1)  $(cmp "$CLS" le 0.1)"
+          echo "  FCP:  $(ms "$FCP")ms  (threshold: <= 1800ms)  $(cmp "$FCP" le 1800)"
+          echo "  TBT:  $(ms "$TBT")ms  (threshold: <= 300ms)  $(cmp "$TBT" le 300)"
+          echo ""
+
+          # Check thresholds
+          FAILED=0
+
+          if [ "$(cmp "$PERF_SCORE" ge 80)" = "FAIL" ]; then
+            echo "❌ Performance score below threshold!"; FAILED=1
+          fi
+          if [ "$(cmp "$LCP" le 2500)" = "FAIL" ]; then
+            echo "❌ LCP above threshold!"; FAILED=1
+          fi
+          if [ "$(cmp "$TBT" le 300)" = "FAIL" ]; then
+            echo "❌ TBT above threshold!"; FAILED=1
+          fi
+          if [ "$(cmp "$CLS" le 0.1)" = "FAIL" ]; then
+            echo "❌ CLS above threshold!"; FAILED=1
+          fi
+
+          # 预算只报告、不判红。理由：这套阈值（perf>=80 / LCP<=2500ms /
+          # CLS<=0.1）从来没通过过 —— 因为 server 一直起不来，根本没人见过
+          # 真实数字。拿到第一份可信基线之前，红灯只是噪音。
+          # 等基线稳定、确认阈值合理，再把 warning 改回 exit 1。
+          if [ $FAILED -eq 1 ]; then
+            echo "::warning::Performance budget exceeded (report-only)"
+            echo "### ⚠️ 性能预算超出（仅报告，不阻断）" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Performance budget check PASSED"
+            echo "### ✅ 性能预算通过" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # ── 落一份人能读的预算报告（v18）────────────────────────────────
+          # 原来是另一个步骤用 heredoc 写了个**只有表头的空表**：
+          #     | Metric | Value | Threshold | Status |
+          # 下载 artifact 打开什么都看不到 —— 又一个「报告在哪」的来源。
+          # 这里把真实数值填进去。
+          URL=$(echo "$RESULTS" | jq -r '.results[0].finalUrl // "n/a"' 2>/dev/null || echo "n/a")
+          FETCHED=$(echo "$RESULTS" | jq -r '.results[0].fetchTime // "n/a"' 2>/dev/null || echo "n/a")
+          {
+            echo "# Performance Budget Report"
+            echo ""
+            echo "- URL: \`${URL}\`"
+            echo "- 采集时间: ${FETCHED}"
+            echo "- 模式: **report-only**（超预算只告警，不判红流水线）"
+            echo ""
+            echo "## Summary"
+            echo ""
+            echo "| Metric | Value | Threshold | Status |"
+            echo "|--------|-------|-----------|--------|"
+            echo "| Performance | ${PERF_SCORE}% | >= 80% | $(cmp "$PERF_SCORE" ge 80) |"
+            echo "| Accessibility | ${A11Y_SCORE}% | >= 85% | $(cmp "$A11Y_SCORE" ge 85) |"
+            echo "| Best Practices | ${BP_SCORE}% | >= 85% | $(cmp "$BP_SCORE" ge 85) |"
+            echo "| SEO | ${SEO_SCORE}% | >= 85% | $(cmp "$SEO_SCORE" ge 85) |"
+            echo "| LCP | $(ms "$LCP") ms | <= 2500 ms | $(cmp "$LCP" le 2500) |"
+            echo "| FCP | $(ms "$FCP") ms | <= 1800 ms | $(cmp "$FCP" le 1800) |"
+            echo "| TBT | $(ms "$TBT") ms | <= 300 ms | $(cmp "$TBT" le 300) |"
+            echo "| CLS | ${CLS} | <= 0.1 | $(cmp "$CLS" le 0.1) |"
+            echo ""
+            if [ $FAILED -eq 1 ]; then
+              echo "> ⚠️ 有指标超出预算。当前为 **report-only**（只告警不阻断），"
+              echo "> 阈值与真实基线的差距本身就是待办的性能债。"
+            else
+              echo "> ✅ 全部指标在预算内。"
+            fi
+            echo ""
+            echo "完整报告（含逐条审计）见 artifact **lighthouse-reports-local** 里的 \`index.html\`。"
+            echo ""
+            echo "Generated at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          } > performance-budget-report.md
+          echo "--- performance-budget-report.md ---"
+          cat performance-budget-report.md
+
+      # 原来的 `Generate budget report` 已并入上一脚本 —— 它写的是一份
+      # **只有表头的空表**，还会把上面填好真实数值的文件覆盖掉。
+      # 这里只留一个「报告真的生成了吗」的自检，免得哪天又静默变回空文件。
+      - name: Verify budget report
         if: always()
         run: |
-          cat > performance-budget-report.md << 'EOF'
-          # Performance Budget Report
-
-          ## Summary
-
-          | Metric | Value | Threshold | Status |
-          |--------|-------|-----------|--------|
-          EOF
-
-          echo "" >> performance-budget-report.md
-          echo "Generated at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> performance-budget-report.md
+          if [ ! -s performance-budget-report.md ]; then
+            echo "::warning::performance-budget-report.md 缺失或为空，补一份占位说明"
+            printf '# Performance Budget Report\n\n⚠️ 未生成（上游脚本异常），请看 workflow 日志。\n' \
+              > performance-budget-report.md
+          fi
+          echo "performance-budget-report.md 字节数: $(wc -c < performance-budget-report.md)"
 
       - name: Upload budget report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: performance-budget-report
+          if-no-files-found: warn
           path: performance-budget-report.md
           retention-days: 30
 
@@ -597,7 +827,20 @@ jobs:
         run: |
           echo "## 🚀 Performance Audit Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Target:** \`${{ github.event.inputs.url || 'https://staging.7zi.com' }}\`" >> $GITHUB_STEP_SUMMARY
+          # 原来写死 `github.event.inputs.url || 'https://staging.7zi.com'`：
+          # push / pull_request 事件下 inputs 是空的，于是永远显示 staging，
+          # 与实际跑的 http://127.0.0.1:3000/（standalone 本地构建）不符。
+          echo "**Target:** \`${{ github.event.inputs.url || 'http://127.0.0.1:3000/ (standalone build)' }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 报告在哪" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "本 run 的 **Artifacts** 区（页面最下方）：" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Artifact | 内容 |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| \`lighthouse-reports-local\` | \`index.html\`（可直接打开看分数）、\`lhr-*.json\`（原始 LHR）、\`lhci.json\`（归一化）、\`manifest.json\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`performance-budget-report\` | \`performance-budget-report.md\`（预算对照表） |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`lighthouse-reports-staging\` | 仅 PR / 手动触发时存在 |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### Job Results" >> $GITHUB_STEP_SUMMARY
