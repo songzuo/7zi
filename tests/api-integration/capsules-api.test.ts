@@ -17,9 +17,6 @@ function getAuthHeader(userId: string): HeadersInit {
 }
 
 describe('/api/capsules - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   beforeEach(() => {
     mockData.resetUsers()
@@ -27,10 +24,6 @@ describe('/api/capsules - Integration Tests', () => {
 
   afterEach(() => {
     server.resetHandlers()
-  })
-
-  afterAll(() => {
-    server.close()
   })
 
   // ============================================================================

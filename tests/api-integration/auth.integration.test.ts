@@ -10,9 +10,6 @@ import { MockDataGenerator } from './mocks/data'
 const mockData = new MockDataGenerator()
 
 describe('/api/auth - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   beforeEach(() => {
     mockData.resetUsers()
@@ -20,10 +17,6 @@ describe('/api/auth - Integration Tests', () => {
 
   afterEach(() => {
     server.resetHandlers()
-  })
-
-  afterAll(() => {
-    server.close()
   })
 
   describe('POST /api/auth/register', () => {

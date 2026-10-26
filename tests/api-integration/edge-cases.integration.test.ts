@@ -8,9 +8,6 @@ import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from
 import { server, mockData } from './mocks/handlers'
 
 describe('API Edge Cases Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   beforeEach(() => {
     mockData.resetUsers()
@@ -19,10 +16,6 @@ describe('API Edge Cases Integration Tests', () => {
 
   afterEach(() => {
     server.resetHandlers()
-  })
-
-  afterAll(() => {
-    server.close()
   })
 
   describe('/api/auth/login - Edge Cases', () => {

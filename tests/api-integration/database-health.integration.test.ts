@@ -7,9 +7,6 @@ import { describe, it, expect, beforeAll, afterEach } from 'vitest'
 import { server } from './mocks/handlers'
 
 describe('/api/database/health - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   afterEach(() => {
     server.resetHandlers()

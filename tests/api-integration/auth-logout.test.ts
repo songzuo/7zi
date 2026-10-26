@@ -12,9 +12,6 @@ function getAuthHeader(userId: string): HeadersInit {
 }
 
 describe('/api/auth/logout - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   beforeEach(() => {
     mockData.resetUsers()
@@ -22,10 +19,6 @@ describe('/api/auth/logout - Integration Tests', () => {
 
   afterEach(() => {
     server.resetHandlers()
-  })
-
-  afterAll(() => {
-    server.close()
   })
 
   describe('POST /api/auth/logout', () => {
