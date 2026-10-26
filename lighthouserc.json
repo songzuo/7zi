@@ -74,9 +74,6 @@
         "uses-rel-preconnect": "warn",
         "font-display": "warn",
 
-        "_comment_removed_unknown_audits": "v18 删掉 uses-webp-images / uses-rel-preload。v17 run 40319723741 的 lhci assert 原文：\"uses-rel-preload\" is not a known audit / \"uses-webp-images\" is not a known audit —— 这两个 audit 在当前 Lighthouse 里已经不存在（webp 并入 uses-optimized-images，preload 并入 preconnect/priority-hints 的建议项）。每条断言都会刷一行 ⚠️ warning，纯噪声，而且噪声会掩盖真问题。",
-
-        "_comment_disabled_score_audits": "v18 把 render-blocking-resources / unused-css-rules / unused-javascript / mainthread-work-breakdown 从 \"warn\" 改成 \"off\"。原因：lighthouserc 里裸写一个级别字符串，lhci 默认按 minScore=0.9 断言；而这四个 audit 在当前版本里已是 info/diagnostic（score 为 null，被 lhci 记成 0），于是每条都恒刷 \"expected >=0.9 found 0\"。实测 v17 就是这四行 + 上面两行未知 audit = 每次 6 行 ⚠️。真要看这几项，等确认 Lighthouse 版本后改成数值断言，例如：\"render-blocking-resources\": [\"warn\", {\"maxNumericValue\": 0}]。性能红线目前由下面的 LCP / TBT / CLS / SI / FCP 数值断言承担，不受此影响。",
         "render-blocking-resources": "off",
         "unused-css-rules": "off",
         "unused-javascript": "off",
@@ -100,6 +97,11 @@
       }
     },
     "_comment_upload": "原为 temporary-public-storage，每跑一次都要往 Google 存储往返；CI 里报告本来就用 upload-artifact 自己存，没必要。改成 filesystem，去掉这个外网失败面。",
+
+    "_comment_removed_unknown_audits": "v18 删掉 uses-webp-images / uses-rel-preload。v17 run 40319723741 的 lhci assert 原文：\"uses-rel-preload\" is not a known audit / \"uses-webp-images\" is not a known audit —— 这两个 audit 在当前 Lighthouse 里已不存在（webp 并入 uses-optimized-images，preload 并入 preconnect）。每条都会刷一行 ⚠️，纯噪声。",
+    "_comment_disabled_score_audits": "v18 把 render-blocking-resources / unused-css-rules / unused-javascript / mainthread-work-breakdown 从 \"warn\" 改成 \"off\"。原因：在 assertions 里裸写一个级别字符串，lhci 默认按 minScore=0.9 断言；而这四项在当前版本已是 info/diagnostic（score 为 null → 记成 0），于是恒刷 \"expected >=0.9 found 0\"。v17 实测就是这 4 行 + 2 行未知 audit = 每次 6 行 ⚠️。要重新打开，改成数值断言：\"render-blocking-resources\": [\"warn\", {\"maxNumericValue\": 0}]。性能红线由 LCP / TBT / CLS / SI / FCP 的数值断言承担，不受影响。",
+
+    "_comment_no_comments_in_assertions": "⚠️ 注释**不能**写在 ci.assert.assertions 里。lhci 把 assertions 的每个 key 都当 audit id 去 LHR 里查，不认识的 key 会刷一行 '\"xxx\" is not a known audit' —— 本想清噪声，反而加噪声（v18 第一版就是这样，已改）。要写说明就挂在这一层。",
     "upload": {
       "target": "filesystem",
       "outputDir": "./lhci_reports"
