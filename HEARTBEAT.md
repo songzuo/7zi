@@ -1044,3 +1044,23 @@ s/((api[_-]?key|token|password|secret|auth)[ \t]*[=:][ \t]*)["'][^"']+["']/\1[RE
 
 **→ 结论：加新 API 路由时，鉴权要算在"路由本体"里，
 不能指望有个全局 middleware 兜着。**
+
+**补充（同日 00:50 复核，主管亲自补齐）**：
+并发代理修完 registry 三个路由后，**queue 与 jsonrpc 仍然裸奔**——
+`/api/a2a/queue`（GET/POST/DELETE，队列里是待执行的任务消息）
+和 `/api/a2a/jsonrpc`（返回含管理操作的 extended card）都没接鉴权。
+→ 一共是 **6 个文件 11 个端点**，不是 5 个。
+→ 教训再加一条：**"接了几个"和"接全了"是两回事**，
+收尾时应该用 `grep -rn 'withA2AAuth\|withUserAuth' src/app/api/<模块>/`
+逐端点核对，而不是看"已经有路由 import 了"。
+
+**另一个坑（同一批改动里踩到）**：
+包装鉴权时若把路由签名写成
+`export async function GET(request: NextRequest)`，
+而原实现是 `GET(request, context)`（Next 的动态路由要 context.params），
+则 `context` 在包装函数里**不在作用域内** → TS2304。
+→ 包装鉴权时**必须保留原签名**：
+`export async function GET(request: NextRequest, context: RouteContext) {
+    return withA2AAuth(request, (req) => GETHandler(req, context))
+  }`
+（`context` 要透传给内部 handler，不能在包装层丢掉。）
