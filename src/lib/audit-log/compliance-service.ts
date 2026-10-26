@@ -132,7 +132,7 @@ export class AuditComplianceService {
    */
   private generateSummary(
     events: AuditEvent[],
-    config: ComplianceReportConfig
+    _config: ComplianceReportConfig
   ): ComplianceReportSummary {
     const uniqueUsers = new Set<string>();
     let successCount = 0;

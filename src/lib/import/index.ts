@@ -28,7 +28,7 @@ import { fieldTransformer } from './transformer'
 /**
  * 默认导出
  */
-export default {
+const importModule = {
   service: dataImportService,
   parsers: {
     csv: csvParser,
@@ -38,3 +38,5 @@ export default {
   validator: importValidator,
   transformer: fieldTransformer,
 }
+
+export default importModule

@@ -4,7 +4,7 @@
  * 生成详细的迁移建议和修复指南
  */
 
-import { ScanResult, IncompatibilityReport, CompilerIssue } from './scanner'
+import { ScanResult, IncompatibilityReport } from './scanner'
 
 export interface MigrationStep {
   step: number
@@ -361,22 +361,6 @@ const filtered = data.filter(item =>
 \`\`\`
 `,
   },
-}
-
-/**
- * 根据问题类型生成修复步骤
- */
-function generateStepsForIssue(issue: CompilerIssue): MigrationStep {
-  const fixGuide = ISSUE_FIX_GUIDES[issue.type] || {
-    description: '未知问题类型',
-    fixGuide: '请查阅 React Compiler 官方文档',
-  }
-
-  return {
-    step: 1,
-    description: `修复 ${issue.type} 问题`,
-    notes: [`行号: ${issue.line || '未知'}`, `严重程度: ${issue.severity}`, issue.message],
-  }
 }
 
 /**

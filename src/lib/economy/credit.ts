@@ -346,11 +346,10 @@ export class CreditScoreService {
   /**
    * 记录争议
    */
-  async recordDispute(agentId: string, resolved: boolean): Promise<CreditScore> {
+  async recordDispute(agentId: string, _resolved: boolean): Promise<CreditScore> {
     const currentScore = await this.getOrCreateCreditScore(agentId)
 
     // 更新争议率
-    const totalOrders = 100 // 近似值
     const newDisputeRate = currentScore.factors.disputeRate + 1
 
     return await this.calculateCreditScore(agentId, {

@@ -8,12 +8,10 @@ import { create } from 'zustand'
 import {
   type PendingOperation,
   type SyncResult,
-  type SyncError,
   type SyncConfig,
   type NetworkStatus,
   type OfflineEntityType,
   DEFAULT_SYNC_CONFIG,
-  OFFLINE_ENTITIES,
 } from './types'
 import {
   getPendingOperations,
@@ -75,7 +73,7 @@ interface SyncManagerState {
  * 模拟 API 调用（实际项目中替换为真实 API）
  */
 async function syncWithServer(
-  operation: PendingOperation
+  _operation: PendingOperation
 ): Promise<{ success: boolean; error?: string }> {
   // 模拟网络延迟
   await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200))
@@ -276,7 +274,7 @@ export const useSyncManager = create<SyncManagerState>((set, get) => ({
       }
 
       return false
-    } catch (error) {
+    } catch (_error) {
       return false
     }
   },

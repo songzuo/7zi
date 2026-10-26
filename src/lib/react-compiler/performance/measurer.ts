@@ -214,7 +214,7 @@ export class PerformanceMeasurer {
 /**
  * React 性能追踪 Hook
  */
-export function usePerformanceTracker(componentName: string) {
+export function usePerformanceTracker(_componentName: string) {
   if (typeof window === 'undefined') {
     return { trackRender: () => {}, getMetrics: () => null }
   }

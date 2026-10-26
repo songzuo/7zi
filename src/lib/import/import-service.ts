@@ -19,9 +19,7 @@ import type {
   ImportProgress,
   ImportFormat,
   ImportStatus,
-  ImportError,
   FilePreview,
-  FieldMapping,
   ProgressCallback,
 } from './types'
 
@@ -386,7 +384,6 @@ export class DataImportService {
       db.exec(`INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`, values)
     } else if (mode === 'upsert' || mode === 'update') {
       // 简化实现：实际应该检查主键
-      const setClause = columns.map(col => `${col} = ?`).join(', ')
       db.exec(
         `INSERT OR REPLACE INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`,
         values

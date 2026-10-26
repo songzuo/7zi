@@ -316,9 +316,9 @@ export class ImportValidator {
    * 验证唯一性
    */
   private validateUnique(
-    value: unknown,
-    row: Record<string, unknown>,
-    rule: ValidationRule
+    _value: unknown,
+    _row: Record<string, unknown>,
+    _rule: ValidationRule
   ): string | null {
     // 这个验证需要在所有数据上执行，这里只是占位
     // 实际实现需要在 validate 方法中处理

@@ -24,10 +24,8 @@ import type {
   AuditResource,
   AuditChangeDetail,
   AuditLogLevel,
-  AuditEventCategory,
   AuditActionType,
   AuditResultStatus,
-  AuditSeverity,
 } from './types.js';
 import { getConfigManager } from './config.js';
 import { AuditEventBuilder } from './event-builder.js';
@@ -624,7 +622,6 @@ export class AuditLogService {
    */
   private startBatchProcessing(batchSize?: number, batchInterval?: number): void {
     const config = getConfigManager().getConfig();
-    const size = batchSize || config.batchSize || 100;
     const interval = batchInterval || config.batchInterval || 5000;
 
     this.batchTimer = setInterval(() => {

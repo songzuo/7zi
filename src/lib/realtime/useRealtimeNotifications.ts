@@ -75,6 +75,43 @@ export function useRealtimeNotifications(
     reconnect: true,
   })
 
+  // Play notification sound
+  const playNotificationSound = useCallback((priority: 'high' | 'urgent') => {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext
+      const audioContext = AudioContextClass ? new AudioContextClass() : null
+
+      if (!audioContext) {
+        return
+      }
+
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+
+      // Sound settings based on priority
+      if (priority === 'urgent') {
+        oscillator.frequency.setValueAtTime(880, audioContext.currentTime)
+        oscillator.frequency.setValueAtTime(660, audioContext.currentTime + 0.1)
+        oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 0.2)
+      } else {
+        oscillator.frequency.setValueAtTime(660, audioContext.currentTime)
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime + 0.1)
+      }
+
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
+
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 0.3)
+    } catch (err) {
+      // Audio not supported or blocked
+      logger.debug('Failed to play notification sound', { error: err })
+    }
+  }, [])
+
   // Add notification
   const addNotification = useCallback(
     (notification: RealtimeNotification) => {
@@ -101,7 +138,7 @@ export function useRealtimeNotifications(
         priority: notification.priority,
       })
     },
-    [maxNotifications, enableSound]
+    [maxNotifications, enableSound, playNotificationSound]
   )
 
   // Mark notification as read
@@ -208,42 +245,6 @@ export function useRealtimeNotifications(
     [notifications]
   )
 
-  // Play notification sound
-  const playNotificationSound = useCallback((priority: 'high' | 'urgent') => {
-    try {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext
-      const audioContext = AudioContextClass ? new AudioContextClass() : null
-
-      if (!audioContext) {
-        return
-      }
-
-      const oscillator = audioContext.createOscillator()
-      const gainNode = audioContext.createGain()
-
-      oscillator.connect(gainNode)
-      gainNode.connect(audioContext.destination)
-
-      // Sound settings based on priority
-      if (priority === 'urgent') {
-        oscillator.frequency.setValueAtTime(880, audioContext.currentTime)
-        oscillator.frequency.setValueAtTime(660, audioContext.currentTime + 0.1)
-        oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 0.2)
-      } else {
-        oscillator.frequency.setValueAtTime(660, audioContext.currentTime)
-        oscillator.frequency.setValueAtTime(440, audioContext.currentTime + 0.1)
-      }
-
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
-
-      oscillator.start(audioContext.currentTime)
-      oscillator.stop(audioContext.currentTime + 0.3)
-    } catch (err) {
-      // Audio not supported or blocked
-      logger.debug('Failed to play notification sound', { error: err })
-    }
-  }, [])
 
   // Set up WebSocket event listeners
   useEffect(() => {

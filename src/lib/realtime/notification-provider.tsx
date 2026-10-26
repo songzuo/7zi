@@ -99,7 +99,7 @@ export function NotificationProvider({
   token,
   channels = [],
   autoConnect = true,
-  enableBrowserNotifications = true,
+  enableBrowserNotifications: _enableBrowserNotifications = true,
   requestPermissionOnMount = false,
   enableSound = false,
   enableBatching = true,
@@ -132,7 +132,7 @@ export function NotificationProvider({
   } = useNotificationPreferences()
 
   // 新功能：批量通知
-  const { addToBatch, flushBatch, batchSize } = useNotificationBatching()
+  const { addToBatch } = useNotificationBatching()
 
   // 浏览器通知权限
   const [browserPermission, setBrowserPermission] = useState<

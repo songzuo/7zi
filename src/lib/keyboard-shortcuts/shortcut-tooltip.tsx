@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
-import { useKeyboardShortcuts, useShortcutsDisplay } from './use-keyboard-shortcuts'
+import { useKeyboardShortcuts } from './use-keyboard-shortcuts'
 import { getShortcutDisplayText, SHORTCUT_CATEGORIES } from './shortcut-config'
 import type { KeyboardShortcut } from './shortcut-manager'
 
@@ -32,26 +32,18 @@ export interface ShortcutTooltipProps {
 }
 
 /**
- * Shortcut category section
- */
-interface ShortcutCategory {
-  name: string
-  shortcuts: KeyboardShortcut[]
-}
-
-/**
  * Main ShortcutTooltip component
  */
 export function ShortcutTooltip({
   isOpen = false,
   onClose,
   context: contextProp,
-  showGlobal = true,
+  showGlobal: _showGlobal = true,
   className = '',
   title = 'Keyboard Shortcuts',
   searchPlaceholder = 'Search shortcuts...',
 }: ShortcutTooltipProps) {
-  const { currentContext, setContext, activeShortcuts } = useKeyboardShortcuts()
+  const { currentContext, activeShortcuts } = useKeyboardShortcuts()
   const [searchQuery, setSearchQuery] = useState('')
 
   // Determine which context to use
@@ -333,7 +325,7 @@ export interface ShortcutMenuButtonProps {
 export function ShortcutMenuButton({
   icon,
   text = 'Shortcuts',
-  isOpen = false,
+  isOpen: _isOpen = false,
   onClick,
   className = '',
 }: ShortcutMenuButtonProps) {

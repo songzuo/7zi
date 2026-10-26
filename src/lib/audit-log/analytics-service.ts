@@ -15,7 +15,6 @@ import type {
   UserActivityStats,
   ResourceAccessStats,
   AuditLogLevel,
-  AuditEventCategory,
   AuditActionType,
 } from './types.js';
 import type { AuditLogStorage } from './types.js';

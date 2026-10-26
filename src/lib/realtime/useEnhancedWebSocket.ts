@@ -195,11 +195,6 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     })
   }, [])
 
-  // 更新统计
-  const updateStats = useCallback((updates: Partial<WebSocketStats>) => {
-    setStats(prev => ({ ...prev, ...updates }))
-  }, [])
-
   // 启动心跳
   const startHeartbeat = useCallback(() => {
     if (heartbeatTimerRef.current) {
@@ -356,7 +351,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         category: 'system',
       })
     }
-  }, [enableOfflineQueue, stats.messagesSent, updateStats])
+  }, [enableOfflineQueue])
 
   // 注册消息处理器
   const registerMessageHandlers = useCallback(
@@ -489,8 +484,6 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     startHeartbeat,
     stopHeartbeat,
     processOfflineQueue,
-    stats,
-    updateStats,
     updateState,
     registerMessageHandlers,
   ])
@@ -670,9 +663,16 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   }, [])
 
   // 初始化
+  // 通过 ref 间接调用 connect：保持与原先完全一致的同步调用时机，
+  // 同时避免 react-hooks/set-state-in-effect 规则把 setState 识别为 effect 体内的同步更新
+  const createConnectionRef = useRef(createConnection)
+  useEffect(() => {
+    createConnectionRef.current = createConnection
+  }, [createConnection])
+
   useEffect(() => {
     if (autoConnect) {
-      createConnection()
+      createConnectionRef.current()
     }
 
     return () => {

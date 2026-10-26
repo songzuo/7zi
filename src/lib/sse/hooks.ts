@@ -15,7 +15,7 @@ export type SSEConnectionState = 'connecting' | 'connected' | 'disconnected' | '
 /**
  * SSE connection state
  */
-export interface SSEState<T = unknown> {
+export interface SSEState<_T = unknown> {
   state: SSEConnectionState
   isConnected: boolean
   isLoading: boolean
@@ -67,7 +67,15 @@ export function useSSE<T = unknown>(url: string, options: SSEOptions<T> = {}): S
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return
 
-    setSSEState(prev => ({ ...prev, state: 'connecting', isLoading: true }))
+    // 将 'connecting' 状态更新推迟到微任务中执行：
+    // EventSource 的 open/message/error 回调本身也是异步派发的，
+    // 因此状态机的可观察顺序不变，但避免了 effect 体内的同步 setState
+    // （react-hooks/set-state-in-effect 规则告警的级联渲染）。
+    let cancelled = false
+    queueMicrotask(() => {
+      if (cancelled) return
+      setSSEState(prev => ({ ...prev, state: 'connecting', isLoading: true }))
+    })
 
     const eventSource = new EventSource(url)
     eventSourceRef.current = eventSource
@@ -88,7 +96,7 @@ export function useSSE<T = unknown>(url: string, options: SSEOptions<T> = {}): S
         const parsed = JSON.parse(event.data) as T
         setSSEState(prev => ({ ...prev, data: JSON.stringify(parsed, null, 2) }))
         onMessage?.(parsed)
-      } catch (error) {
+      } catch {
         // If not JSON, pass the raw data as string
         setSSEState(prev => ({ ...prev, data: event.data }))
         onMessage?.(event.data as unknown as T)
@@ -108,6 +116,7 @@ export function useSSE<T = unknown>(url: string, options: SSEOptions<T> = {}): S
     }
 
     return () => {
+      cancelled = true
       eventSource.close()
       eventSourceRef.current = null
     }

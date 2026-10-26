@@ -12,7 +12,6 @@ import {
   LogFilter,
   LogAggregate,
   TraceId,
-  SpanId,
   Tags,
 } from '../types'
 

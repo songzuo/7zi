@@ -463,7 +463,7 @@ export class WalletService {
   /**
    * 冻结钱包
    */
-  async freezeWallet(agentId: string, reason: string): Promise<AgentWallet> {
+  async freezeWallet(agentId: string, _reason: string): Promise<AgentWallet> {
     const wallet = await this.getWallet(agentId)
     return await this.walletRepo.update(wallet.id, { frozen: true })
   }

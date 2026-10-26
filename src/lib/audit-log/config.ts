@@ -4,6 +4,8 @@
  * @version 1.10.0
  */
 
+import fs from 'fs';
+import path from 'path';
 import type {
   AuditLogConfig,
   AuditLogLevel,
@@ -129,7 +131,6 @@ export class AuditConfigManager {
   private loadConfig(): AuditLogConfig {
     try {
       // 尝试从文件加载
-      const fs = require('fs');
       if (fs.existsSync(this.configPath)) {
         const fileContent = fs.readFileSync(this.configPath, 'utf-8');
         const loadedConfig = JSON.parse(fileContent);
@@ -146,8 +147,6 @@ export class AuditConfigManager {
    */
   public saveConfig(): void {
     try {
-      const fs = require('fs');
-      const path = require('path');
       const dir = path.dirname(this.configPath);
 
       // 确保目录存在

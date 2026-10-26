@@ -288,7 +288,6 @@ function renderMetricCard(alert: PerformanceAlert): string {
 
   const value = alert.currentValue ?? 'N/A'
   const threshold = alert.threshold ? `/ ${alert.threshold}` : ''
-  const color = LEVEL_COLORS[alert.level]
 
   return `
     <div class="metric-card">
@@ -381,6 +380,8 @@ function escapeHtml(text: string): string {
 // Export
 // ========================================
 
-export default {
+const alertTemplateModule = {
   renderAlertEmail,
 }
+
+export default alertTemplateModule

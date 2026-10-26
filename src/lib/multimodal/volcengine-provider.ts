@@ -143,7 +143,7 @@ export class VolcengineProvider {
         },
       })
       return response.ok
-    } catch (error) {
+    } catch {
       return false
     }
   }

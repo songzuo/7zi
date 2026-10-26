@@ -4,7 +4,7 @@
  * Default shortcuts for the application. These can be customized by users.
  */
 
-import type { KeyboardShortcut, ShortcutContext } from './shortcut-types'
+import type { KeyboardShortcut } from './shortcut-types'
 
 // Re-export types for backward compatibility
 export type { KeyboardShortcut, ShortcutContext } from './shortcut-types'

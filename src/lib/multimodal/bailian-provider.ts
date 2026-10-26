@@ -84,7 +84,7 @@ export class BailianProvider {
    */
   async transcribeAudio(
     audioBuffer: Buffer,
-    options: AudioTranscriptionOptions = {}
+    _options: AudioTranscriptionOptions = {}
   ): Promise<AudioTranscriptionResult> {
     try {
       const formData = new FormData()
@@ -143,7 +143,7 @@ export class BailianProvider {
         },
       })
       return response.ok
-    } catch (error) {
+    } catch {
       return false
     }
   }

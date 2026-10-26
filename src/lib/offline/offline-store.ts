@@ -177,7 +177,7 @@ export async function getOfflineData<T>(
   try {
     const result = await dbOperation(STORES.DATA, 'readonly', store => store.get([entityType, id]))
     return result || null
-  } catch (error) {
+  } catch (_error) {
     return null
   }
 }
@@ -354,7 +354,7 @@ export async function getNetworkStatus(): Promise<NetworkStatus | null> {
   try {
     const result = await dbOperation(STORES.NETWORK, 'readonly', store => store.get('current'))
     return result || null
-  } catch (error) {
+  } catch (_error) {
     return null
   }
 }
@@ -394,7 +394,7 @@ export function closeDatabase(): void {
 export function isIndexedDBAvailable(): boolean {
   try {
     return typeof indexedDB !== 'undefined' && indexedDB !== null
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }

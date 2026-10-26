@@ -164,7 +164,7 @@ export class MultimodalService {
     for (const [name, provider] of this.providers.entries()) {
       try {
         results[name] = await provider.healthCheck()
-      } catch (error) {
+      } catch {
         results[name] = false
       }
     }

@@ -69,9 +69,9 @@ class MockPaymentGateway implements IPaymentGateway {
   private payments: Map<string, { status: string; verified: boolean }> = new Map()
 
   async createPayment(
-    order: PaymentOrder,
-    returnUrl?: string,
-    cancelUrl?: string
+    _order: PaymentOrder,
+    _returnUrl?: string,
+    _cancelUrl?: string
   ): Promise<{ paymentId: string; paymentUrl?: string; clientSecret?: string }> {
     const paymentId = `mock_payment_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
     this.payments.set(paymentId, { status: 'pending', verified: false })
@@ -99,9 +99,9 @@ class MockPaymentGateway implements IPaymentGateway {
   }
 
   async processRefund(
-    transactionId: string,
-    amount: number,
-    reason?: string
+    _transactionId: string,
+    _amount: number,
+    _reason?: string
   ): Promise<{ success: boolean; refundTransactionId?: string }> {
     return {
       success: true,

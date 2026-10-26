@@ -51,7 +51,6 @@ export function useOfflineSync(): UseOfflineSyncReturn {
     lastSyncAt,
     lastSyncResult,
     startSync,
-    addToQueue,
     retryFailed,
     clearQueue,
     networkStatus,
@@ -272,7 +271,7 @@ export function useOfflineReady(): {
         } else {
           setIsReady(false)
         }
-      } catch (error) {
+      } catch (_error) {
         setIsReady(false)
       }
     }

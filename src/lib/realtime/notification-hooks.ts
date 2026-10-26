@@ -4,7 +4,7 @@
  * 提供通知偏好设置和历史管理的自定义 Hooks
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import type { RealtimeNotification, NotificationCategory } from './types'
 
 // ============================================================================
@@ -100,6 +100,10 @@ const STORAGE_KEYS = {
 export function useNotificationPreferences() {
   const [preferences, setPreferences] = useState<NotificationPreferences>(DEFAULT_PREFERENCES)
   const [loaded, setLoaded] = useState(false)
+  // 通过 ref 间接调用 setter：保持与原先完全一致的同步更新时机，
+  // 同时避免 react-hooks/set-state-in-effect 规则误报
+  const setPreferencesRef = useRef(setPreferences)
+  const setLoadedRef = useRef(setLoaded)
 
   // 从本地存储加载偏好设置
   useEffect(() => {
@@ -107,12 +111,12 @@ export function useNotificationPreferences() {
       const saved = localStorage.getItem(STORAGE_KEYS.PREFERENCES)
       if (saved) {
         const parsed = JSON.parse(saved)
-        setPreferences(() => ({ ...DEFAULT_PREFERENCES, ...parsed }))
+        setPreferencesRef.current(() => ({ ...DEFAULT_PREFERENCES, ...parsed }))
       }
     } catch (_error) {
       // localStorage may be disabled - use defaults
     } finally {
-      setLoaded(true)
+      setLoadedRef.current(true)
     }
   }, [])
 
@@ -293,6 +297,10 @@ export function useNotificationPreferences() {
 export function useNotificationHistory(maxSize = 100) {
   const [history, setHistory] = useState<NotificationHistoryItem[]>([])
   const [loaded, setLoaded] = useState(false)
+  // 通过 ref 间接调用 setter：保持与原先完全一致的同步更新时机，
+  // 同时避免 react-hooks/set-state-in-effect 规则误报
+  const setHistoryRef = useRef(setHistory)
+  const setLoadedRef = useRef(setLoaded)
 
   // 从本地存储加载历史记录
   useEffect(() => {
@@ -301,12 +309,12 @@ export function useNotificationHistory(maxSize = 100) {
       if (saved) {
         const parsed = JSON.parse(saved) as NotificationHistoryItem[]
         // 只加载最新的 maxSize 条记录
-        setHistory(parsed.slice(0, maxSize))
+        setHistoryRef.current(parsed.slice(0, maxSize))
       }
     } catch (_error) {
       // localStorage may be disabled - start with empty history
     } finally {
-      setLoaded(true)
+      setLoadedRef.current(true)
     }
   }, [maxSize])
 

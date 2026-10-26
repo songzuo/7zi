@@ -9,7 +9,12 @@
 
 import * as nodemailer from 'nodemailer'
 import type { Transporter, SendMailOptions } from 'nodemailer'
-import { EmailAlertConfig, EmailRecipient, validateEmailConfig } from '@/config/email'
+import {
+  EmailAlertConfig,
+  EmailRecipient,
+  validateEmailConfig,
+  parseEmailConfig,
+} from '@/config/email'
 import type { PerformanceAlert, AlertLevel, AlertChannel } from '@/lib/performance/alerting/alerter'
 import { renderAlertEmail } from './templates/alert-template'
 
@@ -166,7 +171,7 @@ export class EmailAlertService implements AlertChannel {
       }
       await this.transporter!.verify()
       return true
-    } catch (error) {
+    } catch {
       return false
     }
   }
@@ -453,7 +458,7 @@ export class EmailAlertService implements AlertChannel {
   getConfig(): Omit<EmailAlertConfig, 'smtp'> & {
     smtp: Omit<EmailAlertConfig['smtp'], 'auth'>
   } {
-    const { auth, ...smtp } = this.config.smtp
+    const { auth: _auth, ...smtp } = this.config.smtp
     return {
       ...this.config,
       smtp,
@@ -469,7 +474,6 @@ export class EmailAlertService implements AlertChannel {
  * Create an Email Alert Service from environment variables
  */
 export function createEmailAlertService(): EmailAlertService {
-  const { parseEmailConfig } = require('@/config/email')
   const config = parseEmailConfig()
   return new EmailAlertService(config)
 }

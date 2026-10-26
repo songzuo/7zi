@@ -244,7 +244,6 @@ export class SlackAlertService implements AlertChannel {
    * Send an alert with retry logic
    */
   async sendAlert(alert: PerformanceAlert): Promise<SlackSendResult> {
-    const startTime = Date.now()
     let attempts = 0
     const maxAttempts = this.config.retry?.maxAttempts ?? 3
     const baseDelay = this.config.retry?.delayMs ?? 1000

@@ -142,7 +142,6 @@ export class PrometheusExporter {
     const labels = this.tagsToLabels(values[0]?.tags)
 
     const samples: PrometheusMetric['samples'] = []
-    const cumulativeCount = 0
 
     // 排序值
     numbers.sort((a, b) => a - b)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { getReactCompilerConfig, type ReactCompilerConfig } from '../config/compiler.config'
 
 /**
@@ -9,15 +9,11 @@ import { getReactCompilerConfig, type ReactCompilerConfig } from '../config/comp
  * Dashboard component for managing React Compiler settings
  */
 export function ReactCompilerToggle() {
-  const [config, setConfig] = useState<ReactCompilerConfig | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Load current config
-    const currentConfig = getReactCompilerConfig()
-    setConfig(currentConfig)
-    setLoading(false)
-  }, [])
+  // 当前配置来自纯函数（只读 process.env），可在初始化时同步派生，
+  // 无需在 effect 中同步 setState（避免级联渲染）。
+  const [config, setConfig] = useState<ReactCompilerConfig | null>(() =>
+    getReactCompilerConfig()
+  )
 
   const toggleCompiler = async () => {
     if (!config) return
@@ -40,10 +36,6 @@ export function ReactCompilerToggle() {
   const changeMode = async (mode: 'opt-in' | 'opt-out') => {
     if (!config) return
     setConfig({ ...config, mode })
-  }
-
-  if (loading) {
-    return <div className="h-20 animate-pulse rounded-lg bg-gray-200" />
   }
 
   return (

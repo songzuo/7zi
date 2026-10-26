@@ -78,9 +78,7 @@ import {
   SpanContext,
   SpanKind,
   SpanStatus,
-  SpanStatusCode,
   Tags,
-  MetricType,
   MetricFilter,
   TraceFilter,
   LogFilter,
@@ -91,13 +89,12 @@ import {
   AlertRule,
   AlertInstance,
   generateTraceId,
-  generateSpanId,
 } from './types'
 
-import { MetricCollector, getMetricCollector, initMetricCollector } from './metrics/MetricCollector'
+import { MetricCollector, initMetricCollector } from './metrics/MetricCollector'
 import { PrometheusExporter, createPrometheusHandler } from './metrics/PrometheusExporter'
-import { TraceManager, getTraceManager, initTraceManager, TraceManagerOptions } from './tracing/TraceManager'
-import { StructuredLogger, getStructuredLogger, initStructuredLogger, StructuredLoggerOptions } from './logging/StructuredLogger'
+import { TraceManager, initTraceManager } from './tracing/TraceManager'
+import { StructuredLogger, initStructuredLogger } from './logging/StructuredLogger'
 import { DashboardManager, DEFAULT_DASHBOARDS, DEFAULT_ALERT_RULES } from './dashboard/DashboardManager'
 
 // ============================================
@@ -695,7 +692,7 @@ export function recordMetric(name: string, value: number, tags?: Tags): void {
 /**
  * 快速开始追踪
  */
-export function startSpan(name: string, context?: SpanContext): Span | undefined {
+export function startSpan(name: string, _context?: SpanContext): Span | undefined {
   return getObservabilityHub().startSpan(name)
 }
 

@@ -40,6 +40,7 @@ import {
   SlackAlertService as SlackAlertServiceImpl,
   createSlackAlertService,
 } from './SlackAlertService'
+import { parseEmailConfig } from '@/config/email'
 import { renderAlertEmail } from './templates/alert-template'
 
 // ========================================
@@ -64,8 +65,6 @@ export function setupEmailAlerting(config: EmailAlertConfig): EmailAlertServiceI
  */
 export function setupEmailAlertingFromEnv(): EmailAlertServiceImpl | null {
   try {
-    // Dynamic import to avoid circular dependencies
-    const { parseEmailConfig } = require('@/config/email')
     const config = parseEmailConfig()
 
     if (!config.enabled) {
@@ -129,7 +128,7 @@ export function setupAllAlertingFromEnv(): {
 // Default Export
 // ========================================
 
-export default {
+const alertingModule = {
   EmailAlertService: EmailAlertServiceImpl,
   createEmailAlertService,
   renderAlertEmail,
@@ -141,3 +140,5 @@ export default {
   setupSlackAlertingFromEnv,
   setupAllAlertingFromEnv,
 }
+
+export default alertingModule

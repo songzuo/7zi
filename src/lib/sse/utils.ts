@@ -58,7 +58,7 @@ export function parseSSEMessage(
       case 'data':
         try {
           result.data = JSON.parse(value)
-        } catch (error) {
+        } catch {
           result.data = value
         }
         break

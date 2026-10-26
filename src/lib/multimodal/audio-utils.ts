@@ -163,8 +163,8 @@ export function calculateAudioSize(duration: number, bitrate: number = 128000): 
  */
 export async function trimAudio(
   buffer: Buffer,
-  startTime: number,
-  endTime: number
+  _startTime: number,
+  _endTime: number
 ): Promise<Buffer> {
   // In production, use a library like ffmpeg or node-wav
   // For now, return original buffer
@@ -177,7 +177,7 @@ export async function trimAudio(
  */
 export async function convertAudio(
   buffer: Buffer,
-  targetFormat: 'mp3' | 'wav' | 'webm' | 'ogg'
+  _targetFormat: 'mp3' | 'wav' | 'webm' | 'ogg'
 ): Promise<Buffer> {
   // In production, use ffmpeg
   console.warn('convertAudio not implemented - returning original buffer')

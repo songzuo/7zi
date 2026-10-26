@@ -42,7 +42,7 @@ export class ExcelParser {
 
       // 解析数据
       const jsonData: unknown[][] = []
-      worksheet.eachRow((row, rowIndex) => {
+      worksheet.eachRow((row, _rowIndex) => {
         jsonData.push(row.values as unknown[])
       })
 

@@ -8,6 +8,7 @@ import {
   WorkflowDSLParser,
   DSLFormat,
   createExampleWorkflowDSL,
+  type WorkflowDSL,
 } from '@/lib/workflow/dsl'
 import {
   TriggerManager,
@@ -33,16 +34,18 @@ async function example1_DSLParser() {
   console.log('创建示例工作流 DSL:', dsl.id, dsl.name)
 
   // 1.2 序列化为 JSON
-  // @ts-ignore - convertToWorkflowDefinition is private but needed for examples
-  const _workflowDef = parser.convertToWorkflowDefinition(dsl)
-  // @ts-ignore - serialize expects WorkflowDefinition not WorkflowDSL
-  const json = parser.serialize(dsl, DSLFormat.JSON)
+  // convertToWorkflowDefinition 为 private，示例需要调用内部转换逻辑，
+  // 通过显式类型收窄访问，避免使用 @ts-ignore / as any
+  const parserInternals = parser as unknown as {
+    convertToWorkflowDefinition(dsl: WorkflowDSL): WorkflowDefinition
+  }
+  const _workflowDef = parserInternals.convertToWorkflowDefinition(dsl)
+  const json = parser.serialize(dsl as unknown as WorkflowDefinition, DSLFormat.JSON)
   console.log('\n序列化为 JSON (前 200 字符):')
   console.log(json.substring(0, 200) + '...')
 
   // 1.3 序列化为 YAML
-  // @ts-ignore - serialize expects WorkflowDefinition not WorkflowDSL
-  const yamlOut = parser.serialize(dsl, DSLFormat.YAML)
+  const yamlOut = parser.serialize(dsl as unknown as WorkflowDefinition, DSLFormat.YAML)
   console.log('\n序列化为 YAML (前 200 字符):')
   console.log(yamlOut.substring(0, 200) + '...')
 

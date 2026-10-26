@@ -5,6 +5,8 @@
 
 // @ts-expect-error - js-yaml has no bundled types
 import yaml from 'js-yaml'
+import fs from 'fs';
+import path from 'path';
 import { WorkflowDefinition, WorkflowNode, WorkflowEdge, NodeType, EdgeType, WorkflowStatus } from '@/types/workflow'
 
 /**
@@ -143,9 +145,6 @@ export class WorkflowDSLParser {
    * 从文件解析工作流定义
    */
   parseFile(filePath: string): ParseResult {
-    const fs = require('fs')
-    const path = require('path')
-
     try {
       const content = fs.readFileSync(filePath, 'utf-8')
       const ext = path.extname(filePath).toLowerCase()
@@ -199,9 +198,6 @@ export class WorkflowDSLParser {
    * 将工作流定义保存到文件
    */
   saveToFile(workflow: WorkflowDefinition, filePath: string): void {
-    const fs = require('fs')
-    const path = require('path')
-
     const ext = path.extname(filePath).toLowerCase()
     let format: DSLFormat
 

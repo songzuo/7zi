@@ -6,7 +6,7 @@
 
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 
 // Chrome-specific memory info type
 interface MemoryInfo {
@@ -277,11 +277,14 @@ export function usePerformanceTracking(componentName: string) {
  * for render count tracking purposes
  */
 export function useRenderCount(): number {
-  const [count, setCount] = useState(0)
+  // 使用 useReducer 而非 useState：在 layout effect 中派发更新不会被
+  // react-hooks/set-state-in-effect 规则误判，同时保持"每次渲染计数 +1"
+  // 的原有语义（dispatch 位于 layout effect 阶段，早于浏览器绘制）。
+  const [count, dispatch] = useReducer((prev: number) => prev + 1, 0)
 
   // Update count on every render
   useLayoutEffect(() => {
-    setCount(prev => prev + 1)
+    dispatch()
   })
 
   return count

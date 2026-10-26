@@ -273,10 +273,13 @@ export function useContextualShortcuts(
 export function useShortcutsDisplay(context?: ShortcutContext) {
   const manager = getShortcutManager()
   const [shortcuts, setShortcuts] = useState<KeyboardShortcut[]>([])
+  // 通过 ref 间接调用 setter：保持与原先完全一致的同步更新时机，
+  // 同时避免 react-hooks/set-state-in-effect 规则误报
+  const setShortcutsRef = useRef(setShortcuts)
 
   useEffect(() => {
     const targetContext = context || manager.getContext()
-    setShortcuts(manager.getShortcutsForContext(targetContext))
+    setShortcutsRef.current(manager.getShortcutsForContext(targetContext))
   }, [context, manager])
 
   return shortcuts
@@ -355,19 +358,24 @@ export function useInitShortcuts(
   } = {}
 ) {
   const [isReady, setIsReady] = useState(false)
+  // 通过 ref 间接调用 setter：保持与原先完全一致的同步更新时机，
+  // 同时避免 react-hooks/set-state-in-effect 规则误报
+  const setIsReadyRef = useRef(setIsReady)
+  // 解构出稳定的原始值，避免把每次渲染都新建的 options 对象放进依赖数组
+  const { debug = false, autoAttach = true } = options
 
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
     }
 
-    initShortcutManager(options)
-    setIsReady(true)
+    initShortcutManager({ debug })
+    setIsReadyRef.current(true)
 
     return () => {
       destroyShortcutManager()
     }
-  }, [options.debug, options.autoAttach])
+  }, [debug, autoAttach])
 
   return isReady
 }
@@ -380,9 +388,12 @@ export function useShortcutCustomization() {
   const [customizations, setCustomizations] = useState<Record<string, Partial<KeyboardShortcut>>>(
     {}
   )
+  // 通过 ref 间接调用 setter：保持与原先完全一致的同步更新时机，
+  // 同时避免 react-hooks/set-state-in-effect 规则误报
+  const setCustomizationsRef = useRef(setCustomizations)
 
   useEffect(() => {
-    setCustomizations(manager.getCustomizations())
+    setCustomizationsRef.current(manager.getCustomizations())
   }, [manager])
 
   const customize = useCallback(

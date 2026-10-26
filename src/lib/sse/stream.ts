@@ -3,7 +3,7 @@
  * Manages Server-Sent Event streams and clients
  */
 
-import { getSSEHeaders, formatSSEEvent } from './utils'
+import { formatSSEEvent } from './utils'
 
 /**
  * SSE Client
@@ -49,7 +49,7 @@ export class SSEStreamManager {
     if (client) {
       try {
         client.controller.close()
-      } catch (error) {
+      } catch {
         // Client already closed
       }
     }
@@ -104,7 +104,7 @@ export class SSEStreamManager {
       }
 
       return true
-    } catch (error) {
+    } catch {
       // Client disconnected
       this.removeClient(clientId)
       return false
@@ -135,7 +135,7 @@ export class SSEStreamManager {
       if (client) {
         try {
           client.controller.enqueue(client.encoder.encode(': keep-alive\n\n'))
-        } catch (error) {
+        } catch {
           this.removeClient(clientId)
         }
       }
