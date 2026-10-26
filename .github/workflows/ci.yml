@@ -205,6 +205,21 @@ jobs:
         run: npm run format:check
         continue-on-error: true
 
+      # i18n key 审计：组件向 useTranslations('ns') 要的每个 key，
+      # src/i18n/messages/*.json 里必须真有。
+      #
+      # 这一步是补一个真实事故的门：`Navigation.tsx` 要 nav.siteNameShort /
+      # nav.mobileMenu.open / nav.subagents 等 8 个 key，catalog 里这些值全在
+      # 别的命名空间下 → use-intl 在生产 SSR 抛 MISSING_MESSAGE → 整页不 paint
+      # → Lighthouse runtimeError.code = NO_FCP（Performance Audit 连红四轮）。
+      # 单元测试一条都没抓到，因为 `Navigation.test.tsx` 自己把
+      # useTranslations mock 掉了，硬编码返回所有 key。
+      #
+      # 基线 `.github/i18n-missing-baseline.json` 记着既有缺失（dashboard /
+      # rooms / multimodal 那一批），本步只拦**新增**，不会因为历史债变红。
+      - name: i18n key 审计（禁止新增缺失 key）
+        run: node scripts/check-i18n-keys.mjs
+
   # ============================================
   # Job 5: TypeScript 类型检查（并行）
   # ============================================

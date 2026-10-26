@@ -59,6 +59,10 @@ vi.mock('./SettingsButton', () => ({
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => {
     const translations: Record<string, string> = {
+      // v16：组件里 Logo 用的是 t('siteNameShort')（见 Navigation.tsx L154/L248），
+      // 原来 mock 里没有这个 key，t() 回落到 key 本身 "siteNameShort"，
+      // 于是断言旧品牌串 'AI 团队' 的两条用例一直是红的。
+      siteNameShort: '7ziStudio',
       home: '首页',
       dashboard: '实时看板',
       subagents: '子代理',
@@ -80,8 +84,9 @@ describe('Navigation', () => {
   describe('渲染测试', () => {
     it('应该渲染 Logo', () => {
       render(<Navigation />)
-      // 使用 getAllByText 因为 AI 团队 出现多次（桌面和移动端）
-      const logoElements = screen.getAllByText('AI 团队')
+      // v16：品牌串以 catalog 的 common.siteNameShort = '7ziStudio' 为准。
+      // 使用 getAllByText 因为 Logo 在桌面栏与移动抽屉里各出现一次。
+      const logoElements = screen.getAllByText('7ziStudio')
       expect(logoElements.length).toBeGreaterThan(0)
     })
 
@@ -208,7 +213,8 @@ describe('Navigation', () => {
     it('Logo 链接应该指向首页', () => {
       render(<Navigation />)
 
-      const logoLinks = screen.getAllByRole('link', { name: /AI 团队/ })
+      // v16：可访问名由 Logo 文本决定（🤖 是 aria-hidden），即 '7ziStudio'。
+      const logoLinks = screen.getAllByRole('link', { name: /7ziStudio/ })
       expect(logoLinks.some(link => link.getAttribute('href') === '/')).toBe(true)
     })
   })

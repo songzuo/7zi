@@ -186,3 +186,40 @@ v12 修掉三个旧 digest 后，服务器确实起得来（`server up, first st
 | `should handle Escape key in input field` | 注册 `key:'Escape'` 的 `test.escape` | 同理撞 `global.escape` | 注册前 `manager.unregister('global.escape')` |
 
 判据：`vitest run src/lib/keyboard-shortcuts/keyboard-shortcuts.test.ts` → `59 passed (59)`。
+
+---
+
+## v16：为什么加一道 i18n key 门禁
+
+v15（`69e349f`）给 7 个语种的 `nav` 补齐了 8 个 key，Performance Audit 才从
+`NO_FCP` 里出来。回头复盘，这个 bug 能活这么久是因为**三层都在替它掩护**：
+
+1. `Navigation.tsx` 是 `useTranslations('nav')`，但要的 key 分散在
+   `common.*` / `mobileMenu.*` / 顶层 `tasks|subagents|memory` 里，命名空间错配；
+2. `Navigation.test.tsx` 把 `useTranslations` mock 掉了，硬编码返回所有 key，
+   于是「key 一定存在」这个前提根本没被验证 —— 测试绿、生产崩；
+3. Lighthouse 只会说 `NO_FCP` + `finalDisplayedUrl`，不会告诉你缺哪个 key，
+   真正的 `MISSING_MESSAGE` 只在 job 日志里，前面又被 8 个失败的测试刷过去。
+
+所以补的不是某一个 key，而是**一条自动化判据**：`scripts/check-i18n-keys.mjs`
+静态扫 `src/**/*.{ts,tsx}`（排除测试文件），把每个文件里
+`useTranslations('ns')` / `getTranslations({namespace:'ns'})` 和 `t('key')`
+字面量配对，去 `en.json` 里查。
+
+- 退出码：有**新增**缺失 → 1；只报既有缺失 → 0。
+- 基线 `.github/i18n-missing-baseline.json`：当前 161 条既有缺失
+  （`dashboard/*`、`RoomCreateModal`、`RoomJoinPanel`、`RoomSettingsPanel`、
+  `multimodal/*`），补完一批就 `--update` 一次把基线缩下去。
+- 当前审计结果：`/` 这条链路（`[locale]/page.tsx`、`layout.tsx`、
+  `Navigation.tsx`、`Footer.tsx`）**零缺失**；161 条全在没有被 Lighthouse
+  审计的路由里。
+
+同时顺手修掉 `Navigation.test.tsx` 两条陈旧用例：mock 里补 `siteNameShort`，
+断言串从旧品牌 `'AI 团队'` 改成 catalog 真值 `'7ziStudio'`
+（组件早在用 `t('siteNameShort')`，测试一直没跟上，靠 `continue-on-error` 兜着）。
+
+**还没做（下一步）**：把那 161 条既有缺失补齐 —— 那些页面一旦被访问就是
+`MISSING_MESSAGE` 崩页，只是 Lighthouse 只审 `/` 所以没暴露。真正的解法是把
+`nav.mobileMenu.*` / `nav.siteNameShort` 这些重复项删掉、组件改成
+`useTranslations('mobileMenu')` / `useTranslations('common')`，而不是继续往
+`nav` 里堆副本。
