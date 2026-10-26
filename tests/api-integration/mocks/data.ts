@@ -588,6 +588,9 @@ export class MockDataGenerator {
     this.resetAutomation()
     // webhook 同样归属于用户
     this.resetWebhooks()
+    // agent / capsule 归属于用户，用户重置时一并清掉
+    this.resetAgents()
+    this.resetCapsules()
     this.initializeTestData()
   }
 
@@ -653,6 +656,8 @@ export class MockDataGenerator {
     this.refreshTokens.clear()
     this.resetAutomation()
     this.resetWebhooks()
+    this.resetAgents()
+    this.resetCapsules()
     this.initializeTestData()
   }
 
@@ -1345,6 +1350,16 @@ export class MockDataGenerator {
     this.webhooks.clear()
     this.webhookDeliveries.clear()
     this.webhookTestAttempts.clear()
+  }
+
+  /** 清空已注册的 agent（与 resetWebhooks 同级，避免用例之间串数据） */
+  resetAgents() {
+    this.agents.clear()
+  }
+
+  /** 清空已创建的 capsule */
+  resetCapsules() {
+    this.capsules.clear()
   }
 
   /**

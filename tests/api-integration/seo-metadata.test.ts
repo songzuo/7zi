@@ -49,7 +49,13 @@ describe('SEO Metadata Tests', () => {
 
     it('should have image optimization configuration', () => {
       // 验证图片优化相关配置存在
-      expect(layoutContent).toContain('Image')
+      // 真实契约：src/app/layout.tsx 已不再使用 next/image 的 <Image> 组件，
+      // 而是通过 Next.js Metadata API 的 images 字段配置 OG / Twitter 图片（第 64、78 行）。
+      expect(layoutContent).toContain('images:')
+      expect(layoutContent).toContain('og-image')
+      expect(layoutContent).toContain('summary_large_image')
+      expect(layoutContent).toContain('width: 1200')
+      expect(layoutContent).toContain('height: 630')
     })
   })
 

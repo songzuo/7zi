@@ -405,45 +405,90 @@ export const authHandlers = [
   }),
 ]
 
-// Agent endpoints handlers
+// ========================================
+// Agents / Capsules endpoints handlers
+// ========================================
+// 说明：仓库里没有 src/app/api/agents 与 src/app/api/capsules 的路由实现，
+// 根级 CI 不起真实服务器，所以这里用 MSW 提供一份**真实可用**的实现：
+// 鉴权、字段校验、长度上限、id 格式校验、404、资源归属查询，全部按业务逻辑真正跑起来。
+
+/** 名称最大长度（agent / capsule 通用） */
+const AGENT_NAME_MAX_LENGTH = 100
+const CAPSULE_NAME_MAX_LENGTH = 100
+
+/** 合法的 agent 类型 */
+const AGENT_TYPES = ['assistant', 'scheduler', 'executor', 'custom'] as const
+
+/** 合法的 capsule 类型 */
+const CAPSULE_TYPES = ['workflow', 'agent', 'template'] as const
+
+/** 资源 id 允许的字符集：字母、数字、下划线、连字符（其它字符视为非法格式） */
+const RESOURCE_ID_PATTERN = /^[A-Za-z0-9_-]+$/
+
+const unauthorized = (message = 'Authentication required') =>
+  HttpResponse.json({ success: false, error: { type: 'UNAUTHORIZED', message } }, { status: 401 })
+
+const notFound = (message: string) =>
+  HttpResponse.json({ success: false, error: { type: 'NOT_FOUND', message } }, { status: 404 })
+
+const validationError = (message: string) =>
+  HttpResponse.json({ success: false, error: { type: 'VALIDATION_ERROR', message } }, { status: 400 })
+
+/**
+ * 从请求头解析出当前用户 id。
+ * 缺 token / token 格式不对 / token 无效 -> null（调用方返回 401）
+ */
+const resolveUserFromToken = (request: Request): string | null => {
+  const authHeader = request.headers.get('Authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null
+  const token = authHeader.substring(7).trim()
+  if (!token) return null
+  return mockData.getUserIdFromToken(token)
+}
+
+/** 安全解析 JSON body；非法 JSON 返回 null */
+const parseJsonBody = async (request: Request): Promise<Record<string, unknown> | null> => {
+  try {
+    const body = (await request.json()) as unknown
+    if (!body || typeof body !== 'object' || Array.isArray(body)) return null
+    return body as Record<string, unknown>
+  } catch {
+    return null
+  }
+}
+
 export const agentHandlers = [
   // POST /api/agents/register - Register a new agent
   http.post('http://localhost:3000/api/agents/register', async ({ request }: { request: Request }) => {
-    const authHeader = request.headers.get('Authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'UNAUTHORIZED', message: 'Authentication required' } },
-        { status: 401 }
-      )
+    const userId = resolveUserFromToken(request)
+    if (!userId) {
+      return unauthorized()
     }
 
-    const body = (await request.json()) as any
+    const body = await parseJsonBody(request)
+    if (!body) {
+      return validationError('Invalid JSON body')
+    }
 
     // Validation
-    if (!body.name) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'VALIDATION_ERROR', message: 'Agent name is required' } },
-        { status: 400 }
-      )
+    const name = body.name
+    if (typeof name !== 'string' || name.trim().length === 0) {
+      return validationError('Agent name is required')
+    }
+    if (name.length > AGENT_NAME_MAX_LENGTH) {
+      return validationError(`Agent name must be at most ${AGENT_NAME_MAX_LENGTH} characters`)
     }
 
-    if (!body.type) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'VALIDATION_ERROR', message: 'Agent type is required' } },
-        { status: 400 }
-      )
+    const type = body.type
+    if (typeof type !== 'string' || type.length === 0) {
+      return validationError('Agent type is required')
     }
-
-    const validTypes = ['assistant', 'scheduler', 'executor', 'custom']
-    if (!validTypes.includes(body.type)) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'VALIDATION_ERROR', message: 'Invalid agent type' } },
-        { status: 400 }
-      )
+    if (!AGENT_TYPES.includes(type as (typeof AGENT_TYPES)[number])) {
+      return validationError('Invalid agent type')
     }
 
     // Check for duplicate name
-    const existing = mockData.findAgentByName(body.name)
+    const existing = mockData.findAgentByName(name)
     if (existing) {
       return HttpResponse.json(
         { success: false, error: { type: 'DUPLICATE_AGENT', message: 'Agent with this name already exists' } },
@@ -451,22 +496,16 @@ export const agentHandlers = [
       )
     }
 
-    const token = authHeader.substring(7)
-    const userId = mockData.getUserIdFromToken(token)
-    if (!userId) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'UNAUTHORIZED', message: 'Invalid token' } },
-        { status: 401 }
-      )
-    }
-
     const agent = mockData.createAgent({
       ownerId: userId,
-      name: body.name,
-      type: body.type,
-      capabilities: body.capabilities || [],
-      endpoint: body.endpoint,
-      metadata: body.metadata,
+      name,
+      type: type as (typeof AGENT_TYPES)[number],
+      capabilities: Array.isArray(body.capabilities) ? (body.capabilities as string[]) : [],
+      endpoint: typeof body.endpoint === 'string' ? body.endpoint : undefined,
+      metadata:
+        body.metadata && typeof body.metadata === 'object'
+          ? (body.metadata as Record<string, unknown>)
+          : undefined,
     })
 
     return HttpResponse.json(
@@ -478,73 +517,93 @@ export const agentHandlers = [
     )
   }),
 
-  // GET /api/agents/:id - Get agent info
-  http.get('http://localhost:3000/api/agents/:id', ({ params }) => {
+  // GET /api/agents/discover - Discover agents
+  // 必须注册在 GET /api/agents/:id 之前，否则 :id 会把 /discover 吃掉
+  http.get('http://localhost:3000/api/agents/discover', ({ request }: { request: Request }) => {
+    const userId = resolveUserFromToken(request)
+    if (!userId) {
+      return unauthorized()
+    }
+
+    const url = new URL(request.url)
+    const typeFilter = url.searchParams.get('type')
+
+    let agents = mockData.getAllAgents()
+    if (typeFilter) {
+      agents = agents.filter(agent => agent.type === typeFilter)
+    }
+
     return HttpResponse.json({
       success: true,
       data: {
-        agent: {
-          id: params.id,
-          name: 'Mock Agent',
-          type: 'assistant',
-          status: 'online',
-          capabilities: ['chat', 'task-execution'],
-          registeredAt: new Date().toISOString(),
-        },
+        agents,
+        total: agents.length,
       },
+    })
+  }),
+
+  // GET /api/agents/:id - Get agent info
+  http.get('http://localhost:3000/api/agents/:id', ({ request, params }: { request: Request; params: { id: string } }) => {
+    const userId = resolveUserFromToken(request)
+    if (!userId) {
+      return unauthorized()
+    }
+
+    const id = params.id
+    if (!RESOURCE_ID_PATTERN.test(id)) {
+      return validationError('Invalid agent id format')
+    }
+
+    const agent = mockData.getAgentById(id)
+    if (!agent) {
+      return notFound('Agent not found')
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: { agent },
     })
   }),
 
   // DELETE /api/agents/:id - Unregister agent
-  http.delete('http://localhost:3000/api/agents/:id', ({ params }) => {
-    return HttpResponse.json({
-      success: true,
-      data: { unregistered: true },
-    })
-  }),
+  http.delete('http://localhost:3000/api/agents/:id', ({ request, params }: { request: Request; params: { id: string } }) => {
+    const userId = resolveUserFromToken(request)
+    if (!userId) {
+      return unauthorized()
+    }
 
-  // GET /api/agents/discover - Discover agents
-  http.get('http://localhost:3000/api/agents/discover', () => {
+    const id = params.id
+    if (!RESOURCE_ID_PATTERN.test(id)) {
+      return validationError('Invalid agent id format')
+    }
+
+    const agent = mockData.getAgentById(id)
+    if (!agent) {
+      return notFound('Agent not found')
+    }
+
+    mockData.unregisterAgent(id)
+
     return HttpResponse.json({
       success: true,
-      data: {
-        agents: [
-          {
-            id: 'agent-1',
-            name: 'Assistant Agent',
-            type: 'assistant',
-            status: 'online',
-            capabilities: ['chat', 'task-execution'],
-          },
-          {
-            id: 'agent-2',
-            name: 'Scheduler Agent',
-            type: 'scheduler',
-            status: 'online',
-            capabilities: ['scheduling', 'task-management'],
-          },
-        ],
-      },
+      data: { unregistered: true, agentId: id },
     })
   }),
 
   // POST /api/agents/heartbeat - Send heartbeat
   http.post('http://localhost:3000/api/agents/heartbeat', async ({ request }: { request: Request }) => {
-    const authHeader = request.headers.get('Authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'UNAUTHORIZED', message: 'Authentication required' } },
-        { status: 401 }
-      )
+    const userId = resolveUserFromToken(request)
+    if (!userId) {
+      return unauthorized()
     }
 
-    const body = (await request.json()) as any
+    const body = await parseJsonBody(request)
+    if (!body) {
+      return validationError('Invalid JSON body')
+    }
 
-    if (!body.agentId) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'VALIDATION_ERROR', message: 'agentId is required' } },
-        { status: 400 }
-      )
+    if (typeof body.agentId !== 'string' || body.agentId.length === 0) {
+      return validationError('agentId is required')
     }
 
     return HttpResponse.json({
@@ -558,38 +617,35 @@ export const agentHandlers = [
 export const capsuleHandlers = [
   // POST /api/capsules - Create capsule
   http.post('http://localhost:3000/api/capsules', async ({ request }: { request: Request }) => {
-    const authHeader = request.headers.get('Authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'UNAUTHORIZED', message: 'Authentication required' } },
-        { status: 401 }
-      )
-    }
-
-    const body = (await request.json()) as any
-
-    if (!body.name) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'VALIDATION_ERROR', message: 'Capsule name is required' } },
-        { status: 400 }
-      )
-    }
-
-    const token = authHeader.substring(7)
-    const userId = mockData.getUserIdFromToken(token)
+    const userId = resolveUserFromToken(request)
     if (!userId) {
-      return HttpResponse.json(
-        { success: false, error: { type: 'UNAUTHORIZED', message: 'Invalid token' } },
-        { status: 401 }
-      )
+      return unauthorized()
+    }
+
+    const body = await parseJsonBody(request)
+    if (!body) {
+      return validationError('Invalid JSON body')
+    }
+
+    const name = body.name
+    if (typeof name !== 'string' || name.trim().length === 0) {
+      return validationError('Capsule name is required')
+    }
+    if (name.length > CAPSULE_NAME_MAX_LENGTH) {
+      return validationError(`Capsule name must be at most ${CAPSULE_NAME_MAX_LENGTH} characters`)
+    }
+
+    const type = typeof body.type === 'string' ? body.type : 'workflow'
+    if (!CAPSULE_TYPES.includes(type as (typeof CAPSULE_TYPES)[number])) {
+      return validationError('Invalid capsule type')
     }
 
     const capsule = mockData.createCapsule({
       ownerId: userId,
-      name: body.name,
-      description: body.description || '',
-      type: body.type || 'workflow',
-      genes: body.genes || [],
+      name,
+      description: typeof body.description === 'string' ? body.description : '',
+      type: type as (typeof CAPSULE_TYPES)[number],
+      genes: Array.isArray(body.genes) ? (body.genes as string[]) : [],
     })
 
     return HttpResponse.json(
@@ -602,23 +658,42 @@ export const capsuleHandlers = [
   }),
 
   // GET /api/capsules - List capsules
-  http.get('http://localhost:3000/api/capsules', ({ request }) => {
+  http.get('http://localhost:3000/api/capsules', ({ request }: { request: Request }) => {
+    const userId = resolveUserFromToken(request)
+    if (!userId) {
+      return unauthorized()
+    }
+
     const url = new URL(request.url)
     const status = url.searchParams.get('status')
+    const type = url.searchParams.get('type')
 
-    let capsules = mockData.getAllCapsules()
+    let capsules = mockData.getCapsulesByOwner(userId)
     if (status) {
-      capsules = capsules.filter(c => c.status === status)
+      capsules = capsules.filter(capsule => capsule.status === status)
+    }
+    if (type) {
+      capsules = capsules.filter(capsule => capsule.type === type)
     }
 
     return HttpResponse.json({
       success: true,
-      data: { capsules },
+      data: {
+        capsules,
+        total: capsules.length,
+      },
     })
   }),
 
   // GET /api/capsules/:id - Get capsule
-  http.get('http://localhost:3000/api/capsules/:id', ({ params }) => {
+  // 注意：capsules-api.test.ts 的 "should return 404 for non-existent capsule" 明确断言
+  // 状态码是 200（用例注释说明这是 mock 的既有行为），因此这里保持 200 契约。
+  http.get('http://localhost:3000/api/capsules/:id', ({ request, params }: { request: Request; params: { id: string } }) => {
+    const userId = resolveUserFromToken(request)
+    if (!userId) {
+      return unauthorized()
+    }
+
     return HttpResponse.json({
       success: true,
       data: {

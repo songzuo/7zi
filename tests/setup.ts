@@ -174,99 +174,293 @@ vi.mock('next/image', () => ({
 // 该清单由脚本扫描 src/ tests/ app/ 下所有
 //   import { ... } from 'lucide-react'
 // 语句自动生成。新增图标时请一并更新。
+//
+// ⚠️ 图标**不能返回 null**（2026-10-27 实测）：
+// 原本每个图标都是 `vi.fn(() => null)`，于是渲染结果里**一个 svg 都没有**。
+// 凡是靠 className 定位图标的断言全部落空 ——
+// 例如 StarRating 的半星用 `absolute top-0 left-0` 定位 StarHalf，
+// 断言 `container.querySelectorAll('.absolute').length > 0` 永远为 0，
+// 而这跟组件实现毫无关系。
+//
+// → 改成渲染一个真实元素并**透传 className**：
+// 既保留"不需要真 svg"的初衷，又让 className 断言可用。
 vi.mock('lucide-react', () => ({
-  Activity: vi.fn(() => null),
-  AlertCircle: vi.fn(() => null),
-  AlertTriangle: vi.fn(() => null),
-  ArrowDown: vi.fn(() => null),
-  ArrowRight: vi.fn(() => null),
-  ArrowUp: vi.fn(() => null),
-  ArrowUpDown: vi.fn(() => null),
-  BarChart3: vi.fn(() => null),
-  Bell: vi.fn(() => null),
-  BookOpen: vi.fn(() => null),
-  Bot: vi.fn(() => null),
-  Calendar: vi.fn(() => null),
-  Check: vi.fn(() => null),
-  CheckCircle: vi.fn(() => null),
-  CheckCircle2: vi.fn(() => null),
-  ChevronDown: vi.fn(() => null),
-  ChevronLeft: vi.fn(() => null),
-  ChevronRight: vi.fn(() => null),
-  ChevronUp: vi.fn(() => null),
-  Clock: vi.fn(() => null),
-  Copy: vi.fn(() => null),
-  Cpu: vi.fn(() => null),
-  Crown: vi.fn(() => null),
-  Database: vi.fn(() => null),
-  DollarSign: vi.fn(() => null),
-  Download: vi.fn(() => null),
-  Edit3: vi.fn(() => null),
-  Eye: vi.fn(() => null),
-  EyeOff: vi.fn(() => null),
-  FileJson: vi.fn(() => null),
-  FileSpreadsheet: vi.fn(() => null),
-  FileText: vi.fn(() => null),
-  Filter: vi.fn(() => null),
-  Flag: vi.fn(() => null),
-  GitCompare: vi.fn(() => null),
-  Globe: vi.fn(() => null),
-  GripVertical: vi.fn(() => null),
-  HardDrive: vi.fn(() => null),
-  HelpCircle: vi.fn(() => null),
-  History: vi.fn(() => null),
-  Home: vi.fn(() => null),
-  Image: vi.fn(() => null),
-  Info: vi.fn(() => null),
-  Layout: vi.fn(() => null),
-  LayoutDashboard: vi.fn(() => null),
-  LineChart: vi.fn(() => null),
-  ListTodo: vi.fn(() => null),
-  Loader2: vi.fn(() => null),
-  Lock: vi.fn(() => null),
-  LucideIcon: vi.fn(() => null),
-  Mail: vi.fn(() => null),
-  MessageCircle: vi.fn(() => null),
-  MessageSquare: vi.fn(() => null),
-  Mic: vi.fn(() => null),
-  MicOff: vi.fn(() => null),
-  Minus: vi.fn(() => null),
-  MoreHorizontal: vi.fn(() => null),
-  MoreVertical: vi.fn(() => null),
-  MousePointer: vi.fn(() => null),
-  Pause: vi.fn(() => null),
-  PauseCircle: vi.fn(() => null),
-  Phone: vi.fn(() => null),
-  PieChart: vi.fn(() => null),
-  Play: vi.fn(() => null),
-  Plus: vi.fn(() => null),
-  Redo2: vi.fn(() => null),
-  RefreshCw: vi.fn(() => null),
-  RotateCcw: vi.fn(() => null),
-  Save: vi.fn(() => null),
-  Search: vi.fn(() => null),
-  Send: vi.fn(() => null),
-  Server: vi.fn(() => null),
-  Settings: vi.fn(() => null),
-  Shield: vi.fn(() => null),
-  Star: vi.fn(() => null),
-  StarHalf: vi.fn(() => null),
-  Subscript: vi.fn(() => null),
-  ThumbsUp: vi.fn(() => null),
-  Timer: vi.fn(() => null),
-  Trash2: vi.fn(() => null),
-  TrendingDown: vi.fn(() => null),
-  TrendingUp: vi.fn(() => null),
-  Undo2: vi.fn(() => null),
-  Upload: vi.fn(() => null),
-  User: vi.fn(() => null),
-  UserPlus: vi.fn(() => null),
-  Users: vi.fn(() => null),
-  Wifi: vi.fn(() => null),
-  WifiOff: vi.fn(() => null),
-  X: vi.fn(() => null),
-  XCircle: vi.fn(() => null),
-  Zap: vi.fn(() => null),
+Activity: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Activity" className={className} />
+  )),
+AlertCircle: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="AlertCircle" className={className} />
+  )),
+AlertTriangle: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="AlertTriangle" className={className} />
+  )),
+ArrowDown: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ArrowDown" className={className} />
+  )),
+ArrowRight: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ArrowRight" className={className} />
+  )),
+ArrowUp: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ArrowUp" className={className} />
+  )),
+ArrowUpDown: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ArrowUpDown" className={className} />
+  )),
+BarChart3: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="BarChart3" className={className} />
+  )),
+Bell: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Bell" className={className} />
+  )),
+BookOpen: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="BookOpen" className={className} />
+  )),
+Bot: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Bot" className={className} />
+  )),
+Calendar: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Calendar" className={className} />
+  )),
+Check: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Check" className={className} />
+  )),
+CheckCircle: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="CheckCircle" className={className} />
+  )),
+CheckCircle2: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="CheckCircle2" className={className} />
+  )),
+ChevronDown: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ChevronDown" className={className} />
+  )),
+ChevronLeft: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ChevronLeft" className={className} />
+  )),
+ChevronRight: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ChevronRight" className={className} />
+  )),
+ChevronUp: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ChevronUp" className={className} />
+  )),
+Clock: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Clock" className={className} />
+  )),
+Copy: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Copy" className={className} />
+  )),
+Cpu: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Cpu" className={className} />
+  )),
+Crown: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Crown" className={className} />
+  )),
+Database: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Database" className={className} />
+  )),
+DollarSign: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="DollarSign" className={className} />
+  )),
+Download: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Download" className={className} />
+  )),
+Edit3: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Edit3" className={className} />
+  )),
+Eye: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Eye" className={className} />
+  )),
+EyeOff: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="EyeOff" className={className} />
+  )),
+FileJson: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="FileJson" className={className} />
+  )),
+FileSpreadsheet: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="FileSpreadsheet" className={className} />
+  )),
+FileText: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="FileText" className={className} />
+  )),
+Filter: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Filter" className={className} />
+  )),
+Flag: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Flag" className={className} />
+  )),
+GitCompare: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="GitCompare" className={className} />
+  )),
+Globe: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Globe" className={className} />
+  )),
+GripVertical: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="GripVertical" className={className} />
+  )),
+HardDrive: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="HardDrive" className={className} />
+  )),
+HelpCircle: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="HelpCircle" className={className} />
+  )),
+History: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="History" className={className} />
+  )),
+Home: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Home" className={className} />
+  )),
+Image: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Image" className={className} />
+  )),
+Info: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Info" className={className} />
+  )),
+Layout: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Layout" className={className} />
+  )),
+LayoutDashboard: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="LayoutDashboard" className={className} />
+  )),
+LineChart: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="LineChart" className={className} />
+  )),
+ListTodo: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ListTodo" className={className} />
+  )),
+Loader2: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Loader2" className={className} />
+  )),
+Lock: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Lock" className={className} />
+  )),
+LucideIcon: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="LucideIcon" className={className} />
+  )),
+Mail: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Mail" className={className} />
+  )),
+MessageCircle: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="MessageCircle" className={className} />
+  )),
+MessageSquare: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="MessageSquare" className={className} />
+  )),
+Mic: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Mic" className={className} />
+  )),
+MicOff: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="MicOff" className={className} />
+  )),
+Minus: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Minus" className={className} />
+  )),
+MoreHorizontal: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="MoreHorizontal" className={className} />
+  )),
+MoreVertical: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="MoreVertical" className={className} />
+  )),
+MousePointer: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="MousePointer" className={className} />
+  )),
+Pause: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Pause" className={className} />
+  )),
+PauseCircle: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="PauseCircle" className={className} />
+  )),
+Phone: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Phone" className={className} />
+  )),
+PieChart: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="PieChart" className={className} />
+  )),
+Play: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Play" className={className} />
+  )),
+Plus: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Plus" className={className} />
+  )),
+Redo2: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Redo2" className={className} />
+  )),
+RefreshCw: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="RefreshCw" className={className} />
+  )),
+RotateCcw: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="RotateCcw" className={className} />
+  )),
+Save: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Save" className={className} />
+  )),
+Search: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Search" className={className} />
+  )),
+Send: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Send" className={className} />
+  )),
+Server: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Server" className={className} />
+  )),
+Settings: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Settings" className={className} />
+  )),
+Shield: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Shield" className={className} />
+  )),
+Star: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Star" className={className} />
+  )),
+StarHalf: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="StarHalf" className={className} />
+  )),
+Subscript: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Subscript" className={className} />
+  )),
+ThumbsUp: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="ThumbsUp" className={className} />
+  )),
+Timer: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Timer" className={className} />
+  )),
+Trash2: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Trash2" className={className} />
+  )),
+TrendingDown: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="TrendingDown" className={className} />
+  )),
+TrendingUp: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="TrendingUp" className={className} />
+  )),
+Undo2: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Undo2" className={className} />
+  )),
+Upload: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Upload" className={className} />
+  )),
+User: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="User" className={className} />
+  )),
+UserPlus: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="UserPlus" className={className} />
+  )),
+Users: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Users" className={className} />
+  )),
+Wifi: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Wifi" className={className} />
+  )),
+WifiOff: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="WifiOff" className={className} />
+  )),
+X: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="X" className={className} />
+  )),
+XCircle: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="XCircle" className={className} />
+  )),
+Zap: vi.fn(({ className }: { className?: string }) => (
+    <span data-lucide="Zap" className={className} />
+  )),
 }))
 
 // Mock WebSocket

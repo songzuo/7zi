@@ -1,522 +1,470 @@
 /**
- * Webhook v1.13.0 系统测试
- * @description 为 v1.13.0 新增功能编写测试用例
+ * Webhook 模块契约测试
+ * @description 针对 `@/lib/webhook` 当前对外契约（基于内置插件 WebhookPlugin）的测试。
+ *
+ * 历史说明：
+ *   本文件早期版本（v1.13.0）针对的是 `WebhookManager` / `WebhookDeliveryService`
+ *   这一套「订阅 + 日志 + 批量操作」的旧实现。当前根级生产代码里
+ *   `src/lib/webhook/index.ts` 只做了一件事：把内置插件 `WebhookPlugin` 重新导出，
+ *   并暴露一个 `webhookManager` 单例。旧实现已经不存在于根级 src/ 中
+ *   （只留在被排除的嵌套子项目 7zi-frontend/ 里），因此旧用例无法修复 ——
+ *   它们测的是生产代码里已经删除的 API。
+ *
+ *   本文件改为对齐当前真实契约：端点（endpoint）生命周期、事件投递（delivery）、
+ *   重试、统计与健康检查。HTTP 层的 `/api/webhooks` 契约由
+ *   tests/api-integration/webhook.test.ts 覆盖。
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import {
+  WebhookPlugin,
   webhookManager,
-  WebhookManager,
-  webhookDeliveryService,
-  WebhookDeliveryService,
-} from '@/lib/webhook'
-import type {
-  CreateWebhookInput,
-  WebhookEvent,
-  WebhookEventType,
-  WebhookSubscription,
+  type WebhookEndpoint,
+  type WebhookDelivery,
+  type CreateEndpointInput,
+  type TriggerInput,
+  type ListDeliveriesInput,
+  type GetDeliveryInput,
+  type RetryDeliveryInput,
+  type GetEndpointInput,
+  type DeleteEndpointInput,
+  type UpdateEndpointInput,
 } from '@/lib/webhook'
 
-// ============================================================================
-// Test Data
-// ============================================================================
+/** `execute('trigger', ...)` 的返回结构 */
+interface TriggerResult {
+  deliveries: string[]
+}
 
-const validSubscriptionInput: CreateWebhookInput = {
-  name: '测试订阅',
+/** `execute('deleteEndpoint', ...)` 的返回结构 */
+interface DeleteResult {
+  success: boolean
+}
+
+/** `execute('retryDelivery', ...)` 的返回结构 */
+interface RetryResult {
+  success: boolean
+}
+
+/** `execute('stats', ...)` 的返回结构 */
+interface WebhookStats {
+  sent: number
+  failed: number
+  retried: number
+  endpoints: number
+}
+
+const validEndpointInput: CreateEndpointInput = {
   url: 'https://example.com/webhook',
   events: ['workflow.started', 'workflow.completed'],
-  isActive: true,
 }
 
-const anotherSubscriptionInput: CreateWebhookInput = {
-  name: '另一个订阅',
+const anotherEndpointInput: CreateEndpointInput = {
   url: 'https://example2.com/webhook',
   events: ['workflow.completed'],
-  isActive: true,
-}
-
-const mockWebhookEvent: WebhookEvent = {
-  id: 'evt_test_1',
-  type: 'workflow.started',
-  timestamp: new Date().toISOString(),
-  source: 'test',
-  data: {
-    workflowId: 'wf-123',
-    status: 'started',
-  },
-}
-
-const mockCompletedEvent: WebhookEvent = {
-  id: 'evt_test_2',
-  type: 'workflow.completed',
-  timestamp: new Date().toISOString(),
-  source: 'test',
-  data: {
-    workflowId: 'wf-456',
-    status: 'completed',
-  },
-}
-
-const mockFailedEvent: WebhookEvent = {
-  id: 'evt_test_3',
-  type: 'workflow.failed',
-  timestamp: new Date().toISOString(),
-  source: 'test',
-  data: {
-    workflowId: 'wf-789',
-    status: 'failed',
-    error: 'Something went wrong',
-  },
 }
 
 // ============================================================================
 // Test Suite
 // ============================================================================
 
-describe('Webhook System v1.13.0 - Webhook 系统测试', () => {
-  let manager: WebhookManager
-  let deliveryService: WebhookDeliveryService
+describe('Webhook 模块 (@/lib/webhook) 契约测试', () => {
+  let plugin: WebhookPlugin
 
   beforeEach(() => {
-    manager = new WebhookManager()
-    deliveryService = new WebhookDeliveryService()
-  })
-
-  afterEach(() => {
-    manager.clearEventQueue()
-    manager.clearLogs()
-    manager.clearSubscriptions()
-    deliveryService.clearAllDeliveries()
+    plugin = new WebhookPlugin()
   })
 
   // ========================================================================
-  // 基础功能测试 (Happy Path)
+  // 模块导出与默认配置
   // ========================================================================
 
-  describe('基础功能测试', () => {
-    it('应该能够创建订阅', async () => {
-      const subscription = await manager.createSubscription(validSubscriptionInput)
-
-      expect(subscription).toBeDefined()
-      expect(subscription.id).toBeDefined()
-      expect(subscription.name).toBe(validSubscriptionInput.name)
-      expect(subscription.url).toBe(validSubscriptionInput.url)
-      expect(subscription.events).toEqual(validSubscriptionInput.events)
-      expect(subscription.isActive).toBe(true)
-      expect(subscription.status).toBe('active')
+  describe('模块导出', () => {
+    it('应该导出 WebhookPlugin 类', () => {
+      expect(typeof WebhookPlugin).toBe('function')
+      expect(plugin).toBeInstanceOf(WebhookPlugin)
     })
 
-    it('应该能够获取订阅', async () => {
-      const created = await manager.createSubscription(validSubscriptionInput)
-      const retrieved = manager.getSubscription(created.id)
-
-      expect(retrieved).toBeDefined()
-      expect(retrieved?.id).toBe(created.id)
-      expect(retrieved?.name).toBe(created.name)
+    it('应该导出 webhookManager 单例', () => {
+      expect(webhookManager).toBeInstanceOf(WebhookPlugin)
     })
 
-    it('应该能够获取所有订阅', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-      await manager.createSubscription(anotherSubscriptionInput)
-
-      const subscriptions = manager.getAllSubscriptions()
-
-      expect(subscriptions.length).toBe(2)
+    it('应该使用正确的插件元数据', () => {
+      expect(plugin.metadata.id).toBe('@openclaw/plugin-webhook')
+      expect(plugin.metadata.name).toBe('Webhook Plugin')
+      expect(plugin.metadata.version).toBe('1.0.0')
+      expect(plugin.metadata.category).toBe('webhook')
     })
 
-    it('应该能够更新订阅', async () => {
-      const created = await manager.createSubscription(validSubscriptionInput)
+    it('应该使用默认配置', () => {
+      // PluginConfig.config 的类型是 Record<string, unknown> | undefined，
+      // 直接按属性读取即可拿到 unknown，避免任何类型断言。
+      const config = plugin.config.config
 
-      const updated = await manager.updateSubscription(created.id, {
-        name: '更新后的订阅',
-        isActive: false,
+      expect(config?.maxRetries).toBe(3)
+      expect(config?.retryDelay).toBe(1000)
+      expect(config?.timeout).toBe(30000)
+      expect(config?.maxConcurrent).toBe(10)
+      expect(config?.enableSignature).toBe(true)
+    })
+  })
+
+  // ========================================================================
+  // 端点管理
+  // ========================================================================
+
+  describe('端点管理', () => {
+    it('应该能够创建端点', async () => {
+      const endpoint = await plugin.execute<
+        CreateEndpointInput,
+        WebhookEndpoint
+      >('createEndpoint', validEndpointInput)
+
+      expect(endpoint.id).toHaveLength(32)
+      expect(endpoint.url).toBe('https://example.com/webhook')
+      expect(endpoint.events).toEqual(['workflow.started', 'workflow.completed'])
+      expect(endpoint.enabled).toBe(true)
+      expect(endpoint.createdAt).toBeInstanceOf(Date)
+      expect(endpoint.updatedAt).toBeInstanceOf(Date)
+    })
+
+    it('应该能够按 ID 获取端点', async () => {
+      const created = await plugin.execute<
+        CreateEndpointInput,
+        WebhookEndpoint
+      >('createEndpoint', validEndpointInput)
+
+      const endpoint = await plugin.execute<GetEndpointInput, WebhookEndpoint | undefined>(
+        'getEndpoint',
+        { id: created.id }
+      )
+
+      expect(endpoint).toBeDefined()
+      expect(endpoint?.id).toBe(created.id)
+      expect(endpoint?.url).toBe(validEndpointInput.url)
+    })
+
+    it('应该对不存在的端点返回 undefined', async () => {
+      const endpoint = await plugin.execute<GetEndpointInput, WebhookEndpoint | undefined>(
+        'getEndpoint',
+        { id: 'non-existent' }
+      )
+
+      expect(endpoint).toBeUndefined()
+    })
+
+    it('应该能够列出所有端点', async () => {
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', validEndpointInput)
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', anotherEndpointInput)
+
+      const endpoints = await plugin.execute<undefined, WebhookEndpoint[]>('listEndpoints')
+
+      expect(endpoints).toHaveLength(2)
+      expect(endpoints.map(e => e.url).sort()).toEqual([
+        'https://example.com/webhook',
+        'https://example2.com/webhook',
+      ])
+    })
+
+    it('应该能够更新端点', async () => {
+      const created = await plugin.execute<
+        CreateEndpointInput,
+        WebhookEndpoint
+      >('createEndpoint', validEndpointInput)
+
+      const updated = await plugin.execute<UpdateEndpointInput, WebhookEndpoint | undefined>(
+        'updateEndpoint',
+        {
+          id: created.id,
+          url: 'https://example.com/updated',
+          events: ['workflow.failed'],
+          enabled: false,
+        }
+      )
+
+      expect(updated?.url).toBe('https://example.com/updated')
+      expect(updated?.events).toEqual(['workflow.failed'])
+      expect(updated?.enabled).toBe(false)
+      expect(updated?.updatedAt.getTime()).toBeGreaterThanOrEqual(created.updatedAt.getTime())
+    })
+
+    it('应该对更新不存在的端点返回 undefined', async () => {
+      const updated = await plugin.execute<UpdateEndpointInput, WebhookEndpoint | undefined>(
+        'updateEndpoint',
+        { id: 'non-existent', enabled: false }
+      )
+
+      expect(updated).toBeUndefined()
+    })
+
+    it('应该能够删除端点', async () => {
+      const created = await plugin.execute<
+        CreateEndpointInput,
+        WebhookEndpoint
+      >('createEndpoint', validEndpointInput)
+
+      const result = await plugin.execute<DeleteEndpointInput, DeleteResult>('deleteEndpoint', {
+        id: created.id,
       })
 
-      expect(updated.name).toBe('更新后的订阅')
-      expect(updated.isActive).toBe(false)
+      expect(result).toEqual({ success: true })
+
+      const endpoint = await plugin.execute<GetEndpointInput, WebhookEndpoint | undefined>(
+        'getEndpoint',
+        { id: created.id }
+      )
+      expect(endpoint).toBeUndefined()
     })
 
-    it('应该能够删除订阅', async () => {
-      const created = await manager.createSubscription(validSubscriptionInput)
-      const deleted = await manager.deleteSubscription(created.id)
+    it('应该对删除不存在的端点返回 success=false', async () => {
+      const result = await plugin.execute<DeleteEndpointInput, DeleteResult>('deleteEndpoint', {
+        id: 'non-existent',
+      })
 
-      expect(deleted).toBe(true)
-      expect(manager.getSubscription(created.id)).toBeUndefined()
+      expect(result).toEqual({ success: false })
     })
   })
 
   // ========================================================================
-  // 事件处理测试
+  // 事件触发与投递
   // ========================================================================
 
-  describe('事件处理测试', () => {
-    it('应该能够触发事件', async () => {
-      const subscription = await manager.createSubscription(validSubscriptionInput)
+  describe('事件触发', () => {
+    it('应该为匹配事件的端点创建投递', async () => {
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', validEndpointInput)
 
-      const deliveries = await manager.triggerEvent(mockWebhookEvent)
+      const result = await plugin.execute<TriggerInput, TriggerResult>('trigger', {
+        event: 'workflow.started',
+        payload: { workflowId: 'wf-123' },
+      })
 
-      expect(deliveries.length).toBeGreaterThan(0)
+      expect(result.deliveries).toHaveLength(1)
+
+      const delivery = await plugin.execute<GetDeliveryInput, WebhookDelivery | undefined>(
+        'getDelivery',
+        { id: result.deliveries[0] }
+      )
+
+      expect(delivery).toBeDefined()
+      expect(delivery?.endpointId).toBeDefined()
+      expect(delivery?.event).toBe('workflow.started')
+      expect(delivery?.payload).toEqual({ workflowId: 'wf-123' })
+      expect(delivery?.status).toBe('pending')
+      expect(delivery?.attempts).toBe(0)
+      expect(delivery?.createdAt).toBeInstanceOf(Date)
     })
 
-    it('应该只触发订阅了事件类型的订阅', async () => {
-      // 订阅只监听 workflow.started
-      await manager.createSubscription({
-        ...validSubscriptionInput,
+    it('不应该为事件类型不匹配的端点创建投递', async () => {
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', {
+        url: 'https://example.com/started',
         events: ['workflow.started'],
       })
 
-      // 触发 workflow.completed 事件
-      const deliveries = await manager.triggerEvent(mockCompletedEvent)
-
-      expect(deliveries.length).toBe(0)
-    })
-
-    it('应该处理多个订阅', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-      await manager.createSubscription(anotherSubscriptionInput)
-
-      const deliveries = await manager.triggerEvent(mockCompletedEvent)
-
-      expect(deliveries.length).toBe(2)
-    })
-
-    it('应该只触发活跃订阅', async () => {
-      await manager.createSubscription({
-        ...validSubscriptionInput,
-        isActive: false,
+      const result = await plugin.execute<TriggerInput, TriggerResult>('trigger', {
+        event: 'workflow.completed',
+        payload: {},
       })
 
-      const deliveries = await manager.triggerEvent(mockWebhookEvent)
-
-      expect(deliveries.length).toBe(0)
+      expect(result.deliveries).toHaveLength(0)
     })
 
-    it('应该支持事件队列', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-      await manager.triggerEvent(mockWebhookEvent)
-
-      const queue = manager.getEventQueue()
-
-      expect(queue.length).toBeGreaterThan(0)
-    })
-  })
-
-  // ========================================================================
-  // 自动补全测试
-  // ========================================================================
-
-  describe('批量操作测试', () => {
-    it('应该能够批量删除订阅', async () => {
-      const sub1 = await manager.createSubscription(validSubscriptionInput)
-      const sub2 = await manager.createSubscription(anotherSubscriptionInput)
-
-      const result = await manager.batchDeleteSubscriptions([sub1.id, sub2.id])
-
-      expect(result.deleted.length).toBe(2)
-      expect(result.failed.length).toBe(0)
-    })
-
-    it('应该处理批量删除中的无效 ID', async () => {
-      const sub1 = await manager.createSubscription(validSubscriptionInput)
-
-      const result = await manager.batchDeleteSubscriptions([sub1.id, 'invalid-id'])
-
-      expect(result.deleted.length).toBe(1)
-      expect(result.failed.length).toBe(1)
-    })
-
-    it('应该能够批量更新订阅状态', async () => {
-      const sub1 = await manager.createSubscription(validSubscriptionInput)
-      const sub2 = await manager.createSubscription(anotherSubscriptionInput)
-
-      const updated = await manager.batchUpdateStatus([sub1.id, sub2.id], false)
-
-      expect(updated.length).toBe(2)
-      expect(updated.every(s => !s.isActive)).toBe(true)
-    })
-  })
-
-  // ========================================================================
-  // 签名验证测试
-  // ========================================================================
-
-  describe('签名验证测试', () => {
-    it('应该生成有效的签名', async () => {
-      const payload = JSON.stringify(mockWebhookEvent)
-      const timestamp = Date.now()
-      const secret = 'test-secret'
-
-      const signature = await manager.generateSignature(payload, timestamp, secret)
-
-      expect(signature).toBeDefined()
-      expect(signature).toContain('sha256=')
-    })
-
-    it('应该验证有效签名', async () => {
-      const payload = JSON.stringify(mockWebhookEvent)
-      const timestamp = Date.now()
-      const secret = 'test-secret'
-
-      const signature = await manager.generateSignature(payload, timestamp, secret)
-      const result = await manager.verifySignature(payload, signature, timestamp, secret)
-
-      expect(result.isValid).toBe(true)
-    })
-
-    it('应该拒绝无效签名', async () => {
-      const payload = JSON.stringify(mockWebhookEvent)
-      const timestamp = Date.now()
-      const secret = 'test-secret'
-
-      const result = await manager.verifySignature(payload, 'invalid-signature', timestamp, secret)
-
-      expect(result.isValid).toBe(false)
-    })
-
-    it('应该拒绝过期的时间戳', async () => {
-      const payload = JSON.stringify(mockWebhookEvent)
-      const timestamp = Date.now() - 10 * 60 * 1000 // 10 minutes ago
-      const secret = 'test-secret'
-
-      const signature = await manager.generateSignature(payload, timestamp, secret)
-      const result = await manager.verifySignature(payload, signature, timestamp, secret, 5 * 60 * 1000)
-
-      expect(result.isValid).toBe(false)
-    })
-  })
-
-  // ========================================================================
-  // 测试订阅测试
-  // ========================================================================
-
-  describe('测试订阅测试', () => {
-    it('应该能够测试订阅', async () => {
-      const subscription = await manager.createSubscription(validSubscriptionInput)
-
-      const result = await manager.testSubscription(subscription.id)
-
-      expect(result).toBeDefined()
-      expect(result.subscriptionId).toBe(subscription.id)
-      expect(typeof result.duration).toBe('number')
-    })
-
-    it('应该拒绝测试不存在的订阅', async () => {
-      await expect(manager.testSubscription('non-existent')).rejects.toThrow()
-    })
-  })
-
-  // ========================================================================
-  // 日志管理测试
-  // ========================================================================
-
-  describe('日志管理测试', () => {
-    it('应该能够记录日志', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-
-      const logs = manager.getLogs()
-
-      expect(logs.length).toBeGreaterThan(0)
-    })
-
-    it('应该能够按订阅 ID 过滤日志', async () => {
-      const subscription = await manager.createSubscription(validSubscriptionInput)
-      await manager.triggerEvent(mockWebhookEvent)
-
-      const logs = manager.getLogs(subscription.id)
-
-      expect(logs.length).toBeGreaterThan(0)
-    })
-
-    it('应该能够按日志级别过滤', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-
-      const infoLogs = manager.getLogs(undefined, undefined, 'info')
-
-      expect(Array.isArray(infoLogs)).toBe(true)
-    })
-
-    it('应该能够限制日志数量', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-
-      const logs = manager.getLogs(undefined, undefined, undefined, 5)
-
-      expect(logs.length).toBeLessThanOrEqual(5)
-    })
-
-    it('应该能够清空日志', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-      manager.clearLogs()
-
-      const logs = manager.getLogs()
-
-      expect(logs.length).toBe(0)
-    })
-  })
-
-  // ========================================================================
-  // 边界情况测试
-  // ========================================================================
-
-  describe('边界情况测试', () => {
-    it('应该处理空事件列表', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-
-      const deliveries = await manager.triggerEvent({
-        id: 'empty-event',
-        type: 'unregistered.event',
-        timestamp: new Date().toISOString(),
-        source: 'test',
-        data: {},
+    it('应该为通配符端点创建投递', async () => {
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', {
+        url: 'https://example.com/any',
+        events: ['*'],
       })
 
-      expect(deliveries.length).toBe(0)
+      const result = await plugin.execute<TriggerInput, TriggerResult>('trigger', {
+        event: 'workflow.completed',
+        payload: {},
+      })
+
+      expect(result.deliveries).toHaveLength(1)
     })
 
-    it('应该处理无效的 URL', async () => {
-      await expect(
-        manager.createSubscription({
-          ...validSubscriptionInput,
-          url: 'not-a-valid-url',
-        })
-      ).rejects.toThrow()
+    it('应该为多个匹配端点各创建一条投递', async () => {
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', validEndpointInput)
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', anotherEndpointInput)
+
+      const result = await plugin.execute<TriggerInput, TriggerResult>('trigger', {
+        event: 'workflow.completed',
+        payload: {},
+      })
+
+      expect(result.deliveries).toHaveLength(2)
+      expect(new Set(result.deliveries).size).toBe(2)
     })
 
-    it('应该处理空订阅列表', () => {
-      const subscriptions = manager.getAllSubscriptions()
+    it('应该跳过已禁用的端点', async () => {
+      const created = await plugin.execute<
+        CreateEndpointInput,
+        WebhookEndpoint
+      >('createEndpoint', validEndpointInput)
 
-      expect(subscriptions).toEqual([])
-    })
+      await plugin.execute<UpdateEndpointInput, WebhookEndpoint | undefined>('updateEndpoint', {
+        id: created.id,
+        enabled: false,
+      })
 
-    it('应该处理更新不存在的订阅', async () => {
-      await expect(
-        manager.updateSubscription('non-existent', {
-          name: 'New Name',
-        })
-      ).rejects.toThrow()
-    })
+      const result = await plugin.execute<TriggerInput, TriggerResult>('trigger', {
+        event: 'workflow.started',
+        payload: {},
+      })
 
-    it('应该处理删除不存在的订阅', async () => {
-      const result = await manager.deleteSubscription('non-existent')
-
-      expect(result).toBe(false)
-    })
-
-    it('应该处理空查询', () => {
-      const logs = manager.getLogs('non-existent-id')
-
-      expect(logs).toEqual([])
-    })
-  })
-
-  // ========================================================================
-  // 错误处理测试
-  // ========================================================================
-
-  describe('错误处理测试', () => {
-    it('应该处理创建空名称的订阅', async () => {
-      await expect(
-        manager.createSubscription({
-          ...validSubscriptionInput,
-          name: '',
-        })
-      ).rejects.toThrow()
-    })
-
-    it('应该处理创建空 URL 的订阅', async () => {
-      await expect(
-        manager.createSubscription({
-          ...validSubscriptionInput,
-          url: '',
-        })
-      ).rejects.toThrow()
-    })
-
-    it('应该处理空事件列表', async () => {
-      await expect(
-        manager.createSubscription({
-          ...validSubscriptionInput,
-          events: [],
-        })
-      ).rejects.toThrow()
-    })
-
-    it('应该处理无效的重试次数', async () => {
-      await expect(
-        manager.createSubscription({
-          ...validSubscriptionInput,
-          retryCount: -1,
-        })
-      ).rejects.toThrow()
-    })
-
-    it('应该处理无效的超时时间', async () => {
-      await expect(
-        manager.createSubscription({
-          ...validSubscriptionInput,
-          timeout: -1,
-        })
-      ).rejects.toThrow()
+      expect(result.deliveries).toHaveLength(0)
     })
   })
 
   // ========================================================================
-  // 缓存管理测试
+  // 投递查询与重试
   // ========================================================================
 
-  describe('缓存管理测试', () => {
-    it('应该清空事件队列', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-      await manager.triggerEvent(mockWebhookEvent)
+  describe('投递查询与重试', () => {
+    it('应该能够按端点过滤投递列表', async () => {
+      const first = await plugin.execute<
+        CreateEndpointInput,
+        WebhookEndpoint
+      >('createEndpoint', validEndpointInput)
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', anotherEndpointInput)
 
-      manager.clearEventQueue()
+      await plugin.execute<TriggerInput, TriggerResult>('trigger', {
+        event: 'workflow.completed',
+        payload: {},
+      })
 
-      const queue = manager.getEventQueue()
+      const deliveries = await plugin.execute<ListDeliveriesInput, WebhookDelivery[]>(
+        'listDeliveries',
+        { endpointId: first.id }
+      )
 
-      expect(queue.length).toBe(0)
+      expect(deliveries).toHaveLength(1)
+      expect(deliveries[0].endpointId).toBe(first.id)
     })
 
-    it('应该清空所有订阅', async () => {
-      await manager.createSubscription(validSubscriptionInput)
-      await manager.createSubscription(anotherSubscriptionInput)
+    it('应该能够按状态过滤投递列表', async () => {
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', validEndpointInput)
 
-      manager.clearSubscriptions()
+      await plugin.execute<TriggerInput, TriggerResult>('trigger', {
+        event: 'workflow.started',
+        payload: {},
+      })
 
-      const subscriptions = manager.getAllSubscriptions()
+      const pending = await plugin.execute<ListDeliveriesInput, WebhookDelivery[]>('listDeliveries', {
+        status: 'pending',
+      })
+      const succeeded = await plugin.execute<ListDeliveriesInput, WebhookDelivery[]>('listDeliveries', {
+        status: 'success',
+      })
 
-      expect(subscriptions.length).toBe(0)
+      expect(pending).toHaveLength(1)
+      expect(succeeded).toHaveLength(0)
+    })
+
+    it('应该能够限制投递列表数量', async () => {
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', validEndpointInput)
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', anotherEndpointInput)
+
+      await plugin.execute<TriggerInput, TriggerResult>('trigger', {
+        event: 'workflow.completed',
+        payload: {},
+      })
+
+      const deliveries = await plugin.execute<ListDeliveriesInput, WebhookDelivery[]>(
+        'listDeliveries',
+        { limit: 1 }
+      )
+
+      expect(deliveries).toHaveLength(1)
+    })
+
+    it('应该能够重试失败的投递', async () => {
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', validEndpointInput)
+
+      const triggered = await plugin.execute<TriggerInput, TriggerResult>('trigger', {
+        event: 'workflow.started',
+        payload: {},
+      })
+      const deliveryId = triggered.deliveries[0]
+
+      const result = await plugin.execute<RetryDeliveryInput, RetryResult>('retryDelivery', {
+        id: deliveryId,
+      })
+
+      expect(result).toEqual({ success: true })
+
+      const delivery = await plugin.execute<GetDeliveryInput, WebhookDelivery | undefined>(
+        'getDelivery',
+        { id: deliveryId }
+      )
+
+      expect(delivery?.status).toBe('retrying')
+      expect(delivery?.nextRetry).toBeInstanceOf(Date)
+    })
+
+    it('应该拒绝重试不存在的投递', async () => {
+      const result = await plugin.execute<RetryDeliveryInput, RetryResult>('retryDelivery', {
+        id: 'non-existent',
+      })
+
+      expect(result).toEqual({ success: false })
     })
   })
 
   // ========================================================================
-  // 全局管理器测试
+  // 统计与健康检查
   // ========================================================================
 
-  describe('全局管理器测试', () => {
-    it('应该获取全局管理器实例', () => {
-      expect(webhookManager).toBeDefined()
+  describe('统计与健康检查', () => {
+    it('应该统计已创建的端点数量', async () => {
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', validEndpointInput)
+      await plugin.execute<CreateEndpointInput, WebhookEndpoint>('createEndpoint', anotherEndpointInput)
+
+      const stats = await plugin.execute<undefined, WebhookStats>('stats')
+
+      expect(stats.endpoints).toBe(2)
+      expect(stats.sent).toBe(0)
+      expect(stats.failed).toBe(0)
+      expect(stats.retried).toBe(0)
     })
 
-    it('全局管理器应该能够创建订阅', async () => {
-      webhookManager.clearSubscriptions()
-      const subscription = await webhookManager.createSubscription(validSubscriptionInput)
+    it('应该返回健康的健康检查结果', async () => {
+      const health = await plugin.healthCheck()
 
-      expect(subscription).toBeDefined()
+      expect(health.status).toBe('healthy')
+      expect(health.message).toBe('Webhook plugin is running')
+      expect(health.checks?.queue?.status).toBe('healthy')
+      expect(health.checks?.endpoints?.status).toBe('healthy')
+      expect(health.checks?.endpoints?.message).toBe('Active endpoints: 0')
+    })
+
+    it('应该对未知 action 抛出错误', async () => {
+      await expect(plugin.execute('unknownAction', {})).rejects.toThrow(
+        'Unknown action: unknownAction'
+      )
     })
   })
 
   // ========================================================================
-  // 交付服务测试
+  // 全局单例
   // ========================================================================
 
-  describe('交付服务测试', () => {
-    it('应该能够创建交付服务实例', () => {
-      expect(deliveryService).toBeDefined()
-    })
+  describe('全局单例', () => {
+    it('全局单例应该能够创建端点并统计到端点数', async () => {
+      const before = await webhookManager.execute<undefined, WebhookStats>('stats')
 
-    it('应该能够清空所有交付记录', () => {
-      deliveryService.clearAllDeliveries()
+      const endpoint = await webhookManager.execute<
+        CreateEndpointInput,
+        WebhookEndpoint
+      >('createEndpoint', validEndpointInput)
 
-      expect(deliveryService).toBeDefined()
+      expect(endpoint.url).toBe(validEndpointInput.url)
+
+      const after = await webhookManager.execute<undefined, WebhookStats>('stats')
+      expect(after.endpoints).toBe(before.endpoints + 1)
+
+      await webhookManager.execute<DeleteEndpointInput, DeleteResult>('deleteEndpoint', {
+        id: endpoint.id,
+      })
     })
   })
 })
