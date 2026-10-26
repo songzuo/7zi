@@ -1,3 +1,7 @@
+# 注意：本文件曾用名 security-scan.yml。
+# GitHub 侧的 workflow 注册记录（id 249232443）损坏：name 被解析成文件路径、
+# 每次 push 都按 2026-04-03 的旧定义触发、0 个 job、必然 failure，
+# 而 schedule 半年内一次都没跑过。改文件名可让 GitHub 丢弃坏注册重新登记。
 # ============================================
 # Security Scan Workflow
 # 独立的安全扫描流程，可以按需触发
