@@ -5,7 +5,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { POST } from '@/app/api/multimodal/audio/route'
 import { NextRequest } from 'next/server'
-import { processAudio } from '@/lib/multimodal/bailian-provider'
 
 // Mock dependencies
 vi.mock('@/lib/multimodal/bailian-provider', () => ({
@@ -185,7 +184,16 @@ describe('POST /api/multimodal/audio', () => {
   })
 
   it('should handle transcription errors', async () => {
-    vi.mocked(processAudio).mockRejectedValueOnce(new Error('Transcription failed'))
+    // bailian-provider 只导出 BailianProvider 类，并没有 processAudio 成员；
+    // 用到的那个是下面 vi.mock 工厂造出来的替身，所以不能静态 import
+    // （tsc 会报 TS2305: has no exported member 'processAudio'），
+    // 改成动态 import 拿到模块对象后按结构断言。
+    const provider = (await import(
+      '@/lib/multimodal/bailian-provider'
+    )) as unknown as {
+      processAudio: { mockRejectedValueOnce: (err: Error) => void }
+    }
+    provider.processAudio.mockRejectedValueOnce(new Error('Transcription failed'))
 
     const formData = new FormData()
     formData.append('audio', new Blob(['audio data'], { type: 'audio/mpeg' }), 'test.mp3')
