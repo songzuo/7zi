@@ -30,6 +30,7 @@ import {
   TaskType,
   TaskComplexity,
   RoutingStrategy,
+  ModelCapability,
 } from './routing/types'
 
 /**

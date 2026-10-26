@@ -278,6 +278,7 @@ export class HashRing {
     const c1 = 0xCC9E2D51
     const c2 = 0x1B873593
     const r1 = 15
+    const r2 = 13
     const m = 5
     const n = 0xE6546B64
     

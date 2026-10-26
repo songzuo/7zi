@@ -169,7 +169,7 @@ export class NLGProcessor {
     templateType: ReportTemplateType,
     data: AggregatedData,
     tone: ReportTone,
-    _language: ReportLanguage
+    language: ReportLanguage
   ): string {
     const metrics = data.metrics as Record<string, unknown>
 

@@ -130,7 +130,7 @@ export class ReportDataAggregator {
   private async aggregateProjectProgress(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    _filters?: Record<string, unknown>
+    filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 
@@ -190,7 +190,7 @@ export class ReportDataAggregator {
   private async aggregateTeamPerformance(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    _filters?: Record<string, unknown>
+    filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 
@@ -482,7 +482,7 @@ export class ReportDataAggregator {
   private async aggregateCustom(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    _filters?: Record<string, unknown>
+    filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 

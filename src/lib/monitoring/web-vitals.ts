@@ -354,7 +354,7 @@ export function initWebVitalsMonitoring(config: WebVitalsConfig = {}) {
     enableConsole = process.env.NODE_ENV === 'development',
     sampleRate = 1.0,
     debug = false,
-    _verbose = false,
+    verbose: _verbose = false,
     onLCP,
     onCLS,
     onTTFB,
