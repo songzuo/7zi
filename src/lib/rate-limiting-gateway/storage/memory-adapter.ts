@@ -240,7 +240,7 @@ export class MemoryAdapter implements IStorageAdapter {
       tokens = capacity
       lastRefill = now
       storedCapacity = capacity
-    } else if (storedCapacity !== capacity && storedCapacity > 0) {
+    } else if (storedCapacity !== undefined && storedCapacity !== capacity && storedCapacity > 0) {
       // 容量变了，按比例缩放
       tokens = Math.min(capacity, (tokens * capacity) / storedCapacity)
       storedCapacity = capacity

@@ -238,10 +238,17 @@ export interface MultiLayerRateLimitConfig {
 export interface RateLimitContext {
   /** Client IP address */
   ip: string
-  /** User ID (if authenticated) */
-  userId?: string
-  /** API key (if provided) */
-  apiKey?: string
+  /**
+   * User ID (if authenticated)
+   *
+   * 缺失时为 null（而不是 undefined）——
+   * extractContext 会显式区分「没有这个身份」和「字段没填」，
+   * 下游判断「这个请求是不是某个用户/某个 key 发起的」时
+   * 不能把两种情况混为一谈。
+   */
+  userId?: string | null
+  /** API key (if provided) —— 缺失时为 null，理由同 userId */
+  apiKey?: string | null
   /** API key tier */
   apiKeyTier?: string
   /** Request path */

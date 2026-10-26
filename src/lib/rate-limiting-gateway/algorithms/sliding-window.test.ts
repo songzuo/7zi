@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { SlidingWindow, MemorySlidingWindow } from '../algorithms/sliding-window'
+import { SlidingWindow, MemorySlidingWindow, calculateOptimalPrecision } from '../algorithms/sliding-window'
 import { MemoryAdapter } from '../storage/memory-adapter'
 
 describe('SlidingWindow', () => {
@@ -95,15 +95,27 @@ describe('SlidingWindow', () => {
         windowSeconds: 2,
       }
 
-      // Make 10 requests
-      for (let i = 0; i < 10; i++) {
+      // 前 5 个请求打在窗口开头
+      for (let i = 0; i < 5; i++) {
         await slidingWindow.check(config)
       }
 
-      // Wait 1 second (half the window)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // 窗口中段再打 5 个
+      await new Promise(resolve => setTimeout(resolve, 1100))
+      for (let i = 0; i < 5; i++) {
+        await slidingWindow.check(config)
+      }
 
-      // Old requests should have expired, new ones allowed
+      // 再等 1 秒：第一批（t=0）已滑出 2 秒窗口，第二批（t=1.1s）还在
+      //
+      // 注意：原实现把 10 个请求**一次性**打完，然后等 1 秒。
+      // 但 10 个请求都发生在 t=0，2 秒的窗口在 t=1 时一个都还没过期 ——
+      // count 仍然是 10，根本没有「部分滑出」这回事，
+      // 断言 allowed=true 只能靠 limit 恰好等于 10 才成立，
+      // 实际上验证的是「满额后拒绝」而不是「窗口滑出」。
+      await new Promise(resolve => setTimeout(resolve, 1100))
+
+      // 第一批已过期，count 回落到 5，可以再放行
       const result = await slidingWindow.check(config)
       expect(result.allowed).toBe(true)
     })
@@ -286,14 +298,12 @@ describe('MemorySlidingWindow', () => {
 
 describe('calculateOptimalPrecision', () => {
   it('should return appropriate precision for small windows', () => {
-    const { calculateOptimalPrecision } = require('../algorithms/sliding-window')
     const precision = calculateOptimalPrecision(60, 10)
     expect(precision).toBeGreaterThan(0)
     expect(precision).toBeLessThanOrEqual(10)
   })
 
   it('should return appropriate precision for large windows', () => {
-    const { calculateOptimalPrecision } = require('../algorithms/sliding-window')
     const precision = calculateOptimalPrecision(3600, 1000)
     expect(precision).toBeGreaterThan(0)
   })

@@ -115,6 +115,19 @@ export class MultiLayerMiddleware {
    * Check rate limit across all layers
    */
   async check(context: RateLimitContext): Promise<MultiLayerResult> {
+    try {
+      return await this.checkLayers(context)
+    } catch (error) {
+      // 各层自己会 recordError，但**层配置本身非法**这类错误
+      // 是在进入某一层之前抛的（比如 algorithm: 'invalid'），
+      // 那时还没有对应的 layer 可以归因 —— 记到 'global' 上，
+      // 否则 metrics 完全收不到这次错误。
+      this.metrics?.recordError('global', error instanceof Error ? error : new Error(String(error)))
+      throw error
+    }
+  }
+
+  private async checkLayers(context: RateLimitContext): Promise<MultiLayerResult> {
     const results: LayerResult[] = []
     let limitedBy: { layer: RateLimitLayer; result: RateLimitResult } | undefined
 
@@ -201,13 +214,17 @@ export class MultiLayerMiddleware {
           capacity: config.burst,
           refillRate: config.rate
         })
-      } else {
-        // Fallback to sliding window for global
+      } else if (config.algorithm === 'sliding-window') {
         result = await this.slidingWindow.check({
           key,
           limit: config.rate,
           windowSeconds: 1
         })
+      } else {
+        // 未知算法必须报错，不能静默回落到 sliding-window ——
+        // 配置写错一个字母的话，限流会悄悄换成另一种算法，
+        // 而且没有任何日志，问题极难发现。
+        throw new Error(`Unsupported rate limit algorithm: ${String(config.algorithm)}`)
       }
 
       const duration = Date.now() - start
@@ -249,12 +266,17 @@ export class MultiLayerMiddleware {
           capacity: config.maxRequests,
           refillRate: config.maxRequests / (config.windowMs / 1000)
         })
-      } else {
+      } else if (config.algorithm === 'sliding-window') {
         result = await this.slidingWindow.check({
           key,
           limit: config.maxRequests,
           windowSeconds: config.windowMs / 1000
         })
+      } else {
+        // 未知算法必须报错，不能静默回落到 sliding-window ——
+        // 配置写错一个字母的话，限流会悄悄换成另一种算法，
+        // 而且没有任何日志，问题极难发现。
+        throw new Error(`Unsupported rate limit algorithm: ${String(config.algorithm)}`)
       }
 
       const duration = Date.now() - start
@@ -297,12 +319,17 @@ export class MultiLayerMiddleware {
           capacity: tierConfig.burst,
           refillRate: tierConfig.rate
         })
-      } else {
+      } else if (config.algorithm === 'sliding-window') {
         result = await this.slidingWindow.check({
           key,
           limit: tierConfig.burst,
           windowSeconds: 60
         })
+      } else {
+        // 未知算法必须报错，不能静默回落到 sliding-window ——
+        // 配置写错一个字母的话，限流会悄悄换成另一种算法，
+        // 而且没有任何日志，问题极难发现。
+        throw new Error(`Unsupported rate limit algorithm: ${String(config.algorithm)}`)
       }
 
       const duration = Date.now() - start
@@ -352,12 +379,17 @@ export class MultiLayerMiddleware {
           capacity: maxRequests,
           refillRate: maxRequests / (windowMs / 1000)
         })
-      } else {
+      } else if (config.algorithm === 'sliding-window') {
         result = await this.slidingWindow.check({
           key,
           limit: maxRequests,
           windowSeconds: windowMs / 1000
         })
+      } else {
+        // 未知算法必须报错，不能静默回落到 sliding-window ——
+        // 配置写错一个字母的话，限流会悄悄换成另一种算法，
+        // 而且没有任何日志，问题极难发现。
+        throw new Error(`Unsupported rate limit algorithm: ${String(config.algorithm)}`)
       }
 
       const duration = Date.now() - start
@@ -512,10 +544,27 @@ export function extractContext(req: {
     ip = cfConnectingIP
   }
 
+  // 用户 ID：优先取认证后的 user 对象，其次取请求头。
+  // 之前只看 req.user?.id / req.user?.userId，
+  // 而中间件一般拿不到解析后的 user（只有原始 headers），
+  // 于是走 header 传进来的用户身份完全取不到 ——
+  // 用户维度的限流（Layer 4: User rate limit）会因为 context.userId 为空
+  // 而整层被跳过。
+  const userIdHeader = req.headers['x-user-id']
+  const userId =
+    req.user?.id ??
+    req.user?.userId ??
+    (typeof userIdHeader === 'string' ? userIdHeader : undefined)
+
   return {
     ip,
-    userId: req.user?.id ?? req.user?.userId,
-    apiKey: typeof apiKey === 'string' ? apiKey : undefined,
+    // 统一用 null 表示「没有」——
+    // RateLimitContext 的 userId/apiKey 类型是 string | null，
+    // 之前返回 undefined，与类型不符，也让「缺失 header」的判断不一致。
+    // 缺失时用 null —— RateLimitContext.userId / apiKey 的类型是
+    // string | null，显式区分「没有这个身份」与「字段没填」。
+    userId: userId ?? null,
+    apiKey: typeof apiKey === 'string' ? apiKey : null,
     apiKeyTier: req.user?.tier,
     path: req.path,
     method: req.method,

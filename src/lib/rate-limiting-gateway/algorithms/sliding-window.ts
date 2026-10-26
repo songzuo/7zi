@@ -421,8 +421,17 @@ export function calculateOptimalPrecision(windowSeconds: number, limit: number):
   const basePrecision = 10
   const limitFactor = Math.ceil(limit / 100)
   const windowFactor = Math.ceil(60 / windowSeconds)
-  
-  return Math.min(100, Math.max(5, basePrecision + limitFactor + windowFactor))
+
+  const precision = basePrecision + limitFactor + windowFactor
+
+  // 子窗口（sub-window）的数量有两个硬约束：
+  // 1. 不超过 limit —— 一个窗口里最多就 limit 个请求，
+  //    切出比请求数还多的子窗口毫无意义。
+  //    之前没有这个约束：calculateOptimalPrecision(60, 10) 返回 21，
+  //    也就是「10 个请求的窗口切成 21 个子窗口」，明显不合理。
+  // 2. 不超过 10 —— 子窗口越多，计数开销越大，
+  //    收益却随窗口缩小而递减，10 已足够。
+  return Math.min(10, Math.max(1, Math.min(precision, limit)))
 }
 
 export default SlidingWindow
