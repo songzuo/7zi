@@ -95,7 +95,7 @@ export function LanguageSwitcherCompact({ className = '' }: LanguageSwitcherProp
   return (
     <button
       onClick={toggleLocale}
-      className={`flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 ${className}`}
+      className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-zinc-100 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 ${className}`}
       aria-label={`Switch to ${currentLocale === 'zh' ? 'English' : '中文'}`}
       title={currentLocale === 'zh' ? 'Switch to English' : '切换到中文'}
     >

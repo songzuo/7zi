@@ -156,11 +156,11 @@ export function useUserPreferences(): UseUserPreferencesReturn {
         setPreferences(newPreferences)
         savePreferencesToStorage(newPreferences)
 
-        // Sync to server
+        // Persist remotely in the background; navigation should not wait on this best-effort request.
         const userId = getUserId()
-        await syncPreferencesToServer(userId, { locale })
+        void syncPreferencesToServer(userId, { locale })
 
-        // Navigate to new locale
+        // Navigate to new locale immediately.
         router.replace(pathname, { locale })
 
         logger.info('Locale updated', { locale })

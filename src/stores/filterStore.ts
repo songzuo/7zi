@@ -15,6 +15,7 @@
  */
 
 import { create } from 'zustand'
+import { useShallow } from 'zustand/react/shallow'
 import { devtools, persist } from 'zustand/middleware'
 
 // ============================================================================
@@ -462,19 +463,37 @@ export const useFilterStore = create<FilterStoreState>()(
               if (!data || typeof data !== 'object' || !('state' in data)) return null
               const state = data.state as unknown
               if (!state || typeof state !== 'object') return data
-              
+
               // 将 Record 转回 Map
               const stateData = state as Record<string, unknown>
-              if ('activeFilters' in stateData && stateData.activeFilters && typeof stateData.activeFilters === 'object') {
-                stateData.activeFilters = objectToMap(stateData.activeFilters as Record<string, FiltersState>)
+              if (
+                'activeFilters' in stateData &&
+                stateData.activeFilters &&
+                typeof stateData.activeFilters === 'object'
+              ) {
+                stateData.activeFilters = objectToMap(
+                  stateData.activeFilters as Record<string, FiltersState>
+                )
               }
-              if ('activeSorts' in stateData && stateData.activeSorts && typeof stateData.activeSorts === 'object') {
-                stateData.activeSorts = objectToMap(stateData.activeSorts as Record<string, SortCondition | null>)
+              if (
+                'activeSorts' in stateData &&
+                stateData.activeSorts &&
+                typeof stateData.activeSorts === 'object'
+              ) {
+                stateData.activeSorts = objectToMap(
+                  stateData.activeSorts as Record<string, SortCondition | null>
+                )
               }
-              if ('activePagination' in stateData && stateData.activePagination && typeof stateData.activePagination === 'object') {
-                stateData.activePagination = objectToMap(stateData.activePagination as Record<string, PaginationState>)
+              if (
+                'activePagination' in stateData &&
+                stateData.activePagination &&
+                typeof stateData.activePagination === 'object'
+              ) {
+                stateData.activePagination = objectToMap(
+                  stateData.activePagination as Record<string, PaginationState>
+                )
               }
-              
+
               return data
             } catch (error) {
               return null
@@ -486,20 +505,26 @@ export const useFilterStore = create<FilterStoreState>()(
             const data = JSON.parse(JSON.stringify(value)) as unknown
             if (!data || typeof data !== 'object' || !('state' in data)) return
             const state = data.state as unknown
-            
+
             const stateObj = state as Record<string, unknown>
             if (stateObj && typeof stateObj === 'object') {
               if ('activeFilters' in stateObj && stateObj.activeFilters instanceof Map) {
-                stateObj.activeFilters = mapToObject(stateObj.activeFilters as Map<string, FiltersState>)
+                stateObj.activeFilters = mapToObject(
+                  stateObj.activeFilters as Map<string, FiltersState>
+                )
               }
               if ('activeSorts' in stateObj && stateObj.activeSorts instanceof Map) {
-                stateObj.activeSorts = mapToObject(stateObj.activeSorts as Map<string, SortCondition | null>)
+                stateObj.activeSorts = mapToObject(
+                  stateObj.activeSorts as Map<string, SortCondition | null>
+                )
               }
               if ('activePagination' in stateObj && stateObj.activePagination instanceof Map) {
-                stateObj.activePagination = mapToObject(stateObj.activePagination as Map<string, PaginationState>)
+                stateObj.activePagination = mapToObject(
+                  stateObj.activePagination as Map<string, PaginationState>
+                )
               }
             }
-            
+
             try {
               localStorage.setItem(name, JSON.stringify(data))
             } catch (error) {
@@ -530,7 +555,7 @@ export const useFilterStore = create<FilterStoreState>()(
  * 获取指定命名空间的过滤器状态
  */
 export const useFilters = (namespace: string) =>
-  useFilterStore(state => state.activeFilters.get(namespace) || { ...DEFAULT_FILTERS })
+  useFilterStore(state => state.activeFilters.get(namespace) || DEFAULT_FILTERS)
 
 /**
  * 获取指定命名空间的排序状态
@@ -542,17 +567,19 @@ export const useSort = (namespace: string) =>
  * 获取指定命名空间的分页状态
  */
 export const usePagination = (namespace: string) =>
-  useFilterStore(state => state.activePagination.get(namespace) || createDefaultPagination())
+  useFilterStore(state => state.activePagination.get(namespace) || DEFAULT_PAGINATION)
 
 /**
  * 获取完整的过滤配置（命名空间版本）
  */
 export const useFilterConfig = (namespace: string) =>
-  useFilterStore(state => ({
-    filters: state.activeFilters.get(namespace) || { ...DEFAULT_FILTERS },
-    sort: state.activeSorts.get(namespace) || null,
-    pagination: state.activePagination.get(namespace) || createDefaultPagination(),
-  }))
+  useFilterStore(
+    useShallow(state => ({
+      filters: state.activeFilters.get(namespace) || DEFAULT_FILTERS,
+      sort: state.activeSorts.get(namespace) || null,
+      pagination: state.activePagination.get(namespace) || DEFAULT_PAGINATION,
+    }))
+  )
 
 // ============================================================================
 // Action Hooks（命名空间版本）

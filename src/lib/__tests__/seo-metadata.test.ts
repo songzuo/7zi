@@ -173,6 +173,13 @@ describe('seo-metadata.ts', () => {
       expect(schema.inLanguage).toBe('en-US')
     })
 
+    it('应为其他受支持语言生成 Schema，而不让页面渲染失败', () => {
+      const schema = generateWebSiteSchema('fr')
+
+      expect(schema.name).toBe('7zi Studio')
+      expect(schema.inLanguage).toBe('fr')
+    })
+
     it('应包含搜索操作', () => {
       const schema = generateWebSiteSchema('zh')
 

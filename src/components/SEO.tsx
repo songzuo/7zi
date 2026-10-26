@@ -8,6 +8,7 @@
 
 import Script from 'next/script'
 import { useMemo } from 'react'
+import type { Locale } from '@/i18n/config'
 import {
   generateOrganizationSchema,
   generateWebSiteSchema,
@@ -16,7 +17,7 @@ import {
 } from '@/lib/seo-metadata'
 
 interface SEOProps {
-  locale?: 'zh' | 'en'
+  locale?: Locale
   schemas?: Array<'website' | 'organization' | 'breadcrumb' | 'faq'>
   customSchemas?: Array<Record<string, unknown>>
   breadcrumbs?: Array<{ name: string; nameEn: string; path: string }>

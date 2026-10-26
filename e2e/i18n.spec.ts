@@ -17,10 +17,9 @@ test.describe('多语言 - 基础测试', () => {
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(500)
 
-    // URL 应该包含语言代码或已重定向
-    const url = page.url()
-    const hasLocale = /\/(zh|en)\//.test(url) || url === page.context().options.baseURL + '/'
-    expect(hasLocale).toBeTruthy()
+    // 根路径应重定向到带有语言代码的路径（如 /zh 或 /en）
+    const pathname = new URL(page.url()).pathname
+    expect(pathname).toMatch(/^\/(zh|en)(?:\/|$)/)
   })
 
   test('中文页面应该正确加载', async ({ page }) => {
@@ -171,10 +170,10 @@ test.describe('多语言 - 内容本地化测试', () => {
     await page.goto('/zh')
     await page.waitForLoadState('networkidle')
 
-    const nav = page.locator('nav').first()
+    const nav = page.getByRole('navigation', { name: 'Main navigation' })
 
     // 应该包含中文导航项
-    const chineseNavItems = ['首页', '关于', '团队', '联系']
+    const chineseNavItems = ['关于我们', '团队成员', '博客', '联系我们']
     let foundItems = 0
 
     for (const item of chineseNavItems) {
@@ -197,10 +196,10 @@ test.describe('多语言 - 内容本地化测试', () => {
     await page.goto('/en')
     await page.waitForLoadState('networkidle')
 
-    const nav = page.locator('nav').first()
+    const nav = page.getByRole('navigation', { name: 'Main navigation' })
 
     // 应该包含英文导航项
-    const englishNavItems = ['Home', 'About', 'Team', 'Contact']
+    const englishNavItems = ['About', 'Team', 'Blog', 'Contact']
     let foundItems = 0
 
     for (const item of englishNavItems) {

@@ -11,7 +11,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { shallow } from 'zustand/shallow'
+import { useShallow } from 'zustand/react/shallow'
 import { Permission, Role } from '@/lib/permissions/types'
 import type { PermissionContext } from '@/lib/permissions/types'
 
@@ -332,27 +332,29 @@ export const useIsGuest = () => usePermissionStore(state => state.isGuest())
 
 // Action selectors
 export const usePermissionActions = () =>
-  usePermissionStore(state => ({
-    setPermissions: state.setPermissions,
-    addPermission: state.addPermission,
-    removePermission: state.removePermission,
-    clearPermissions: state.clearPermissions,
-    setRoles: state.setRoles,
-    addRole: state.addRole,
-    removeRole: state.removeRole,
-    clearRoles: state.clearRoles,
-    initializeFromAuth: state.initializeFromAuth,
-    initializeFromAuthData: state.initializeFromAuthData,
-    setLoading: state.setLoading,
-    setError: state.setError,
-    clearError: state.clearError,
-    reset: state.reset,
-  }))
+  usePermissionStore(
+    useShallow(state => ({
+      setPermissions: state.setPermissions,
+      addPermission: state.addPermission,
+      removePermission: state.removePermission,
+      clearPermissions: state.clearPermissions,
+      setRoles: state.setRoles,
+      addRole: state.addRole,
+      removeRole: state.removeRole,
+      clearRoles: state.clearRoles,
+      initializeFromAuth: state.initializeFromAuth,
+      initializeFromAuthData: state.initializeFromAuthData,
+      setLoading: state.setLoading,
+      setError: state.setError,
+      clearError: state.clearError,
+      reset: state.reset,
+    }))
+  )
 
 // Helper function selectors - use shallow comparison to prevent infinite loops
 export const usePermissionHelpers = () =>
   usePermissionStore(
-    state => ({
+    useShallow(state => ({
       hasPermission: state.hasPermission,
       hasAnyPermission: state.hasAnyPermission,
       hasAllPermissions: state.hasAllPermissions,
@@ -364,5 +366,5 @@ export const usePermissionHelpers = () =>
       isMemberOrHigher: state.isMemberOrHigher,
       isGuest: state.isGuest,
       getContext: state.getContext,
-    })
+    }))
   )

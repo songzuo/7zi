@@ -18,12 +18,12 @@ const NAV_ITEMS: NavItem[] = [
   {
     href: '/',
     icon: '🏠',
-    labelKey: 'home',
+    labelKey: 'nav.home',
   },
   {
     href: '/dashboard',
     icon: '📊',
-    labelKey: 'dashboard',
+    labelKey: 'nav.dashboard',
   },
   {
     href: '/subagents',
@@ -46,7 +46,7 @@ export function Navigation() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const prevPathnameRef = React.useRef(pathname)
-  const t = useTranslations('nav')
+  const t = useTranslations()
 
   // Memoize class name generators to prevent function recreation on every render
   const getNavLinkClasses = useCallback(
@@ -151,7 +151,7 @@ export function Navigation() {
               🤖
             </span>
             <span className="hidden font-bold text-zinc-900 sm:inline dark:text-white">
-              {t('siteNameShort')}
+              {t('common.siteNameShort')}
             </span>
           </Link>
 
@@ -245,7 +245,7 @@ export function Navigation() {
               className="touch-active inline-block min-h-[44px] rounded-lg py-2 text-xl font-bold text-zinc-900 sm:text-2xl dark:text-white"
               onClick={closeMenu}
             >
-              🤖 <span className="text-cyan-500">{t('siteNameShort')}</span>
+              🤖 <span className="text-cyan-500">{t('common.siteNameShort')}</span>
             </Link>
           </div>
 
@@ -283,11 +283,15 @@ export function Navigation() {
           {/* Bottom Settings Area */}
           <div className="flex-shrink-0 space-y-2 border-t border-zinc-200 p-3 sm:space-y-3 sm:p-4 dark:border-zinc-700">
             <div className="flex min-h-[52px] items-center justify-between rounded-xl bg-zinc-50 px-3 py-3 sm:px-4 dark:bg-zinc-800">
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">{t('language')}</span>
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                {t('mobileMenu.language')}
+              </span>
               <LanguageSwitcherCompact />
             </div>
             <div className="flex min-h-[52px] items-center justify-between rounded-xl bg-zinc-50 px-3 py-3 sm:px-4 dark:bg-zinc-800">
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">{t('theme')}</span>
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                {t('mobileMenu.theme')}
+              </span>
               <ThemeToggle />
             </div>
           </div>

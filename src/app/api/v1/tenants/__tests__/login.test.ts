@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { POST } from '../route'
+import { POST } from '../login/route'
 
 // Mock dependencies
 const mockTenantAuthLogin = vi.fn()

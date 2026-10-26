@@ -4,6 +4,7 @@
  */
 
 import type { Metadata } from 'next'
+import type { Locale } from '@/i18n/config'
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
 
@@ -206,8 +207,9 @@ export function generateHreflangLinks(
 }
 
 // WebSite Schema 生成器
-export function generateWebSiteSchema(locale: 'zh' | 'en' = 'zh') {
-  const seo = seoConfig[locale]
+export function generateWebSiteSchema(locale: Locale = 'zh') {
+  // The UI supports more locales than the SEO copy currently defines.
+  const seo = locale === 'zh' ? seoConfig.zh : seoConfig.en
 
   return {
     '@context': 'https://schema.org',
@@ -215,7 +217,7 @@ export function generateWebSiteSchema(locale: 'zh' | 'en' = 'zh') {
     name: seo.siteName,
     url: baseUrl,
     description: seo.description,
-    inLanguage: locale === 'zh' ? 'zh-CN' : 'en-US',
+    inLanguage: locale === 'zh' ? 'zh-CN' : locale === 'en' ? 'en-US' : locale,
     publisher: {
       '@type': 'Organization',
       name: seo.siteName,
@@ -237,7 +239,7 @@ export function generateWebSiteSchema(locale: 'zh' | 'en' = 'zh') {
 }
 
 // Organization Schema 生成器
-export function generateOrganizationSchema(locale: 'zh' | 'en' = 'zh') {
+export function generateOrganizationSchema(locale: Locale = 'zh') {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -272,7 +274,7 @@ export function generateOrganizationSchema(locale: 'zh' | 'en' = 'zh') {
 // Breadcrumb Schema 生成器
 export function generateBreadcrumbSchema(
   items: Array<{ name: string; nameEn: string; path: string }>,
-  locale: 'zh' | 'en' = 'zh'
+  locale: Locale = 'zh'
 ) {
   return {
     '@context': 'https://schema.org',
@@ -289,7 +291,7 @@ export function generateBreadcrumbSchema(
 // FAQ Schema 生成器
 export function generateFAQSchema(
   faqs: Array<{ question: string; questionEn?: string; answer: string; answerEn?: string }>,
-  locale: 'zh' | 'en' = 'zh'
+  locale: Locale = 'zh'
 ) {
   return {
     '@context': 'https://schema.org',
@@ -314,7 +316,7 @@ export function generateServiceSchema(
     descriptionEn: string
     path: string
   },
-  locale: 'zh' | 'en' = 'zh'
+  locale: Locale = 'zh'
 ) {
   return {
     '@context': 'https://schema.org',
@@ -335,7 +337,7 @@ export function generateServiceSchema(
 }
 
 // LocalBusiness Schema（如果有实体地址）
-export function generateLocalBusinessSchema(locale: 'zh' | 'en' = 'zh') {
+export function generateLocalBusinessSchema(locale: Locale = 'zh') {
   return {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
@@ -352,7 +354,7 @@ export function generateLocalBusinessSchema(locale: 'zh' | 'en' = 'zh') {
 // 组合 Schema 生成器（用于页面）
 export function generatePageSchemas(
   schemas: Array<{ type: string; data: unknown }>,
-  locale: 'zh' | 'en' = 'zh'
+  locale: Locale = 'zh'
 ) {
   return schemas.map(({ type, data }) => {
     switch (type) {

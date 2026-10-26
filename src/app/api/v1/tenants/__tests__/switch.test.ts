@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { NextRequest } from 'next/server'
-import { POST } from '../route'
+import { NextRequest, NextResponse } from 'next/server'
+import { POST } from '../switch/route'
 
 // Mock dependencies
 const mockTenantAuthMiddleware = vi.fn()
@@ -146,10 +146,7 @@ describe('Tenant Switch API Route', () => {
 
     it('should reject switch without authentication', async () => {
       mockTenantAuthMiddleware.mockResolvedValue(
-        new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-        })
+        NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
       )
 
       const request = createMockRequest('http://localhost:3000/api/v1/tenants/switch', {
