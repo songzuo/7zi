@@ -187,7 +187,7 @@ export class HealthMonitor {
     const results = await this.healthChecker.checkAll()
 
     // Process results through failure detector
-    for (const instanceId of results.keys()) {
+    for (const [instanceId] of results) {
       const instanceHealth = this.healthChecker.getInstanceHealth(instanceId)
       if (instanceHealth) {
         const recentResults = this.healthChecker.getCheckHistory(instanceId, 10)

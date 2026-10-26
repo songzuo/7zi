@@ -270,7 +270,7 @@ export async function getCurrentVersion(): Promise<number> {
     `)
     const row = stmt.get() as { value: string } | undefined
     return row ? parseInt(row.value, 10) : 0
-  } catch (error) {
+  } catch {
     return 0
   }
 }
@@ -596,7 +596,7 @@ export async function getDatabaseHealth(): Promise<DatabaseHealthResult> {
   }
 }
 
-const dbModule = {
+const defaultExport = {
   migrate,
   rollback,
   optimizeDatabase,
@@ -605,6 +605,4 @@ const dbModule = {
   getDatabaseHealth,
   getCurrentVersion,
 }
-
-export default dbModule
-
+export default defaultExport

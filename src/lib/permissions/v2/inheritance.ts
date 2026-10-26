@@ -6,9 +6,12 @@
 import {
   EnhancedRoleDefinition,
   FineGrainedPermission,
-  PermissionPolicy,
-  RoleInheritance,
 } from './types'
+
+/**
+ * 继承模式
+ */
+export type InheritanceMode = 'extend' | 'restrict' | 'override'
 
 /**
  * 继承配置
@@ -39,12 +42,15 @@ export class InheritanceManager {
   private roleCache: Map<string, EnhancedRoleDefinition>
   private permissionCache: Map<string, Set<string>>
   private inheritanceGraph: Map<string, Set<string>>
+  /** 继承模式表: childRoleId -> (parentRoleId -> mode) */
+  private inheritanceModes: Map<string, Map<string, InheritanceMode>>
 
   constructor(config: Partial<InheritanceConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
     this.roleCache = new Map()
     this.permissionCache = new Map()
     this.inheritanceGraph = new Map()
+    this.inheritanceModes = new Map()
   }
 
   /**
@@ -53,7 +59,7 @@ export class InheritanceManager {
   addInheritance(
     childRoleId: string,
     parentRoleId: string,
-    mode: 'extend' | 'restrict' | 'override' = 'extend'
+    mode: InheritanceMode = 'extend'
   ): void {
     if (!this.inheritanceGraph.has(childRoleId)) {
       this.inheritanceGraph.set(childRoleId, new Set())
@@ -61,6 +67,12 @@ export class InheritanceManager {
 
     const parents = this.inheritanceGraph.get(childRoleId)!
     parents.add(parentRoleId)
+
+    // 记录该继承关系使用的模式
+    if (!this.inheritanceModes.has(childRoleId)) {
+      this.inheritanceModes.set(childRoleId, new Map())
+    }
+    this.inheritanceModes.get(childRoleId)!.set(parentRoleId, mode)
 
     // 检测循环继承
     if (this.config.detectCycles && this.detectCycle(childRoleId, parentRoleId)) {
@@ -79,6 +91,7 @@ export class InheritanceManager {
     if (parents) {
       parents.delete(parentRoleId)
     }
+    this.inheritanceModes.get(childRoleId)?.delete(parentRoleId)
 
     // 清除缓存
     this.clearCache()
@@ -154,6 +167,13 @@ export class InheritanceManager {
   }
 
   /**
+   * 获取指定继承关系的模式 (未记录时回退到默认模式)
+   */
+  private getInheritanceMode(childRoleId: string, parentRoleId: string): InheritanceMode {
+    return this.inheritanceModes.get(childRoleId)?.get(parentRoleId) ?? this.config.defaultMode
+  }
+
+  /**
    * 计算角色的所有权限 (包括继承)
    */
   async computeRolePermissions(
@@ -187,7 +207,7 @@ export class InheritanceManager {
 
     // 处理每个父角色
     for (const parentRole of parentRoles) {
-      const inheritanceMode = parentRole.mode || this.config.defaultMode
+      const inheritanceMode = this.getInheritanceMode(role.id, parentRole.id)
 
       // 递归获取父角色的权限
       const parentPermissions = await this.computeRolePermissions(
@@ -410,6 +430,7 @@ export class InheritanceManager {
     this.roleCache.clear()
     this.permissionCache.clear()
     this.inheritanceGraph.clear()
+    this.inheritanceModes.clear()
   }
 }
 

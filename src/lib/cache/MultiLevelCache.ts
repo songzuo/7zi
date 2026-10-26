@@ -98,7 +98,7 @@ class L1Cache implements ICache {
     
     // Check memory limit
     if (this.shouldEvict(size)) {
-      await this.evict()
+      await this.evict(size)
     }
     
     const entry: CacheEntry = {
@@ -177,7 +177,7 @@ class L1Cache implements ICache {
     return currentMemory + newSize > memoryLimit || this.entries.size >= this.config.maxSize
   }
   
-  private async evict(): Promise<void> {
+  private async evict(_requiredSize: number): Promise<void> {
     const keysToEvict = this.strategy.selectForEviction(this.entries, 10)
     
     for (const key of keysToEvict) {

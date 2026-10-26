@@ -361,7 +361,7 @@ export function getDatabase(): DatabaseConnection {
     try {
       const { withPerformanceLogging } = require('@/lib/middleware/db-performance')
       return withPerformanceLogging(baseConnection)
-    } catch (error) {
+    } catch {
       return baseConnection as unknown as DatabaseConnection
     }
   }
@@ -438,7 +438,7 @@ export function getDatabaseSize(): {
       sizeInBytes,
       sizeInMB: sizeInBytes / (1024 * 1024),
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }

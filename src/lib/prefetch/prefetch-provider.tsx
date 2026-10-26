@@ -6,8 +6,17 @@
 
 'use client'
 
-import React, { createContext, useContext, useEffect, useCallback, useRef, useMemo } from 'react'
-import { PredictivePrefetcher, globalPrefetcher, type UserContext } from './predictive-prefetcher'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react'
+import { PredictivePrefetcher, globalPrefetcher } from './predictive-prefetcher'
 import {
   ResourcePrefetcher,
   globalResourcePrefetcher,
@@ -15,6 +24,7 @@ import {
 } from './resource-prefetcher'
 import { UserBehaviorAnalyzer, globalBehaviorAnalyzer } from './user-behavior'
 import { RoutePrefetcher, globalRoutePrefetcher } from './route-prefetcher'
+import { createObservableStore } from './observable-store'
 
 export interface PrefetchProviderProps {
   children: React.ReactNode
@@ -99,26 +109,39 @@ export function PrefetchProvider({
   const behaviorAnalyzerRef = useRef<UserBehaviorAnalyzer>(globalBehaviorAnalyzer)
   const routePrefetcherRef = useRef<RoutePrefetcher>(globalRoutePrefetcher)
 
-  // 状态
-  const isInitializedRef = useRef(false)
-  const metricsRef = useRef<PrefetchMetrics>({
-    pagesVisited: 0,
-    resourcesPrefetched: 0,
-    cacheHits: 0,
-    cacheMisses: 0,
-    avgLoadTime: 0,
-    behaviorStats: null,
-  })
+  // 状态（使用可订阅外部存储 + useSyncExternalStore，避免在 render 阶段读取 ref）
+  const [initializedStore] = useState(() => createObservableStore(false))
+  const [metricsStore] = useState(() =>
+    createObservableStore<PrefetchMetrics>({
+      pagesVisited: 0,
+      resourcesPrefetched: 0,
+      cacheHits: 0,
+      cacheMisses: 0,
+      avgLoadTime: 0,
+      behaviorStats: null,
+    })
+  )
+  const isInitialized = useSyncExternalStore(
+    initializedStore.subscribe,
+    initializedStore.get,
+    initializedStore.get
+  )
+  const metrics = useSyncExternalStore(
+    metricsStore.subscribe,
+    metricsStore.get,
+    metricsStore.get
+  )
 
   // 加载时间记录
   const loadTimesRef = useRef<number[]>([])
   const currentPageRef = useRef<string>('')
-  const pageLoadTimeRef = useRef<number>(Date.now())
+  const pageLoadTimeRef = useRef<number>(0)
 
   // 初始化
   useEffect(() => {
-    if (isInitializedRef.current) return
-    isInitializedRef.current = true
+    if (initializedStore.get()) return
+    initializedStore.set(true)
+    pageLoadTimeRef.current = Date.now()
 
     // 初始化路由预加载
     if (enablePredictive) {
@@ -141,7 +164,7 @@ export function PrefetchProvider({
     if (debug) {
       console.log('[PrefetchProvider] Initialized')
     }
-  }, [enablePredictive, enableBehaviorAnalysis, debug])
+  }, [enablePredictive, enableBehaviorAnalysis, debug, initializedStore])
 
   // 路由变化监听
   useEffect(() => {
@@ -152,9 +175,6 @@ export function PrefetchProvider({
       const previousPath = currentPageRef.current
 
       if (previousPath && previousPath !== newPath) {
-        // 计算在上一页停留的时间
-        const timeSpent = Date.now() - pageLoadTimeRef.current
-
         // 记录导航
         behaviorAnalyzerRef.current.recordNavigation(previousPath, newPath)
 
@@ -224,7 +244,7 @@ export function PrefetchProvider({
       const stats = behaviorAnalyzerRef.current.getStats()
       const resourceStatus = resourcePrefetcherRef.current.getPrefetchStatus()
 
-      metricsRef.current = {
+      const nextMetrics: PrefetchMetrics = {
         pagesVisited: stats.totalVisits,
         resourcesPrefetched: resourceStatus.total,
         cacheHits: resourceStatus.loaded,
@@ -236,13 +256,15 @@ export function PrefetchProvider({
         behaviorStats: stats,
       }
 
+      metricsStore.set(nextMetrics)
+
       if (onPerformanceMetrics) {
-        onPerformanceMetrics(metricsRef.current)
+        onPerformanceMetrics(nextMetrics)
       }
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [onPerformanceMetrics])
+  }, [onPerformanceMetrics, metricsStore])
 
   // 页面卸载时结束会话
   useEffect(() => {
@@ -333,12 +355,21 @@ export function PrefetchProvider({
       prefetchResources,
       recordVisit,
       recordNavigation,
-      metrics: metricsRef.current,
-      isInitialized: isInitializedRef.current,
+      metrics,
+      isInitialized,
       getPredictions,
       getResourceHints,
     }),
-    [prefetch, prefetchResources, recordVisit, recordNavigation, getPredictions, getResourceHints]
+    [
+      prefetch,
+      prefetchResources,
+      recordVisit,
+      recordNavigation,
+      metrics,
+      isInitialized,
+      getPredictions,
+      getResourceHints,
+    ]
   )
 
   return <PrefetchContext.Provider value={contextValue}>{children}</PrefetchContext.Provider>

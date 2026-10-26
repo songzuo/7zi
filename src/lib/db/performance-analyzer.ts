@@ -321,23 +321,9 @@ async function detectRealIndexUsage(
     }
 
     return null
-  } catch (error) {
+  } catch {
     return null
   }
-}
-
-/**
- * 检测是否使用了索引（简化版本，用于向后兼容）
- */
-function detectIndexUsage(sql: string, rowCount: number): string | null {
-  // 简化版本，实际应该使用 EXPLAIN QUERY PLAN
-  if (sql.includes('WHERE') || sql.includes('ORDER BY') || sql.includes('JOIN')) {
-    if (rowCount < 100) {
-      return '可能使用索引（小表）'
-    }
-    return '需要检查执行计划'
-  }
-  return '未使用索引'
 }
 
 /**
@@ -375,19 +361,10 @@ function estimateTableSize(db: DatabaseConnection, tableName: string): number {
     const countStmt = db.prepare(`SELECT COUNT(*) as count FROM ${tableName}`)
     const { count } = countStmt.get() as { count: number }
 
-    // 获取数据库页面大小
-    const pageSize = db.pragma('page_size', { simple: true }) as number
-
-    // 获取表的页面数（估算）
-    const pageCountStmt = db.prepare(`
-      SELECT COUNT(*) as count FROM sqlite_master
-      WHERE type = 'table' AND name = ?
-    `)
-
     // 更精确的估算：每行平均 256 字节
     const avgRowSize = 256
     return Math.ceil(count * avgRowSize)
-  } catch (error) {
+  } catch {
     return 0
   }
 }
@@ -504,7 +481,7 @@ export async function findMissingIndexes(): Promise<
   return missingIndexes
 }
 
-const dbModule = {
+const defaultExport = {
   executeQueryWithMetrics,
   analyzeSlowQueries,
   analyzeTables,
@@ -512,6 +489,4 @@ const dbModule = {
   explainQueryPlan,
   findMissingIndexes,
 }
-
-export default dbModule
-
+export default defaultExport

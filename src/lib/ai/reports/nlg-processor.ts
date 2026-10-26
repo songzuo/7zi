@@ -22,7 +22,6 @@ import {
   ReportLanguage,
   ReportTemplateType,
   NLGProcessorConfig,
-  DataInsight,
   BreakdownData,
   TimeSeriesPoint,
 } from './types'
@@ -170,7 +169,7 @@ export class NLGProcessor {
     templateType: ReportTemplateType,
     data: AggregatedData,
     tone: ReportTone,
-    language: ReportLanguage
+    _language: ReportLanguage
   ): string {
     const metrics = data.metrics as Record<string, unknown>
 
@@ -295,7 +294,7 @@ export class NLGProcessor {
   private generateOverviewContent(
     data: AggregatedData,
     tone: ReportTone,
-    language: ReportLanguage
+    _language: ReportLanguage
   ): string {
     const metrics = data.metrics as Record<string, unknown>
     const lines: string[] = []

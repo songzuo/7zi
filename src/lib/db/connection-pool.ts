@@ -244,7 +244,7 @@ class ConnectionPoolManager {
     }
 
     // Release by db instance (original behavior)
-    for (const [id, connection] of this.connections.entries()) {
+    for (const connection of this.connections.values()) {
       if (connection.db === dbOrId) {
         connection.inUse = false
         connection.lastUsedAt = Date.now()

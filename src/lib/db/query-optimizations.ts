@@ -298,7 +298,7 @@ export async function paginate<T>(
       [...params, perPage, offset]
     ) as Array<T & { total_count: number }>
 
-    const items = result.map(({ total_count, ...item }) => item) as T[]
+    const items = result.map(({ total_count: _totalCount, ...item }) => item) as T[]
     const total = result[0]?.total_count || 0
 
     return {

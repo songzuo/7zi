@@ -414,7 +414,7 @@ export class BugDetector {
   /**
    * 检测未处理的异常
    */
-  private detectUnhandledExceptions(code: string, language: SupportedLanguage): BugDetection[] {
+  private detectUnhandledExceptions(code: string, _language: SupportedLanguage): BugDetection[] {
     const detections: BugDetection[] = []
 
     // 检测 try-catch 缺失的情况
@@ -447,7 +447,7 @@ export class BugDetector {
   /**
    * 检测资源泄漏
    */
-  private detectResourceLeaks(code: string, language: SupportedLanguage): BugDetection[] {
+  private detectResourceLeaks(code: string, _language: SupportedLanguage): BugDetection[] {
     const detections: BugDetection[] = []
 
     // 检测未关闭的资源
@@ -485,7 +485,7 @@ export class BugDetector {
   /**
    * 检测类型不匹配
    */
-  private detectTypeMismatches(code: string, language: SupportedLanguage): BugDetection[] {
+  private detectTypeMismatches(code: string, _language: SupportedLanguage): BugDetection[] {
     const detections: BugDetection[] = []
 
     // 检测字符串与数字比较

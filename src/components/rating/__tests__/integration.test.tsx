@@ -45,10 +45,16 @@ describe('Rating System Integration', () => {
     vi.clearAllMocks()
     ;(global.fetch as any).mockResolvedValue({
       ok: true,
+      // 组件读的是 res.data.meta.* —— 响应必须是 { success, data } 信封，
+      // 直接返回扁平对象的话 res.success 是 undefined，
+      // 组件走不到 setRatings，列表永远空。
       json: async () => ({
-        ratings: mockRatings,
-        meta: { total: 1, page: 1, per_page: 10, total_pages: 1 },
-        stats: mockStats,
+        success: true,
+        data: {
+          ratings: mockRatings,
+          meta: { total: 1, page: 1, per_page: 10, total_pages: 1 },
+          stats: mockStats,
+        },
       }),
     })
   })
@@ -135,7 +141,8 @@ describe('Rating System Integration', () => {
 
     ;(global.fetch as any).mockResolvedValue({
       ok: true,
-      json: async () => multiPageStats,
+      // 同上：必须是 { success, data } 信封
+      json: async () => ({ success: true, data: multiPageStats }),
     })
 
     render(<RatingList />)

@@ -3,7 +3,7 @@
  * 记录和追踪 AI 模型的使用成本
  */
 
-import { ModelConfig } from './routing/types'
+import fs from 'fs'
 
 /**
  * 成本记录
@@ -348,7 +348,6 @@ export class CostTracker {
     try {
       if (typeof window === 'undefined' && this.config.persistencePath) {
         // Node.js 环境
-        const fs = require('fs')
         fs.writeFileSync(
           this.config.persistencePath,
           JSON.stringify(this.records, null, 2)
@@ -366,7 +365,6 @@ export class CostTracker {
     try {
       if (typeof window === 'undefined' && this.config.persistencePath) {
         // Node.js 环境
-        const fs = require('fs')
         if (fs.existsSync(this.config.persistencePath)) {
           const data = fs.readFileSync(this.config.persistencePath, 'utf-8')
           this.records = JSON.parse(data)

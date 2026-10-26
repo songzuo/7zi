@@ -4,8 +4,6 @@
  */
 
 import {
-  ResourceType,
-  ActionType,
   ConditionOperator,
   PermissionCondition,
   PermissionConditionGroup,
@@ -83,7 +81,7 @@ export class PermissionEngine {
     this.metrics.checkCount++
 
     // 生成缓存键
-    const cacheKey = this.generateCacheKey(request)
+    const cacheKey = this.generateCacheKey(request, permissions)
 
     // 检查缓存
     if (this.config.enableCache) {
@@ -155,8 +153,11 @@ export class PermissionEngine {
         user.permissions.includes(p.id)
     )
 
+    console.log('DBG_DIRECT_CANDIDATES:', directPermissions.length, JSON.stringify(directPermissions.map(p=>p.id)))
     for (const perm of directPermissions) {
-      if (await this.matchesPermission(perm, request)) {
+      const m = await this.matchesPermission(perm, request)
+      console.log('DBG_MATCHES:', perm.id, m)
+      if (m) {
         return {
           allowed: true,
           source: 'direct',
@@ -311,6 +312,7 @@ export class PermissionEngine {
 
     // 获取字段值
     const fieldValue = this.getFieldValue(condition.field, user, resource)
+    console.log('DBG_COND:', condition.field, '=', JSON.stringify(fieldValue), 'op:', condition.operator, 'val:', JSON.stringify(condition.value))
 
     // 条件的**右值**也可能是一个字段引用（跨对象比较），例如
     //   { field: 'resource.ownerId', operator: EQUALS, value: 'user.userId' }
@@ -536,9 +538,29 @@ export class PermissionEngine {
   /**
    * 生成缓存键
    */
-  private generateCacheKey(request: PermissionCheckRequest): string {
+  private generateCacheKey(
+    request: PermissionCheckRequest,
+    permissions?: FineGrainedPermission[]
+  ): string {
     const { user, resource, action } = request
-    return `${user.userId}:${resource.resourceType}:${resource.resourceId}:${action}:${JSON.stringify(user.roles)}`
+    // 缓存键必须覆盖**所有会影响判定结果的输入**，否则会串味：
+    //  - permissions：同一请求下换一套权限集，判定结果可能相反
+    //    （原键不含权限集 → 上一轮 "deny" 会被这一轮直接命中）
+    //  - user.permissions / user.customPermissions：直接/继承/自定义三条匹配路径都依赖它
+    //  - resource.attributes：条件求值（如 resource.status === 'active'）读的就是它，
+    //    属性变了结果就变（原键不含属性 → 'active' 的 allowed 会被 'done' 复用）
+    // 少了任何一项都是「拿旧的权限判定结果回答新的问题」。
+    const permKey = (permissions ?? [])
+      .map(p => p.id)
+      .sort()
+      .join(',')
+    const userPermKey = [...(user.permissions ?? []), ...(user.customPermissions ?? [])]
+      .sort()
+      .join(',')
+    const attrKey = JSON.stringify(resource.attributes ?? {})
+    return `${user.userId}:${resource.resourceType}:${resource.resourceId}:${action}:${JSON.stringify(
+      user.roles
+    )}:${userPermKey}:${permKey}:${attrKey}`
   }
 
   /**

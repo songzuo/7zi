@@ -6,9 +6,9 @@
 
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { PredictivePrefetcher, globalPrefetcher } from '../predictive-prefetcher'
-import { PrefetchContext } from '../prefetch-provider'
+import { createObservableStore } from '../observable-store'
 
 export interface UsePrefetchOptions {
   /** 预加载触发条件 */
@@ -106,7 +106,6 @@ export function usePrefetch(path: string, options: UsePrefetchOptions = {}) {
   const {
     trigger = 'manual',
     delay = 0,
-    priority = 'medium',
     onComplete,
     prefetchData = true,
     prefetchResources = true,
@@ -115,6 +114,12 @@ export function usePrefetch(path: string, options: UsePrefetchOptions = {}) {
   const isPrefetchedRef = useRef(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const prefetcherRef = useRef<PredictivePrefetcher>(globalPrefetcher)
+  const [isPrefetchedStore] = useState(() => createObservableStore(false))
+  const isPrefetched = useSyncExternalStore(
+    isPrefetchedStore.subscribe,
+    isPrefetchedStore.get,
+    isPrefetchedStore.get
+  )
 
   // 执行预加载
   const prefetch = useCallback(async () => {
@@ -130,10 +135,11 @@ export function usePrefetch(path: string, options: UsePrefetchOptions = {}) {
 
     if (result?.success) {
       isPrefetchedRef.current = true
+      isPrefetchedStore.set(true)
     }
 
     return result
-  }, [path, prefetchData, prefetchResources, onComplete])
+  }, [path, prefetchData, prefetchResources, onComplete, isPrefetchedStore])
 
   // 立即预加载
   useEffect(() => {
@@ -218,7 +224,7 @@ export function usePrefetch(path: string, options: UsePrefetchOptions = {}) {
 
   return {
     prefetch,
-    isPrefetched: isPrefetchedRef.current,
+    isPrefetched,
   }
 }
 
@@ -228,11 +234,24 @@ export function usePrefetch(path: string, options: UsePrefetchOptions = {}) {
 export function useBatchPrefetch(paths: string[], options: UsePrefetchOptions = {}) {
   const prefetchedRef = useRef<Set<string>>(new Set())
   const isPrefetchingRef = useRef(false)
+  const [prefetchedStore] = useState(() => createObservableStore<ReadonlySet<string>>(new Set()))
+  const [isPrefetchingStore] = useState(() => createObservableStore(false))
+  const prefetchedPaths = useSyncExternalStore(
+    prefetchedStore.subscribe,
+    prefetchedStore.get,
+    prefetchedStore.get
+  )
+  const isPrefetching = useSyncExternalStore(
+    isPrefetchingStore.subscribe,
+    isPrefetchingStore.get,
+    isPrefetchingStore.get
+  )
 
   const prefetch = useCallback(async () => {
     if (isPrefetchingRef.current) return
 
     isPrefetchingRef.current = true
+    isPrefetchingStore.set(true)
 
     try {
       const results: PrefetchResult[] = []
@@ -251,19 +270,21 @@ export function useBatchPrefetch(paths: string[], options: UsePrefetchOptions = 
             results.push(result)
           }
           prefetchedRef.current.add(path)
+          prefetchedStore.set(new Set(prefetchedRef.current))
         }
       }
 
       return results
     } finally {
       isPrefetchingRef.current = false
+      isPrefetchingStore.set(false)
     }
-  }, [paths, options])
+  }, [paths, options, isPrefetchingStore, prefetchedStore])
 
   return {
     prefetch,
-    isPrefetching: isPrefetchingRef.current,
-    prefetchedPaths: Array.from(prefetchedRef.current),
+    isPrefetching,
+    prefetchedPaths: Array.from(prefetchedPaths),
   }
 }
 
@@ -284,7 +305,7 @@ async function prefetchRouteData(path: string): Promise<void> {
     try {
       // 使用 fetch 触发预加载（不消费数据）
       await fetch(endpoint, { method: 'HEAD' })
-    } catch (error) {
+    } catch (_error) {
       // 忽略预加载错误
     }
   }

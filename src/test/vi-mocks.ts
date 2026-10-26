@@ -245,8 +245,8 @@ dbTables.set('users', [])
 dbTables.set('user_tokens', [])
 dbTables.set('password_reset_tokens', [])
 
-
-// RBAC 默认角色种子（对齐 src/lib/permissions/types.ts 的 Role 枚举）。
+// RBAC 默认角色种子（对齐 src/lib/permissions/types.ts 的 Role 枚举与
+// src/lib/permissions/rbac.ts 的 DEFAULT_ROLE_DEFINITIONS）。
 // 真实环境由 src/lib/permissions/seed.ts 的 seedDefaultRolesAndPermissions() 写入；
 // mock db 不跑迁移/种子，所以这里补上，否则 getAllRoles() 恒返回空数组。
 // 表结构对齐 src/lib/permissions/repository.ts 的 initializeRbacTables()。
@@ -270,6 +270,7 @@ seedRbacRoles()
 // 直接抛 'Plan not found'，配额检查也无从谈起。
 // 注意 limits 的键名是 snake_case —— 与真实 seed 保持一致，
 // 由 billing/service.ts 的 normalizeLimits() 负责归一到 camelCase。
+
 dbTables.set('plans', [
   {
     id: 'plan_starter',

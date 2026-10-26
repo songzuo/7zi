@@ -9,7 +9,7 @@
  * 4. 支持部分失败回滚策略
  */
 
-import { getDatabaseAsync, DatabaseConnection } from './connection'
+import { getDatabaseAsync } from './connection'
 import { logger } from '../logger'
 
 export interface BatchInsertOptions {
@@ -137,7 +137,7 @@ export async function batchInsert<T extends Record<string, unknown>>(
       try {
         const batchResults = await db.batch(statements)
 
-        batchResults.forEach((batchResult, i) => {
+        batchResults.forEach((batchResult) => {
           if (batchResult.changes > 0) {
             result.success++
           } else {
@@ -246,7 +246,7 @@ export async function batchUpdate<T extends Record<string, unknown>>(
   const startTime = Date.now()
   const db = await getDatabaseAsync()
 
-  const { batchSize = 500, useTransaction = true, continueOnError = false, onProgress } = options
+  const { batchSize = 500, continueOnError = false, onProgress } = options
 
   const result: BatchResult = {
     success: 0,
@@ -268,7 +268,7 @@ export async function batchUpdate<T extends Record<string, unknown>>(
   // 构建批量更新 SQL (使用 CASE WHEN)
   const buildUpdateSQL = (batchUpdates: T[]) => {
     const whenClauses = updateColumns.map(col => {
-      const cases = batchUpdates.map(u => `WHEN ? THEN ?`).join(' ')
+      const cases = batchUpdates.map(() => `WHEN ? THEN ?`).join(' ')
       return `${col} = CASE ${idColumn} ${cases} END`
     })
 
@@ -542,7 +542,7 @@ export function analyzeBatchPerformance(
   }
 }
 
-const dbModule = {
+const defaultExport = {
   batchInsert,
   batchUpdate,
   batchDelete,
@@ -550,6 +550,4 @@ const dbModule = {
   calculateOptimalBatchSize,
   analyzeBatchPerformance,
 }
-
-export default dbModule
-
+export default defaultExport

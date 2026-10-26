@@ -12,9 +12,6 @@ function getAuthHeader(userId: string): HeadersInit {
 }
 
 describe('/api/webhooks - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   beforeEach(() => {
     mockData.resetUsers()
@@ -24,9 +21,6 @@ describe('/api/webhooks - Integration Tests', () => {
     server.resetHandlers()
   })
 
-  afterAll(() => {
-    server.close()
-  })
 
   describe('POST /api/webhooks - Create Webhook', () => {
     it('should create webhook successfully with valid data', async () => {

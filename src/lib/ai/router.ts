@@ -309,7 +309,7 @@ export class ModelRouter {
    */
   private generateFallbackChain(
     primaryModelId: string,
-    request: RouteRequest
+    _request: RouteRequest
   ): AIModel[] {
     const fallbacks: AIModel[] = []
     const attempted = new Set<string>([primaryModelId])

@@ -4,7 +4,7 @@
  * 提供查询执行和批量操作的辅助函数
  */
 
-import { QueryBuilder, BatchResult, BuiltQuery } from './query-builder'
+import { QueryBuilder, BatchResult } from './query-builder'
 import { PreparedStatementCache } from './query-cache'
 
 /**

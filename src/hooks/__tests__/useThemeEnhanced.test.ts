@@ -6,10 +6,16 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { Theme } from '@/contexts/SettingsContext'
+import type { Theme } from '@/stores/preferencesStore'
 import { useThemeEnhanced, useThemeSimple } from '../useThemeEnhanced'
 
-// Mock SettingsContext
+// Mock the preferences store.
+//
+// 这个 hook 原来用的是 `@/contexts/SettingsContext` 的 useSettings()，
+// 后来被迁到了 `@/stores/preferencesStore` 的 useTheme() —— 而
+// src/contexts/SettingsContext 在根级 src/ 下**已经不存在了**。
+// 测试还在 mock 那个不存在的模块，于是 mock 完全不生效：
+// hook 拿到的是 store 的真实主题（默认 light），所有断言都失真。
 const mockSetTheme = vi.fn()
 const mockSettings = {
   theme: 'system' as Theme,
@@ -17,10 +23,27 @@ const mockSettings = {
   notifications: true,
 }
 
-vi.mock('@/contexts/SettingsContext', () => ({
-  useSettings: () => ({
-    settings: mockSettings,
+vi.mock('@/stores/preferencesStore', () => ({
+  useTheme: () => ({
+    theme: mockSettings.theme,
     setTheme: mockSetTheme,
+    // 与 preferencesStore 里的 toggleTheme 语义一致：
+    // light <-> dark；system 时按当前系统偏好决定往哪边切。
+    toggleTheme: () => {
+      const current = mockSettings.theme
+      if (current === 'light') {
+        mockSetTheme('dark')
+      } else if (current === 'dark') {
+        mockSetTheme('light')
+      } else {
+        const systemDark =
+          typeof window !== 'undefined' &&
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+        mockSetTheme(systemDark ? 'light' : 'dark')
+      }
+    },
+    isDark: false,
   }),
 }))
 
@@ -218,20 +241,24 @@ describe('useThemeEnhanced', () => {
     it('should cycle through all themes', () => {
       mockSettings.theme = 'light'
 
-      const { result } = renderHook(() => useThemeEnhanced())
+      const { result, rerender } = renderHook(() => useThemeEnhanced())
 
       act(() => {
         result.current.cycleTheme()
       })
       expect(mockSetTheme).toHaveBeenCalledWith('dark')
 
+      // 改了 mock 的 theme 之后必须 rerender —— hook 的 theme 是渲染时读进去的，
+      // 不重渲染的话 hook 里拿到的还是上一次的 'light'，cycleTheme 会又算出 'dark'。
       mockSettings.theme = 'dark'
+      rerender()
       act(() => {
         result.current.cycleTheme()
       })
       expect(mockSetTheme).toHaveBeenCalledWith('system')
 
       mockSettings.theme = 'system'
+      rerender()
       act(() => {
         result.current.cycleTheme()
       })
@@ -338,18 +365,27 @@ describe('useThemeEnhanced', () => {
     })
 
     it('should clean up media query listener on unmount', () => {
-      const mockMatchMedia = vi.fn(() => ({
+      // 关键：必须复用**同一个** MediaQueryList 对象。
+      // 原来写的是 `expect(mockMatchMedia().removeEventListener)` ——
+      // 再调一次 mockMatchMedia() 会返回**新对象**、全新的 vi.fn()，
+      // 断言检查的根本不是 hook 实际用过的那个实例。
+      const removeEventListener = vi.fn()
+      const addEventListener = vi.fn()
+      const mediaQueryList = {
         matches: false,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      }))
+        addEventListener,
+        removeEventListener,
+      }
+      const mockMatchMedia = vi.fn(() => mediaQueryList)
       window.matchMedia = mockMatchMedia
 
       const { unmount } = renderHook(() => useThemeEnhanced())
 
+      expect(addEventListener).toHaveBeenCalled()
+
       unmount()
 
-      expect(mockMatchMedia().removeEventListener).toHaveBeenCalled()
+      expect(removeEventListener).toHaveBeenCalled()
     })
   })
 

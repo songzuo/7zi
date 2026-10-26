@@ -7,8 +7,6 @@ import { getDatabaseAsync } from '../../db'
 import {
   EnhancedRoleDefinition,
   FineGrainedPermission,
-  PermissionPolicy,
-  PermissionCheckContext,
   PermissionChangeType,
   ResourceType,
   ActionType,
@@ -396,9 +394,7 @@ export async function getEnhancedRoleWithComputedPermissions(
  * 创建增强角色
  */
 export async function createEnhancedRole(
-  role: Omit<EnhancedRoleDefinition, 'createdAt' | 'updatedAt' | 'computedPermissions' | 'id'> & {
-    id?: string
-  },
+  role: Omit<EnhancedRoleDefinition, 'id' | 'createdAt' | 'updatedAt' | 'computedPermissions'> & { id?: string },
   operatorId: string,
   operatorRole: string
 ): Promise<EnhancedRoleDefinition> {

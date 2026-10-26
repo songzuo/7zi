@@ -7,7 +7,6 @@
 'use client'
 
 import { useCallback, useEffect, useMemo } from 'react'
-import type { ResourceConfig } from '../resource-prefetcher'
 
 export interface ResourceHintConfig {
   /** 资源 URL */

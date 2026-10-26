@@ -441,7 +441,7 @@ export async function getUserTenantContexts(
 /**
  * 默认导出
  */
-const tenantAuthMiddlewareExports = {
+const tenantAuthModule = {
   generateTenantToken,
   verifyTenantToken,
   tenantAuthMiddleware,
@@ -453,4 +453,4 @@ const tenantAuthMiddlewareExports = {
   getUserTenantContexts,
 }
 
-export default tenantAuthMiddlewareExports
+export default tenantAuthModule

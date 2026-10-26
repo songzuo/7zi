@@ -26,7 +26,7 @@ export const FeedbackManagementPanel: React.FC = () => {
     sort_by: 'created_at',
     sort_order: 'desc',
   })
-  const [_adminNotes, _setAdminNotes] = useState('')
+  const [_adminNotes, setAdminNotes] = useState('')
 
   // Fetch feedbacks
   const fetchFeedbacks = useCallback(async () => {

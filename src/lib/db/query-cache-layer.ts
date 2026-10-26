@@ -13,7 +13,7 @@
  * - Automatic expiration
  */
 
-import { getRedisClient, isRedisAvailable } from '@/lib/redis/client'
+import { getRedisClient } from '@/lib/redis/client'
 import { logger } from '@/lib/logger'
 
 // ============================================
@@ -818,11 +818,10 @@ export function CachedQuery(keyPrefix: string, ttl?: number) {
 // Export
 // ============================================
 
-const dbModule = {
+const defaultExport = {
   getQueryCache,
   QueryCacheManager,
   QueryCacheKeys,
   CachedQuery,
 }
-
-export default dbModule
+export default defaultExport

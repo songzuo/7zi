@@ -93,7 +93,7 @@ export class ReportDataAggregator {
    * 执行数据聚合
    */
   private async performAggregation(request: DataAggregationRequest): Promise<AggregatedData> {
-    const { templateType, timeRange, customRange, filters, groupBy, aggregations } = request
+    const { templateType, timeRange, customRange, filters } = request
 
     // 根据模板类型聚合数据
     switch (templateType) {
@@ -130,7 +130,7 @@ export class ReportDataAggregator {
   private async aggregateProjectProgress(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    filters?: Record<string, unknown>
+    _filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 
@@ -190,7 +190,7 @@ export class ReportDataAggregator {
   private async aggregateTeamPerformance(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    filters?: Record<string, unknown>
+    _filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 
@@ -247,7 +247,7 @@ export class ReportDataAggregator {
   private async aggregateTaskAnalysis(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    filters?: Record<string, unknown>
+    _filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 
@@ -307,7 +307,7 @@ export class ReportDataAggregator {
   private async aggregateAgentActivity(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    filters?: Record<string, unknown>
+    _filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 
@@ -364,7 +364,7 @@ export class ReportDataAggregator {
   private async aggregateRevenueAnalysis(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    filters?: Record<string, unknown>
+    _filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 
@@ -421,7 +421,7 @@ export class ReportDataAggregator {
   private async aggregateUserEngagement(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    filters?: Record<string, unknown>
+    _filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 
@@ -482,7 +482,7 @@ export class ReportDataAggregator {
   private async aggregateCustom(
     timeRange: TimeRange,
     customRange?: CustomTimeRange,
-    filters?: Record<string, unknown>
+    _filters?: Record<string, unknown>
   ): Promise<AggregatedData> {
     const { start, end } = this.parseTimeRange(timeRange, customRange)
 

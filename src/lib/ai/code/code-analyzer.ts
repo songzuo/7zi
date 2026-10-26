@@ -225,7 +225,7 @@ export class CodeAnalyzer {
   /**
    * 计算圈复杂度
    */
-  private calculateCyclomaticComplexity(code: string, language: SupportedLanguage): number {
+  private calculateCyclomaticComplexity(code: string, _language: SupportedLanguage): number {
     let complexity = 1 // 基础复杂度
 
     // 决策点
@@ -255,7 +255,7 @@ export class CodeAnalyzer {
   /**
    * 计算认知复杂度
    */
-  private calculateCognitiveComplexity(code: string, language: SupportedLanguage): number {
+  private calculateCognitiveComplexity(code: string, _language: SupportedLanguage): number {
     let complexity = 0
     let nestingLevel = 0
     const lines = code.split('\n')

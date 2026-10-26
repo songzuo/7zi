@@ -105,9 +105,6 @@ async function extractUserContext(request: NextRequest): Promise<{
     }
 
     const { user } = authResult
-    // 租户信息并非所有用户都有，需做运行时判定
-    const tenantId =
-      'tenantId' in user && typeof user.tenantId === 'string' ? user.tenantId : undefined
 
     // 获取完整的权限上下文
     const permissionContext = await getUserPermissionContextV2(user.id)
@@ -121,7 +118,8 @@ async function extractUserContext(request: NextRequest): Promise<{
       roles: user.roles || [],
       permissions: user.permissions || [],
       customPermissions: user.customPermissions,
-      tenantId,
+      // 用户对象可能携带租户信息（运行时可选字段）
+      tenantId: (user as typeof user & { tenantId?: string }).tenantId,
       teamIds: permissionContext.teamIds,
     }
   } catch (error) {

@@ -6,18 +6,11 @@
 
 'use client'
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useCallback,
-  useState,
-  useMemo,
-} from 'react'
+import React, {createContext, useContext, useEffect, useCallback, useState, useMemo} from 'react'
 import { useEnhancedWebSocket, ConnectionState } from './useEnhancedWebSocket'
 import { useRealtimeNotificationStore, createNotificationFromMessage } from './store'
 import { useNotificationPreferences, useNotificationBatching } from './notification-hooks'
-import type {
+import {
   WebSocketMessage,
   RealtimeNotification,
   MemberOnlinePayload,
@@ -106,6 +99,7 @@ export function NotificationProvider({
   token,
   channels = [],
   autoConnect = true,
+  enableBrowserNotifications = true,
   requestPermissionOnMount = false,
   enableSound = false,
   enableBatching = true,
@@ -138,7 +132,7 @@ export function NotificationProvider({
   } = useNotificationPreferences()
 
   // 新功能：批量通知
-  const { addToBatch } = useNotificationBatching()
+  const { addToBatch, flushBatch, batchSize } = useNotificationBatching()
 
   // 浏览器通知权限
   const [browserPermission, setBrowserPermission] = useState<

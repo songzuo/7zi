@@ -99,7 +99,7 @@ export function useDataFetch() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   
-  const fetchData = useCallback(async (parsedQuery: ParsedQuery, _dataSource: string) => {
+  const fetchData = useCallback(async (parsedQuery: ParsedQuery, dataSource: string) => {
     setLoading(true)
     setError(null)
     
@@ -197,7 +197,7 @@ function generateChartConfig(
   parsedQuery: ParsedQuery,
   title: string
 ): ChartConfig {
-  const { intent, dimensions: _dimensions, metrics: _metrics } = parsedQuery
+  const { intent, dimensions: _dimensions, metrics } = parsedQuery
   
   // 根据意图推荐图表类型
   let chartType: ChartConfig['type'] = 'bar'

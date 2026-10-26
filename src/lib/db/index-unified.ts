@@ -24,13 +24,11 @@ import {
   getDatabaseHealth as runGetDatabaseHealth,
 } from './migrations'
 import { logger } from '../logger'
-import { UnifiedAppError, isUnifiedError } from '../errors/unified-error'
-import { ErrorCodes, UnifiedErrorType } from '../errors/unified-types'
+import { UnifiedAppError } from '../errors/unified-error'
 
 // Connection pool for better performance
 let dbInstance: Database.Database | null = null
 let connectionCount = 0
-const MAX_CONNECTIONS = 10
 
 export interface DatabaseResult {
   changes: number
@@ -360,7 +358,7 @@ export function getDatabase(): DatabaseConnection {
     try {
       const { withPerformanceLogging } = require('@/lib/middleware/db-performance')
       return withPerformanceLogging(baseConnection)
-    } catch (error) {
+    } catch {
       // Performance logging module not available, return base connection
       return baseConnection as unknown as DatabaseConnection
     }
@@ -522,7 +520,7 @@ export * from './batch-operations'
 // Export query optimizations
 export * from './query-optimizations'
 
-const dbModule = {
+const defaultExport = {
   getDatabase,
   getDatabaseAsync,
   closeDatabase,
@@ -534,6 +532,4 @@ const dbModule = {
   optimizeDatabase,
   getDatabaseHealth,
 }
-
-export default dbModule
-
+export default defaultExport

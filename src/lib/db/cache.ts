@@ -379,7 +379,7 @@ class DatabaseCache {
         size += keys.reduce((sum, key) => {
           return sum + key.length * 2 + this.estimateSize((value as Record<string, unknown>)[key])
         }, 0)
-      } catch (error) {
+      } catch {
         // 如果无法遍历，使用保守估算
         size = 1024
       }
@@ -818,7 +818,7 @@ export function cached<T extends (...args: unknown[]) => Promise<unknown>>(
 export function cachedWithInvalidation<T extends (...args: unknown[]) => Promise<unknown>>(
   keyPrefix: string,
   ttl: number,
-  invalidationKeys: string[]
+  _invalidationKeys: string[]
 ) {
   return function (
     target: unknown,
@@ -1012,7 +1012,7 @@ export async function warmupCache(): Promise<void> {
   }
 }
 
-const dbModule = {
+const defaultExport = {
   cached,
   cachedWithInvalidation,
   cachedQuery,
@@ -1027,6 +1027,4 @@ const dbModule = {
   memoizedQuery,
   MemoizationCache,
 }
-
-export default dbModule
-
+export default defaultExport

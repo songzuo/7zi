@@ -339,7 +339,7 @@ export class PredictivePrefetcher {
     try {
       // 在浏览器环境中，使用 Next.js 的 router.prefetch
       if (typeof window !== 'undefined' && 'router' in window) {
-        // @ts-ignore - Next.js router
+        // @ts-expect-error - Next.js router 未挂载到 window 类型上
         await window.router.prefetch(path)
       }
 
@@ -387,7 +387,7 @@ export class PredictivePrefetcher {
           link.href = resource
           document.head.appendChild(link)
         }
-      } catch (error) {
+      } catch (_error) {
         // 忽略预加载错误
       }
     }

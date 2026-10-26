@@ -657,7 +657,7 @@ export class QueryBuilder {
       const subqueryParts: string[] = []
       for (const subquery of subqueries) {
         if (subquery.query instanceof QueryBuilder) {
-          const { sql: subSql, params: subParams } = subquery.query.build()
+          const { sql: subSql } = subquery.query.build()
           subqueryParts.push(`(${subSql}) AS ${subquery.alias}`)
         } else {
           subqueryParts.push(`(${subquery.query}) AS ${subquery.alias}`)

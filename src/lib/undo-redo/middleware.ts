@@ -103,7 +103,6 @@ function stripDerived(state: unknown): Record<string, unknown> {
  */
 function extractAction(args: unknown[]): unknown {
   const first = args[0]
-  if (typeof first === 'function') return first
   if (!first || typeof first !== 'object') return undefined
   const partial = first as Record<string, unknown>
   return 'type' in partial ? partial : undefined
@@ -348,23 +347,19 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
       //   set(partial)              —— partial 里可能带 { type } 作为动作标记
       //   set(updaterFn)            —— 函数式更新，没有动作信息
       // 只在能拿到动作标记时做过滤；函数式更新一律记录（保持既有行为）。
-      //
-      // shouldRecordAction 对**每一次** set 都要被调用（调用方靠它统计/记录），
-      // 传进去的 action 是这次变更的载荷 —— 函数式更新传 updater 本身。
       const action = extractAction(args)
-      const actionType =
-        action !== undefined ? fullConfig.getActionType(action) : undefined
-
-      if (actionType !== undefined && fullConfig.excludeActionTypes.includes(actionType)) {
-        // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
-        set(...args)
-        return
-      }
-
-      if (!fullConfig.shouldRecordAction(action, currentState as never)) {
-        // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
-        set(...args)
-        return
+      if (action !== undefined) {
+        const actionType = fullConfig.getActionType(action)
+        if (fullConfig.excludeActionTypes.includes(actionType)) {
+          // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
+          set(...args)
+          return
+        }
+        if (!fullConfig.shouldRecordAction(action, currentState as never)) {
+          // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
+          set(...args)
+          return
+        }
       }
 
       // Skip if we're in the middle of undo/redo

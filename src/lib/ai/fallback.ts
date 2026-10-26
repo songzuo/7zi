@@ -225,7 +225,7 @@ export class FallbackManager {
   /**
    * 记录模型失败
    */
-  recordFailure(modelId: string, error?: Error): void {
+  recordFailure(modelId: string, _error?: Error): void {
     const breaker = this.getCircuitBreaker(modelId)
     breaker.recordFailure()
 
@@ -279,7 +279,7 @@ export class FallbackManager {
   async executeWithFallback<T>(
     request: RouteRequest,
     executor: (model: AIModel) => Promise<T>,
-    primaryModelId: string
+    _primaryModelId: string
   ): Promise<{ result: T; model: AIModel; retries: number }> {
     const attemptedModels = new Set<string>()
     let retries = 0

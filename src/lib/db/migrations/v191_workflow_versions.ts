@@ -209,7 +209,5 @@ export async function verify(): Promise<{
   }
 }
 
-const migration = { up, down, verify }
-
-export default migration
-
+const defaultExport = { up, down, verify }
+export default defaultExport

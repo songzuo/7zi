@@ -12,16 +12,6 @@ import {
 import { getDatabaseAsync, type DatabaseConnection } from '../../db'
 
 /**
- * 底层 SQLite 连接的扩展类型：better-sqlite3 的 `transaction()` 辅助方法
- * (DatabaseConnection 接口未声明，但运行时由 better-sqlite3 提供)
- */
-type TransactionCapableConnection = DatabaseConnection & {
-  transaction: <TArgs extends unknown[]>(
-    fn: (...args: TArgs) => void
-  ) => (...args: TArgs) => void
-}
-
-/**
  * 审计日志配置
  */
 interface AuditConfig {
@@ -234,7 +224,7 @@ export class AuditLogManager {
    * 批量写入日志
    */
   private async writeLogs(entries: AuditLogEntry[]): Promise<void> {
-    const db = (await getDatabaseAsync()) as TransactionCapableConnection
+    const db = await getDatabaseAsync()
     await this.initializeAuditTable(db)
 
     const stmt = db.prepare(`
@@ -245,9 +235,10 @@ export class AuditLogManager {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `)
 
-    const transaction = db.transaction((logs: AuditLogEntry[]) => {
+    db.beginTransaction()
+    try {
       const now = new Date().toISOString()
-      for (const entry of logs) {
+      for (const entry of entries) {
         const id = `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         stmt.run(
           id,
@@ -268,9 +259,11 @@ export class AuditLogManager {
           now
         )
       }
-    })
-
-    transaction(entries)
+      db.commit()
+    } catch (error) {
+      db.rollback()
+      throw error
+    }
   }
 
   /**

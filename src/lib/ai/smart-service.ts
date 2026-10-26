@@ -3,7 +3,7 @@
  * 整合路由引擎、Provider 和成本追踪
  */
 
-import { BaseProvider, AIResponse, AIChunk } from './providers/BaseProvider'
+import { AIResponse } from './providers/BaseProvider'
 import { ProviderFactory } from './providers/index'
 import { CostTracker, CostRecord, CostStats } from './cost-tracker'
 import {
@@ -90,8 +90,8 @@ export class SmartRoutingAIService {
     // 1. 获取路由决策
     const decision = this.router.route(request)
 
-    // 2. 创建 Provider
-    const provider = ProviderFactory.create(decision.selectedModel)
+    // 2. 创建 Provider（实例化并缓存 provider，模型 provider 非法时抛错）
+    ProviderFactory.create(decision.selectedModel)
 
     // 3. 检查预算
     if (this.config.enableCostTracking) {

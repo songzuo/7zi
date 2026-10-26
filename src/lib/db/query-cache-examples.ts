@@ -279,7 +279,7 @@ async function example9_errorHandling() {
   const cache = getQueryCache()
 
   try {
-    const result = await cache.getOrSet(
+    await cache.getOrSet(
       'test:key',
       async () => {
         // This might throw an error

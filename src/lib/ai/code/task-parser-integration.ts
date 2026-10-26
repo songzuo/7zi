@@ -43,7 +43,7 @@ export class IntelligentTaskParser {
    * 解析任务（增强版 - 带代码生成）
    * Note: 需要 TaskParser 集成时，取消上方注释的导入
    */
-  async parseWithCodeGeneration(input: string): Promise<{
+  async parseWithCodeGeneration(_input: string): Promise<{
     task: TaskDefinition
     codeSuggestions: CodeSuggestion[]
     analysis: CodeAnalysisSummary | null
@@ -61,8 +61,6 @@ export class IntelligentTaskParser {
     let analysis: CodeAnalysisSummary | null = null
     
     if (task.nodes && task.nodes.length > 0) {
-      const language: SupportedLanguage = 'typescript'
-      
       // 生成示例代码并分析
       const template = this.getCodeTemplate('automation')
       if (template) {
@@ -80,7 +78,7 @@ export class IntelligentTaskParser {
   /**
    * 生成代码建议
    */
-  private async generateCodeSuggestions(task: TaskDefinition): Promise<CodeSuggestion[]> {
+  private async generateCodeSuggestions(_task: TaskDefinition): Promise<CodeSuggestion[]> {
     const suggestions: CodeSuggestion[] = []
 
     // 根据意图生成代码建议
@@ -92,7 +90,7 @@ export class IntelligentTaskParser {
   /**
    * 获取代码模板
    */
-  private getCodeTemplate(intent: string): { code: string; language: SupportedLanguage; description: string } | null {
+  private getCodeTemplate(_intent: string): { code: string; language: SupportedLanguage; description: string } | null {
     return {
       code: '// Code template for automation',
       language: 'typescript',
@@ -122,18 +120,6 @@ export class IntelligentTaskParser {
     }))
     return this.codeEnhancer.suggestFixes(code, formattedIssues, language)
   }
-}
-
-/**
- * 审查问题（简化版）
- */
-interface CodeReviewIssue {
-  type: 'error' | 'warning' | 'info'
-  severity: 'critical' | 'high' | 'medium' | 'low'
-  message: string
-  location?: { start: { line: number; column: number }; end: { line: number; column: number } }
-  ruleId?: string
-  suggestion?: string
 }
 
 /**
@@ -181,55 +167,6 @@ interface BugDetection {
 export const intelligentTaskParser = new IntelligentTaskParser()
 
 /**
- * HTTP 响应
- */
-interface HttpResponse {
-  status: number
-  body: unknown
-}
-
-/**
- * Agent 配置
- */
-interface AgentConfig {
-  agentId: string
-  prompt: string
-}
-
-/**
- * Condition 配置
- */
-interface ConditionConfig {
-  expression: string
-  trueLabel?: string
-  falseLabel?: string
-}
-
-/**
- * Wait 配置
- */
-interface WaitConfig {
-  duration: number
-  unit?: 'seconds' | 'minutes' | 'hours'
-}
-
-/**
- * HTTP 配置
- */
-interface HttpConfig {
-  method?: string
-  url: string
-  headers?: Record<string, string>
-}
-
-/**
- * Parallel 配置
- */
-interface ParallelConfig {
-  branches: string[]
-}
-
-/**
  * 工作流节点代码生成器
  * 用于在设计工作流时自动生成节点代码
  */
@@ -246,7 +183,7 @@ export class WorkflowCodeGenerator {
   async generateNodeCode(
     nodeType: string,
     config: Record<string, unknown>,
-    language: SupportedLanguage = 'typescript'
+    _language: SupportedLanguage = 'typescript'
   ): Promise<string> {
     // 根据节点类型选择代码模板
     const templates = this.getNodeTemplates()

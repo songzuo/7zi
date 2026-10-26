@@ -10,7 +10,6 @@
  * - Alert system for degraded performance
  */
 
-import { getDatabaseAsync } from './index'
 import { logger } from '../logger'
 
 export interface SlowQueryLog {

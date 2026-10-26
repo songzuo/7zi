@@ -13,7 +13,7 @@ export { DeepSeekProvider } from './DeepSeekProvider'
 export { ZhipuProvider } from './ZhipuProvider'
 export { SiliconFlowProvider } from './SiliconFlowProvider'
 
-import { ModelConfig, ModelCapability } from '../routing/types'
+import { ModelConfig } from '../routing/types'
 import { BaseProvider, ProviderConfig } from './BaseProvider'
 import { OpenAIProvider } from './OpenAIProvider'
 import { AnthropicProvider } from './AnthropicProvider'

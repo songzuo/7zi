@@ -18,7 +18,6 @@ import {
   ReportLanguage,
   ReportTone,
   ReportTemplateVariable,
-  ReportSection,
   TemplateEngineConfig,
 } from './types'
 

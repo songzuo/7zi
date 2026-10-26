@@ -381,7 +381,6 @@ export class CodeCompleter {
     const lines = code.split('\n')
     const currentLine = lines[position.line - 1] || ''
     const beforeCursor = currentLine.substring(0, position.column - 1)
-    const afterCursor = currentLine.substring(position.column - 1)
 
     // 获取上下文
     const context = await this.getContext(code, position, language)
@@ -413,15 +412,6 @@ export class CodeCompleter {
    * 获取上下文
    */
   private async getContext(code: string, position: CodePosition, language: SupportedLanguage): Promise<CodeContext> {
-    const lines = code.split('\n')
-    const currentLineIndex = position.line - 1
-
-    // 获取当前行
-    const currentLine = lines[currentLineIndex] || ''
-
-    // 获取前几行（上下文）
-    const contextLines = lines.slice(Math.max(0, currentLineIndex - 5), currentLineIndex + 1)
-
     // 分析代码
     const analysis = await this.analyzer.analyze(code, language)
 
@@ -563,7 +553,7 @@ export class CodeCompleter {
   private generatePatternSuggestions(
     match: RegExpMatchArray,
     pattern: RegExp,
-    language: SupportedLanguage
+    _language: SupportedLanguage
   ): CompletionSuggestion[] {
     const suggestions: CompletionSuggestion[] = []
 
@@ -731,7 +721,7 @@ export class CodeCompleter {
   /**
    * 排序建议
    */
-  private sortSuggestions(suggestions: CompletionSuggestion[], context: CodeContext): CompletionSuggestion[] {
+  private sortSuggestions(suggestions: CompletionSuggestion[], _context: CodeContext): CompletionSuggestion[] {
     return suggestions.sort((a, b) => {
       // 优先级排序
       if (a.priority !== b.priority) {

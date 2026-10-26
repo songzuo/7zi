@@ -137,7 +137,12 @@ export const usePreferencesStore = create<PreferencesState>()(
         // 初始状态
         settings: defaultSettings,
         isLoaded: false,
-        isDark: false,
+        // 初始值按当前主题推导，而不是硬编码 false。
+        //
+        // 硬编码 false 的话，theme='system' 且系统偏好为暗色时，
+        // store 一开始就报「不是暗色」—— 直到某次 setTheme 才会纠正。
+        // isDark 在语义上就是「当前主题解析出来的明暗」，应当始终自洽。
+        isDark: computeDarkMode(defaultSettings.theme),
 
         // 设置主题
         setTheme: theme => {
@@ -253,7 +258,10 @@ export const useTheme = () => {
       theme: state.settings.theme,
       setTheme: state.setTheme,
       toggleTheme: state.toggleTheme,
-      isDark: state.isDark,
+      // 实时按当前 theme 推导，而不是读 state.isDark 快照。
+      // 快照会过期：theme='system' 时系统偏好变了，state.isDark 要等
+      // listenSystemThemeChange 回调才更新，中间那段窗口里是错的。
+      isDark: computeDarkMode(state.settings.theme),
     }))
   )
 }

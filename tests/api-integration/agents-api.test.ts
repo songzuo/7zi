@@ -19,9 +19,6 @@ function getAuthHeader(userId: string): HeadersInit {
 }
 
 describe('/api/agents - Integration Tests', () => {
-  beforeAll(() => {
-    server.listen()
-  })
 
   beforeEach(() => {
     mockData.resetUsers()
@@ -31,9 +28,6 @@ describe('/api/agents - Integration Tests', () => {
     server.resetHandlers()
   })
 
-  afterAll(() => {
-    server.close()
-  })
 
   // ============================================================================
   // POST /api/agents/register - Register Agent

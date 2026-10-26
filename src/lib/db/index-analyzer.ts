@@ -7,7 +7,6 @@
 
 import Database from 'better-sqlite3'
 import { getDatabaseAsync } from './index'
-import { logger } from '../logger'
 
 export interface IndexInfo {
   /** 表名 */
@@ -413,12 +412,10 @@ export async function createIndexReport(): Promise<string> {
   return reportText
 }
 
-const dbModule = {
+const defaultExport = {
   getAllIndexes,
   analyzeIndexUsage,
   generateIndexOptimizationSuggestions,
   createIndexReport,
 }
-
-export default dbModule
-
+export default defaultExport

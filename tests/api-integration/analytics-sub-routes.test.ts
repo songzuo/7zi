@@ -4,6 +4,8 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { http, HttpResponse } from 'msw'
+import { server } from './mocks/handlers'
 
 // Mock auth for testing
 const mockAuth = {
@@ -104,15 +106,34 @@ const mockHandlers = {
 
 describe('/api/analytics/{nodes,overview,resources,anomalies,trends} - Integration Tests', () => {
   beforeAll(() => {
-    // Setup MSW or direct mock
+    // Register the analytics sub-route handlers on the shared MSW server.
+    // The root vitest setup already calls server.listen(), so we only add
+    // the route-specific handlers here via server.use().
+    server.use(
+      http.get('http://localhost:3000/api/analytics/nodes', async ({ request }) => {
+        return mockHandlers['/api/analytics/nodes'](new URL(request.url))
+      }),
+      http.get('http://localhost:3000/api/analytics/overview', async ({ request }) => {
+        return mockHandlers['/api/analytics/overview'](new URL(request.url))
+      }),
+      http.get('http://localhost:3000/api/analytics/resources', async ({ request }) => {
+        return mockHandlers['/api/analytics/resources'](new URL(request.url))
+      }),
+      http.get('http://localhost:3000/api/analytics/anomalies', async ({ request }) => {
+        return mockHandlers['/api/analytics/anomalies'](new URL(request.url))
+      }),
+      http.get('http://localhost:3000/api/analytics/trends', async ({ request }) => {
+        return mockHandlers['/api/analytics/trends'](new URL(request.url))
+      })
+    )
   })
 
   afterAll(() => {
-    // Cleanup
+    server.resetHandlers()
   })
 
   beforeEach(() => {
-    // Reset handlers
+    // no per-test state to reset
   })
 
   describe('GET /api/analytics/nodes', () => {

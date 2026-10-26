@@ -288,7 +288,7 @@ export class RedisClusterClient {
       this.connected = true
       
       return true
-    } catch (error) {
+    } catch (_error) {
       logger.error('[RedisCluster] Failed to connect', { 
         category: 'cache', 
         data: { error: String(error) } 
@@ -332,7 +332,7 @@ export class RedisClusterClient {
       this.updateAccessTime(startTime)
       
       return JSON.parse(value) as T
-    } catch (error) {
+    } catch (_error) {
       this.stats.errors++
       logger.error('[RedisCluster] Get error', { category: 'cache', data: { key, error: String(error) } })
       return null
@@ -354,7 +354,7 @@ export class RedisClusterClient {
       
       await this.client.set(key, serialized, 'EX', ttlSeconds)
       return true
-    } catch (error) {
+    } catch (_error) {
       this.stats.errors++
       logger.error('[RedisCluster] Set error', { category: 'cache', data: { key, error: String(error) } })
       return false
@@ -372,7 +372,7 @@ export class RedisClusterClient {
     try {
       const result = await this.client.del(key)
       return result > 0
-    } catch {
+    } catch (_error) {
       this.stats.errors++
       return false
     }
@@ -389,7 +389,7 @@ export class RedisClusterClient {
     try {
       const result = await this.client.exists(key)
       return result === 1
-    } catch {
+    } catch (_error) {
       return false
     }
   }
@@ -415,7 +415,7 @@ export class RedisClusterClient {
       }
       
       return result
-    } catch {
+    } catch (_error) {
       this.stats.errors++
       return result
     }
@@ -447,7 +447,7 @@ export class RedisClusterClient {
       }
       
       return true
-    } catch {
+    } catch (_error) {
       this.stats.errors++
       return false
     }
@@ -472,7 +472,7 @@ export class RedisClusterClient {
           await Promise.all(batch.map(k => this.client!.del(k)))
         }
       }
-    } catch {
+    } catch (_error) {
       this.stats.errors++
     }
   }

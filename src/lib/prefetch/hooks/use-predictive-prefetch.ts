@@ -6,7 +6,7 @@
 
 'use client'
 
-import { useEffect, useCallback, useRef, useState } from 'react'
+import { useEffect, useCallback, useRef, useState, useSyncExternalStore } from 'react'
 import {
   PredictivePrefetcher,
   globalPrefetcher,
@@ -14,6 +14,7 @@ import {
   type PrefetchPrediction,
 } from '../predictive-prefetcher'
 import { UserBehaviorAnalyzer, globalBehaviorAnalyzer } from '../user-behavior'
+import { createObservableStore } from '../observable-store'
 
 export interface UsePredictivePrefetchOptions {
   /** 是否启用 */
@@ -60,6 +61,12 @@ export function usePredictivePrefetch(options: UsePredictivePrefetchOptions = {}
   const behaviorAnalyzerRef = useRef<UserBehaviorAnalyzer>(globalBehaviorAnalyzer)
   const currentPathRef = useRef<string>('')
   const previousPathRef = useRef<string>('')
+  const [currentPathStore] = useState(() => createObservableStore(''))
+  const currentPath = useSyncExternalStore(
+    currentPathStore.subscribe,
+    currentPathStore.get,
+    currentPathStore.get
+  )
   const [predictions, setPredictions] = useState<PrefetchPrediction[]>([])
   const [isPrefetching, setIsPrefetching] = useState(false)
 
@@ -144,6 +151,7 @@ export function usePredictivePrefetch(options: UsePredictivePrefetchOptions = {}
       const previousPath = currentPathRef.current
       previousPathRef.current = previousPath
       currentPathRef.current = path
+      currentPathStore.set(path)
 
       // 记录到行为分析器
       if (previousPath && previousPath !== path) {
@@ -155,7 +163,7 @@ export function usePredictivePrefetch(options: UsePredictivePrefetchOptions = {}
       // 执行预测预加载
       executePredictivePrefetch()
     },
-    [trackBehavior, executePredictivePrefetch]
+    [trackBehavior, executePredictivePrefetch, currentPathStore]
   )
 
   // 手动触发预加载
@@ -199,16 +207,22 @@ export function usePredictivePrefetch(options: UsePredictivePrefetchOptions = {}
   useEffect(() => {
     if (!enabled) return
 
+    // 固定本次 effect 使用的分析器实例，避免 cleanup 读取 ref
+    const behaviorAnalyzer = behaviorAnalyzerRef.current
+
     // 获取当前路径
     currentPathRef.current = window.location.pathname
+    currentPathStore.set(currentPathRef.current)
 
     // 开始会话
     if (trackBehavior) {
-      behaviorAnalyzerRef.current.startSession(currentPathRef.current)
+      behaviorAnalyzer.startSession(currentPathRef.current)
     }
 
-    // 初始预加载
-    executePredictivePrefetch()
+    // 初始预加载（放入微任务执行，避免在 effect 内同步触发 setState）
+    void Promise.resolve().then(() => {
+      void executePredictivePrefetch()
+    })
 
     // 监听路由变化
     const handleRouteChange = () => {
@@ -225,10 +239,17 @@ export function usePredictivePrefetch(options: UsePredictivePrefetchOptions = {}
 
       // 结束会话
       if (trackBehavior) {
-        behaviorAnalyzerRef.current.endSession()
+        behaviorAnalyzer.endSession()
       }
     }
-  }, [enabled, trackBehavior, executePredictivePrefetch, recordPageVisit])
+  }, [
+    enabled,
+    trackBehavior,
+    executePredictivePrefetch,
+    recordPageVisit,
+    behaviorAnalyzerRef,
+    currentPathStore,
+  ])
 
   return {
     predictions,
@@ -236,7 +257,7 @@ export function usePredictivePrefetch(options: UsePredictivePrefetchOptions = {}
     recordPageVisit,
     manualPrefetch,
     getPredictionsForPath,
-    currentPath: currentPathRef.current,
+    currentPath,
   }
 }
 
@@ -292,7 +313,7 @@ function getUserRole(): string | undefined {
       const user = JSON.parse(userStr)
       return user.role
     }
-  } catch (error) {
+  } catch (_error) {
     // 忽略解析错误
   }
 
@@ -324,7 +345,7 @@ async function prefetchDataForPaths(paths: string[]): Promise<void> {
           link.crossOrigin = 'anonymous'
           document.head.appendChild(link)
         }
-      } catch (error) {
+      } catch (_error) {
         // 忽略预加载错误
       }
     }

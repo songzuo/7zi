@@ -19,7 +19,7 @@ export async function initializeDatabaseOptimization(): Promise<void> {
 
   try {
     // 1. 确保数据库已连接
-    const db = await getDatabaseAsync()
+    await getDatabaseAsync()
     logger.info('Database connected', { category: 'db' })
 
     // 2. 预热缓存
@@ -82,11 +82,9 @@ if (typeof window === 'undefined') {
 }
 
 // 导出给应用使用
-const optimizationInit = {
+const defaultExport = {
   initialize: initializeDatabaseOptimization,
   cleanup: cleanupDatabaseOptimization,
   getStatus: getOptimizationStatus,
 }
-
-export default optimizationInit
-
+export default defaultExport

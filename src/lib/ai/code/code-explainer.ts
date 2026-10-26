@@ -3,7 +3,7 @@
  * @description 用自然语言解释代码逻辑
  */
 
-import type { SupportedLanguage, CodeExplanation, CodeRange, CodeAnalysis } from './types'
+import type { SupportedLanguage, CodeExplanation, CodeAnalysis } from './types'
 import { CodeAnalyzer } from './code-analyzer'
 
 /**
@@ -324,7 +324,7 @@ export class CodeExplainer {
   /**
    * 解释控制流
    */
-  private explainControlFlow(code: string, language: SupportedLanguage): string | null {
+  private explainControlFlow(code: string, _language: SupportedLanguage): string | null {
     const hasConditionals = /\bif\b|\bswitch\b|\bfor\b|\bwhile\b/.test(code)
     const hasAsync = /\basync\b|\bawait\b|\bPromise\b/.test(code)
     const hasErrorHandling = /\btry\b|\bcatch\b|\bthrow\b/.test(code)
@@ -371,7 +371,7 @@ export class CodeExplainer {
    */
   private explainSnippets(
     code: string,
-    language: SupportedLanguage
+    _language: SupportedLanguage
   ): CodeExplanation['snippetExplanations'] {
     const explanations: CodeExplanation['snippetExplanations'] = []
 
@@ -403,7 +403,6 @@ export class CodeExplainer {
       },
     ]
 
-    const lineNumber = 1
     const lines = code.split('\n')
 
     for (const { pattern, explanation } of snippetPatterns) {

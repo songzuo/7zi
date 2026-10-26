@@ -5,7 +5,7 @@
 
 'use client'
 
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   EnhancedRoleDefinition,
   FineGrainedPermission,
@@ -20,7 +20,7 @@ import {
  */
 export function PermissionManagementDashboard() {
   const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'audit'>('roles')
-  const [_loading, _setLoading] = useState(false)
+  const [_loading, setLoading] = useState(false)
 
   return (
     <div className="permission-management-dashboard">
@@ -68,7 +68,11 @@ function RoleManagement() {
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
-  const fetchRoles = useCallback(async () => {
+  useEffect(() => {
+    fetchRoles()
+  }, [])
+
+  const fetchRoles = async () => {
     setLoading(true)
     try {
       const response = await fetch('/api/v2/permissions/roles')
@@ -81,11 +85,7 @@ function RoleManagement() {
     } finally {
       setLoading(false)
     }
-  }, [])
-
-  useEffect(() => {
-    void fetchRoles()
-  }, [fetchRoles])
+  }
 
   const handleCreateRole = async (roleData: Partial<EnhancedRoleDefinition>) => {
     try {
@@ -382,7 +382,11 @@ function PermissionManagement() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<{ resourceType?: string; action?: string }>({})
 
-  const fetchPermissions = useCallback(async () => {
+  useEffect(() => {
+    fetchPermissions()
+  }, [filter])
+
+  const fetchPermissions = async () => {
     setLoading(true)
     try {
       const response = await fetch('/api/v2/permissions')
@@ -406,11 +410,7 @@ function PermissionManagement() {
     } finally {
       setLoading(false)
     }
-  }, [filter])
-
-  useEffect(() => {
-    void fetchPermissions()
-  }, [fetchPermissions])
+  }
 
   const handleCreatePermission = async (permissionData: Partial<FineGrainedPermission>) => {
     try {
@@ -640,7 +640,11 @@ function AuditLogViewer() {
     endDate?: string
   }>({})
 
-  const fetchLogs = useCallback(async () => {
+  useEffect(() => {
+    fetchLogs()
+  }, [filter])
+
+  const fetchLogs = async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -658,11 +662,7 @@ function AuditLogViewer() {
     } finally {
       setLoading(false)
     }
-  }, [filter])
-
-  useEffect(() => {
-    void fetchLogs()
-  }, [fetchLogs])
+  }
 
   const handleExport = async (format: 'json' | 'csv') => {
     try {

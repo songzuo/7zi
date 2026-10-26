@@ -3,7 +3,7 @@
  * @description Tests for /api/auth/logout endpoint
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest'
 import { server, mockData } from './mocks/handlers'
 
 function getAuthHeader(userId: string): HeadersInit {
@@ -20,6 +20,7 @@ describe('/api/auth/logout - Integration Tests', () => {
   afterEach(() => {
     server.resetHandlers()
   })
+
 
   describe('POST /api/auth/logout', () => {
     it('should logout successfully with valid token', async () => {

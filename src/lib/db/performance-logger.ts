@@ -18,8 +18,6 @@ import { getNPlus1Detector, NPlus1Detection } from './nplus1-detector'
 import { logger } from '../logger'
 import type { DatabaseConnection } from './index'
 
-// Type alias for better-sqlite3 Database
-type BetterSqlite3Database = Database.Database
 
 /**
  * 性能日志配置
@@ -413,7 +411,7 @@ export function getPerformanceHealth() {
   return getPerformanceLogger().getHealthStatus()
 }
 
-const dbModule = {
+const defaultExport = {
   getPerformanceLogger,
   resetPerformanceLogger,
   wrapDatabaseWithLogging,
@@ -422,6 +420,4 @@ const dbModule = {
   getPerformanceReport,
   getPerformanceHealth,
 }
-
-export default dbModule
-
+export default defaultExport

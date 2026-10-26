@@ -19,21 +19,17 @@ export * from './fallback'
 import {
   ModelRouter as NewModelRouter,
   modelRouter as newModelRouter,
-  routeRequest as newRouteRequest,
 } from './routing'
 
 import {
-  ModelRouter as OldModelRouter,
   modelRouter as oldModelRouter,
 } from './router'
 
 import {
-  RouteRequest,
   RouteDecision,
   TaskType,
   TaskComplexity,
   RoutingStrategy,
-  ModelCapability,
 } from './routing/types'
 
 /**

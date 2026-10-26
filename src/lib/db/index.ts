@@ -53,7 +53,7 @@ export * from './batch-operations'
 export * from './query-optimizations'
 
 // Export default for backward compatibility
-const dbModule = {
+const defaultExport = {
   getDatabase,
   getDatabaseAsync,
   closeDatabase,
@@ -65,6 +65,4 @@ const dbModule = {
   optimizeDatabase,
   getDatabaseHealth,
 }
-
-export default dbModule
-
+export default defaultExport

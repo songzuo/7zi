@@ -13,10 +13,7 @@ import {
   EdgeType,
   NodeType,
 } from '@/types/workflow'
-import {
-  createExecutionContext,
-  calculateDuration,
-} from './types'
+import { createExecutionContext, calculateDuration } from './types'
 import { nodeExecutorRegistry } from './executors/registry'
 
 export class EnhancedWorkflowExecutor {

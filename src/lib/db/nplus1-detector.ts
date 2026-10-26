@@ -10,8 +10,6 @@
  * - Eager loading helpers
  */
 
-import { getDatabaseAsync } from './index'
-import { logger } from '../logger'
 
 export interface QueryPattern {
   /** Query SQL */
@@ -215,8 +213,6 @@ class NPlus1Detector {
         if (totalCount > 2) {
           // Potential N+1 detected
           detected = true
-          const totalTime = patternQueries.reduce((sum, q) => sum + q.totalTime, 0)
-
           // Generate suggestions
           suggestions.push(
             `N+1 query detected on table '${table}': ${patternQueries.length} similar queries`

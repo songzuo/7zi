@@ -45,7 +45,7 @@ export async function GET_roles(request: NextRequest): Promise<NextResponse> {
           count: roles.length,
         },
       })
-    } catch {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,
@@ -161,7 +161,7 @@ export async function GET_role_by_id(
           timestamp: new Date().toISOString(),
         },
       })
-    } catch {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,
@@ -280,7 +280,7 @@ export async function DELETE_role_by_id(
           timestamp: new Date().toISOString(),
         },
       })
-    } catch {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,
@@ -316,7 +316,7 @@ export async function GET_permissions(request: NextRequest): Promise<NextRespons
           count: permissions.length,
         },
       })
-    } catch {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,
@@ -537,7 +537,7 @@ export async function GET_user_permissions(
           timestamp: new Date().toISOString(),
         },
       })
-    } catch {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,

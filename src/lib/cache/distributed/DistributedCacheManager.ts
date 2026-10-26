@@ -486,12 +486,7 @@ export class DistributedCacheManager implements ICache {
     logger.info('[DistributedCache] Rebalancing cache...', { category: 'cache' })
   }
   
-  private async getFromReplicas<T>(key: string, options?: CacheGetOptions): Promise<T | null> {
-    // A level-scoped read must not fall back to distributed (L3) replicas.
-    if (options?.level && options.level !== 'L3') {
-      return null
-    }
-
+  private async getFromReplicas<T>(key: string, _options?: CacheGetOptions): Promise<T | null> {
     const nodes = this.hashRing.getNodesForKey(key, this.distributedConfig.replicationFactor)
     
     for (const node of nodes) {

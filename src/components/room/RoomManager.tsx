@@ -37,15 +37,12 @@ export interface RoomManagerProps {
 // ============================================================================
 
 export function RoomManager({
-  wsUrl: _wsUrl = 'ws://localhost:3001',
-  userId: providedUserId,
+  wsUrl = 'ws://localhost:3001',
+  userId = 'user-' + Math.random().toString(36).substring(7),
   userName = '匿名用户',
   userAvatar,
   autoConnect = true,
 }: RoomManagerProps) {
-  // 未显式传入 userId 时生成一个稳定的匿名 id（渲染期间不再调用 Math.random）
-  const [generatedUserId] = useState(() => 'user-' + Math.random().toString(36).substring(7))
-  const userId = providedUserId ?? generatedUserId
   const [isConnected, setIsConnected] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -54,7 +51,7 @@ export function RoomManager({
 
   const {
     currentRoomId,
-    currentUserId: _currentUserId,
+    currentUserId,
     currentUserName: _currentUserName,
     rooms,
     setCurrentRoom,
@@ -400,7 +397,7 @@ export function RoomManager({
   )
 
   // Connection status
-  const renderConnectionStatus = () => {
+  const ConnectionStatus = () => {
     if (isConnecting) {
       return (
         <div
@@ -473,7 +470,7 @@ export function RoomManager({
           <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             💬 WebSocket 房间
           </h1>
-          {renderConnectionStatus()}
+          <ConnectionStatus />
         </div>
 
         <div className="flex items-center gap-3">

@@ -572,7 +572,7 @@ export class FixSuggester {
    */
   private generateGenericSuggestion(
     issue: { type: string; message: string; location: CodeRange },
-    language: SupportedLanguage
+    _language: SupportedLanguage
   ): FixSuggestion {
     return {
       id: `fix-generic-${Date.now()}`,

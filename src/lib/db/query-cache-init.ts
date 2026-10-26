@@ -171,12 +171,10 @@ if (typeof process !== 'undefined') {
   })
 }
 
-const dbModule = {
+const defaultExport = {
   initializeQueryCache,
   shutdownQueryCache,
   isQueryCacheInitialized,
   getCacheHealth,
 }
-
-export default dbModule
-
+export default defaultExport
