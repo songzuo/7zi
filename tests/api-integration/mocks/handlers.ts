@@ -3782,6 +3782,648 @@ export const automationHandlers = [
   ),
 ]
 
+// ========================================
+// Webhook handlers
+// ========================================
+//
+// 仓库里没有 /api/webhooks 的路由实现（src/app/api/webhooks/ 不存在），
+// 只有 src/lib/plugins/builtin/plugins/WebhookPlugin.ts 这个底层插件。
+// 根级 CI 不起真实服务器，所以这里用 MSW 提供一份**真实可用**的实现：
+// 鉴权、URL 校验、事件白名单、secret 强度校验、CRUD、分页、状态过滤、
+// 投递日志、投递重试、限流，全部按业务逻辑真正跑起来。
+
+/** 合法的 webhook 事件类型（工作流 / 任务 / 代理 生命周期事件） */
+const WEBHOOK_EVENT_TYPES = [
+  'workflow.started',
+  'workflow.completed',
+  'workflow.failed',
+  'workflow.paused',
+  'workflow.resumed',
+  'workflow.cancelled',
+  'task.created',
+  'task.completed',
+  'task.failed',
+  'agent.registered',
+  'agent.unregistered',
+  'agent.heartbeat',
+] as const
+
+/** secret 最小长度 */
+const WEBHOOK_SECRET_MIN_LENGTH = 16
+
+/** 测试投递限流：窗口内允许的最大次数 */
+const WEBHOOK_TEST_RATE_LIMIT = 5
+/** 测试投递限流窗口（毫秒） */
+const WEBHOOK_TEST_RATE_LIMIT_WINDOW_MS = 60 * 1000
+
+interface WebhookCreateBody {
+  name?: string
+  url?: string
+  events?: string[]
+  secret?: string
+  isActive?: boolean
+}
+
+interface WebhookUpdateBody {
+  name?: string
+  url?: string
+  events?: string[]
+  secret?: string
+  isActive?: boolean
+}
+
+interface WebhookTestBody {
+  eventType?: string
+  data?: Record<string, unknown>
+}
+
+const webhookUnauthorized = () =>
+  HttpResponse.json(
+    { success: false, error: { type: 'UNAUTHORIZED', message: 'Authentication required' } },
+    { status: 401 }
+  )
+
+const webhookNotFound = (message = 'Webhook not found') =>
+  HttpResponse.json({ success: false, error: { type: 'NOT_FOUND', message } }, { status: 404 })
+
+const webhookForbidden = (message: string) =>
+  HttpResponse.json({ success: false, error: { type: 'FORBIDDEN', message } }, { status: 403 })
+
+const webhookBadRequest = (message: string, errors?: string[]) =>
+  HttpResponse.json(
+    {
+      success: false,
+      error: { type: 'VALIDATION_ERROR', message },
+      ...(errors ? { errors } : {}),
+    },
+    { status: 400 }
+  )
+
+const webhookRateLimited = (message: string, retryAfterSeconds: number) =>
+  HttpResponse.json(
+    {
+      success: false,
+      error: { type: 'RATE_LIMITED', message, retryAfterSeconds },
+    },
+    {
+      status: 429,
+      headers: { 'Retry-After': String(retryAfterSeconds) },
+    }
+  )
+
+/**
+ * 从请求头解析出当前用户 id。
+ * 缺 token / token 无效 -> null（调用方返回 401）
+ */
+const resolveWebhookUser = (request: Request): string | null => {
+  const authHeader = request.headers.get('Authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null
+  const token = authHeader.substring(7)
+  return mockData.getUserIdFromToken(token)
+}
+
+/** URL 必须是 http(s) 协议的合法绝对地址 */
+const isValidWebhookUrl = (value: string): boolean => {
+  let parsed: URL
+  try {
+    parsed = new URL(value)
+  } catch {
+    return false
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false
+  if (!parsed.hostname || !parsed.hostname.includes('.')) return false
+  return true
+}
+
+/**
+ * 校验 webhook 创建/更新的字段。
+ * 返回 null 表示合法，否则返回错误描述。
+ */
+const validateWebhookBody = (
+  body: WebhookCreateBody | WebhookUpdateBody,
+  options: { partial: boolean }
+): { message: string; errors: string[] } | null => {
+  const errors: string[] = []
+
+  if (!options.partial || body.name !== undefined) {
+    if (typeof body.name !== 'string' || body.name.trim().length === 0) {
+      errors.push('name is required and must be a non-empty string')
+    } else if (body.name.trim().length > 100) {
+      errors.push('name must be at most 100 characters')
+    }
+  }
+
+  if (!options.partial || body.url !== undefined) {
+    if (typeof body.url !== 'string' || body.url.trim().length === 0) {
+      errors.push('url is required and must be a non-empty string')
+    } else if (!isValidWebhookUrl(body.url.trim())) {
+      errors.push('url must be a valid http(s) URL')
+    }
+  }
+
+  if (!options.partial || body.events !== undefined) {
+    if (!Array.isArray(body.events) || body.events.length === 0) {
+      errors.push('events must be a non-empty array')
+    } else {
+      for (const event of body.events) {
+        if (typeof event !== 'string' || event.trim().length === 0) {
+          errors.push('each event must be a non-empty string')
+          continue
+        }
+        if (!WEBHOOK_EVENT_TYPES.includes(event as (typeof WEBHOOK_EVENT_TYPES)[number])) {
+          errors.push(
+            `Invalid event type: ${event}. Must be one of: ${WEBHOOK_EVENT_TYPES.join(', ')}`
+          )
+        }
+      }
+    }
+  }
+
+  if (body.secret !== undefined) {
+    if (typeof body.secret !== 'string') {
+      errors.push('secret must be a string')
+    } else if (body.secret.length > 0 && body.secret.length < WEBHOOK_SECRET_MIN_LENGTH) {
+      errors.push(`secret must be at least ${WEBHOOK_SECRET_MIN_LENGTH} characters`)
+    }
+  }
+
+  if (body.isActive !== undefined && typeof body.isActive !== 'boolean') {
+    errors.push('isActive must be a boolean')
+  }
+
+  if (errors.length > 0) {
+    return { message: 'Invalid webhook payload', errors }
+  }
+  return null
+}
+
+/** 生成一个可用的默认 secret */
+const generateWebhookSecret = (): string =>
+  `whsec_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`
+
+/** 序列化 webhook 响应（隐藏 secret 明文，只暴露是否存在） */
+const serializeWebhook = (webhook: {
+  id: string
+  ownerId: string
+  name: string
+  url: string
+  events: string[]
+  secret: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}) => ({
+  id: webhook.id,
+  name: webhook.name,
+  url: webhook.url,
+  events: webhook.events,
+  isActive: webhook.isActive,
+  hasSecret: webhook.secret.length > 0,
+  createdAt: webhook.createdAt,
+  updatedAt: webhook.updatedAt,
+})
+
+export const webhookHandlers = [
+  // POST /api/webhooks - 创建 webhook
+  http.post(
+    'http://localhost:3000/api/webhooks',
+    async ({ request }: { request: Request }) => {
+      const userId = resolveWebhookUser(request)
+      if (!userId) return webhookUnauthorized()
+
+      let body: WebhookCreateBody
+      try {
+        body = (await request.json()) as WebhookCreateBody
+      } catch {
+        return webhookBadRequest('Invalid JSON body')
+      }
+
+      const invalid = validateWebhookBody(body, { partial: false })
+      if (invalid) return webhookBadRequest(invalid.message, invalid.errors)
+
+      const webhook = mockData.createWebhook({
+        ownerId: userId,
+        name: body.name!.trim(),
+        url: body.url!.trim(),
+        events: body.events!,
+        secret: body.secret && body.secret.length > 0 ? body.secret : generateWebhookSecret(),
+        isActive: body.isActive !== undefined ? body.isActive : true,
+      })
+
+      return HttpResponse.json(
+        { success: true, data: serializeWebhook(webhook), timestamp: Date.now() },
+        { status: 201 }
+      )
+    }
+  ),
+
+  // GET /api/webhooks - 列出当前用户的 webhook（分页 + 过滤）
+  http.get(
+    'http://localhost:3000/api/webhooks',
+    ({ request }: { request: Request }) => {
+      const userId = resolveWebhookUser(request)
+      if (!userId) return webhookUnauthorized()
+
+      const url = new URL(request.url)
+      const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1)
+      const pageSize = Math.min(
+        100,
+        Math.max(1, parseInt(url.searchParams.get('pageSize') || '20', 10) || 20)
+      )
+      const isActiveParam = url.searchParams.get('isActive')
+      const eventParam = url.searchParams.get('event')
+      const search = url.searchParams.get('search')
+
+      let webhooks = mockData.getWebhooksByOwner(userId)
+
+      if (isActiveParam !== null) {
+        const isActive = isActiveParam === 'true'
+        webhooks = webhooks.filter(w => w.isActive === isActive)
+      }
+      if (eventParam) {
+        webhooks = webhooks.filter(w => w.events.includes(eventParam))
+      }
+      if (search) {
+        const needle = search.toLowerCase()
+        webhooks = webhooks.filter(
+          w =>
+            w.name.toLowerCase().includes(needle) ||
+            w.url.toLowerCase().includes(needle)
+        )
+      }
+
+      // 最新的排前面
+      webhooks = [...webhooks].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
+      const total = webhooks.length
+      const start = (page - 1) * pageSize
+      const paged = webhooks.slice(start, start + pageSize)
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: {
+            webhooks: paged.map(serializeWebhook),
+            page,
+            pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+            hasMore: start + paged.length < total,
+          },
+          timestamp: Date.now(),
+        },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // GET /api/webhooks/:id - 获取单个 webhook
+  http.get(
+    'http://localhost:3000/api/webhooks/:id',
+    ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveWebhookUser(request)
+      if (!userId) return webhookUnauthorized()
+
+      const webhook = mockData.getWebhookById(params.id)
+      if (!webhook) return webhookNotFound()
+
+      // 别人的 webhook 一律 403
+      if (webhook.ownerId !== userId) {
+        return webhookForbidden('You do not have access to this webhook')
+      }
+
+      return HttpResponse.json(
+        { success: true, data: serializeWebhook(webhook), timestamp: Date.now() },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // PUT /api/webhooks/:id - 更新 webhook
+  http.put(
+    'http://localhost:3000/api/webhooks/:id',
+    async ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveWebhookUser(request)
+      if (!userId) return webhookUnauthorized()
+
+      const webhook = mockData.getWebhookById(params.id)
+      if (!webhook) return webhookNotFound()
+      if (webhook.ownerId !== userId) {
+        return webhookForbidden('You do not have access to this webhook')
+      }
+
+      let body: WebhookUpdateBody
+      try {
+        body = (await request.json()) as WebhookUpdateBody
+      } catch {
+        return webhookBadRequest('Invalid JSON body')
+      }
+
+      const invalid = validateWebhookBody(body, { partial: true })
+      if (invalid) return webhookBadRequest(invalid.message, invalid.errors)
+
+      const updated = mockData.updateWebhook(params.id, {
+        ...(body.name !== undefined ? { name: body.name.trim() } : {}),
+        ...(body.url !== undefined ? { url: body.url.trim() } : {}),
+        ...(body.events !== undefined ? { events: body.events } : {}),
+        ...(body.secret !== undefined ? { secret: body.secret } : {}),
+        ...(body.isActive !== undefined ? { isActive: body.isActive } : {}),
+      })
+
+      return HttpResponse.json(
+        { success: true, data: serializeWebhook(updated!), timestamp: Date.now() },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // DELETE /api/webhooks/:id - 删除 webhook
+  http.delete(
+    'http://localhost:3000/api/webhooks/:id',
+    ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveWebhookUser(request)
+      if (!userId) return webhookUnauthorized()
+
+      const webhook = mockData.getWebhookById(params.id)
+      if (!webhook) return webhookNotFound()
+      if (webhook.ownerId !== userId) {
+        return webhookForbidden('You do not have access to this webhook')
+      }
+
+      mockData.deleteWebhook(params.id)
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: { id: params.id, deleted: true },
+          timestamp: Date.now(),
+        },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // POST /api/webhooks/:id/test - 发送测试事件（带限流）
+  http.post(
+    'http://localhost:3000/api/webhooks/:id/test',
+    async ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveWebhookUser(request)
+      if (!userId) return webhookUnauthorized()
+
+      const webhook = mockData.getWebhookById(params.id)
+      if (!webhook) return webhookNotFound()
+      if (webhook.ownerId !== userId) {
+        return webhookForbidden('You do not have access to this webhook')
+      }
+
+      let body: WebhookTestBody
+      try {
+        body = (await request.json()) as WebhookTestBody
+      } catch {
+        return webhookBadRequest('Invalid JSON body')
+      }
+
+      if (!body.eventType || typeof body.eventType !== 'string') {
+        return webhookBadRequest('eventType is required', ['eventType is required'])
+      }
+      if (
+        !WEBHOOK_EVENT_TYPES.includes(body.eventType as (typeof WEBHOOK_EVENT_TYPES)[number])
+      ) {
+        return webhookBadRequest('Invalid event type', [
+          `Invalid event type: ${body.eventType}. Must be one of: ${WEBHOOK_EVENT_TYPES.join(', ')}`,
+        ])
+      }
+      // webhook 只订阅自己注册过的事件
+      if (!webhook.events.includes(body.eventType)) {
+        return webhookBadRequest('Webhook is not subscribed to this event', [
+          `Webhook "${webhook.name}" is not subscribed to ${body.eventType}`,
+        ])
+      }
+
+      // 限流：同一 webhook 在窗口内最多 N 次测试投递
+      const rate = mockData.recordWebhookTestAttempt(
+        params.id,
+        WEBHOOK_TEST_RATE_LIMIT,
+        WEBHOOK_TEST_RATE_LIMIT_WINDOW_MS
+      )
+      if (!rate.allowed) {
+        return webhookRateLimited(
+          'Too many test delivery requests, please slow down',
+          rate.retryAfterSeconds
+        )
+      }
+
+      const payload = {
+        event: body.eventType,
+        data: body.data || {},
+        webhookId: webhook.id,
+        timestamp: new Date().toISOString(),
+      }
+
+      const delivery = mockData.createWebhookDelivery({
+        webhookId: webhook.id,
+        eventType: body.eventType,
+        status: 'success',
+        request: {
+          method: 'POST',
+          url: webhook.url,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Webhook-Event': body.eventType,
+            'X-Webhook-Signature': `sha256=mock-${deliverySignatureSeed()}`,
+          },
+          body: payload,
+        },
+        response: {
+          status: 200,
+          statusText: 'OK',
+          body: { received: true, event: body.eventType },
+        },
+        durationMs: 12,
+        attempt: 1,
+      })
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: {
+            deliveryId: delivery.id,
+            status: delivery.status,
+            webhookId: webhook.id,
+            eventType: delivery.eventType,
+            responseStatus: delivery.response.status,
+            durationMs: delivery.durationMs,
+            timestamp: delivery.timestamp,
+          },
+          timestamp: Date.now(),
+        },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // GET /api/webhooks/:id/logs - 投递日志（分页 + 状态/日期过滤）
+  http.get(
+    'http://localhost:3000/api/webhooks/:id/logs',
+    ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveWebhookUser(request)
+      if (!userId) return webhookUnauthorized()
+
+      const webhook = mockData.getWebhookById(params.id)
+      if (!webhook) return webhookNotFound()
+      if (webhook.ownerId !== userId) {
+        return webhookForbidden('You do not have access to this webhook')
+      }
+
+      const url = new URL(request.url)
+      const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1)
+      const pageSize = Math.min(
+        100,
+        Math.max(1, parseInt(url.searchParams.get('pageSize') || '20', 10) || 20)
+      )
+      const status = url.searchParams.get('status')
+      const startDate = url.searchParams.get('startDate')
+      const endDate = url.searchParams.get('endDate')
+
+      let logs = mockData.getWebhookDeliveriesByWebhook(params.id)
+
+      if (status) {
+        logs = logs.filter(l => l.status === status)
+      }
+      if (startDate) {
+        const start = new Date(startDate).getTime()
+        if (!Number.isNaN(start)) {
+          logs = logs.filter(l => new Date(l.timestamp).getTime() >= start)
+        }
+      }
+      if (endDate) {
+        const end = new Date(endDate).getTime()
+        if (!Number.isNaN(end)) {
+          logs = logs.filter(l => new Date(l.timestamp).getTime() <= end)
+        }
+      }
+
+      // 最新的排前面
+      logs = [...logs].sort(
+        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )
+
+      const total = logs.length
+      const start = (page - 1) * pageSize
+      const paged = logs.slice(start, start + pageSize)
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: {
+            logs: paged,
+            page,
+            pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+            hasMore: start + paged.length < total,
+          },
+          timestamp: Date.now(),
+        },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // GET /api/webhooks/:id/logs/:logId - 单条投递日志
+  http.get(
+    'http://localhost:3000/api/webhooks/:id/logs/:logId',
+    ({
+      params,
+      request,
+    }: {
+      params: Record<string, string>
+      request: Request
+    }) => {
+      const userId = resolveWebhookUser(request)
+      if (!userId) return webhookUnauthorized()
+
+      const webhook = mockData.getWebhookById(params.id)
+      if (!webhook) return webhookNotFound()
+      if (webhook.ownerId !== userId) {
+        return webhookForbidden('You do not have access to this webhook')
+      }
+
+      const log = mockData.getWebhookDeliveryById(params.logId)
+      if (!log || log.webhookId !== webhook.id) {
+        return webhookNotFound('Webhook delivery log not found')
+      }
+
+      return HttpResponse.json(
+        { success: true, data: log, timestamp: Date.now() },
+        { status: 200 }
+      )
+    }
+  ),
+
+  // POST /api/webhooks/:id/retry/:deliveryId - 重试失败的投递
+  http.post(
+    'http://localhost:3000/api/webhooks/:id/retry/:deliveryId',
+    ({ params, request }: { params: Record<string, string>; request: Request }) => {
+      const userId = resolveWebhookUser(request)
+      if (!userId) return webhookUnauthorized()
+
+      const webhook = mockData.getWebhookById(params.id)
+      if (!webhook) return webhookNotFound()
+      if (webhook.ownerId !== userId) {
+        return webhookForbidden('You do not have access to this webhook')
+      }
+
+      const original = mockData.getWebhookDeliveryById(params.deliveryId)
+      if (!original || original.webhookId !== webhook.id) {
+        return webhookNotFound('Webhook delivery log not found')
+      }
+      if (original.status === 'success') {
+        return webhookBadRequest('Only failed deliveries can be retried', [
+          `Delivery ${original.id} already succeeded`,
+        ])
+      }
+
+      const retried = mockData.createWebhookDelivery({
+        webhookId: webhook.id,
+        eventType: original.eventType,
+        status: 'success',
+        request: { ...original.request },
+        response: {
+          status: 200,
+          statusText: 'OK',
+          body: { received: true, event: original.eventType, retried: true },
+        },
+        durationMs: 15,
+        attempt: original.attempt + 1,
+      })
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: {
+            newDeliveryId: retried.id,
+            originalDeliveryId: original.id,
+            webhookId: webhook.id,
+            status: retried.status,
+            attempt: retried.attempt,
+            timestamp: retried.timestamp,
+          },
+          timestamp: Date.now(),
+        },
+        { status: 200 }
+      )
+    }
+  ),
+]
+
+/** 生成一个稳定的伪签名种子（mock 用，不需要真实 HMAC） */
+function deliverySignatureSeed(): string {
+  return Math.random().toString(16).slice(2, 10)
+}
+
 // Combine all handlers
 export const handlers = [
   ...authHandlers,
@@ -3798,6 +4440,7 @@ export const handlers = [
   ...agentHandlers,
   ...capsuleHandlers,
   ...automationHandlers,
+  ...webhookHandlers,
 ]
 
 // Create MSW server

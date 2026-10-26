@@ -189,6 +189,43 @@ export interface MockAutomationExecution {
   durationMs: number
 }
 
+/**
+ * Webhook types
+ * Used by /api/webhooks handlers
+ */
+export interface MockWebhook {
+  id: string
+  ownerId: string
+  name: string
+  url: string
+  events: string[]
+  secret: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MockWebhookDelivery {
+  id: string
+  webhookId: string
+  eventType: string
+  status: 'success' | 'failed' | 'pending'
+  request: {
+    method: string
+    url: string
+    headers: Record<string, string>
+    body: unknown
+  }
+  response: {
+    status: number
+    statusText: string
+    body: unknown
+  }
+  durationMs: number
+  attempt: number
+  timestamp: string
+}
+
 export class MockDataGenerator {
   private users: Map<string, MockUser> = new Map()
   private tasks: Map<string, MockTask> = new Map()
@@ -205,6 +242,9 @@ export class MockDataGenerator {
   private capsules: Map<string, MockCapsule> = new Map()
   private automationRules: Map<string, MockAutomationRule> = new Map()
   private automationExecutions: Map<string, MockAutomationExecution> = new Map()
+  private webhooks: Map<string, MockWebhook> = new Map()
+  private webhookDeliveries: Map<string, MockWebhookDelivery> = new Map()
+  private webhookTestAttempts: Map<string, number[]> = new Map()
 
   constructor() {
     // Initialize with some test data
@@ -546,6 +586,8 @@ export class MockDataGenerator {
     this.refreshTokens.clear()
     // 规则归属于用户，用户重置时自动化数据也要一起清掉
     this.resetAutomation()
+    // webhook 同样归属于用户
+    this.resetWebhooks()
     this.initializeTestData()
   }
 
@@ -610,6 +652,7 @@ export class MockDataGenerator {
     this.tokens.clear()
     this.refreshTokens.clear()
     this.resetAutomation()
+    this.resetWebhooks()
     this.initializeTestData()
   }
 
@@ -1172,5 +1215,170 @@ export class MockDataGenerator {
   resetAutomation() {
     this.automationRules.clear()
     this.automationExecutions.clear()
+  }
+
+  // ========================================
+  // Webhook methods
+  // ========================================
+  createWebhook(data: {
+    ownerId: string
+    name: string
+    url: string
+    events: string[]
+    secret?: string
+    isActive?: boolean
+  }): MockWebhook {
+    const now = new Date().toISOString()
+    const webhook: MockWebhook = {
+      id: `wh-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ownerId: data.ownerId,
+      name: data.name,
+      url: data.url,
+      events: [...data.events],
+      secret: data.secret || '',
+      isActive: data.isActive !== undefined ? data.isActive : true,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    this.webhooks.set(webhook.id, webhook)
+    return webhook
+  }
+
+  getWebhookById(id: string): MockWebhook | null {
+    return this.webhooks.get(id) || null
+  }
+
+  getWebhooksByOwner(ownerId: string): MockWebhook[] {
+    return Array.from(this.webhooks.values()).filter(w => w.ownerId === ownerId)
+  }
+
+  getAllWebhooks(): MockWebhook[] {
+    return Array.from(this.webhooks.values())
+  }
+
+  updateWebhook(
+    id: string,
+    data: Partial<{
+      name: string
+      url: string
+      events: string[]
+      secret: string
+      isActive: boolean
+    }>
+  ): MockWebhook | null {
+    const webhook = this.webhooks.get(id)
+    if (!webhook) return null
+
+    const updated: MockWebhook = {
+      ...webhook,
+      ...data,
+      events: data.events ? [...data.events] : webhook.events,
+      updatedAt: new Date().toISOString(),
+    }
+
+    this.webhooks.set(id, updated)
+    return updated
+  }
+
+  deleteWebhook(id: string): boolean {
+    // webhook 删除时一并清掉它的投递记录
+    for (const [deliveryId, delivery] of this.webhookDeliveries) {
+      if (delivery.webhookId === id) {
+        this.webhookDeliveries.delete(deliveryId)
+      }
+    }
+    return this.webhooks.delete(id)
+  }
+
+  createWebhookDelivery(data: {
+    id?: string
+    webhookId: string
+    eventType: string
+    status?: MockWebhookDelivery['status']
+    request?: MockWebhookDelivery['request']
+    response?: MockWebhookDelivery['response']
+    durationMs?: number
+    attempt?: number
+    timestamp?: string
+  }): MockWebhookDelivery {
+    const delivery: MockWebhookDelivery = {
+      id: data.id || `delivery-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      webhookId: data.webhookId,
+      eventType: data.eventType,
+      status: data.status || 'success',
+      request: data.request || {
+        method: 'POST',
+        url: '',
+        headers: {},
+        body: null,
+      },
+      response: data.response || {
+        status: 200,
+        statusText: 'OK',
+        body: { received: true },
+      },
+      durationMs: data.durationMs !== undefined ? data.durationMs : 0,
+      attempt: data.attempt !== undefined ? data.attempt : 1,
+      timestamp: data.timestamp || new Date().toISOString(),
+    }
+
+    this.webhookDeliveries.set(delivery.id, delivery)
+    return delivery
+  }
+
+  getWebhookDeliveryById(id: string): MockWebhookDelivery | null {
+    return this.webhookDeliveries.get(id) || null
+  }
+
+  getWebhookDeliveriesByWebhook(webhookId: string): MockWebhookDelivery[] {
+    return Array.from(this.webhookDeliveries.values()).filter(
+      d => d.webhookId === webhookId
+    )
+  }
+
+  getAllWebhookDeliveries(): MockWebhookDelivery[] {
+    return Array.from(this.webhookDeliveries.values())
+  }
+
+  resetWebhooks() {
+    this.webhooks.clear()
+    this.webhookDeliveries.clear()
+    this.webhookTestAttempts.clear()
+  }
+
+  /**
+   * 记录一次 webhook 测试投递，返回窗口内已用的次数。
+   * windowMs 内最多允许 maxAttempts 次。
+   */
+  recordWebhookTestAttempt(
+    key: string,
+    maxAttempts: number,
+    windowMs: number
+  ): { allowed: boolean; used: number; remaining: number; retryAfterSeconds: number } {
+    const now = Date.now()
+    const attempts = (this.webhookTestAttempts.get(key) || []).filter(
+      ts => now - ts < windowMs
+    )
+
+    if (attempts.length >= maxAttempts) {
+      this.webhookTestAttempts.set(key, attempts)
+      const oldest = attempts[0]
+      return {
+        allowed: false,
+        used: attempts.length,
+        remaining: 0,
+        retryAfterSeconds: Math.max(1, Math.ceil((oldest + windowMs - now) / 1000)),
+      }
+    }
+
+    attempts.push(now)
+    this.webhookTestAttempts.set(key, attempts)
+    return {
+      allowed: true,
+      used: attempts.length,
+      remaining: Math.max(0, maxAttempts - attempts.length),
+      retryAfterSeconds: 0,
+    }
   }
 }

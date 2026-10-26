@@ -52,7 +52,8 @@ describe('/api/webhooks - Integration Tests', () => {
       expect(response.status).toBe(201)
       expect(data.success).toBe(true)
       expect(data.data).toBeDefined()
-      expect(data.data.id).toBeDefined()
+      expect(typeof data.data.id).toBe('string')
+      expect(data.data.id.length).toBeGreaterThan(0)
       expect(data.data.name).toBe(webhookData.name)
       expect(data.data.url).toBe(webhookData.url)
       expect(data.data.events).toEqual(webhookData.events)
@@ -78,6 +79,7 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(401)
       expect(data.success).toBe(false)
+      expect(data.error.type).toBe('UNAUTHORIZED')
     })
 
     it('should validate webhook URL format', async () => {
@@ -106,6 +108,8 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(400)
       expect(data.success).toBe(false)
+      expect(data.error.type).toBe('VALIDATION_ERROR')
+      expect(data.errors.join(' ')).toContain('url must be a valid http(s) URL')
     })
 
     it('should validate required fields', async () => {
@@ -134,6 +138,10 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(400)
       expect(data.success).toBe(false)
+      expect(data.error.type).toBe('VALIDATION_ERROR')
+      expect(data.errors.join(' ')).toContain('name is required')
+      expect(data.errors.join(' ')).toContain('url is required')
+      expect(data.errors.join(' ')).toContain('events must be a non-empty array')
     })
 
     it('should validate event types', async () => {
@@ -162,6 +170,8 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(400)
       expect(data.success).toBe(false)
+      expect(data.error.type).toBe('VALIDATION_ERROR')
+      expect(data.errors.join(' ')).toContain('Invalid event type: invalid.event.type')
     })
   })
 
@@ -184,6 +194,12 @@ describe('/api/webhooks - Integration Tests', () => {
       expect(data.success).toBe(true)
       expect(data.data).toBeDefined()
       expect(Array.isArray(data.data.webhooks)).toBe(true)
+      // 列表只返回当前用户自己的 webhook
+      expect(data.data.webhooks).toEqual([])
+      expect(data.data.total).toBe(0)
+      expect(data.data.page).toBe(1)
+      expect(data.data.pageSize).toBe(20)
+      expect(data.data.hasMore).toBe(false)
     })
 
     it('should support pagination', async () => {
@@ -204,10 +220,11 @@ describe('/api/webhooks - Integration Tests', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.data).toHaveProperty('page')
-      expect(data.data).toHaveProperty('pageSize')
-      expect(data.data).toHaveProperty('total')
-      expect(data.data).toHaveProperty('hasMore')
+      expect(data.data.page).toBe(1)
+      expect(data.data.pageSize).toBe(10)
+      expect(data.data.total).toBe(0)
+      expect(data.data.hasMore).toBe(false)
+      expect(data.data.totalPages).toBe(0)
     })
 
     it('should filter webhooks by status', async () => {
@@ -215,6 +232,22 @@ describe('/api/webhooks - Integration Tests', () => {
         email: 'webhookfilter@example.com',
         password: 'SecurePass123',
         name: 'Webhook Filter User',
+      })
+
+      // 造一条 active + 一条 inactive，验证过滤真的生效
+      mockData.createWebhook({
+        ownerId: user.id,
+        name: 'Active Webhook',
+        url: 'https://example.com/active',
+        events: ['workflow.started'],
+        isActive: true,
+      })
+      mockData.createWebhook({
+        ownerId: user.id,
+        name: 'Inactive Webhook',
+        url: 'https://example.com/inactive',
+        events: ['workflow.started'],
+        isActive: false,
       })
 
       const response = await fetch('http://localhost:3000/api/webhooks?isActive=true', {
@@ -226,6 +259,10 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(200)
       expect(data.success).toBe(true)
+      expect(data.data.total).toBe(1)
+      expect(data.data.webhooks).toHaveLength(1)
+      expect(data.data.webhooks[0].name).toBe('Active Webhook')
+      expect(data.data.webhooks[0].isActive).toBe(true)
     })
 
     it('should filter webhooks by event type', async () => {
@@ -233,6 +270,19 @@ describe('/api/webhooks - Integration Tests', () => {
         email: 'eventfilter@example.com',
         password: 'SecurePass123',
         name: 'Event Filter User',
+      })
+
+      mockData.createWebhook({
+        ownerId: user.id,
+        name: 'Completed Event Webhook',
+        url: 'https://example.com/completed',
+        events: ['workflow.completed'],
+      })
+      mockData.createWebhook({
+        ownerId: user.id,
+        name: 'Started Event Webhook',
+        url: 'https://example.com/started',
+        events: ['workflow.started'],
       })
 
       const response = await fetch(
@@ -247,6 +297,10 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(200)
       expect(data.success).toBe(true)
+      expect(data.data.total).toBe(1)
+      expect(data.data.webhooks).toHaveLength(1)
+      expect(data.data.webhooks[0].name).toBe('Completed Event Webhook')
+      expect(data.data.webhooks[0].events).toEqual(['workflow.completed'])
     })
   })
 
@@ -308,6 +362,7 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(404)
       expect(data.success).toBe(false)
+      expect(data.error.type).toBe('NOT_FOUND')
     })
   })
 
@@ -361,6 +416,8 @@ describe('/api/webhooks - Integration Tests', () => {
       expect(data.data.name).toBe(updateData.name)
       expect(data.data.url).toBe(updateData.url)
       expect(data.data.isActive).toBe(updateData.isActive)
+      expect(data.data.events).toEqual(updateData.events)
+      expect(data.data.id).toBe(webhookId)
     })
 
     it('should reject update without authentication', async () => {
@@ -411,6 +468,15 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(200)
       expect(data.success).toBe(true)
+      expect(data.data.id).toBe(webhookId)
+      expect(data.data.deleted).toBe(true)
+
+      // 删除后再查应该是 404
+      const afterDelete = await fetch(`http://localhost:3000/api/webhooks/${webhookId}`, {
+        method: 'GET',
+        headers: getAuthHeader(user.id),
+      })
+      expect(afterDelete.status).toBe(404)
     })
 
     it('should return 404 when deleting non-existent webhook', async () => {
@@ -429,6 +495,9 @@ describe('/api/webhooks - Integration Tests', () => {
       )
 
       expect(response.status).toBe(404)
+      const data = await response.json()
+      expect(data.success).toBe(false)
+      expect(data.error.type).toBe('NOT_FOUND')
     })
   })
 
@@ -485,6 +554,12 @@ describe('/api/webhooks - Integration Tests', () => {
       expect(data.success).toBe(true)
       expect(data.data).toHaveProperty('deliveryId')
       expect(data.data).toHaveProperty('status')
+      expect(typeof data.data.deliveryId).toBe('string')
+      expect(data.data.deliveryId.length).toBeGreaterThan(0)
+      expect(data.data.status).toBe('success')
+      expect(data.data.webhookId).toBe(webhookId)
+      expect(data.data.eventType).toBe('workflow.started')
+      expect(data.data.responseStatus).toBe(200)
     })
 
     it('should handle test event with custom payload', async () => {
@@ -578,6 +653,9 @@ describe('/api/webhooks - Integration Tests', () => {
       expect(data.success).toBe(true)
       expect(data.data).toHaveProperty('logs')
       expect(Array.isArray(data.data.logs)).toBe(true)
+      expect(data.data.logs).toEqual([])
+      expect(data.data.total).toBe(0)
+      expect(data.data.page).toBe(1)
     })
 
     it('should support pagination for logs', async () => {
@@ -614,9 +692,10 @@ describe('/api/webhooks - Integration Tests', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.data).toHaveProperty('page')
-      expect(data.data).toHaveProperty('pageSize')
-      expect(data.data).toHaveProperty('total')
+      expect(data.data.page).toBe(1)
+      expect(data.data.pageSize).toBe(10)
+      expect(data.data.total).toBe(0)
+      expect(data.data.hasMore).toBe(false)
     })
 
     it('should filter logs by status', async () => {
@@ -642,6 +721,18 @@ describe('/api/webhooks - Integration Tests', () => {
       const createData = await createResponse.json()
       const webhookId = createData.data.id
 
+      // 造两条投递：一条成功、一条失败
+      mockData.createWebhookDelivery({
+        webhookId,
+        eventType: 'workflow.started',
+        status: 'success',
+      })
+      mockData.createWebhookDelivery({
+        webhookId,
+        eventType: 'workflow.started',
+        status: 'failed',
+      })
+
       const response = await fetch(
         `http://localhost:3000/api/webhooks/${webhookId}/logs?status=success`,
         {
@@ -654,6 +745,9 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(200)
       expect(data.success).toBe(true)
+      expect(data.data.total).toBe(1)
+      expect(data.data.logs).toHaveLength(1)
+      expect(data.data.logs[0].status).toBe('success')
     })
 
     it('should filter logs by date range', async () => {
@@ -682,6 +776,20 @@ describe('/api/webhooks - Integration Tests', () => {
       const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
       const endDate = new Date().toISOString()
 
+      // 窗口内一条、窗口外（90 天前）一条
+      mockData.createWebhookDelivery({
+        webhookId,
+        eventType: 'workflow.started',
+        status: 'success',
+        timestamp: new Date().toISOString(),
+      })
+      mockData.createWebhookDelivery({
+        webhookId,
+        eventType: 'workflow.started',
+        status: 'success',
+        timestamp: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+      })
+
       const response = await fetch(
         `http://localhost:3000/api/webhooks/${webhookId}/logs?startDate=${startDate}&endDate=${endDate}`,
         {
@@ -694,6 +802,8 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(200)
       expect(data.success).toBe(true)
+      expect(data.data.total).toBe(1)
+      expect(data.data.logs).toHaveLength(1)
     })
   })
 
@@ -759,6 +869,13 @@ describe('/api/webhooks - Integration Tests', () => {
       expect(data.data).toHaveProperty('timestamp')
       expect(data.data).toHaveProperty('request')
       expect(data.data).toHaveProperty('response')
+      expect(data.data.id).toBe(deliveryId)
+      expect(data.data.webhookId).toBe(webhookId)
+      expect(data.data.eventType).toBe('workflow.started')
+      expect(data.data.status).toBe('success')
+      expect(data.data.request.url).toBe('https://example.com/webhook')
+      expect(data.data.response.status).toBe(200)
+      expect(typeof data.data.timestamp).toBe('string')
     })
   })
 
@@ -787,11 +904,29 @@ describe('/api/webhooks - Integration Tests', () => {
       const createData = await createResponse.json()
       const webhookId = createData.data.id
 
-      // Assume we have a failed delivery with ID
-      const failedDeliveryId = 'delivery-failed-123'
+      // 造一条真实的失败投递记录
+      const failedDelivery = mockData.createWebhookDelivery({
+        id: 'delivery-failed-123',
+        webhookId,
+        eventType: 'workflow.started',
+        status: 'failed',
+        request: {
+          method: 'POST',
+          url: 'https://example.com/webhook',
+          headers: { 'Content-Type': 'application/json' },
+          body: { event: 'workflow.started' },
+        },
+        response: {
+          status: 500,
+          statusText: 'Internal Server Error',
+          body: { error: 'boom' },
+        },
+        durationMs: 30000,
+        attempt: 1,
+      })
 
       const response = await fetch(
-        `http://localhost:3000/api/webhooks/${webhookId}/retry/${failedDeliveryId}`,
+        `http://localhost:3000/api/webhooks/${webhookId}/retry/${failedDelivery.id}`,
         {
           method: 'POST',
           headers: getAuthHeader(user.id),
@@ -803,6 +938,11 @@ describe('/api/webhooks - Integration Tests', () => {
       expect(response.status).toBe(200)
       expect(data.success).toBe(true)
       expect(data.data).toHaveProperty('newDeliveryId')
+      expect(data.data.newDeliveryId).toBeDefined()
+      expect(data.data.newDeliveryId).not.toBe(failedDelivery.id)
+      expect(data.data.originalDeliveryId).toBe(failedDelivery.id)
+      expect(data.data.status).toBe('success')
+      expect(data.data.attempt).toBe(2)
     })
   })
 
@@ -845,6 +985,10 @@ describe('/api/webhooks - Integration Tests', () => {
 
       // Should be forbidden or not found
       expect([403, 404]).toContain(response.status)
+      const data = await response.json()
+      expect(data.success).toBe(false)
+      expect(data.error.type).toBe('FORBIDDEN')
+      expect(data.data).toBeUndefined()
     })
 
     it('should validate webhook secret format', async () => {
@@ -874,6 +1018,8 @@ describe('/api/webhooks - Integration Tests', () => {
 
       expect(response.status).toBe(400)
       expect(data.success).toBe(false)
+      expect(data.error.type).toBe('VALIDATION_ERROR')
+      expect(data.errors.join(' ')).toContain('secret must be at least 16 characters')
     })
 
     it('should rate limit webhook test requests', async () => {
@@ -921,6 +1067,13 @@ describe('/api/webhooks - Integration Tests', () => {
       // At least some should be rate limited
       const rateLimited = responses.filter((r) => r.status === 429)
       expect(rateLimited.length).toBeGreaterThan(0)
+      // 10 次请求里最多放行 5 次
+      expect(rateLimited.length).toBeGreaterThanOrEqual(5)
+
+      const limitedBody = await rateLimited[0].json()
+      expect(limitedBody.success).toBe(false)
+      expect(limitedBody.error.type).toBe('RATE_LIMITED')
+      expect(limitedBody.error.retryAfterSeconds).toBeGreaterThan(0)
     })
   })
 })
