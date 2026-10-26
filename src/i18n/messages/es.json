@@ -14,7 +14,17 @@
     "portfolio": "Portafolio",
     "dashboard": "Panel",
     "contact": "Contacto",
-    "global": "7zi Global"
+    "global": "7zi Global",
+    "siteNameShort": "7ziStudio",
+    "tasks": "Tareas",
+    "subagents": "Subagentes",
+    "memory": "Memoria",
+    "language": "Idioma",
+    "theme": "Tema",
+    "mobileMenu": {
+      "open": "Abrir menú",
+      "close": "Cerrar menú"
+    }
   },
   "home": {
     "title": "Inicio - Estudio Digital Impulsado por IA",

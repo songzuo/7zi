@@ -49,6 +49,21 @@ export const seoConfig = {
   },
 }
 
+// v12：seoConfig 只有 zh / en，而 src/i18n/config.ts 的 locales 有 7 项
+// （zh/en/ja/ko/es/fr/de）。原来直接 `seoConfig[locale].siteName`，
+// 访问 /ja、/ko、/es、/fr、/de 时必然抛
+//   TypeError: Cannot read properties of undefined (reading 'siteName')
+// （digest 630639053），整页 500。
+// 这里统一归一化：不在表里的语言一律落到 zh。
+export type SeoLocale = keyof typeof seoConfig
+
+export function normalizeSeoLocale(locale?: string | null): SeoLocale {
+  if (locale && Object.prototype.hasOwnProperty.call(seoConfig, locale)) {
+    return locale as SeoLocale
+  }
+  return 'zh'
+}
+
 // 页面 SEO 配置类型
 interface PageSeoConfig {
   title: string
@@ -127,9 +142,9 @@ export const pageSeoConfigs: Record<string, PageSeoConfig> = {
 }
 
 // 生成多语言 Metadata
-export function generatePageMetadata(pageKey: string, locale: 'zh' | 'en' = 'zh'): Metadata {
+export function generatePageMetadata(pageKey: string, locale: string = 'zh'): Metadata {
   const config = pageSeoConfigs[pageKey]
-  const seo = seoConfig[locale]
+  const seo = seoConfig[normalizeSeoLocale(locale)]
 
   if (!config) {
     return {
@@ -206,8 +221,8 @@ export function generateHreflangLinks(
 }
 
 // WebSite Schema 生成器
-export function generateWebSiteSchema(locale: 'zh' | 'en' = 'zh') {
-  const seo = seoConfig[locale]
+export function generateWebSiteSchema(locale: string = 'zh') {
+  const seo = seoConfig[normalizeSeoLocale(locale)]
 
   return {
     '@context': 'https://schema.org',
@@ -237,7 +252,7 @@ export function generateWebSiteSchema(locale: 'zh' | 'en' = 'zh') {
 }
 
 // Organization Schema 生成器
-export function generateOrganizationSchema(locale: 'zh' | 'en' = 'zh') {
+export function generateOrganizationSchema(locale: string = 'zh') {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -272,7 +287,7 @@ export function generateOrganizationSchema(locale: 'zh' | 'en' = 'zh') {
 // Breadcrumb Schema 生成器
 export function generateBreadcrumbSchema(
   items: Array<{ name: string; nameEn: string; path: string }>,
-  locale: 'zh' | 'en' = 'zh'
+  locale: string = 'zh'
 ) {
   return {
     '@context': 'https://schema.org',
@@ -289,7 +304,7 @@ export function generateBreadcrumbSchema(
 // FAQ Schema 生成器
 export function generateFAQSchema(
   faqs: Array<{ question: string; questionEn?: string; answer: string; answerEn?: string }>,
-  locale: 'zh' | 'en' = 'zh'
+  locale: string = 'zh'
 ) {
   return {
     '@context': 'https://schema.org',
@@ -314,7 +329,7 @@ export function generateServiceSchema(
     descriptionEn: string
     path: string
   },
-  locale: 'zh' | 'en' = 'zh'
+  locale: string = 'zh'
 ) {
   return {
     '@context': 'https://schema.org',
@@ -335,7 +350,7 @@ export function generateServiceSchema(
 }
 
 // LocalBusiness Schema（如果有实体地址）
-export function generateLocalBusinessSchema(locale: 'zh' | 'en' = 'zh') {
+export function generateLocalBusinessSchema(locale: string = 'zh') {
   return {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
@@ -352,7 +367,7 @@ export function generateLocalBusinessSchema(locale: 'zh' | 'en' = 'zh') {
 // 组合 Schema 生成器（用于页面）
 export function generatePageSchemas(
   schemas: Array<{ type: string; data: unknown }>,
-  locale: 'zh' | 'en' = 'zh'
+  locale: string = 'zh'
 ) {
   return schemas.map(({ type, data }) => {
     switch (type) {

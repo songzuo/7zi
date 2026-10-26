@@ -316,14 +316,28 @@ export class ShortcutManager {
    * Enable all shortcuts
    */
   enableAll(): void {
-    this.shortcuts.forEach((_, id) => this.enable(id))
+    // v13：必须先快照，不能一边 forEach 一边 enable。
+    //
+    // enable() → update() → unregister() + register()，也就是
+    // Map.delete(id) 之后又 Map.set(id, …)，被删的 key 会被**追加到 Map 末尾**。
+    // 而 Map.prototype.forEach 的规范语义是「迭代期间新追加的条目也会被访问」，
+    // 于是迭代指针永远追不上末尾，陷入**同步死循环** —— 不抛错、不排定时器、
+    // 事件循环被完全占住。CI 上表现为一个测试文件吃满 timeout-minutes 后被
+    // 杀掉（job conclusion = cancelled 而不是 failure），本地表现为设置页
+    // 一点「全部启用」整个页面就焊死。
+    for (const id of Array.from(this.shortcuts.keys())) {
+      this.enable(id)
+    }
   }
 
   /**
    * Disable all shortcuts
    */
   disableAll(): void {
-    this.shortcuts.forEach((_, id) => this.disable(id))
+    // v13：同上，先快照再改，否则同样是无限循环。
+    for (const id of Array.from(this.shortcuts.keys())) {
+      this.disable(id)
+    }
   }
 
   /**
@@ -331,12 +345,19 @@ export class ShortcutManager {
    */
   private handleKeyDown(event: KeyboardEvent): void {
     // Ignore if event target is an input field
-    const target = event.target as HTMLElement
+    //
+    // v13：target 可能是 null。由 document 派发的 keydown 一定有 target，
+    // 但 `new KeyboardEvent(...)` 直接构造出来的事件（测试、程序化派发）
+    // target 就是 null，原来直接读 `target.tagName` 会抛
+    //   TypeError: Cannot read properties of null (reading 'tagName')
+    // 把一次按键变成一次未捕获异常。
+    const target = event.target as HTMLElement | null
     if (
-      target.tagName === 'INPUT' ||
-      target.tagName === 'TEXTAREA' ||
-      target.tagName === 'SELECT' ||
-      target.isContentEditable
+      target &&
+      (target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.isContentEditable)
     ) {
       // Allow Escape key even in input fields
       if (event.key !== 'Escape') {

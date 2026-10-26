@@ -14,7 +14,17 @@
     "portfolio": "作品案例",
     "dashboard": "控制台",
     "contact": "联系我们",
-    "global": "7zi 环球通"
+    "global": "7zi 环球通",
+    "siteNameShort": "7ziStudio",
+    "tasks": "任务",
+    "subagents": "子代理",
+    "memory": "记忆库",
+    "language": "语言",
+    "theme": "主题",
+    "mobileMenu": {
+      "open": "打开菜单",
+      "close": "关闭菜单"
+    }
   },
   "home": {
     "title": "首页 - AI 驱动的创新数字工作室",

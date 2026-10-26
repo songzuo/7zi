@@ -1,75 +1,101 @@
 /**
  * draft-storage.test.ts
  * IndexedDB 草稿存储测试
+ *
+ * v12 修复（分片 3/4 被 cancelled 的真凶）
+ * ---------------------------------------------------------------
+ * 原来的 fake IDBRequest 只是把 onsuccess / onerror 初始化成 null，
+ * 从头到尾**没有任何人调用它们**。而 DraftStorage 的每个方法都是
+ *
+ *     return new Promise((resolve, reject) => {
+ *       const request = ...
+ *       request.onsuccess = () => resolve()
+ *       request.onerror = () => reject(...)
+ *     })
+ *
+ * 于是 Promise 永不 settle → 只能等 testTimeout（60s）→ CI 里
+ * `retry: 1` 再跑一遍 → 单个用例 120s+。实测：
+ *
+ *     ❯ src/lib/storage/__tests__/draft-storage.test.ts (9 tests | 8 failed) 700456ms
+ *           × 应该成功初始化数据库 140117ms (retry x1)
+ *           × 应该保存和读取草稿 120064ms (retry x1)
+ *           ...
+ *
+ * 单个文件 700s，直接把 CI 的分片 3/4 顶穿 20 分钟上限，
+ * job conclusion 变成 cancelled（不是 failure）→ 整个 run 判红 → 一封邮件。
+ *
+ * 现在用 fakeRequest()：一旦给 onsuccess 赋值，就在下一个宏任务里回调一次。
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { DraftStorage, WorkflowDraft, getDraftStorage } from '@/lib/storage/draft-storage'
 import { WorkflowDefinition, WorkflowStatus, NodeType } from '@/types/workflow'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
- * 构造一个会在 onsuccess 被赋值时立即回调的 mock request。
+ * 创建一个「会真正回调」的 fake IDBRequest。
  *
- * 原实现只把 onsuccess 置为 null，storage 内部 `request.onsuccess = () => resolve()`
- * 赋值后再没人触发，Promise 永远挂起 —— 每个用例都要等到超时才失败
- * （该文件曾耗时 354 秒，单文件就足以撑爆 CI 的 10 分钟分片上限）。
+ * - 赋值 req.onsuccess = fn 后，下一个宏任务里调用 fn 一次（只一次）。
+ * - 没被赋值的 request（例如只做 fire-and-forget 的 metadataStore.put）
+ *   不会触发任何回调，也就不会挂住任何 Promise。
  */
-function createAutoRequest<T>(result: T, error: unknown = null) {
-  const request: Record<string, any> = {
-    result,
-    error,
-    onsuccess: null as any,
-    onerror: null as any,
-    onupgradeneeded: null as any,
+function fakeRequest(result?: any): any {
+  const req: any = { result, error: null, onsuccess: null, onerror: null }
+  let handler: any = null
+  let fired = false
+
+  Object.defineProperty(req, 'onsuccess', {
+    configurable: true,
+    enumerable: true,
+    get: () => handler,
+    set: (fn: any) => {
+      handler = fn
+      if (fired || typeof fn !== 'function') return
+      fired = true
+      setTimeout(() => handler({ target: req }), 0)
+    },
+  })
+
+  return req
+}
+
+/** 造一个带 transaction() 的假 IDBDatabase，transaction 里统一返回同一个 store */
+function fakeDb(store: Record<string, any>): any {
+  return {
+    close: vi.fn(),
+    transaction: vi.fn(() => ({ objectStore: vi.fn(() => store) })),
   }
-
-  Object.defineProperty(request, 'onsuccess', {
-    get: () => request.__onsuccess ?? null,
-    set: (handler: ((ev?: any) => void) | null) => {
-      request.__onsuccess = handler
-      if (handler) handler({ target: request })
-    },
-    configurable: true,
-  })
-
-  Object.defineProperty(request, 'onerror', {
-    get: () => request.__onerror ?? null,
-    set: (handler: ((ev?: any) => void) | null) => {
-      request.__onerror = handler
-      if (handler && error) handler({ target: request })
-    },
-    configurable: true,
-  })
-
-  return request
 }
 
 describe('DraftStorage', () => {
   let storage: DraftStorage
-  let originalIndexedDB: typeof indexedDB
+  let originalIndexedDB: any
 
   beforeEach(() => {
     storage = new DraftStorage()
     originalIndexedDB = (global as any).indexedDB
   })
 
-  afterEach(async () => {
+  afterEach(() => {
+    // 关键：这里**不能** await clearAllDrafts()。
+    // 原实现无条件 await 它，只要 mock db 的 clear() 不回调，
+    // afterEach 就会吃满 hookTimeout(10s)，CI retry 再翻倍 —— 连纯同步的
+    // 用例（「应该创建草稿从 WorkflowDefinition」）都被拖红 20s。
     try {
-      // 兜底：mock 场景下 clear 请求可能永不回调，不能让它拖垮整个套件
-      await Promise.race([
-        storage.clearAllDrafts(),
-        new Promise((resolve) => setTimeout(resolve, 1000)),
-      ])
-    } catch {}
-    storage.close()
-    if (originalIndexedDB) {
+      storage.close()
+    } catch {
+      /* 手工塞的 mock db 可能没有 close() */
+    }
+    if (originalIndexedDB === undefined) {
+      delete (global as any).indexedDB
+    } else {
       (global as any).indexedDB = originalIndexedDB
     }
   })
 
   describe('初始化', () => {
     it('应该成功初始化数据库', async () => {
-      // 模拟 IndexedDB
       const mockDB = {
         close: vi.fn(),
         transaction: vi.fn(),
@@ -78,12 +104,8 @@ describe('DraftStorage', () => {
         },
       }
 
-      const mockRequest = createAutoRequest(mockDB)
-
-      const mockOpen = vi.fn().mockReturnValue(mockRequest)
-      ;(global as any).indexedDB = {
-        open: mockOpen,
-      }
+      const mockOpen = vi.fn().mockReturnValue(fakeRequest(mockDB))
+      ;(global as any).indexedDB = { open: mockOpen }
 
       await storage.init()
 
@@ -127,18 +149,16 @@ describe('DraftStorage', () => {
       const workflow = createMockWorkflow()
       const draft = storage.createDraftFromWorkflow(workflow, true)
 
-      // 模拟保存
-      const mockTransaction = {
-        objectStore: vi.fn().mockReturnValue({
-          put: vi.fn(() => createAutoRequest(undefined)),
-        }),
-      }
-      storage['db'] = {
-        close: vi.fn(),
-        transaction: vi.fn().mockReturnValue(mockTransaction),
-      } as any
+      const store = { put: vi.fn(() => fakeRequest(1)) }
+      storage['db'] = fakeDb(store)
 
-      await expect(storage.saveDraft(draft)).resolves.not.toThrow()
+      // 原来写的是 `await expect(storage.saveDraft(draft)).resolves.not.toThrow()`，
+      // 这是**第二个隐藏 bug**：toThrow 要求 received 是函数，resolves 出来的是
+      // undefined，于是抛「received value must be a function」—— `.not` 挡不住
+      // 这种前置错误。挂死修好之后它照样会红。直接 await 即可：
+      // 没 reject 就是通过，reject 了用例本身就失败。
+      await storage.saveDraft(draft)
+      expect(store.put).toHaveBeenCalledTimes(2) // 草稿 + 元数据
     })
 
     it('应该创建草稿从 WorkflowDefinition', () => {
@@ -163,27 +183,21 @@ describe('DraftStorage', () => {
 
   describe('草稿管理', () => {
     it('应该获取所有草稿元数据', async () => {
-      const mockRequest = createAutoRequest([
-        {
-          id: 'draft-1',
-          name: '草稿1',
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-02T00:00:00Z',
-          autoSaved: false,
-          version: 1,
-        },
-      ])
-
-      const mockTransaction = {
-        objectStore: vi.fn().mockReturnValue({
-          getAll: vi.fn().mockReturnValue(mockRequest),
-        }),
+      const store = {
+        getAll: vi.fn(() =>
+          fakeRequest([
+            {
+              id: 'draft-1',
+              name: '草稿1',
+              createdAt: '2024-01-01T00:00:00Z',
+              updatedAt: '2024-01-02T00:00:00Z',
+              autoSaved: false,
+              version: 1,
+            },
+          ])
+        ),
       }
-
-      storage['db'] = {
-        close: vi.fn(),
-        transaction: vi.fn().mockReturnValue(mockTransaction),
-      } as any
+      storage['db'] = fakeDb(store)
 
       const metadata = await storage.getAllDraftMetadata()
 
@@ -192,37 +206,19 @@ describe('DraftStorage', () => {
     })
 
     it('应该删除草稿', async () => {
-      const mockDeleteRequest = createAutoRequest(undefined)
+      const store = { delete: vi.fn(() => fakeRequest(undefined)) }
+      storage['db'] = fakeDb(store)
 
-      const mockTransaction = {
-        objectStore: vi.fn().mockReturnValue({
-          delete: vi.fn().mockReturnValue(mockDeleteRequest),
-        }),
-      }
-
-      storage['db'] = {
-        close: vi.fn(),
-        transaction: vi.fn().mockReturnValue(mockTransaction),
-      } as any
-
-      await expect(storage.deleteDraft('draft-1')).resolves.not.toThrow()
+      await storage.deleteDraft('draft-1')
+      expect(store.delete).toHaveBeenCalledWith('draft-1')
     })
 
     it('应该清空所有草稿', async () => {
-      const mockClearRequest = createAutoRequest(undefined)
+      const store = { clear: vi.fn(() => fakeRequest(undefined)) }
+      storage['db'] = fakeDb(store)
 
-      const mockTransaction = {
-        objectStore: vi.fn().mockReturnValue({
-          clear: vi.fn().mockReturnValue(mockClearRequest),
-        }),
-      }
-
-      storage['db'] = {
-        close: vi.fn(),
-        transaction: vi.fn().mockReturnValue(mockTransaction),
-      } as any
-
-      await expect(storage.clearAllDrafts()).resolves.not.toThrow()
+      await storage.clearAllDrafts()
+      expect(store.clear).toHaveBeenCalledTimes(2) // 草稿 + 元数据
     })
   })
 

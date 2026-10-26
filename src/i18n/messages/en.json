@@ -14,7 +14,17 @@
     "portfolio": "Portfolio",
     "dashboard": "Dashboard",
     "contact": "Contact",
-    "global": "7zi Global"
+    "global": "7zi Global",
+    "siteNameShort": "7ziStudio",
+    "tasks": "Tasks",
+    "subagents": "Subagents",
+    "memory": "Memory",
+    "language": "Language",
+    "theme": "Theme",
+    "mobileMenu": {
+      "open": "Open menu",
+      "close": "Close menu"
+    }
   },
   "home": {
     "title": "Home - AI-Powered Digital Innovation Studio",

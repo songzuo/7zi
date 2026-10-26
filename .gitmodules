@@ -1,0 +1,3 @@
+[submodule "botmem"]
+	path = botmem
+	url = https://github.com/songzuo/botmem.git

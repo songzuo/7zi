@@ -37,12 +37,29 @@
  * @see docs/LOADING-SYSTEM.md - Complete documentation
  */
 
+/**
+ * v12 结构性修复
+ * ---------------------------------------------------------------
+ * Next.js 16 只允许**根 layout**（src/app/layout.tsx）渲染 <html>/<body>。
+ * 本文件此前又渲染了一遍 <html lang={locale}><head>…</head><body>…</body></html>，
+ * SSR 出来的 DOM 是嵌套的 <html>，React 19 直接抛一个**没有消息**的 Error
+ * （digest 97180869），整页 500：
+ *
+ *   Error:
+ *       at <unknown> (.next/server/chunks/ssr/_0ym-q82le7ws5._.js:9:13654)
+ *       digest: '97180869'
+ *
+ * 后果是 Lighthouse 拿不到 FCP（runtimeError.code = NO_FCP），
+ * .lighthouseci/ 空目录 → 这条审计从来没测到过东西。
+ *
+ * 现在 DOM 骨架、字体、globals.css、Providers 全部归根 layout；
+ * 本文件只负责 locale 相关能力：i18n 消息、导航、页脚、结构化数据。
+ */
+
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { Locale, locales } from '@/i18n/config'
-import { Geist, Geist_Mono } from 'next/font/google'
-import { Providers } from '@/components/Providers'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
 import { Analytics } from '@/components/Analytics'
@@ -51,17 +68,6 @@ import { Navigation } from '@/components/Navigation'
 import { StructuredData } from '@/components/SEO'
 import PerformanceOptimizer from '@/components/PerformanceOptimizer'
 import type { Metadata } from 'next'
-import '@/app/globals.css'
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
 
 type Params = Promise<{ locale: string }>
 
@@ -209,51 +215,36 @@ export default async function RootLayout({
   const messages = await getMessages()
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <head>
-        {/* Hreflang 标签 */}
-        <link rel="alternate" hrefLang="zh-CN" href={`${baseUrl}/zh`} />
-        <link rel="alternate" hrefLang="en-US" href={`${baseUrl}/en`} />
-        <link rel="alternate" hrefLang="x-default" href={`${baseUrl}/zh`} />
+    <>
+      {/* Performance Optimization - Initialize Web Vitals monitoring & optimizations */}
+      <PerformanceOptimizer
+        debug={process.env.NODE_ENV === 'development'}
+        preloadCritical={true}
+        sampleRate={1.0}
+      />
 
-        {/* DNS 预获取 - 加速外部资源连接 */}
-        <link rel="dns-prefetch" href="//github.com" />
-        <link rel="dns-prefetch" href="//avatars.githubusercontent.com" />
-
-        {/* 预连接 - 提前建立网络连接 */}
-        <link rel="preconnect" href="https://github.com" crossOrigin="anonymous" />
-        <link
-          rel="preconnect"
-          href="https://avatars.githubusercontent.com"
-          crossOrigin="anonymous"
-        />
-
-        {/* 资源预加载提示 - LCP 优化 */}
-        <link rel="preload" href="/og-image.svg" as="image" fetchPriority="high" />
-        <link rel="preload" href="/favicon.ico" as="image" />
-
-        {/* 结构化数据 */}
-        <StructuredData locale={locale as 'zh' | 'en'} schemas={['website', 'organization']} />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiassed`}>
-        {/* Performance Optimization - Initialize Web Vitals monitoring & optimizations */}
-        <PerformanceOptimizer
-          debug={process.env.NODE_ENV === 'development'}
-          preloadCritical={true}
-          sampleRate={1.0}
-        />
-
+      {/* v13：Navigation / Footer 必须落在 NextIntlClientProvider **里面**。
+          两者都是 'use client' 且都要 intl context：
+            Navigation → useTranslations('nav')，且内部 <LanguageSwitcherCompact/>
+                         还会调 useLocale()
+            Footer     → useTranslations('footer')
+          放在 provider 外面时，SSR 阶段 use-intl 取不到 context 会
+          `throw new Error(undefined)`（message 是空字符串，日志里只剩 `⨯ Error: `），
+          digest 3442073182，整页 500 → Lighthouse 拿不到 FCP（NO_FCP）。
+          根 layout 的 Providers → ClientProviders 是纯副作用宿主，不提供 intl context。 */}
+      <NextIntlClientProvider messages={messages}>
         <Navigation />
         <Analytics />
-        <NextIntlClientProvider messages={messages}>
-          <Providers>
-            {children}
-            <ServiceWorkerRegistration />
-            <PWAInstallPrompt />
-          </Providers>
-        </NextIntlClientProvider>
+        {children}
+        <ServiceWorkerRegistration />
+        <PWAInstallPrompt />
         <Footer />
-      </body>
-    </html>
+      </NextIntlClientProvider>
+
+      {/* 结构化数据：next/script 的 strategy="afterInteractive" 必须落在 body 内，
+          所以从原来手写的 head 里搬到这里。 */}
+      <StructuredData locale={locale} schemas={['website', 'organization']} />
+    </>
   )
 }
+

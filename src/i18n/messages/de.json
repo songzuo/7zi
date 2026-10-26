@@ -14,7 +14,17 @@
     "portfolio": "Portfolio",
     "dashboard": "Dashboard",
     "contact": "Kontakt",
-    "global": "7zi Global"
+    "global": "7zi Global",
+    "siteNameShort": "7ziStudio",
+    "tasks": "Aufgaben",
+    "subagents": "Subagenten",
+    "memory": "Speicher",
+    "language": "Sprache",
+    "theme": "Design",
+    "mobileMenu": {
+      "open": "Menü öffnen",
+      "close": "Menü schließen"
+    }
   },
   "home": {
     "title": "Startseite – KI-gestütztes Studio für digitale Innovation",

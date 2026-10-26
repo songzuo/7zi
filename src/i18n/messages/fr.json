@@ -14,7 +14,17 @@
     "portfolio": "Portfolio",
     "dashboard": "Tableau de bord",
     "contact": "Contact",
-    "global": "7zi Global"
+    "global": "7zi Global",
+    "siteNameShort": "7ziStudio",
+    "tasks": "Tâches",
+    "subagents": "Sous-agents",
+    "memory": "Mémoire",
+    "language": "Langue",
+    "theme": "Thème",
+    "mobileMenu": {
+      "open": "Ouvrir le menu",
+      "close": "Fermer le menu"
+    }
   },
   "home": {
     "title": "Accueil - Studio d'Innovation Numérique Propulsé par l'IA",

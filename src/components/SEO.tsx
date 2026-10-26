@@ -16,7 +16,9 @@ import {
 } from '@/lib/seo-metadata'
 
 interface SEOProps {
-  locale?: 'zh' | 'en'
+  // v12：宽成 string。locales 有 7 项，原来写死 'zh' | 'en' 只是靠
+  // 调用处 `locale as 'zh' | 'en'` 强行断言，运行时 seoConfig 取不到就崩。
+  locale?: string
   schemas?: Array<'website' | 'organization' | 'breadcrumb' | 'faq'>
   customSchemas?: Array<Record<string, unknown>>
   breadcrumbs?: Array<{ name: string; nameEn: string; path: string }>
