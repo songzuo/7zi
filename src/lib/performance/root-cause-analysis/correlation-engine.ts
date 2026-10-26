@@ -447,7 +447,7 @@ export class CorrelationEngine {
     return Math.min(density / 10, 1)
   }
 
-  private calculateContextualStrength(events: AnomalyEvent[], key: keyof EventContext): number {
+  private calculateContextualStrength(events: AnomalyEvent[], _key: keyof EventContext): number {
     // More events sharing same context = stronger correlation
     const eventCount = events.length
     const severityMatch = this.calculateSeverityMatch(events)
@@ -677,7 +677,7 @@ export class CorrelationEngine {
     return `${correlations.length} correlations involving ${totalEvents} events. Primary: ${primary.description}`
   }
 
-  private inferRootCause(correlations: Correlation[], primary: Correlation): string {
+  private inferRootCause(correlations: Correlation[], _primary: Correlation): string {
     // Use primary correlation's hypothesis as starting point
     const hypotheses = correlations.map(c => c.rootCauseHypothesis)
     const frequencyMap: Record<string, number> = {}

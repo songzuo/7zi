@@ -20,7 +20,6 @@ import type {
   ReportSection,
   ReportMetric,
   LogEntry,
-  LogLevel,
   LogEvent,
   LogEventListener,
 } from '../types.js';
@@ -68,7 +67,7 @@ export class LogAnalysisEngine extends EventEmitter implements IAnalysisEngine {
 
     // Get log counts by level
     const levelCounts = await this.getLogCountsByField(timeRange, 'level');
-    const sourceCounts = await this.getLogCountsByField(timeRange, 'source.name');
+    await this.getLogCountsByField(timeRange, 'source.name');
 
     // Detect spikes in error rates
     if (levelCounts.error || levelCounts.fatal) {
@@ -859,7 +858,7 @@ export class LogAnalysisEngine extends EventEmitter implements IAnalysisEngine {
   /**
    * 发现相关性
    */
-  private async findCorrelations(timeRange: TimeRange): Promise<Insight[]> {
+  private async findCorrelations(_timeRange: TimeRange): Promise<Insight[]> {
     // Simplified correlation detection
     return [];
   }

@@ -145,7 +145,7 @@ export function validateRequestHeaders(
  */
 export function createApiErrorHandler(
   routeName: string,
-  additionalTags: Record<string, string> = {}
+  _additionalTags: Record<string, string> = {}
 ): (error: Error, request: NextRequest) => NextResponse {
   return (error: Error, request: NextRequest) => {
     // Determine error type based on error properties

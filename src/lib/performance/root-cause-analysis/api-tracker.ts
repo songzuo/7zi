@@ -174,7 +174,6 @@ export class APITracker {
    */
   private calculateStatistics(): APIStatistics {
     const requests = this.requestHistory
-    const slowRequests = requests.filter(r => r.duration > this.config.api.slowRequestThreshold)
 
     // Requests by endpoint
     const requestsByEndpoint = new Map<string, number>()
@@ -470,8 +469,6 @@ export class APITracker {
    * Get issue description
    */
   private getIssueDescription(type: APIIssueType, requests: APIRequest[]): string {
-    const avgDuration = requests.reduce((sum, r) => sum + r.duration, 0) / requests.length
-
     const descriptions: Record<APIIssueType, string> = {
       'server-error': `${requests.length} server errors (5xx) detected`,
       'client-error': `${requests.length} client errors (4xx) detected`,

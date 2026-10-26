@@ -8,7 +8,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   DistributedRateLimiter,
   KeyGenerators,
-  createEnhancedRateLimitMiddleware,
   withEnhancedRateLimit,
   PresetConfigs,
   RedisAdapter,
@@ -57,13 +56,13 @@ const registerLimiter = new DistributedRateLimiter({
 })
 
 export const POST_register = withEnhancedRateLimit(
-  async (req: NextRequest) => {
+  async (_req: NextRequest) => {
     // 处理注册逻辑
     return NextResponse.json({ success: true })
   },
   {
     limiter: registerLimiter,
-    onLimitReached: (req: NextRequest, result: RateLimitResult) => {
+    onLimitReached: (req: NextRequest, _result: RateLimitResult) => {
       console.warn(`Rate limit exceeded for IP: ${KeyGenerators.byIP(req)}`)
     },
   } as RateLimitMiddlewareOptions
@@ -80,11 +79,11 @@ const redisAdapter = new RedisAdapter({
 })
 
 // 连接 Redis (通常在应用启动时调用)
-async function initRedis() {
+export async function initRedis() {
   await redisAdapter.connect({
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD,
+    host: redisEnv.REDIS_HOST || 'localhost',
+    port: parseInt(redisEnv.REDIS_PORT || '6379'),
+    password: redisEnv.REDIS_PASSWORD,
   })
 }
 
@@ -349,13 +348,24 @@ export async function rateLimitMiddleware(req: NextRequest): Promise<NextRespons
 // 类型定义
 // ============================================================
 
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      REDIS_HOST?: string
-      REDIS_PORT?: string
-      REDIS_PASSWORD?: string
-      REDIS_DB?: string
-    }
-  }
+/**
+ * Redis 相关环境变量
+ *
+ * 仅本文件使用，不做全局 ProcessEnv 扩展。
+ */
+interface RateLimitRedisEnv {
+  REDIS_HOST?: string
+  REDIS_PORT?: string
+  REDIS_PASSWORD?: string
+  REDIS_DB?: string
+}
+
+// `process.env` 是 `ProcessEnv`（索引签名 + 任意字符串），不能整体赋值给
+// `RateLimitRedisEnv`（弱类型：字段全部可选，TS2559 —— "no properties in common"）。
+// 这里显式列出需要的字段做一次窄化映射，运行时取值完全等价。
+const redisEnv: RateLimitRedisEnv = {
+  REDIS_HOST: process.env.REDIS_HOST,
+  REDIS_PORT: process.env.REDIS_PORT,
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+  REDIS_DB: process.env.REDIS_DB,
 }

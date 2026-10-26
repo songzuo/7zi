@@ -327,7 +327,6 @@ export class ExportProgressTracker extends EventEmitter {
   getProgress(): ExportProgressDetail {
     const overallProgress = this.calculateOverallProgress()
     const now = Date.now()
-    const durationSeconds = (now - this.startTime.getTime()) / 1000
 
     // 计算速度
     let speedRecordsPerSecond: number | undefined

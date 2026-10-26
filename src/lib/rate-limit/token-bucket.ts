@@ -32,14 +32,6 @@ export interface TokenBucketConfig {
 }
 
 /**
- * Token bucket state stored in Redis
- */
-interface TokenBucketState {
-  tokens: number
-  lastRefill: number
-}
-
-/**
  * Check and update token bucket rate limit
  *
  * The token bucket algorithm:
@@ -137,7 +129,7 @@ async function checkTokenBucketRedis(
   // Execute Lua script
   const result = await client.eval(luaScript, 1, key, now, capacity, refillRate)
 
-  const [allowed, tokens, lastRefill] = result as [boolean, number, number]
+  const [allowed, tokens] = result as [boolean, number, number]
   const remaining = Math.max(0, Math.floor(tokens))
   const resetTime = now + window * 1000
 
@@ -158,7 +150,7 @@ function checkTokenBucketMemory(
   capacity: number,
   refillRate: number,
   window: number,
-  now: number
+  _now: number
 ): TokenBucketResult {
   const memoryStore = getMemoryStore()
   const result = memoryStore.checkTokenBucket(key, capacity, refillRate, window)

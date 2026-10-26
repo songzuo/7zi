@@ -156,7 +156,7 @@ export class DistributedRateLimiter {
    * @param key 键
    * @returns 速率限制结果
    */
-  private checkWithMemory(key: string): RateLimitResult {
+  private checkWithMemory(_key: string): RateLimitResult {
     // 注意：这里简化处理，实际应该为每个 key 维护独立的计数器
     // 为了演示，直接使用算法实例
     const currentTime = Date.now()
@@ -181,7 +181,7 @@ export class DistributedRateLimiter {
    * 记录成功的请求（如果配置了 skipSuccessfulRequests）
    * @param req 请求对象
    */
-  async recordSuccess(req: RateLimitRequest): Promise<void> {
+  async recordSuccess(_req: RateLimitRequest): Promise<void> {
     if (this.config.skipSuccessfulRequests) {
       // 不计入限制
       return

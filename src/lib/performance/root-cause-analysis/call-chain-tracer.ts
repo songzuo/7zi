@@ -428,7 +428,7 @@ export class CallChainTracer {
   /**
    * Identify bottlenecks
    */
-  private identifyBottlenecks(chain: CallChain, summary: CallChainSummary): CallBottleneck[] {
+  private identifyBottlenecks(chain: CallChain, _summary: CallChainSummary): CallBottleneck[] {
     const bottlenecks: CallBottleneck[] = []
     const nodes = Array.from(chain.nodes.values())
 

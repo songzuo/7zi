@@ -4,7 +4,6 @@
  */
 
 import { NextResponse } from 'next/server'
-import { ErrorType } from './error-handler'
 
 /**
  * Email validation regex
@@ -56,31 +55,6 @@ export function validatePasswordStrength(password: string): PasswordStrengthResu
   return {
     isValid: errors.length === 0,
     errors,
-  }
-}
-
-/**
- * Auth cookie options
- */
-interface CookieOptions {
-  httpOnly: boolean
-  secure: boolean
-  sameSite: 'strict' | 'lax' | 'none'
-  maxAge: number
-  path: string
-}
-
-/**
- * Default cookie options based on environment
- * Uses 'strict' SameSite policy for enhanced security
- */
-function getDefaultCookieOptions(maxAge: number): CookieOptions {
-  return {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge,
-    path: '/',
   }
 }
 

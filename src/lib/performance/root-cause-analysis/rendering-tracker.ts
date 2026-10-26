@@ -550,7 +550,7 @@ export class RenderingTracker {
    */
   private getComponentInvolved(
     type: RenderingIssueType,
-    metrics: RenderingMetrics[]
+    _metrics: RenderingMetrics[]
   ): string | undefined {
     if (type === 'long-tasks' || type === 'blocking-resource') {
       return this.getMostAttributedTask()

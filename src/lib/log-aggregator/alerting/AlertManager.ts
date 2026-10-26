@@ -10,13 +10,10 @@ import type {
   AlertRuleConfig,
   AlertInstance,
   AlertCondition,
-  AlertSeverity,
-  AlertStatus,
   AlertHistoryQuery,
   ILogStorage,
   LogEntry,
   LogQuery,
-  TimeRange,
   LogEvent,
   LogEventListener,
 } from '../types.js';
@@ -766,7 +763,7 @@ export class AlertManager extends EventEmitter implements IAlertManager {
    */
   private async triggerPagerDuty(
     alert: AlertInstance,
-    config: Record<string, unknown>
+    _config: Record<string, unknown>
   ): Promise<void> {
     // Implementation would use PagerDuty API
     console.log(`Triggering PagerDuty alert: ${alert.title}`);

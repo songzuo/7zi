@@ -13,9 +13,7 @@ import type {
   RateLimitResult,
   RateLimitHeaders,
   RateLimitLayer,
-  IStorageAdapter,
-  TokenBucketConfig,
-  SlidingWindowConfig
+  IStorageAdapter
 } from '../types'
 import { TokenBucket, MemoryTokenBucket } from '../algorithms/token-bucket'
 import { SlidingWindow, MemorySlidingWindow } from '../algorithms/sliding-window'
@@ -189,7 +187,7 @@ export class MultiLayerMiddleware {
   /**
    * Check global rate limit
    */
-  private async checkGlobal(context: RateLimitContext): Promise<LayerResult> {
+  private async checkGlobal(_context: RateLimitContext): Promise<LayerResult> {
     const start = Date.now()
     const config = this.config.global
     const key = 'global'

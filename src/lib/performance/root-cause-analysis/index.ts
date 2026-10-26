@@ -242,7 +242,7 @@ export const integrateWithAnomalyDetection = (
   detector: AnomalyDetector
 ) => {
   // Set up automatic root cause analysis on anomaly detection
-  detector.on('anomaly', (anomaly: AnomalyDetectionEvent) => {
+  detector.on('anomaly', (_anomaly: AnomalyDetectionEvent) => {
     const report = analyzer.generateReport()
     return report
   })

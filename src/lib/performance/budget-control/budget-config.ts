@@ -287,7 +287,6 @@ export class BudgetConfigManager {
       const existingIndex = mergedBudgets.findIndex(b => b.path === budget.path)
       if (existingIndex >= 0) {
         // Merge timings for existing budget
-        const existing = mergedBudgets[existingIndex]
         const mergedTimings = [...budget.timings]
         for (const defaultTiming of defaults.budgets.find(b => b.path === budget.path)?.timings ||
           []) {
@@ -369,7 +368,7 @@ export class BudgetConfigManager {
     tolerance: number
     description: string
   } | null> {
-    const config = await this.loadConfig()
+    await this.loadConfig()
     const budget = await this.getBudgetForPath('/') // Use root budget as reference
 
     if (!budget) {

@@ -23,8 +23,8 @@ export async function getRateLimitStatus(
   currentCount?: number
   tokensAvailable?: number
 } | null> {
-  const { checkSlidingWindow, getSlidingWindowStatus } = await import('./sliding-window')
-  const { checkTokenBucket, getTokenBucketStatus } = await import('./token-bucket')
+  const { getSlidingWindowStatus } = await import('./sliding-window')
+  const { getTokenBucketStatus } = await import('./token-bucket')
 
   const algorithm = customConfig?.algorithm || 'sliding-window'
   const limit = customConfig?.limit || 60

@@ -155,7 +155,6 @@ export class BatchExporter {
     request: BatchExportRequest<T>
   ): Promise<BatchExportResult> {
     this.abortController = new AbortController()
-    const startTime = Date.now()
 
     const progress: BatchExportProgress = {
       totalItems: request.items.length,
@@ -261,8 +260,6 @@ export class BatchExporter {
       progress.stage = 'completed'
       progress.percentage = 100
       this.updateProgress(progress)
-
-      const duration = Date.now() - startTime
 
       return {
         success: true,

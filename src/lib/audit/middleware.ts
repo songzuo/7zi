@@ -63,7 +63,7 @@ export function createAuditMiddleware(options: AuditMiddlewareOptions = {}) {
       'DELETE': 'DELETE',
     },
     logRequestBody = false,
-    logResponseBody = false,
+    logResponseBody: _logResponseBody = false,
     maxBodySize = 1024,
     extractUserId,
     extractUsername,
@@ -190,18 +190,18 @@ export function createAuditMiddleware(options: AuditMiddlewareOptions = {}) {
     }
 
     const method = request.method;
-    const action = actionMap[method] || 'READ';
+    const _action = actionMap[method] || 'READ';
 
     // 解析资源信息
-    const { resource, resourceId } = parseResource(pathname);
+    const { resource: _resource, resourceId: _resourceId } = parseResource(pathname);
 
     // 获取客户端信息
-    const ipAddress = getClientIp(request);
-    const userAgent = getUserAgent(request);
+    const _ipAddress = getClientIp(request);
+    const _userAgent = getUserAgent(request);
 
     // 提取用户信息
     const userId = extractUserId ? await extractUserId(request) : null;
-    const username = extractUsername ? await extractUsername(request) : null;
+    const _username = extractUsername ? await extractUsername(request) : null;
 
     // 如果没有用户ID，跳过审计 (可以根据需求调整)
     if (!userId) {
@@ -209,7 +209,7 @@ export function createAuditMiddleware(options: AuditMiddlewareOptions = {}) {
     }
 
     // 记录请求开始
-    const startTime = Date.now();
+    const _startTime = Date.now();
 
     // 准备元数据
     const metadata: Record<string, unknown> = {
@@ -222,7 +222,7 @@ export function createAuditMiddleware(options: AuditMiddlewareOptions = {}) {
       try {
         const body = await request.clone().json();
         metadata.requestBody = truncateData(body, maxBodySize);
-      } catch (error) {
+      } catch {
         // 忽略JSON解析错误
       }
     }
@@ -275,7 +275,7 @@ export function wrapResponseForAudit(
         try {
           const body = await clonedResponse.clone().json();
           metadata.responseBody = JSON.stringify(body).substring(0, maxBodySize);
-        } catch (error) {
+        } catch {
           // 忽略JSON解析错误
         }
       }
@@ -325,7 +325,7 @@ export function extractUserIdFromToken(request: NextRequest): string | null {
 
     const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
     return payload.userId || payload.sub || null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -349,7 +349,7 @@ export function extractUsernameFromToken(request: NextRequest): string | null {
 
     const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
     return payload.username || payload.name || null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

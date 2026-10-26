@@ -319,10 +319,10 @@ export function calculateDuration(startTime: number): number {
  * Send error to external monitoring (Sentry, DataDog, etc.)
  * This is a placeholder for external monitoring integration
  *
- * @param error - The error object
- * @param errorData - Structured error data
+ * @param _error - The error object (reserved for external monitoring integration)
+ * @param _errorData - Structured error data (reserved for external monitoring integration)
  */
-function sendToExternalMonitoring(error: Error, errorData: ErrorLogData): void {
+function sendToExternalMonitoring(_error: Error, _errorData: ErrorLogData): void {
   // Sentry integration (placeholder)
   if (typeof window === 'undefined' && process.env.SENTRY_DSN) {
     // In a real implementation, you would do:

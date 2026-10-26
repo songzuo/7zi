@@ -738,7 +738,7 @@ export class EscalationPolicyManager {
    */
   private async executeTriggerIncident(
     alert: PerformanceAlert,
-    step: EscalationStep
+    _step: EscalationStep
   ): Promise<void> {
     if (this.incidentTrigger) {
       await this.incidentTrigger(alert)
@@ -752,7 +752,7 @@ export class EscalationPolicyManager {
    */
   private async executeAutoAcknowledge(
     alert: PerformanceAlert,
-    step: EscalationStep
+    _step: EscalationStep
   ): Promise<void> {
     alert.status = 'acknowledged'
     alert.acknowledgedAt = Date.now()
@@ -766,7 +766,7 @@ export class EscalationPolicyManager {
   /**
    * Execute auto resolve action
    */
-  private async executeAutoResolve(alert: PerformanceAlert, step: EscalationStep): Promise<void> {
+  private async executeAutoResolve(alert: PerformanceAlert, _step: EscalationStep): Promise<void> {
     alert.status = 'resolved'
     alert.resolvedAt = Date.now()
     alert.updatedAt = Date.now()

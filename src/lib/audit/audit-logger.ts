@@ -6,8 +6,6 @@
 
 import type {
   AuditLogEntry,
-  AuditAction,
-  AuditStatus,
   AuditLogFilter,
   AuditLogQueryOptions,
   AuditLogQueryResult,

@@ -143,4 +143,5 @@ export class Column {
 // 导出
 // ============================================================================
 
-export default { Workbook }
+const xlsxStub = { Workbook }
+export default xlsxStub

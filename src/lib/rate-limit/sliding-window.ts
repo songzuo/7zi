@@ -113,7 +113,6 @@ async function checkSlidingWindowRedis(
   }
 
   const count = results[1][1] as number
-  const entries = results[2][1] as string[]
 
   const allowed = count < limit
   const remaining = Math.max(0, limit - count - (allowed ? 1 : 0))

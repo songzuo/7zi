@@ -17,11 +17,6 @@ interface MemoryEntry {
   lastRefill?: number // 用于令牌桶算法
 }
 
-interface TokenBucketState {
-  tokens: number
-  lastRefill: number
-}
-
 /**
  * 内存限流存储类
  */

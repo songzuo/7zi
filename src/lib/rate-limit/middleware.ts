@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getRateLimitEnvConfig, mergeRateLimitConfig, RateLimitEnvironmentConfig } from './config'
+import { mergeRateLimitConfig, RateLimitEnvironmentConfig } from './config'
 import { logger } from '@/lib/logger'
 import { verifyJwtToken } from '@/lib/auth'
 

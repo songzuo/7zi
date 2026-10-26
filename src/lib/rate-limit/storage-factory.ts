@@ -7,7 +7,7 @@
  * - 支持运行时动态切换
  */
 
-import { getRedisClient, isRedisAvailable } from '@/lib/redis/client'
+import { isRedisAvailable } from '@/lib/redis/client'
 import { getMemoryStore, MemoryRateLimitStore } from './memory-store'
 import { logger } from '@/lib/logger'
 

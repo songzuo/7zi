@@ -111,10 +111,10 @@ export {
 // Factory Functions
 // ============================================================================
 
-import type { IStorageAdapter, MultiLayerRateLimitConfig, RateLimitContext } from './types'
-import { RedisAdapter, createRedisAdapterFromEnv } from './storage/redis-adapter'
+import type { IStorageAdapter, MultiLayerRateLimitConfig } from './types'
+import { RedisAdapter } from './storage/redis-adapter'
 import { MemoryAdapter } from './storage/memory-adapter'
-import { MultiLayerMiddleware, DEFAULT_CONFIG } from './middleware/multi-layer'
+import { MultiLayerMiddleware } from './middleware/multi-layer'
 import { createRateLimitMiddleware } from './middleware/express'
 import { TokenBucket } from './algorithms/token-bucket'
 import { SlidingWindow } from './algorithms/sliding-window'
@@ -359,7 +359,7 @@ export function extractRateLimitInfo(headers: Record<string, string>): {
 }
 
 // Default export
-export default {
+const rateLimitingGateway = {
   createRateLimitingGateway,
   quickSetup,
   createRateLimitMiddleware,
@@ -375,3 +375,5 @@ export default {
   createKey,
   extractRateLimitInfo
 }
+
+export default rateLimitingGateway

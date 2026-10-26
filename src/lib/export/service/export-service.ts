@@ -4,7 +4,6 @@
  * @version 2.0.0 - v1.12.0 增强版本
  */
 
-import { Readable } from 'stream'
 import { logger } from '@/lib/logger'
 import { DataExporter, ExportConfig, ExportResult, ExportField } from '../core/exporter'
 import { ExportQueue, ExportJob, ExportJobStatus, ExportJobProgress } from '../queue/export-queue'
@@ -439,7 +438,7 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
    * 当前版本提供基础框架，建议使用 Knex.js、TypeORM 或 Prisma 等库
    */
   private async fetchFromDatabase(request: ExportRequest<T>): Promise<{ data: T[]; total: number }> {
-    const { dataConfig, pagination, filters } = request
+    const { dataConfig } = request
     
     // 技术债务：需要实现实际的数据库查询
     // 建议实现方案：

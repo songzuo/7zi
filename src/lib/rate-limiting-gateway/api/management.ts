@@ -6,7 +6,7 @@
  * @version 1.10.0
  */
 
-import type { Request, Response, RequestHandler } from 'express'
+import type { RequestHandler } from 'express'
 import type { 
   IStorageAdapter, 
   RateLimitLayer, 
@@ -44,9 +44,9 @@ export function createManagementApi(config: ManagementApiConfig): {
   getHealth: RequestHandler
   router: RequestHandler
 } {
-  const { storage, middleware, apiKey, readOnly = false } = config
+  const { storage, middleware: _middleware, apiKey, readOnly = false } = config
   const tokenBucket = new TokenBucket(storage)
-  const slidingWindow = new SlidingWindow(storage)
+  const _slidingWindow = new SlidingWindow(storage)
 
   /**
    * Authentication middleware

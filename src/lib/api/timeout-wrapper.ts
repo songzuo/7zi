@@ -15,8 +15,8 @@
  */
 
 import { logger } from '../logger'
-import { createServiceUnavailableError, ErrorType } from './error-handler'
-import { getLocaleFromRequest, SupportedLocale } from './user-messages'
+import { createServiceUnavailableError } from './error-handler'
+import { SupportedLocale } from './user-messages'
 
 /**
  * Timeout error for operation timeouts
@@ -33,7 +33,7 @@ export class TimeoutError extends Error {
  *
  * @param fn - The async function to wrap
  * @param timeoutMs - Timeout in milliseconds (default: 30000)
- * @param locale - Locale for error messages (default: 'zh')
+ * @param _locale - Locale for error messages (default: 'zh', currently unused)
  * @returns Wrapped function with timeout protection
  *
  * @example
@@ -57,7 +57,7 @@ export class TimeoutError extends Error {
 export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   timeoutMs: number = 30000,
-  locale: SupportedLocale = 'zh'
+  _locale: SupportedLocale = 'zh'
 ): T {
   return (async (...args: Parameters<T>) => {
     // Create timeout promise
@@ -109,7 +109,7 @@ export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
  *
  * @param promise - The promise to wrap
  * @param timeoutMs - Timeout in milliseconds
- * @param locale - Locale for error messages
+ * @param _locale - Locale for error messages (currently unused)
  * @returns Promise that rejects with ApiError on timeout
  *
  * @example
@@ -127,7 +127,7 @@ export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
 export async function withTimeoutPromise<T>(
   promise: Promise<T>,
   timeoutMs: number = 30000,
-  locale: SupportedLocale = 'zh'
+  _locale: SupportedLocale = 'zh'
 ): Promise<T> {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {

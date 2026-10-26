@@ -4,9 +4,8 @@
  */
 
 import { EventEmitter } from 'events';
-import { createHash } from 'crypto';
 import { promises as fs } from 'fs';
-import { join, dirname } from 'path';
+import { join } from 'path';
 import type {
   LogEntry,
   LogStorageConfig,
@@ -368,7 +367,7 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
    */
   async optimize(): Promise<void> {
     // Clean up deleted entries
-    for (const [key, partition] of Array.from(this._partitions.entries())) {
+    for (const partition of Array.from(this._partitions.values())) {
       const newEntries: LogEntry[] = [];
       const newIndex = new Map<string, IndexNode>();
       

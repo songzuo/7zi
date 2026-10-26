@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { ApiError, ErrorType } from './index'
+import { ApiError } from './index'
 import { logger } from '../../logger/index'
 
 /**

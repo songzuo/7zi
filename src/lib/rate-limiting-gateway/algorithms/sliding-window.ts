@@ -11,8 +11,7 @@ import type {
   SlidingWindowConfig,
   SlidingWindowState,
   RateLimitResult,
-  IStorageAdapter,
-  StorageBackend
+  IStorageAdapter
 } from '../types'
 import { StorageError } from '../types'
 

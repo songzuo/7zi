@@ -211,7 +211,7 @@ export function extractPath(url: string): string {
   try {
     const urlObj = new URL(url)
     return urlObj.pathname
-  } catch (error) {
+  } catch {
     return url
   }
 }
@@ -252,7 +252,7 @@ export function sanitizeUrlForLogging(url: string): string {
     })
 
     return urlObj.toString()
-  } catch (error) {
+  } catch {
     return url
   }
 }

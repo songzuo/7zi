@@ -4,13 +4,10 @@
  */
 
 import type {
-  LogEntry,
   LogLevel,
   TimeRange,
   QueryFilter,
   AggregationSpec,
-  AggregateResult,
-  AggregateBucket,
 } from '../types.js';
 
 /**

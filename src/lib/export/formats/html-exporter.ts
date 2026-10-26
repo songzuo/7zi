@@ -311,7 +311,7 @@ ${styles}
   private generateHead(
     filename: string,
     options: Required<HTMLOptions>,
-    theme: typeof THEMES[keyof typeof THEMES]
+    _theme: typeof THEMES[keyof typeof THEMES]
   ): string {
     let head = `<head>
   <meta charset="${options.charset}">
@@ -553,11 +553,9 @@ ${styles}
   private generateTable<T extends Record<string, unknown>>(
     data: T[],
     columns: HTMLTableColumn[],
-    tableOptions: HTMLTableOptions | undefined,
-    theme: typeof THEMES[keyof typeof THEMES]
+    _tableOptions: HTMLTableOptions | undefined,
+    _theme: typeof THEMES[keyof typeof THEMES]
   ): string {
-    const { colors } = theme
-
     let table = `
   <div class="table-container">
     <table>

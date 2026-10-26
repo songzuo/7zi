@@ -125,7 +125,6 @@ class BullQueue<T = unknown> {
 }
 
 // Use type assertion to allow both interface and class usage
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Queue: {
   new <T = unknown>(name: string, opts?: object): Queue<T>
   <T = unknown>(name: string, opts?: object): Queue<T>
@@ -135,4 +134,5 @@ export const Queue: {
 }
 
 export { BullQueue };
-export default { createQueue };
+const bullStub = { createQueue };
+export default bullStub;

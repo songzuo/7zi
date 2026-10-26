@@ -11,8 +11,7 @@ import type {
   TokenBucketConfig,
   TokenBucketState,
   RateLimitResult,
-  IStorageAdapter,
-  StorageBackend
+  IStorageAdapter
 } from '../types'
 import { StorageError } from '../types'
 
@@ -267,8 +266,6 @@ export class TokenBucket {
       return newTokens
     }
 
-    const newTokens = Math.min(maxCapacity, state.tokens + tokensToAdd)
-    
     // Update tokens atomically
     const addTokensLua = `
 local key = KEYS[1]

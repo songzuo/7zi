@@ -4,7 +4,6 @@
  */
 
 import type {
-  LogEntry,
   LogParserConfig,
   ILogParser,
   ParsedLogData,
@@ -135,7 +134,7 @@ export abstract class BaseLogParser implements ILogParser {
   /**
    * 提取消息
    */
-  protected extractMessage(text: string, fields: Record<string, unknown>): string {
+  protected extractMessage(text: string, _fields: Record<string, unknown>): string {
     // Remove timestamp and level from text
     let message = text;
     

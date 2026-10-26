@@ -7,7 +7,7 @@
  */
 
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
-import { MultiLayerMiddleware, extractContext } from './multi-layer'
+import { MultiLayerMiddleware } from './multi-layer'
 import type { MultiLayerRateLimitConfig, IStorageAdapter, RateLimitContext } from '../types'
 import { RedisAdapter } from '../storage/redis-adapter'
 import { MemoryAdapter } from '../storage/memory-adapter'

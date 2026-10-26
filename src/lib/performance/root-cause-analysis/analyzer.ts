@@ -218,7 +218,7 @@ export class RootCauseAnalyzer {
    */
   private identifyWaterfallBottlenecks(
     entries: WaterfallEntry[],
-    criticalPath: CriticalPathNode[]
+    _criticalPath: CriticalPathNode[]
   ): WaterfallBottleneck[] {
     const bottlenecks: WaterfallBottleneck[] = []
 
@@ -590,7 +590,7 @@ export class RootCauseAnalyzer {
    */
   private identifyMemoryBottlenecks(
     dbAnalysis: DatabaseAnalysis,
-    apiAnalysis: APIAnalysis
+    _apiAnalysis: APIAnalysis
   ): ResourceBottleneck[] {
     const bottlenecks: ResourceBottleneck[] = []
 
@@ -884,7 +884,7 @@ export class RootCauseAnalyzer {
   /**
    * Compile root causes from all analyses
    */
-  private compileRootCauses(resourceAnalysis: ResourceAnalysis, hotPaths: HotPath[]): RootCause[] {
+  private compileRootCauses(resourceAnalysis: ResourceAnalysis, _hotPaths: HotPath[]): RootCause[] {
     const causes: RootCause[] = []
 
     // Add database root causes
