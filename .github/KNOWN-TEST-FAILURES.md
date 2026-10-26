@@ -120,3 +120,69 @@ best-practices / seo 四项分数，`.lighthouseci/` 非空。
 附注：`7zi.studio` 目前**没有上线**（本机与服务器双向 curl 全 `000`，
 `/etc/nginx/sites-enabled/` 里没有它的配置），所以这些崩溃只影响 CI 采集，
 不影响真实用户 —— 但它同样是线上部署后必然踩到的坑。
+
+## 七、v13 已修：`keyboard-shortcuts.test.ts` 同步死循环 —— 「分片 3 被 cancelled」的第二真凶
+
+v12 修掉 `draft-storage.test.ts`（700456ms）之后，分片 3 依然 `cancelled`。
+这次把范围从「哪个文件慢」改成「哪个文件**没有结果行**」，一击命中：
+
+    分片3 日志提及 180 个文件 / 179 个有结果行 / 缺失 1 个
+      → src/lib/keyboard-shortcuts/keyboard-shortcuts.test.ts
+    该文件最后输出：38 行 `[ShortcutManager] Registered:`（59ms 内）
+    之后静默 1316.6 秒，直到 `##[error]The operation was canceled.`
+    该文件零 await / 零 Promise / 零定时器 ⇒ 是**同步**卡死
+
+| 现象 | 根因 | 处理 |
+|---|---|---|
+| 单个测试文件吃满 `timeout-minutes: 25` → job `conclusion: cancelled`（不是 failure）→ 整个 run 判红 → 一封邮件 | `enableAll()` / `disableAll()` 写成 `this.shortcuts.forEach((_, id) => this.enable(id))`，而 `enable()` → `update()` → `unregister()` + `register()`，等于 `Map.delete(id)` 后立刻 `Map.set(id, …)`，被删的 key 被**追加到 Map 末尾**。`Map.prototype.forEach` 的规范语义是「迭代期间新追加的条目也会被访问」⇒ 迭代指针永远追不上末尾 ⇒ **同步死循环** | 先 `Array.from(this.shortcuts.keys())` 快照，再逐个改 |
+
+这不是测试写错，是**库自己的生产 bug**：设置页点一次「全部启用 / 全部禁用」，
+浏览器主线程就焊死。所以修在生产文件 `src/lib/keyboard-shortcuts/shortcut-manager.ts` 里。
+
+独立性证明（`_site4/_ops/ci/sim_map_foreach_loop.js`）：3 个 key 的 Map，
+按 `delete` + 重新 `set` 的方式 forEach，迭代 200001 次后 `map.size` 仍是 3。
+
+不死循环之后，同一文件剩下的 8 个红一并收掉（本地真 vitest：`8 failed | 51 passed` → `59 passed`）：
+
+| 用途例 | 报错 | 根因 | 处理 |
+|---|---|---|---|
+| event handling × 5 | `TypeError: Cannot read properties of null (reading 'tagName')` | `handleKeyDown` 里 `const target = event.target as HTMLElement` 之后直接读 `target.tagName`；由 document 派发的事件一定有 target，但 `new KeyboardEvent(...)` 构造出来的事件 target 是 `null` | 生产代码加非空守卫：`target && (…)` |
+| event handling × 2 | `TypeError: Cannot set property target of #<Event> which has only a getter` | 测试里写 `event.target = { tagName: 'INPUT' }`，而 `Event.target` 是只读 getter | 改用 `Object.defineProperty(event, 'target', { value: …, configurable: true })` |
+| global instance × 1 | `expected ShortcutManager{} not to be ShortcutManager{}` | 测试写错：`expect(getShortcutManager()).not.toBe(getShortcutManager())` 两次拿到同一个新单例，恒失败 | 先留住销毁前那个实例，再断言销毁后是新实例 |
+
+判据：`单元测试 (分片 3/4)` 与 `Unit Tests (shard 3)` 的 `conclusion` 从 `cancelled`
+变 `success`，耗时 ≤ 8 分钟（本地单文件实测 8.32s，v12 前是 1316.6s 后被杀）。
+
+## 八、v13 已修：Lighthouse 第四层 —— Navigation / Footer 在 intl provider 之外
+
+v12 修掉三个旧 digest 后，服务器确实起得来（`server up, first status=307 (after 2s)`），
+但 SSR 立刻换成新的一次崩溃：
+
+    ⨯ Error:                              ← message 是空字符串
+        at <unknown> (.next/server/chunks/ssr/_154m4eyzlbn7l._.js:1:734)
+        at <unknown> (.next/server/chunks/ssr/_0ym-q82le7ws5._.js:9:13654) {
+      digest: '3442073182'
+    }
+    runtimeError.code = "NO_FCP"
+    finalDisplayedUrl = "http://127.0.0.1:3000/en"
+
+| 根因 | 处理 |
+|---|---|
+| v12 的 `src/app/[locale]/layout.tsx` 把 `<Navigation />` 与 `<Footer />` 放在 `<NextIntlClientProvider>` **外面**。两者都是 `'use client'` 且都要 intl context：`Navigation` 调 `useTranslations('nav')` 并通过 `<LanguageSwitcherCompact/>` 调 `useLocale()`；`Footer` 调 `useTranslations('footer')`。根 layout 的 `Providers` → `ClientProviders` 是纯 client-side 副作用宿主，不提供 intl context。缺 context 时 `use-intl` 在生产构建里 `throw new Error(undefined)`，所以 digest 有、message 是空的 | 两个组件搬进 `NextIntlClientProvider` 内部；`Analytics` / `PerformanceOptimizer` / `ServiceWorkerRegistration` / `PWAInstallPrompt` / `SettingsButton` / `ThemeToggle` / `SocialLinks` 已逐个确认不碰 intl，位置不动 |
+
+判据：`lhci 步骤结论: success`，`Parse Lighthouse results` 打出四项分数，`.lighthouseci/` 非空。
+
+---
+
+## v14 已修：3 条 event handling 用例自身写错（与挂死无关）
+
+这三条在 v13 之前就一直是红的，只是被 8 个失败一起盖住了。它们**不是**产品 bug，
+是用例把断言写在了不可能成立的配置/键位上：
+
+| 用例 | 原来的写法 | 为什么不成立 | v14 改法 |
+|---|---|---|---|
+| `should prevent default behavior` | `key:'p'`，用 `beforeEach` 里 `{ preventDefaultAll: false }` 的 manager，断言 `event.preventDefault` 被调用 | `preventDefault` 只由 `ShortcutManagerConfig.preventDefaultAll` 控制（构造默认 `true`），`KeyboardShortcut` 上没有 shortcut 级开关。配置是 `false`，代码根本不调 `preventDefault()` | 单独 `new ShortcutManager({ preventDefaultAll: true })` 断言被调用；再用原 manager（`false`）反向断言不被调用 |
+| `should respect shift modifier` | 注册 `key:'?'` + `shift:true` 的 `test.shift` | `DEFAULT_SHORTCUTS` 里已有 `global.help`（`key:'?'`、`shift:true`）。`findMatchingShortcut` 按 `getActiveShortcuts()` 的插入序返回**第一个**命中项，默认项先入 Map ⇒ 命中 `global.help`，`test.shift.action` 从不执行 | 注册前 `manager.unregister('global.help')`，隔离掉冲突 |
+| `should handle Escape key in input field` | 注册 `key:'Escape'` 的 `test.escape` | 同理撞 `global.escape` | 注册前 `manager.unregister('global.escape')` |
+
+判据：`vitest run src/lib/keyboard-shortcuts/keyboard-shortcuts.test.ts` → `59 passed (59)`。

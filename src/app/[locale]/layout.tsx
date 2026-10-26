@@ -223,14 +223,23 @@ export default async function RootLayout({
         sampleRate={1.0}
       />
 
-      <Navigation />
-      <Analytics />
+      {/* v13：Navigation / Footer 必须落在 NextIntlClientProvider **里面**。
+          两者都是 'use client' 且都要 intl context：
+            Navigation → useTranslations('nav')，且内部 <LanguageSwitcherCompact/>
+                         还会调 useLocale()
+            Footer     → useTranslations('footer')
+          放在 provider 外面时，SSR 阶段 use-intl 取不到 context 会
+          `throw new Error(undefined)`（message 是空字符串，日志里只剩 `⨯ Error: `），
+          digest 3442073182，整页 500 → Lighthouse 拿不到 FCP（NO_FCP）。
+          根 layout 的 Providers → ClientProviders 是纯副作用宿主，不提供 intl context。 */}
       <NextIntlClientProvider messages={messages}>
+        <Navigation />
+        <Analytics />
         {children}
         <ServiceWorkerRegistration />
         <PWAInstallPrompt />
+        <Footer />
       </NextIntlClientProvider>
-      <Footer />
 
       {/* 结构化数据：next/script 的 strategy="afterInteractive" 必须落在 body 内，
           所以从原来手写的 head 里搬到这里。 */}

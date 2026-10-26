@@ -327,6 +327,11 @@ describe('shortcut-manager', () => {
     })
 
     it('should prevent default behavior', () => {
+      // v14：preventDefault 只由 ShortcutManagerConfig.preventDefaultAll 控制，
+      // KeyboardShortcut 上并没有 shortcut 级的 preventDefault 字段。
+      // beforeEach 建的是 { preventDefaultAll: false }，用它断言
+      // expect(event.preventDefault).toHaveBeenCalled() 必然失败。
+      // 要验这条，就得单独建一个开了 preventDefaultAll 的实例。
       const action = vi.fn()
       const shortcut: KeyboardShortcut = {
         id: 'test.prevent-default',
@@ -336,7 +341,8 @@ describe('shortcut-manager', () => {
         action,
       }
 
-      manager.register(shortcut)
+      const pdManager = new ShortcutManager({ debug: false, preventDefaultAll: true })
+      pdManager.register(shortcut)
 
       const event = new KeyboardEvent('keydown', {
         key: 'p',
@@ -344,9 +350,20 @@ describe('shortcut-manager', () => {
       }) as any
 
       event.preventDefault = vi.fn()
-      manager['handleKeyDown'](event)
+      pdManager['handleKeyDown'](event)
 
       expect(event.preventDefault).toHaveBeenCalled()
+
+      // 反向确认：preventDefaultAll=false 时不拦默认行为。
+      // 加这一半，这条用例才真在测 config 开关，而不是恒真。
+      const offEvent = new KeyboardEvent('keydown', {
+        key: 'p',
+        cancelable: true,
+      }) as any
+      offEvent.preventDefault = vi.fn()
+      manager.register(shortcut)
+      manager['handleKeyDown'](offEvent)
+      expect(offEvent.preventDefault).not.toHaveBeenCalled()
     })
 
     it('should respect ctrl modifier', () => {
@@ -382,6 +399,11 @@ describe('shortcut-manager', () => {
         action,
       }
 
+      // v14：DEFAULT_SHORTCUTS 里已经有 global.help（key='?'、shift=true）。
+      // findMatchingShortcut 按 getActiveShortcuts() 的插入序返回**第一个**命中项，
+      // 默认项先注册，所以这里命中的是 global.help，test.shift.action 永远不会被调用
+      // —— 这条用例以前恒失败。摘掉冲突的默认项，让断言只针对 shift 判定本身。
+      manager.unregister('global.help')
       manager.register(shortcut)
 
       const event = new KeyboardEvent('keydown', { key: '?', shiftKey: true })
@@ -399,10 +421,20 @@ describe('shortcut-manager', () => {
         action,
       }
 
+      // v14：DEFAULT_SHORTCUTS 里已经有 global.escape（key='Escape'），
+      // 会先于 test.escape 命中，导致断言恒失败。
+      // 摘掉默认项后，这条用例才真的在验「input 里的 Escape 仍放行」。
+      manager.unregister('global.escape')
       manager.register(shortcut)
 
       const event = new KeyboardEvent('keydown', { key: 'Escape' }) as any
-      event.target = { tagName: 'INPUT' }
+      // v13：jsdom 与真实浏览器里 Event.target 都是**只读 getter**，
+      // `event.target = …` 直接抛
+      //   TypeError: Cannot set property target of #<Event> which has only a getter
+      Object.defineProperty(event, 'target', {
+        value: { tagName: 'INPUT' },
+        configurable: true,
+      })
 
       manager['handleKeyDown'](event)
       expect(action).toHaveBeenCalled()
@@ -421,7 +453,11 @@ describe('shortcut-manager', () => {
       manager.register(shortcut)
 
       const event = new KeyboardEvent('keydown', { key: 'a' }) as any
-      event.target = { tagName: 'INPUT' }
+      // v13：同上，Event.target 只读。
+      Object.defineProperty(event, 'target', {
+        value: { tagName: 'INPUT' },
+        configurable: true,
+      })
 
       manager['handleKeyDown'](event)
       expect(action).not.toHaveBeenCalled()
@@ -556,11 +592,16 @@ describe('global instance', () => {
   })
 
   it('should destroy global instance', () => {
-    getShortcutManager()
+    // v13：原来写的是
+    //     const newInstance = getShortcutManager()
+    //     expect(newInstance).not.toBe(getShortcutManager())
+    // 这两次调用返回的是**同一个**新单例（destroy 之后 getShortcutManager()
+    // 会重新建一个，再调还是它），所以 not.toBe 恒失败。
+    // 要验的是「销毁后再取到的是另一个实例」，必须先留住销毁前那个。
+    const before = getShortcutManager()
     destroyShortcutManager()
-
-    const newInstance = getShortcutManager()
-    expect(newInstance).not.toBe(getShortcutManager())
+    const after = getShortcutManager()
+    expect(after).not.toBe(before)
   })
 })
 
