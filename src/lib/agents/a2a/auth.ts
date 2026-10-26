@@ -102,7 +102,7 @@ export async function authenticateA2ARequest(
     if (token.length >= 10) {
       const authResult = await authenticateToken(token)
       if (authResult) {
-        return { method: 'jwt', userId: authResult.context.userId }
+        return { method: 'jwt', userId: authResult.user.id }
       }
     }
     logger.warn('[a2a] Bearer token 无效')
