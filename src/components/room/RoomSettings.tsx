@@ -41,21 +41,34 @@ export interface RoomSettingsProps {
 interface TabProps {
   activeTab: string
   onChange: (tab: string) => void
+  canManage: boolean
 }
 
-function Tabs({ activeTab, onChange }: TabProps) {
-  const tabs = [
+function Tabs({ activeTab, onChange, canManage }: TabProps) {
+  const allTabs = [
     { id: 'general', label: '通用设置', icon: '⚙️' },
-    { id: 'permissions', label: '权限管理', icon: '🔐' },
+    { id: 'permissions', label: '权限管理', icon: '🔐', adminOnly: true },
     { id: 'members', label: '成员管理', icon: '👥' },
-    { id: 'danger', label: '危险区域', icon: '⚠️' },
+    { id: 'danger', label: '危险区域', icon: '⚠️', adminOnly: true },
   ]
 
+  // 非管理员看不到管理员专属标签页（权限管理 / 危险区域）
+  const tabs = canManage ? allTabs : allTabs.filter(tab => !tab.adminOnly)
+
   return (
-    <div className="mb-4 flex border-b border-gray-200 dark:border-gray-700">
+    <div
+      role="tablist"
+      aria-label="房间设置标签页"
+      className="mb-4 flex border-b border-gray-200 dark:border-gray-700"
+    >
       {tabs.map(tab => (
         <button
           key={tab.id}
+          id={`room-settings-tab-${tab.id}`}
+          role="tab"
+          type="button"
+          aria-selected={activeTab === tab.id}
+          aria-controls={`room-settings-panel-${tab.id}`}
           onClick={() => onChange(tab.id)}
           className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
             activeTab === tab.id
@@ -63,7 +76,9 @@ function Tabs({ activeTab, onChange }: TabProps) {
               : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
           } `}
         >
-          <span className="mr-1">{tab.icon}</span>
+          <span aria-hidden="true" className="mr-1">
+            {tab.icon}
+          </span>
           {tab.label}
         </button>
       ))}
@@ -639,7 +654,7 @@ export function RoomSettings({
       </div>
 
       {/* Tabs */}
-      <Tabs activeTab={activeTab} onChange={setActiveTab} />
+      <Tabs activeTab={activeTab} onChange={setActiveTab} canManage={canManage} />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">

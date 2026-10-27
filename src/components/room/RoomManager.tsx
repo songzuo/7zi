@@ -44,10 +44,23 @@ export function RoomManager({
   autoConnect = true,
 }: RoomManagerProps) {
   const [isConnected, setIsConnected] = useState(false)
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  // Error slot kept for the connection error UI; currently no code path raises it.
+  const [error] = useState<string | null>(null)
+  // Derived state: while auto-connecting and not yet connected we are "connecting".
+  // Derived instead of an effect-driven setState to avoid cascading renders.
+  const isConnecting = autoConnect && !isConnected
   const [showSettingsPanel, setShowSettingsPanel] = useState(false)
   const [bannedUsers] = useState<Set<string>>(new Set())
+
+  // Fallback identity used when the caller does not provide a userId.
+  // Generated once per mount so the ID stays stable across re-renders.
+  const [generatedUserId] = useState(() =>
+    `user-${Math.random().toString(36).slice(2, 10)}`
+  )
+
+  // Narrow optional props to concrete strings so they satisfy Room/RoomParticipant
+  // contracts (public type definitions must not be weakened for callers).
+  const currentUserId = userId ?? generatedUserId
 
   const {
     currentRoomId,
@@ -66,22 +79,16 @@ export function RoomManager({
 
   // Initialize current user
   useEffect(() => {
-    setCurrentUser(userId, userName)
-  }, [userId, userName, setCurrentUser])
+    setCurrentUser(currentUserId, userName)
+  }, [currentUserId, userName, setCurrentUser])
 
   // Mock WebSocket connection (replace with real implementation)
   useEffect(() => {
     if (!autoConnect) return
 
-    queueMicrotask(() => {
-      setIsConnecting(true)
-      setError(null)
-    })
-
     // Simulate connection
     const connectTimer = setTimeout(() => {
       setIsConnected(true)
-      setIsConnecting(false)
 
       // Load mock rooms
       const mockRooms: Room[] = [
@@ -91,12 +98,12 @@ export function RoomManager({
           type: 'project',
           documentId: 'doc-1',
           visibility: 'public',
-          ownerId: userId,
+          ownerId: currentUserId,
           participants: new Map([
             [
-              userId,
+              currentUserId,
               {
-                id: userId,
+                id: currentUserId,
                 name: userName,
                 avatar: userAvatar,
                 color: '#3b82f6',
@@ -147,9 +154,9 @@ export function RoomManager({
               },
             ],
             [
-              userId,
+              currentUserId,
               {
-                id: userId,
+                id: currentUserId,
                 name: userName,
                 avatar: userAvatar,
                 color: '#3b82f6',
@@ -186,7 +193,7 @@ export function RoomManager({
     return () => {
       clearTimeout(connectTimer)
     }
-  }, [autoConnect, userId, userName, userAvatar, setRooms])
+  }, [autoConnect, currentUserId, userName, userAvatar, setRooms])
 
   // Check if current user can manage room
   const canManageCurrentRoom = useMemo(() => {
@@ -194,11 +201,11 @@ export function RoomManager({
     const room = rooms.find(r => r.id === currentRoomId)
     if (!room) return false
 
-    const participant = room.participants.get(userId)
+    const participant = room.participants.get(currentUserId)
     if (!participant) return false
 
     return participant.role === 'owner' || participant.role === 'admin'
-  }, [currentRoomId, rooms, userId])
+  }, [currentRoomId, rooms, currentUserId])
 
   // Get current room
   const currentRoom = useMemo(() => {
@@ -215,12 +222,12 @@ export function RoomManager({
         type: options.type,
         documentId: `doc-${newRoomId}`,
         visibility: options.visibility,
-        ownerId: userId,
+        ownerId: currentUserId,
         participants: new Map([
           [
-            userId,
+            currentUserId,
             {
-              id: userId,
+              id: currentUserId,
               name: userName,
               avatar: userAvatar,
               color: '#3b82f6',
@@ -253,7 +260,7 @@ export function RoomManager({
       addRoom(newRoom)
       setCurrentRoom(newRoomId)
     },
-    [addRoom, setCurrentRoom, userId, userName, userAvatar]
+    [addRoom, setCurrentRoom, currentUserId, userName, userAvatar]
   )
 
   const handleSelectRoom = useCallback(
@@ -269,7 +276,7 @@ export function RoomManager({
       const room = rooms.find(r => r.id === roomId)
       if (!room) return
 
-      if (room.ownerId === userId) {
+      if (room.ownerId === currentUserId) {
         alert('作为房主，请先删除房间或转让所有权')
         return
       }
@@ -281,14 +288,14 @@ export function RoomManager({
 
       // Remove from participants
       const updatedParticipants = new Map(room.participants)
-      updatedParticipants.delete(userId)
+      updatedParticipants.delete(currentUserId)
 
       updateRoom(roomId, {
         participants: updatedParticipants,
         updatedAt: new Date(),
       })
     },
-    [rooms, userId, currentRoomId, setCurrentRoom, updateRoom]
+    [rooms, currentUserId, currentRoomId, setCurrentRoom, updateRoom]
   )
 
   const handleSendMessage: RoomViewProps['onSendMessage'] = useCallback(
@@ -503,7 +510,7 @@ export function RoomManager({
             /* Settings Panel */
             <RoomSettings
               room={currentRoom}
-              currentUserId={userId}
+              currentUserId={currentUserId}
               canManage={canManageCurrentRoom}
               onUpdateConfig={handleUpdateConfig}
               onChangeVisibility={handleChangeVisibility}

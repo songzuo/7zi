@@ -134,7 +134,18 @@ function ParticipantItem({
             className="flex h-12 w-12 items-center justify-center rounded-full font-semibold text-white"
             style={{ backgroundColor: participant.color }}
           >
-            {participant.name.charAt(0).toUpperCase()}
+            {participant.avatar ? (
+              <Image
+                data-testid="participant-avatar"
+                src={participant.avatar}
+                alt={participant.name}
+                width={48}
+                height={48}
+                className="h-full w-full rounded-full object-cover"
+              />
+            ) : (
+              participant.name.charAt(0).toUpperCase()
+            )}
           </div>
           {participant.isOnline && (
             <span className="absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-white bg-green-500 dark:border-gray-800" />
@@ -157,7 +168,12 @@ function ParticipantItem({
   const itemClasses = `flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors group ${isCurrentUser ? 'current-user bg-blue-50 dark:bg-blue-900/20' : ''}`
 
   return (
-    <div data-testid="participant-item" data-user-id={participant.id} className={itemClasses}>
+    <div
+      role="listitem"
+      data-testid="participant-item"
+      data-user-id={participant.id}
+      className={itemClasses}
+    >
       {/* Avatar */}
       <div className="relative">
         <div
@@ -416,7 +432,7 @@ export function ParticipantList({
 
   // Default: list layout
   return (
-    <div data-testid="participant-list" role="list" aria-label="参与者列表">
+    <div data-testid="participant-list">
       {/* Stats */}
       <div className="mb-3 flex items-center justify-between px-2">
         <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -425,7 +441,7 @@ export function ParticipantList({
       </div>
 
       {/* Participant List */}
-      <div className="space-y-1">
+      <div role="list" aria-label="参与者列表" className="space-y-1">
         {visibleParticipants.length === 0 ? (
           <div className="py-8 text-center text-gray-500 dark:text-gray-400">{emptyMessage}</div>
         ) : (

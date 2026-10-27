@@ -16,6 +16,7 @@
 
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import type { StateCreator, StoreApi } from 'zustand/vanilla'
 
 // ============================================================================
 // 类型定义
@@ -177,10 +178,10 @@ function generateId(prefix: string): string {
 // Store 实现
 // ============================================================================
 
-export const useUIStore = create<UIState>()(
+export const useUIStore = create<UIState, []>(
   devtools(
     persist(
-      (set, get) => ({
+      ((set: StoreApi<UIState>['setState'], get: () => UIState) => ({
         // 初始状态
         sidebar: {
           isOpen: true,
@@ -506,7 +507,7 @@ export const useUIStore = create<UIState>()(
             loadingMessage: undefined,
           })
         },
-      }),
+      })) as StateCreator<UIState, [], []>,
       {
         name: STORAGE_KEY,
         // 只持久化部分状态（侧边栏状态和表单草稿）
@@ -548,9 +549,9 @@ export const useUIStore = create<UIState>()(
           },
         },
       }
-    ),
+    ) as StateCreator<UIState, [], []>,
     { name: 'ui-store' }
-  )
+  ) as StateCreator<UIState, [], []>
 )
 
 // ============================================================================

@@ -517,7 +517,6 @@ export class DSLParser {
 
     let currentSection = ''
     let currentNode: DSLNodeDefinition | null = null
-    const indent = 0
 
     for (const line of lines) {
       const trimmed = line.trim()
@@ -601,15 +600,24 @@ export class DSLParser {
 
   /**
    * 解析 YAML 值
+   *
+   * 对明显格式错误（括号/引号未闭合）抛出异常，交由 parseYAML 统一转换为
+   * 失败结果，避免畸形 YAML 被静默当作合法内容接受。
    */
   private parseYAMLValue(value: string): unknown {
     if (!value) return null
 
     // 字符串
-    if (value.startsWith('"') && value.endsWith('"')) {
+    if (value.startsWith('"')) {
+      if (!value.endsWith('"') || value.length < 2) {
+        throw new Error('格式错误: 双引号未闭合')
+      }
       return value.slice(1, -1)
     }
-    if (value.startsWith("'") && value.endsWith("'")) {
+    if (value.startsWith("'")) {
+      if (!value.endsWith("'") || value.length < 2) {
+        throw new Error('格式错误: 单引号未闭合')
+      }
       return value.slice(1, -1)
     }
 
@@ -624,7 +632,10 @@ export class DSLParser {
     if (value.toLowerCase() === 'false') return false
 
     // 数组
-    if (value.startsWith('[') && value.endsWith(']')) {
+    if (value.startsWith('[')) {
+      if (!value.endsWith(']')) {
+        throw new Error('格式错误: 数组缺少闭合符号 "]"')
+      }
       try {
         return JSON.parse(value)
       } catch {
@@ -633,7 +644,10 @@ export class DSLParser {
     }
 
     // 对象
-    if (value.startsWith('{') && value.endsWith('}')) {
+    if (value.startsWith('{')) {
+      if (!value.endsWith('}')) {
+        throw new Error('格式错误: 对象缺少闭合符号 "}"')
+      }
       try {
         return JSON.parse(value)
       } catch {

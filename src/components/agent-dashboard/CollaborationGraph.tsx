@@ -11,7 +11,7 @@
 
 'use client'
 
-import {useCallback, useEffect, useMemo, memo} from 'react'
+import {useCallback, useEffect, useMemo, useState, memo} from 'react'
 import {
   ReactFlow,
   Node,
@@ -157,6 +157,8 @@ const AGENT_ICONS: Record<string, string> = {
 const AgentNode = memo(({ data }: { data: FlowNodeData }) => {
   const { agent } = data
   const isDark = useDarkMode()
+  // 渲染时固定的当前时间（惰性初始化，避免 render 阶段直接调用 Date.now）
+  const [now] = useState(() => Date.now())
 
   const colors = STATUS_COLORS[agent.status] || STATUS_COLORS.offline
   const icon = agent.avatar || AGENT_ICONS[agent.id] || AGENT_ICONS.default
@@ -244,7 +246,7 @@ const AgentNode = memo(({ data }: { data: FlowNodeData }) => {
 
         {/* Last activity */}
         <div className={`text-xs ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-          {formatLastActivity(agent.lastActivity)}
+          {formatLastActivity(agent.lastActivity, now)}
         </div>
 
         {/* Current task */}
@@ -277,6 +279,9 @@ export function CollaborationGraph({
   enableRealtime = true,
 }: CollaborationGraphProps) {
   const isDark = useDarkMode()
+
+  // 渲染时固定的当前时间（惰性初始化，避免 render 阶段直接调用 Date.now）
+  const [now] = useState(() => Date.now())
 
   // Convert agent nodes to flow nodes
   const initialNodes: FlowNode[] = useMemo(() => {
@@ -315,7 +320,7 @@ export function CollaborationGraph({
             id: 'hub',
             name: '任务中心',
             status: 'idle',
-            lastActivity: Date.now(),
+            lastActivity: now,
           },
         } as FlowNodeData,
         style: {
@@ -327,7 +332,7 @@ export function CollaborationGraph({
     }
 
     return nodes
-  }, [agentNodes, isDark, connections.length])
+  }, [agentNodes, isDark, connections.length, now])
 
   // Convert connections to flow edges
   const initialEdges: FlowEdge[] = useMemo(() => {

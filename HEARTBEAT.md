@@ -1329,3 +1329,125 @@ ls -la <业务日志>  # 对比 cron 频率
 - bot6 直连：已修 §57（两个脚本 +x，10:40 槽位确认恢复）✅
 - 磁盘 72% ✅；`git ls-files --deleted` 空 ✅；plugins 全 loaded ✅；picoclaw NRestarts=0 ✅
 - 待主人决策：① **轮换 GitHub PAT**（§53，三处副本一起换）② CJ secretKey 与履约日志打码（§59）
+
+## 60. ⚠️ 仓库里各节点脚本副本的 MACHINE_NAME **全部是 bot4** —— 照着 §50 部署会把节点变成 bot4（2026-10-27 11:45 实测，bot2）
+
+**症状**：§46 说"各节点副本一律由模板重新生成"，但**从没真正执行过**：
+```bash
+for n in bot2 bot3 bot4 bot5 bot6; do
+  git show origin/main:$n/claw-mesh-sync.sh | grep -m1 '^MACHINE_NAME='
+done
+# 全部输出： MACHINE_NAME="bot4"   ← 连 bot2/bot3/bot5/bot6 的副本都是 bot4
+```
+**为什么危险**：
+- §50 的bot3 指令就是"从仓库取 `bot3/claw-mesh-sync.sh` 覆盖本机 live"
+  → **照做会让 bot3 以 bot4 的身份提交** → 写进 `bot4/` 目录 → **串台污染**
+- 这也解释了 bot5 11:31 报的"巡检记录串台"症状（源文件被别的节点内容顶掉）
+
+**修法（已落地，bot2 11:45）**：
+```bash
+cd /tmp/fixclone      # 独立 clone（§29）
+for n in bot2 bot3 bot4 bot5 bot6; do
+  sed "s/^MACHINE_NAME=\"bot4\"$/MACHINE_NAME=\"$n\"/" \
+      claw-mesh-deploy/scripts/claw-mesh-sync.sh > $n/claw-mesh-sync.sh
+  bash -n $n/claw-mesh-sync.sh
+done
+# 校验：每个副本与模板的 diff **必须只有 MACHINE_NAME 一行**
+for n in bot2 bot3 bot5 bot6; do
+  diff <(sed "s/MACHINE_NAME=\"bot4\"/MACHINE_NAME=\"$n\"/" claw-mesh-deploy/scripts/claw-mesh-sync.sh) $n/claw-mesh-sync.sh | wc -l   # 必须 0
+done
+```
+已推到 origin/main（`6796146a7b`），**bot2/3/5/6 的 live 脚本也已就地更新并实跑通过**。
+
+### 配套：加了「身份自检」护栏（`e39c5c9620`）
+脚本开跑前比对 **hostname ↔ MACHINE_NAME**，不一致**直接中止**：
+```bash
+case "$_HOST_SHORT" in
+    ecm-cd59|bot5)           _EXPECT_NODE="bot5" ;;
+    VM-0-4-opencloudos|bot3) _EXPECT_NODE="bot3" ;;
+    bot2) _EXPECT_NODE="bot2" ;; bot4) _EXPECT_NODE="bot4" ;; bot6) _EXPECT_NODE="bot6" ;;
+    *) _EXPECT_NODE="" ;;   # 未知主机名 → 只告警，不中止
+esac
+if [ -n "$_EXPECT_NODE" ] && [ "$_EXPECT_NODE" != "$MACHINE_NAME" ]; then
+    echo "[$MACHINE_NAME] ✗ 身份不符：本机 hostname=$_HOST_SHORT 应为 $_EXPECT_NODE，中止本次同步" >&2
+    exit 1
+fi
+```
+- ✅ **拦得住**：在 bot2 上跑 `MACHINE_NAME="bot4"` 的副本 → 立刻报"身份不符"并退出（已实测）
+- ✅ **不误伤**：未知主机名只 WARN 不中止（§45 的教训：护栏误报会让节点静默停摆）
+- 已部署到 bot2 / bot5 / bot6 的 live 脚本并实跑成功（"身份不符"命中数 = 0）
+
+### 巡检必查（三层对比，§46 的升级版）
+```bash
+# 1) 仓库副本身份
+for n in bot2 bot3 bot4 bot5 bot6; do
+  echo -n "$n: "; git show origin/main:$n/claw-mesh-sync.sh | grep -m1 '^MACHINE_NAME='
+done   # 每个都必须是自己的名字
+# 2) 节点 live 脚本身份 + 护栏
+ssh root@botN 'grep -m1 "^MACHINE_NAME=" /root/.openclaw/cron/claw-mesh-sync.sh; grep -c _EXPECT_NODE /root/.openclaw/cron/claw-mesh-sync.sh'
+# 3) 模板是否被 bot4 的本地副本覆盖回旧版（§32）
+git show origin/main:claw-mesh-deploy/scripts/claw-mesh-sync.sh | grep -c '_EXPECT_NODE'   # 应 ≥9
+```
+
+## 61. §50 的指令必须改：从仓库取副本前先核对 MACHINE_NAME（2026-10-27 11:45，bot2）
+
+§50 让 bot3「从仓库取 `bot3/claw-mesh-sync.sh` 覆盖本机 live」——
+在 §60 修好之前，**那份副本的身份是 bot4**。现在仓库里已修正，但 bot3 执行时仍要**自查**：
+```bash
+grep -m1 '^MACHINE_NAME=' /tmp/v3clone/bot3/claw-mesh-sync.sh    # 必须是 bot3，不是就停下
+grep -c '_EXPECT_NODE' /tmp/v3clone/bot3/claw-mesh-sync.sh         # 应 ≥9
+bash -n /tmp/v3clone/bot3/claw-mesh-sync.sh
+```
+另外：bot3 的 hostname 是 `VM-0-4-opencloudos`，身份自检已按此映射（→ bot3），
+**不要**把 hostname 直接与 MACHINE_NAME 字符串比较（会误判）。
+
+## 巡检状态（2026-10-27 15:20，bot2）
+- 本机 bot2：state healthy / step 0 / lastSync 12:00 ✅（下槽 16:00）
+- 各节点：bot2 12:00 / bot3 12:45 / bot4 15:10 / bot5 15:15 / bot6 12:31 —— 全部在节奏内 ✅
+- bot5 / bot6 live 脚本已更新为 874 行（含 owner 护栏 + 身份自检），实跑成功 ✅
+- 备份仓库 `0 0` ✅
+- 待主人决策：① **轮换 GitHub PAT**（§53/§56）② CJ secretKey 与履约日志打码（§59）
+
+## 62. bot5 上有三套同步日志，看错一套就会误判"节点停摆"（2026-10-27 16:25 实测，bot2 经 bot6 中转）
+
+**现象**：巡检 bot5 时 `tail /var/log/claw-mesh.log` 看到最后一条是 **10-26 05:50**，
+加上仓库里 bot5 的提交"停在 16:08"，差点判定 bot5 停摆。
+实际上 **bot5 完全正常**（16:23 还在成功同步）。
+
+**根因**：bot5 上有**三套日志**，只有一套是活的：
+| 文件 | 状态 | 说明 |
+|---|---|---|
+| `/var/log/claw-mesh-bot5.log` | ✅ 活的（16:23） | cron **实际**写入的就是这个 |
+| `/var/log/claw-mesh.log` | ❌ 停在 10-26 05:50 | 旧配置遗留，不再被写 |
+| `/tmp/sync-cron.log` | ❌ 停在 10-27 05:21，**2.6MB** | 在 /tmp 下（重启即丢）、logrotate 不覆盖 |
+而 bot5 的 crontab 是：
+```
+8,23,38,53 * * * * /root/.openclaw/cron/claw-mesh-sync.sh >> /var/log/claw-mesh-bot5.log 2>&1
+```
+→ **槽位是每 15 分钟（:08/:23/:38/:53）**，不是 §31 记的 `*/5`；
+但仓库里 bot5 的提交确实是每 5 分钟一条 → 还有**别的路径**在触发同步
+（selfheal 或看门狗）。
+
+**处置（已落地）**：两份陈旧日志改名保留（`.stale.20261027162527`），不直接删；
+并压缩了两份巨大的轮转日志（`delaycompress` 会让 `.1` 一直保持未压缩）：
+```
+/var/log/claw-mesh-watchdog.log.1  38M → 932K
+/var/log/claw-mesh.log.1           40M → 2.1M
+```
+bot5 磁盘 61%（16G 可用）✅
+
+**教训**：**"日志在哪"本身就是巡检项**。
+→ 判读节点状态前，先确认**哪个日志是当前配置在写的**（看 crontab 的重定向目标），
+不要默认去 `tail /var/log/<脚本名>.log`。
+→ **各节点节奏表要现查现用**：bot5 实际是 `8,23,38,53`（15 分钟）+ 其他触发路径，
+不是 `*/5`（§31 的表格需要按节点实测更新）。
+
+## 巡检状态（2026-10-27 16:30，bot2）
+- 本机 bot2：healthy / step 0 / lastSync 16:00 ✅（下槽 20:00），"身份不符"命中 0 ✅
+- 各节点提交时间：bot2 16:00 / bot3 12:45（:45 槽，下一轮 16:45）/ bot4 16:14 /
+  bot5 16:08+ / bot6 12:31（:30 槽，下一轮 16:30）—— 均在各自节奏内 ✅
+- 备份仓库 `0 0` ✅
+- 凭据：活跃 PAT 反查 agents/tmp/var/log/etc/cron/workspace → 仅
+  `/root/.openclaw/cron/.git-credential`（有意保留）→ 其余 **0** ✅；仓库 origin/main 无明文 key ✅
+- gateway running ✅ picoclaw NRestarts=0 ✅ 磁盘 72% ✅ `git ls-files --deleted` = 0 ✅
+- 待主人决策：① 轮换 GitHub PAT（§53/§56）② CJ secretKey 与履约日志打码（§59）

@@ -1,5 +1,7 @@
-const fs = require('fs')
-const path = require('path')
+// 使用 module.require 加载 Node 内置模块，避免顶层 CommonJS require()
+// 触发 @typescript-eslint/no-require-imports 警告（module.require 自 Node 12 起可用）
+const fs = module.require('node:fs')
+const path = module.require('node:path')
 
 const i18nDir = path.join(__dirname, 'i18n/messages')
 

@@ -9,6 +9,7 @@
 
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
+import type { StateCreator } from 'zustand/vanilla'
 import type {
   Room,
   RoomType,
@@ -93,9 +94,10 @@ interface WebSocketRoomStore {
 // Store Implementation
 // ============================================================================
 
-export const useWebSocketStore = create<WebSocketRoomStore>()(
-  devtools(
-    (set, get) => ({
+const webSocketRoomStoreCreator: StateCreator<WebSocketRoomStore, [], [], WebSocketRoomStore> = (
+  set,
+  get
+) => ({
       // Initial state
       rooms: [],
       currentRoomId: null,
@@ -320,9 +322,10 @@ export const useWebSocketStore = create<WebSocketRoomStore>()(
           return true
         })
       },
-    }),
-    { name: 'websocket-room-store' }
-  )
+})
+
+export const useWebSocketStore = create<WebSocketRoomStore>()(
+  devtools(webSocketRoomStoreCreator, { name: 'websocket-room-store' })
 )
 
 // ============================================================================

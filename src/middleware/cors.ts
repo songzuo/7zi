@@ -244,7 +244,7 @@ export function withCors(
  */
 export function createCorsMiddleware(config?: Partial<CorsConfig>) {
   return (req: NextRequest) =>
-    withCors(async request => {
+    withCors(async _request => {
       // This is a placeholder - actual handler should be provided
       return NextResponse.next()
     }, config)(req)
@@ -260,7 +260,7 @@ export const corsPolicies = {
    */
   strict: (allowedOrigins: string[]) => {
     return (req: NextRequest) =>
-      withCors(async request => NextResponse.next(), {
+      withCors(async _request => NextResponse.next(), {
         origin: allowedOrigins,
         credentials: true,
       })(req)
@@ -271,7 +271,7 @@ export const corsPolicies = {
    * Allows all origins
    */
   development: (req: NextRequest) =>
-    withCors(async request => NextResponse.next(), {
+    withCors(async _request => NextResponse.next(), {
       origin: '*',
       credentials: false,
     })(req),
@@ -282,7 +282,7 @@ export const corsPolicies = {
    */
   apiGateway: (allowedOrigins: string[]) => {
     return (req: NextRequest) =>
-      withCors(async request => NextResponse.next(), {
+      withCors(async _request => NextResponse.next(), {
         origin: allowedOrigins,
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -295,7 +295,7 @@ export const corsPolicies = {
    * Allows all origins but no credentials
    */
   public: (req: NextRequest) =>
-    withCors(async request => NextResponse.next(), {
+    withCors(async _request => NextResponse.next(), {
       origin: '*',
       credentials: false,
       exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],

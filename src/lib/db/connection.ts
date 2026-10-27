@@ -360,7 +360,11 @@ export function getDatabase(): DatabaseConnection {
     process.env.NODE_ENV === 'development'
   ) {
     try {
-      return withPerformanceLogging(baseConnection)
+      // The wrapper mirrors the DatabaseConnection contract, but its `batch` return type
+      // is declared as a Promise while the underlying implementation is synchronous.
+      // Use the same explicit assertion as the fallback branch below so both paths
+      // return a consistent DatabaseConnection.
+      return withPerformanceLogging(baseConnection as unknown as DatabaseConnection)
     } catch {
       return baseConnection as unknown as DatabaseConnection
     }

@@ -92,7 +92,7 @@ function CardLayout({
   currentUserId,
   isSelected,
   onClick,
-  onJoin: _onJoin,
+  onJoin,
   onLeave,
   onDelete,
   showActions,
@@ -230,6 +230,33 @@ function CardLayout({
           )}
           <span>{formatTime(room.lastActivity)}</span>
         </div>
+
+        {/* Join / Leave */}
+        {showActions && !isMember && onJoin && (
+          <button
+            onClick={e => {
+              e.stopPropagation()
+              onJoin(room.id)
+            }}
+            aria-label="加入房间"
+            className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-blue-600"
+          >
+            加入
+          </button>
+        )}
+
+        {showActions && isMember && !isOwner && onLeave && (
+          <button
+            onClick={e => {
+              e.stopPropagation()
+              onLeave(room.id)
+            }}
+            aria-label="离开房间"
+            className="rounded-lg px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+          >
+            离开
+          </button>
+        )}
       </div>
 
       {/* Tags */}

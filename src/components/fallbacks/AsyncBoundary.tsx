@@ -12,6 +12,33 @@ import { ComponentFallback, FallbackVariant } from './ComponentFallback'
 
 export type AsyncStatus = 'idle' | 'pending' | 'success' | 'error'
 
+/**
+ * 为动态依赖数组生成稳定的字符串 key
+ *
+ * 依赖项按引用（Object.is 语义）比较：对象/函数使用稳定 id，
+ * 基本类型直接使用其字面值。这样可以在不展开依赖数组的前提下，
+ * 保持与「逐元素比较展开后的依赖数组」一致的行为。
+ */
+const dependencyIds = new WeakMap<object, number>()
+let dependencyIdCounter = 0
+
+function getDependencyToken(value: unknown): string {
+  if (value !== null && (typeof value === 'object' || typeof value === 'function')) {
+    const key = value as object
+    let id = dependencyIds.get(key)
+    if (id === undefined) {
+      id = ++dependencyIdCounter
+      dependencyIds.set(key, id)
+    }
+    return `#${id}`
+  }
+  return `${typeof value}:${String(value)}`
+}
+
+function getDependenciesKey(dependencies: unknown[]): string {
+  return dependencies.map(getDependencyToken).join('|')
+}
+
 export interface AsyncBoundaryProps<T = unknown> {
   /** Async operation to execute */
   children: AsyncChildren<T>
@@ -104,8 +131,8 @@ export function AsyncBoundary<T = unknown>({
   const [retryCount, setRetryCount] = useState(0)
   const [reloadKey, setReloadKey] = useState(0)
 
-  // 保存最新的 execute，供自动重试定时器调用（避免在初始化表达式中自引用）
-  const executeRef = useRef<() => Promise<void>>(() => Promise.resolve())
+  // 保存最新的 execute，供自动重试与挂载时调用（避免在初始化表达式中自引用）
+  const executeRef = useRef<() => void>(() => {})
 
   const execute = useCallback(async () => {
     setStatus('pending')
@@ -125,19 +152,30 @@ export function AsyncBoundary<T = unknown>({
       }
 
       // Auto-retry if enabled
+      // 仅递增重试计数，由下面的重试 effect 负责执行最新的 execute
+      // （execute 内部不读取 ref，避免把 ref 值带入渲染期作用域）
       if (autoRetry && retryCount < maxAutoRetry) {
         setTimeout(() => {
           setRetryCount(prev => prev + 1)
-          // 通过 ref 调用自身，避免在初始化表达式中引用未声明的变量
-          executeRef.current()
         }, autoRetryDelay)
       }
     }
   }, [autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onError])
 
   useEffect(() => {
-    executeRef.current = execute
+    // 用包装函数保存最新的 execute，避免把 useCallback 本身写入 ref
+    // （ref 中的值在渲染期被间接引用会触发 react-hooks/refs 规则）
+    executeRef.current = () => {
+      void execute()
+    }
   }, [execute])
+
+  // 自动重试：重试计数递增后执行最新的 execute
+  useEffect(() => {
+    if (retryCount > 0) {
+      void executeRef.current()
+    }
+  }, [retryCount])
 
 
   // Reload function
@@ -154,12 +192,14 @@ export function AsyncBoundary<T = unknown>({
   }, [])
 
   // Execute on mount or when dependencies change
+  // dependencies 为调用方传入的动态依赖数组：用稳定的 key 表示（语义与展开一致），
+  // 避免在依赖数组中使用展开语法（React Hooks 无法静态校验动态展开的依赖）
+  const dependenciesKey = getDependenciesKey(dependencies)
   useEffect(() => {
     if (executeOnMount) {
       void executeRef.current()
     }
-    // dependencies 为调用方传入的动态依赖数组（元素级比较，语义与展开一致）
-  }, [executeOnMount, reloadKey, ...dependencies])
+  }, [executeOnMount, reloadKey, dependenciesKey])
 
   // Call on success
   useEffect(() => {
@@ -265,8 +305,8 @@ export function AsyncBoundaryFn<T = unknown>({
   const [retryCount, setRetryCount] = useState(0)
   const [reloadKey, setReloadKey] = useState(0)
 
-  // 保存最新的 execute，供自动重试定时器调用（避免在初始化表达式中自引用）
-  const executeRef = useRef<() => Promise<void>>(() => Promise.resolve())
+  // 保存最新的 execute，供自动重试与挂载时调用（避免在初始化表达式中自引用）
+  const executeRef = useRef<() => void>(() => {})
 
   // Execute async operation
   const execute = useCallback(async () => {
@@ -291,19 +331,30 @@ export function AsyncBoundaryFn<T = unknown>({
       }
 
       // Auto-retry if enabled
+      // 仅递增重试计数，由下面的重试 effect 负责执行最新的 execute
+      // （execute 内部不读取 ref，避免把 ref 值带入渲染期作用域）
       if (autoRetry && retryCount < maxAutoRetry) {
         setTimeout(() => {
           setRetryCount(prev => prev + 1)
-          // 通过 ref 调用自身，避免在初始化表达式中引用未声明的变量
-          executeRef.current()
         }, autoRetryDelay)
       }
     }
   }, [fn, autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onSuccess, onError])
 
   useEffect(() => {
-    executeRef.current = execute
+    // 用包装函数保存最新的 execute，避免把 useCallback 本身写入 ref
+    // （ref 中的值在渲染期被间接引用会触发 react-hooks/refs 规则）
+    executeRef.current = () => {
+      void execute()
+    }
   }, [execute])
+
+  // 自动重试：重试计数递增后执行最新的 execute
+  useEffect(() => {
+    if (retryCount > 0) {
+      void executeRef.current()
+    }
+  }, [retryCount])
 
 
   // Reload function
@@ -320,12 +371,14 @@ export function AsyncBoundaryFn<T = unknown>({
   }, [])
 
   // Execute on mount or when dependencies change
+  // dependencies 为调用方传入的动态依赖数组：用稳定的 key 表示（语义与展开一致），
+  // 避免在依赖数组中使用展开语法（React Hooks 无法静态校验动态展开的依赖）
+  const dependenciesKey = getDependenciesKey(dependencies)
   useEffect(() => {
     if (executeOnMount) {
       void executeRef.current()
     }
-    // dependencies 为调用方传入的动态依赖数组（元素级比较，语义与展开一致）
-  }, [executeOnMount, reloadKey, fn, ...dependencies])
+  }, [executeOnMount, reloadKey, fn, dependenciesKey])
 
   // Loading state
   if (status === 'pending') {

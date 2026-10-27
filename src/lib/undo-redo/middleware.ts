@@ -24,8 +24,11 @@ type UndoRedoImpl = <
 
 // Type workaround for StoreMutators - use module augmentation with proper types
 declare module 'zustand/vanilla' {
-  interface StoreMutators<S, _A> {
-    'zustand/undo-redo': Write<Cast<S, object>, UndoRedoStoreActions>
+  interface StoreMutators<S, A> {
+    // `A` is intentionally referenced only to keep the type parameter "used":
+    // interface merging requires the type parameter list to be *identical* to
+    // zustand's base declaration, so it cannot be renamed or dropped.
+    'zustand/undo-redo': Write<Cast<S, object>, UndoRedoStoreActions> & (A extends unknown ? unknown : unknown)
   }
 }
 

@@ -6,13 +6,14 @@
 
 import { NextRequest } from 'next/server'
 import { randomUUID } from 'node:crypto'
-import { withA2AAuth, canAccessAgent } from '@/lib/agents/a2a/auth'
+import { withA2AAuth, canAccessAgent, type A2AAuthContext } from '@/lib/agents/a2a/auth'
 import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry'
 import { AgentRegistration } from '@/lib/agents/a2a/types'
 import {
   createSuccessResponse,
   createErrorResponse,
   createValidationError,
+  createForbiddenError,
 } from '@/lib/api/error-handler'
 
 export async function GET(request: NextRequest) {
@@ -22,8 +23,14 @@ export async function GET(request: NextRequest) {
 /**
  * GET /api/a2a/registry
  * List all registered agents
+ *
+ * 可见性按 canAccessAgent 过滤：
+ *   - JWT 方式 → 可见全部（权限由 RBAC 层管）
+ *   - API Key 方式且绑定了 agentId → 只能看到自己那个 agent
+ *     （否则一个 scoped key 可以枚举出全平台的 agent 清单）
+ *   - API Key 方式但没绑定 agentId（单 key 部署）→ 可见全部
  */
-async function GETHandler(request: NextRequest) {
+async function GETHandler(request: NextRequest, auth: A2AAuthContext) {
   try {
     const { searchParams } = new URL(request.url)
     const capability = searchParams.get('capability')
@@ -33,6 +40,9 @@ async function GETHandler(request: NextRequest) {
 
     const registry = getAgentRegistry()
     let agents = registry.getAll()
+
+    // 权限过滤：只保留调用方有权访问的 agent
+    agents = agents.filter(agent => canAccessAgent(auth, agent.id))
 
     // Filter by capability
     if (capability) {
@@ -71,7 +81,7 @@ export async function POST(request: NextRequest) {
  * POST /api/a2a/registry
  * Register a new agent
  */
-async function POSTHandler(request: NextRequest) {
+async function POSTHandler(request: NextRequest, auth: A2AAuthContext) {
   try {
     const body = await request.json()
 
@@ -104,6 +114,16 @@ async function POSTHandler(request: NextRequest) {
       lastHeartbeat: new Date().toISOString(),
       load: body.load,
       metadata: body.metadata,
+    }
+
+    // 允许调用方指定 id 时，必须校验这个 id 对自己可见：
+    // 否则一个绑定在 agent-A 上的 API Key 可以用 POST 指定 id=agent-B，
+    // 直接把 agent-B 的注册信息覆盖掉（register 是 upsert 语义）。
+    //
+    // 只在「调用方显式指定 id」时校验：
+    // 未指定 id 时由服务端生成新 id，那是注册新 agent，不是操作别人的 agent。
+    if (body.id && !canAccessAgent(auth, body.id)) {
+      return createForbiddenError(`Access denied for agent: ${body.id}`)
     }
 
     const registry = getAgentRegistry()

@@ -54,7 +54,10 @@ export function PWAInstallPrompt() {
     const isIPhone = !!ua.match(/iPhone/i)
     const isIOSDevice = isIPad || isIPhone
 
-    setIsIOS(isIOSDevice)
+    // 异步更新状态，避免在 effect 中同步 setState 造成级联渲染
+    queueMicrotask(() => {
+      setIsIOS(isIOSDevice)
+    })
 
     // Check if user has dismissed the prompt
     const hasDismissed = localStorage.getItem('pwa-install-dismissed')
@@ -74,7 +77,10 @@ export function PWAInstallPrompt() {
       localStorage.setItem('pwa-page-views', (pageViews + 1).toString())
 
       if (pageViews >= 2) {
-        setShowPrompt(true)
+        // 异步更新状态，避免在 effect 中同步 setState 造成级联渲染
+        queueMicrotask(() => {
+          setShowPrompt(true)
+        })
       }
     }
 

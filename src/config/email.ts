@@ -303,8 +303,10 @@ function isValidEmail(email: string): boolean {
 // Export
 // ========================================
 
-export default {
+const emailConfig = {
   parseEmailConfig,
   getDefaultEmailConfig,
   validateEmailConfig,
 }
+
+export default emailConfig

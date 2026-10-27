@@ -357,7 +357,13 @@ export function getDatabase(): DatabaseConnection {
     process.env.NODE_ENV === 'development'
   ) {
     try {
-      return withPerformanceLogging(baseConnection)
+      // The wrapper mirrors the DatabaseConnection contract, but the local
+      // DatabaseConnection type in this module is a narrower shape than the one
+      // the middleware is declared against. Use the same explicit assertion as the
+      // fallback branch below so both paths return a consistent DatabaseConnection.
+      return withPerformanceLogging(
+        baseConnection as unknown as Parameters<typeof withPerformanceLogging>[0]
+      ) as unknown as DatabaseConnection
     } catch {
       // Performance logging module not available, return base connection
       return baseConnection as unknown as DatabaseConnection

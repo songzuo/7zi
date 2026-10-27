@@ -7,7 +7,7 @@
  */
 
 import { NextRequest } from 'next/server'
-import { withA2AAuth, canAccessAgent } from '@/lib/agents/a2a/auth'
+import { withA2AAuth, canAccessAgent, type A2AAuthContext } from '@/lib/agents/a2a/auth'
 import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry'
 import { AgentRegistration } from '@/lib/agents/a2a/types'
 import {
@@ -15,6 +15,7 @@ import {
   createErrorResponse,
   createValidationError,
   createNotFoundError,
+  createForbiddenError,
 } from '@/lib/api/error-handler'
 
 /** AgentRegistration.status 的合法取值 */
@@ -25,16 +26,24 @@ interface RouteContext {
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  return withA2AAuth(request, (req) => GETHandler(req, context))
+  return withA2AAuth(request, (req, auth) => GETHandler(req, context, auth))
 }
 
 /**
  * GET /api/a2a/registry/[id]
  * Get a specific agent
  */
-async function GETHandler(request: NextRequest, context: RouteContext) {
+async function GETHandler(request: NextRequest, context: RouteContext, auth: A2AAuthContext) {
   try {
     const { id } = await context.params
+
+    // 越权检查放在存在性检查之前：
+    // 否则一个绑定在别的 agent 上的 API Key 可以通过 404/200 的差异
+    // 探测出某个 agent 是否存在（存在性 oracle）。
+    if (!canAccessAgent(auth, id)) {
+      return createForbiddenError(`Access denied for agent: ${id}`)
+    }
+
     const registry = getAgentRegistry()
     const agent = registry.get(id)
 
@@ -49,16 +58,22 @@ async function GETHandler(request: NextRequest, context: RouteContext) {
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
-  return withA2AAuth(request, (req) => PUTHandler(req, context))
+  return withA2AAuth(request, (req, auth) => PUTHandler(req, context, auth))
 }
 
 /**
  * PUT /api/a2a/registry/[id]
  * Update agent information
  */
-async function PUTHandler(request: NextRequest, context: RouteContext) {
+async function PUTHandler(request: NextRequest, context: RouteContext, auth: A2AAuthContext) {
   try {
     const { id } = await context.params
+
+    // 修改前必须校验访问权：防止用一个 scoped API Key 改别人的 agent
+    if (!canAccessAgent(auth, id)) {
+      return createForbiddenError(`Access denied for agent: ${id}`)
+    }
+
     const body = await request.json()
 
     const registry = getAgentRegistry()
@@ -113,16 +128,22 @@ async function PUTHandler(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  return withA2AAuth(request, (req) => DELETEHandler(req, context))
+  return withA2AAuth(request, (req, auth) => DELETEHandler(req, context, auth))
 }
 
 /**
  * DELETE /api/a2a/registry/[id]
  * Unregister an agent
  */
-async function DELETEHandler(request: NextRequest, context: RouteContext) {
+async function DELETEHandler(request: NextRequest, context: RouteContext, auth: A2AAuthContext) {
   try {
     const { id } = await context.params
+
+    // 注销前必须校验访问权：防止用一个 scoped API Key 删掉别人的 agent
+    if (!canAccessAgent(auth, id)) {
+      return createForbiddenError(`Access denied for agent: ${id}`)
+    }
+
     const registry = getAgentRegistry()
     const deleted = registry.unregister(id)
 
@@ -140,16 +161,22 @@ async function DELETEHandler(request: NextRequest, context: RouteContext) {
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  return withA2AAuth(request, (req) => PATCHHandler(req, context))
+  return withA2AAuth(request, (req, auth) => PATCHHandler(req, context, auth))
 }
 
 /**
  * PATCH /api/a2a/registry/[id]/heartbeat
  * Update agent heartbeat (keep-alive)
  */
-async function PATCHHandler(request: NextRequest, context: RouteContext) {
+async function PATCHHandler(request: NextRequest, context: RouteContext, auth: A2AAuthContext) {
   try {
     const { id } = await context.params
+
+    // 心跳同样会修改 agent 状态，必须先校验访问权
+    if (!canAccessAgent(auth, id)) {
+      return createForbiddenError(`Access denied for agent: ${id}`)
+    }
+
     const registry = getAgentRegistry()
     const updated = registry.updateHeartbeat(id)
 

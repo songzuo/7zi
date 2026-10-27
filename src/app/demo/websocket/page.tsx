@@ -60,7 +60,7 @@ export default function WebSocketDemoPage() {
     taskWs.taskUpdates.forEach((update, taskId) => {
       addMessage(`📊 Task ${taskId}: ${update.status} (${update.state})`)
     })
-  }, [taskWs.taskUpdates.size, addMessage])
+  }, [taskWs.taskUpdates, addMessage])
 
   // Skip SSR - render null instead of early return
   if (!isMounted) {

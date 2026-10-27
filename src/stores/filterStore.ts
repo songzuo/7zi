@@ -16,6 +16,7 @@
 
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import type { StateCreator, StoreApi } from 'zustand/vanilla'
 
 // ============================================================================
 // 类型定义
@@ -163,10 +164,10 @@ function objectToMap<K extends string, V>(obj: Record<K, V>): Map<K, V> {
 // Store 实现
 // ============================================================================
 
-export const useFilterStore = create<FilterStoreState>()(
+export const useFilterStore = create<FilterStoreState, []>(
   devtools(
     persist(
-      (set, get) => ({
+      ((set: StoreApi<FilterStoreState>['setState'], get: () => FilterStoreState) => ({
         // 初始状态
         activeFilters: new Map(),
         activeSorts: new Map(),
@@ -431,7 +432,7 @@ export const useFilterStore = create<FilterStoreState>()(
             activePagination: new Map(),
           })
         },
-      }),
+      })) as StateCreator<FilterStoreState, [], []>,
       {
         name: STORAGE_KEY,
         // 自定义序列化以处理 Map
@@ -500,9 +501,9 @@ export const useFilterStore = create<FilterStoreState>()(
           }
         },
       }
-    ),
+    ) as StateCreator<FilterStoreState, [], []>,
     { name: 'filter-store' }
-  )
+  ) as StateCreator<FilterStoreState, [], []>
 )
 
 // ============================================================================

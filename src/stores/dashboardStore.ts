@@ -18,6 +18,7 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { useShallow } from 'zustand/react/shallow'
+import type { StateCreator } from 'zustand/vanilla'
 import type { UnifiedTeamMember } from '@/types/members'
 import type { GitHubIssue, GitHubCommit } from '@/types/common'
 
@@ -298,9 +299,9 @@ function mergeActivities(issues: GitHubIssue[], commits: GitHubCommit[]): Activi
 // Store 实现
 // ============================================================================
 
-export const useDashboardStore = create<DashboardState>()(
+export const useDashboardStore = create<DashboardState, []>(
   devtools(
-    (set, get) => ({
+    ((set, get) => ({
       // 初始状态
       members: AI_MEMBERS,
       issues: [],
@@ -378,9 +379,9 @@ export const useDashboardStore = create<DashboardState>()(
       clearError: () => {
         set({ error: null })
       },
-    }),
+    })) as StateCreator<DashboardState, [], []>,
     { name: 'dashboard-store' }
-  )
+  ) as StateCreator<DashboardState, [], []>
 )
 
 // ============================================================================
@@ -421,7 +422,7 @@ export const useLastUpdated = () => useDashboardStore(s => s.lastUpdated)
  * 获取统计数据（派生数据）
  */
 export const useDashboardStats = (): DashboardStats =>
-  useDashboardStore(useShallow(s => ({
+  useDashboardStore(useShallow<DashboardState, DashboardStats>(s => ({
     totalMembers: s.members.length,
     working: s.members.filter(m => m.status === 'working').length,
     busy: s.members.filter(m => m.status === 'busy').length,
@@ -435,12 +436,22 @@ export const useDashboardStats = (): DashboardStats =>
  * 获取按状态分组的成员
  */
 export const useMembersByStatus = () =>
-  useDashboardStore(useShallow(s => ({
+  useDashboardStore(
+    useShallow<
+      DashboardState,
+      {
+        working: UnifiedTeamMember[]
+        busy: UnifiedTeamMember[]
+        idle: UnifiedTeamMember[]
+        offline: UnifiedTeamMember[]
+      }
+    >(s => ({
     working: s.members.filter(m => m.status === 'working'),
     busy: s.members.filter(m => m.status === 'busy'),
     idle: s.members.filter(m => m.status === 'idle'),
     offline: s.members.filter(m => m.status === 'offline'),
-  })))
+  }))
+  )
 
 /**
  * 获取单个成员

@@ -10,7 +10,7 @@
 
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useCollaboration } from '@/lib/websocket'
 import {ConnectionStatus, UserList} from './ConnectionStatus'
 import type { Operation } from '@/lib/collaboration/manager'
@@ -36,7 +36,11 @@ export function TaskEditor({
 }: TaskEditorProps) {
   const [content, setContent] = useState(initialContent)
   const [cursorPosition, setCursorPosition] = useState(0)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  // 文本框节点保存在 state 中：渲染期只读取 state，避免在 render 阶段访问 ref
+  const [textarea, setTextarea] = useState<HTMLTextAreaElement | null>(null)
+  const setTextareaRef = useCallback((node: HTMLTextAreaElement | null) => {
+    setTextarea(node)
+  }, [])
 
   // Initialize collaboration
   const {
@@ -93,9 +97,9 @@ export function TaskEditor({
 
   // Handle cursor movement and selection
   const handleCursorChange = () => {
-    if (!textareaRef.current) return
-    const newPosition = textareaRef.current.selectionStart
-    const selectionEnd = textareaRef.current.selectionEnd
+    if (!textarea) return
+    const newPosition = textarea.selectionStart
+    const selectionEnd = textarea.selectionEnd
     setCursorPosition(newPosition)
 
     // Send cursor position
@@ -209,7 +213,7 @@ export function TaskEditor({
       {/* Editor */}
       <div className="relative flex-1 overflow-hidden">
         <textarea
-          ref={textareaRef}
+          ref={setTextareaRef}
           value={content}
           onChange={handleInputChange}
           onSelect={handleCursorChange}
@@ -230,7 +234,6 @@ export function TaskEditor({
             if (cursor.userId === userId) return null
 
             // Calculate cursor position based on textarea content
-            const textarea = textareaRef.current
             if (!textarea) return null
 
             // Get cursor coordinates
