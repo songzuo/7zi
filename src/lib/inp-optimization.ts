@@ -356,7 +356,7 @@ export function observeLongTasks(callback: (entries: PerformanceEntry[]) => void
     observer.observe({ type: 'longtask', buffered: true })
 
     return () => observer.disconnect()
-  } catch (error) {
+  } catch (_error) {
     return () => {}
   }
 }
@@ -386,7 +386,7 @@ export function observeInteractionDelay(
     observer.observe({ type: 'first-input', buffered: true })
 
     return () => observer.disconnect()
-  } catch (error) {
+  } catch (_error) {
     return () => {}
   }
 }

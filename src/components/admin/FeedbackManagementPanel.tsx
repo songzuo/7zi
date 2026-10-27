@@ -56,7 +56,9 @@ export const FeedbackManagementPanel: React.FC = () => {
   }, [filters])
 
   useEffect(() => {
-    fetchFeedbacks()
+    queueMicrotask(() => {
+      void fetchFeedbacks()
+    })
   }, [fetchFeedbacks])
 
   // Update feedback status

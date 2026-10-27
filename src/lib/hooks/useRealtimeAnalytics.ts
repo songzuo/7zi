@@ -7,9 +7,8 @@
 
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import type {
-  RealtimeAnalyticsState,
   WebSocketConnectionMetrics,
   TaskStatusDistribution,
   TeamEfficiencyMetrics,
@@ -37,7 +36,7 @@ const MAX_HISTORY_POINTS = 100
 // ============================================================================
 
 export function useRealtimeAnalytics(config?: Partial<RealtimeWebSocketConfig>) {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config }
+  const finalConfig = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config])
 
   // Connection state
   const [connection, setConnection] = useState<WebSocketConnectionMetrics>({

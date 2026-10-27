@@ -513,6 +513,106 @@ grep -n 'git diff --quiet -- HEARTBEAT.md' <脚本>
 判断节点是否修好，要看 **cron 实际执行的那份脚本**，
 而不是 `/root/.openclaw/cron/` 下你改的那个文件。
 
+## 56. §53 会复发：会话 `.jsonl.reset` 文件会把明文 PAT 重新落盘（2026-10-27 05:25，bot5 实测）
+
+**症状**：§53 已在 10-27 00:25 清过一次会话记录里的明文 PAT，全盘复查为 0。
+但 05:20 用**活跃 token 反查**时，又在 4 个文件里命中：
+```
+agents/main/sessions/03f6df41-*.jsonl.reset.2026-10-23T20-26-37.043Z
+agents/main/sessions/3aa2eb37-*.jsonl.reset.2026-04-10T20-24-25.693Z
+agents/main/sessions/d4bb9be2-*.jsonl
+agents/main/sessions/fa5f9d59-*.jsonl
+```
+→ **"清过一次"不等于"不会再出现"**。
+
+**两个根因**：
+1. **`.jsonl.reset.*` 是会话被重置时另存的副本** —— 它不在 §53 那次清理的目标清单里
+   （只扫了 `*.jsonl`），所以"已清零"的结论本身不完整。
+2. **会话文本本身含 token** —— 每次会话被 compact/reset，原始文本会重新落盘。
+
+**修法（已落地，bot5）**：
+```bash
+TOK=$(grep -oE 'gh[p]_[A-Za-z0-9]{20,}' /root/.git-credentials | head -1)
+cd /root/.openclaw/agents/main/sessions
+grep -rl "$TOK" . | while read f; do
+  mkdir -p .redacted-backup; cp -p "$f" ".redacted-backup/$f"
+  sed -i "s|$TOK|ghp_[已移除]|g" "$f" ".redacted-backup/$f"
+done
+```
+复查 `agents /tmp /var/log /etc /cron /workspace` → **剩余 0** ✅
+
+**教训**：
+- 凭据清理的**目标范围**必须包含所有副本变体（`*.jsonl`、`*.jsonl.reset.*`、`.bak`、备份目录），
+  否则一次"清零"只是假象。
+- **备份也必须一起脱敏**（否则等于没做）——同 §53。
+- 巡检 §6 的扫描清单要新增 `agents/*/sessions/**`（含 reset 变体），
+  并且**用活跃 token 反查**，不要只用 pattern 猜。
+
+⚠️ 仍**强烈建议主人轮换该 PAT**（§53）：它在 10-22 起就明文躺在会话记录与 git 历史里，
+轮换是唯一能一次性作废所有历史副本的手段（三处副本一起换：
+`~/.git-credentials`、`cron/.git-credential`、`backups/github/.git-token`）。
+
+## 60. 共享仓库上做 rebase = 高危：173 个工作区文件被冲突标记污染（2026-10-27 10:00 实测，bot5）
+
+**事故经过**：
+1. 本机要把本地 commit 推到 origin，执行 `git rebase origin/main`
+2. 但**远端在我 fetch 与 rebase 之间被 bot2/bot4 推进了 60 个提交**
+   （本机 bot5 每 5 分钟推一次，bot2/bot4 每 4 小时）
+3. rebase 在大量文件上产生冲突标记（`<<<<<<< HEAD`），**共 173 个文件**
+4. `git rebase --abort` 也失败：`fatal: could not move back to faea9ec9c0...`
+   → HEAD 长期停在 detached 状态，索引损坏
+
+**污染范围**：`AGENTS.md` / `README.md` / `TOOLS.md` / `MEMORY.md` /
+`7zi.com/**` / `bot5/memory/**` / `VM-0-4-opencloudos/scripts/**` 等 173 个文件。
+
+**定位手法**（可复用）：
+```bash
+grep -rl '^<<<<<<< ' . 2>/dev/null | grep -v node_modules   # 冲突标记文件
+git diff --name-only origin/main                          # 应与上一条数量一致
+git show HEAD:<file> | grep -c '^<<<<<<< '                 # HEAD 版本是否干净
+```
+
+**恢复路径（最干净）**：
+```bash
+git branch -f main origin/main          # 让 main 指回远端
+git symbolic-ref HEAD refs/heads/main   # 从 detached 回到分支
+git reset --hard HEAD                  # 清掉全部冲突标记
+```
+
+**教训（比修复本身重要）**：
+- **共享仓库上的 rebase 几乎是必错的**：远端每 5 分钟都在推进，
+  rebase 窗口里必然撞上并发提交。
+  → **本机巡检记录不要单独 commit + rebase**，
+  交给 `claw-mesh-sync.sh` 推（它只 `git add "$MACHINE_NAME"/`，天然避免全局冲突）。
+- **冲突标记会静默污染上百个文件**，而且 `git status` 只会显示 239 个 M，
+  不专门 grep 根本发现不了 → **提交前必须 grep `^<<<<<<< `**。
+- `rebase --abort` 失败说明索引已损坏，此时**不要再继续 rebase**，
+  直接 `branch -f` + `symbolic-ref` + `reset --hard`。
+- ⚠️ `reset --hard` 会丢弃工作区未提交改动 —— 先 `git stash -u` 确认，
+  或确认这些改动本就该丢弃（本次是被污染的冲突标记，属该丢的）。
+
+## 61. 巡检记录写错目录 = 兄弟节点的记录串进本机目录（2026-10-27 10:00 实测，bot5）
+
+**症状**：`bot5/memory/2026-10-26.md` 的内容**其实是 bot2 的巡检记录**
+（开头写着"本机 bot2 healthy"），与 `bot2/memory/2026-10-26.md` 雷同；
+本机工作区的 `memory/2026-10-26.md` 也是 bot2 的内容。
+
+**根因**：`claw-mesh-sync.sh` 的拷贝方向是
+「本机工作区 `memory/` → 仓库 `bot5/memory/`」。
+一旦**别的工作区（或被污染的副本）里的同名日期文件被推到共享仓库的 `bot5/` 目录**，
+本机下轮同步就会把它**原样拷回本机工作区** → 本机记录被兄弟节点的内容顶掉。
+
+**判据（巡检必查）**：打开 `bot5/memory/<今日>.md`（及工作区 `memory/<今日>.md`），
+看开头写的机器名 —— 不是本机节点名 = 被覆盖了。
+本机 = bot5（hostname=ecm-cd59，公网 182.43.36.134）。
+
+**修法**：
+- 巡检记录**文件名带节点标识**，避免同一天互相顶替：
+  `memory/2026-10-27-bot5.md`
+- 或写到节点专属子目录 `memory/bot5/2026-10-27.md`
+- 恢复被覆盖的内容：只能从该节点自己的历史提交里取
+  （`git log --oneline -- bot5/memory/2026-10-26.md` 找到本节点的那次提交）
+
 ## 已知遗留（需用户决策，勿擅自处理）
 - git 历史中可能仍残留旧 token —— 彻底清除需重写历史 + 强制推送
 - 仓库内 7.5 万个 node_modules 文件 —— 清理需重写历史
@@ -1064,52 +1164,168 @@ pattern 只能找到"长得像 token 的东西"，反查才能找到"就是它"�
 - 轮换是**最彻底**的止血手段：老 token 立即失效，
   历史里的明文变成垃圾数据
 
-## 54. A2A 路由的鉴权不能"建了模块就以为接上了"（2026-10-27 00:30 实测）
+## 54. push 报 "cannot lock ref" = 远端并发推进的竞态，不是 non-fast-forward（2026-10-27 05:05 实测，bot2）
 
-**现象**：并发代理把 A2A 鉴权模块（`src/lib/agents/a2a/auth.ts`）建好了，
-还写了 23 个单元测试全绿，**但 5 个路由一个都没接** ——
-`withA2AAuth` 只在模块的注释里出现过。
+**症状**：备份脚本连续两轮报
+```
+! [remote rejected] main -> main (cannot lock ref 'refs/heads/main':
+  is at 65eee404... but expected 2eb88718...)
+!! Memory backup PUSH FAILED (commit kept locally)
+```
+而 §51 的"按 PENDING 决定是否 push"逻辑**已经生效**（日志确实打印了
+"检测到 1 个待推送的本地提交，执行 push"）——**push 还是被拒**。
 
-集成测试一跑 137 个用例挂了 100 个，才暴露出来。
+**根因**：这是**并发竞态**，不是落后问题：
+```
+我们的 fetch/pull → 远端 head = A
+别的节点（bot5 每 5 分钟 / bot2 每 4 小时）push → 远端 head = B
+我们 push（还带着 A 的 ref）→ git 发现远端已是 B → cannot lock ref
+```
+**"提前 pull --rebase"解决不了**——从 fetch 到 push 的窗口里远端随时会变。
+**判据**：错误信息里出现 `cannot lock ref` / `but expected` → 竞态；
+出现 `non-fast-forward` / `fetch first` → 才是真的落后。
 
-**为什么模块能建好、路由能漏掉**：
-- `withA2AAuth` 是一个**被导出的、被单元测试覆盖的**函数 → 有测试就"绿"
-- 但"路由有没有调用它"**不是任何测试断言的东西**
-- 单元测试全绿 ≠ 防护生效
+**修法（已落地，backup-memory.sh + backup-static.sh 两处）**：
+push 失败后**重新 fetch + rebase + 重试 5 次**，而不是直接 exit 1 留孤儿提交：
+```bash
+push_with_retry() {
+    local attempt=1
+    while [ "$attempt" -le 5 ]; do
+        if git push origin main 2>&1; then return 0; fi
+        git fetch origin main >/dev/null 2>&1 || true
+        git checkout -- . 2>/dev/null || true
+        git reset -q HEAD 2>/dev/null || true
+        if ! git rebase origin/main >/tmp/rebase.$$ 2>&1; then
+            grep -q 'CONFLICT' /tmp/rebase.$$ && {
+                git checkout --ours -- . 2>/dev/null || true   # §36：备份脚本取远端
+                git add -A 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue >>/tmp/rebase.$$ 2>&1 || true
+            }
+            rm -rf .git/rebase-merge .git/rebase-apply
+            git rebase --abort 2>/dev/null || true
+        fi
+        rm -f /tmp/rebase.$$
+        attempt=$((attempt+1)); sleep 3
+    done
+    return 1
+}
+```
+**验证**：手动跑一轮 → push 成功 → `git rev-list --left-right --count HEAD...origin/main` = `0 0` ✅
 
-**教训**：**鉴权类改动必须有一端点是"路由真的被拦住了"**。
-验收到"某个请求打过去拿到 401"才算数，
-"鉴权函数被调用并返回了正确的 context"不算。
+**教训**：**§51 修的是"要不要 push"，本节修的是"push 会不会成功"** —— 两件事。
+凡是在多节点共享仓库上 push，**push 必须自带重试**，
+因为"远端在两次操作之间变化"是常态而不是意外。
 
-**本次的漏洞本体**（比"漏接"更值得记）：
-- AgentCard 自己声明了 `securitySchemes: bearerAuth + apiKey`，
-  并且 `extended agent card` 写明是「for authenticated users」、
-  含「Administrative operations for authenticated users」
-- 但 `GET /api/agents` 之类**完全没有鉴权** ——
-  任何人都能列 agent、注册 agent、改名、删 agent，
-  甚至拿到标注为"管理操作"的 extended card
-- 仓库**没有根 `middleware.ts`**（`src/middleware/` 只是目录，不是 Next 的入口），
-  `matcher` 是 `[]` → **没有全局兜底**，路由不自己守门就是裸奔
+## 55. cron 里的脚本没有执行权限 = 这条 cron 从上线起就没跑过（2026-10-27 05:05 实测，bot2）
 
-**→ 结论：加新 API 路由时，鉴权要算在"路由本体"里，
-不能指望有个全局 middleware 兜着。**
+**症状**：`/var/log/botmem-sync-from-botmem.log` **0 字节**（文件 mtime 停在 10-23），
+但 crontab 里明明有：
+```
+0 */4 * * * /root/.openclaw/workspace/scripts/sync-from-botmem.sh >/dev/null 2>&1
+```
 
-**补充（同日 00:50 复核，主管亲自补齐）**：
-并发代理修完 registry 三个路由后，**queue 与 jsonrpc 仍然裸奔**——
-`/api/a2a/queue`（GET/POST/DELETE，队列里是待执行的任务消息）
-和 `/api/a2a/jsonrpc`（返回含管理操作的 extended card）都没接鉴权。
-→ 一共是 **6 个文件 11 个端点**，不是 5 个。
-→ 教训再加一条：**"接了几个"和"接全了"是两回事**，
-收尾时应该用 `grep -rn 'withA2AAuth\|withUserAuth' src/app/api/<模块>/`
-逐端点核对，而不是看"已经有路由 import 了"。
+**根因**：脚本权限是 `-rw-r--r--`（**没有 x**）→ cron 执行时报
+`Permission denied` → **crontab 的 `2>&1` 又把错误丢进了 /dev/null**，
+日志里连痕迹都没有 → **看起来"一直在跑"，实际一次都没跑过**。
 
-**另一个坑（同一批改动里踩到）**：
-包装鉴权时若把路由签名写成
-`export async function GET(request: NextRequest)`，
-而原实现是 `GET(request, context)`（Next 的动态路由要 context.params），
-则 `context` 在包装函数里**不在作用域内** → TS2304。
-→ 包装鉴权时**必须保留原签名**：
-`export async function GET(request: NextRequest, context: RouteContext) {
-    return withA2AAuth(request, (req) => GETHandler(req, context))
-  }`
-（`context` 要透传给内部 handler，不能在包装层丢掉。）
+**修法**：
+```bash
+chmod +x /root/.openclaw/workspace/scripts/sync-from-botmem.sh
+```
+**同时把槽位从 `:00` 挪到 `:40`**（§35：同一台机器上所有写共享仓库的任务不能落在同一分钟；
+`:00` 是 claw-mesh-sync.sh 的槽位）。
+
+**验证**：手动跑一次 → 日志出现 "✅ 同步流程完成"，
+本地 memory/*.md 与仓库 `bot2/memory/*.md` 逐文件 `cmp` **完全一致**（151 个）→ 幂等无害。
+
+**巡检必查（新增）**：
+```bash
+# crontab 里每个脚本都必须有 x 权限，否则这条任务等于不存在
+crontab -l | grep -oE '/[A-Za-z0-9_./~-]+\.(sh|py)' | sort -u | \
+  while read s; do [ -x "$s" ] || echo "NOT EXECUTABLE: $s"; done
+# 日志文件大小为 0 且 mtime 很旧 = 这条 cron 从没成功过
+ls -la /var/log/*.log | awk '$5==0 {print}'
+```
+
+**教训**：**"crontab 里有这一行"不等于"它在跑"**。
+这是 §4（失效 cron）的变种：不是脚本被删了，而是**脚本没有执行权限**。
+→ 巡检要加一条：**逐个验证 crontab 里引用的脚本有 x 权限，且对应日志有近期时间戳**。
+
+## 巡检状态（2026-10-27 05:05，bot2）
+- 本机 = **bot2**（hostname=bot2，公网 47.81.39.226），gateway running，doctor exit 0
+- state: bot2 healthy / step 0 / lastSync 04:00 ✅（下一槽位 08:00）
+- 各节点 lastSync：bot2 04:00 / bot3 04:46 / bot4 04:10 / bot5 05:01 / bot6 04:30 —— **全部按各自节奏推进 ✅**
+- 备份仓库：ahead 1 → **已修复并推上去，0 0 ✅**
+- 凭据扫描：cron 目录、日志、仓库 origin/main **均无明文 token ✅**
+- 插件：sms-gateway / openilink / telegram 全部 loaded ✅；picoclaw NRestarts=0 ✅
+- 磁盘 72% ✅；docs/ 1194 个文件，无 `git ls-files --deleted` ✅
+- 仍待主人决策：**轮换 GitHub PAT**（§53，三处副本一起换）
+
+## 57. §55 在别的节点复发：脚本文件被重写丢了 +x → 业务任务静默停摆 27 小时（2026-10-27 10:40 实测，bot6）
+
+**症状**：bot6 上 `/root/7zi-project/logs/shop-fulfill.log`
+（店铺履约定时任务：自动补单 + 自动付 CJ 货款）**最后一条日志停在 10-26 07:00**，
+而 crontab 里明明有：
+```
+*/10 * * * * /root/7zi-project/scripts/shop-fulfill-tick.sh >/dev/null 2>&1
+30 2 * * * /root/7zi-project/scripts/cj-detail-warm.sh >/dev/null 2>&1
+```
+
+**根因**：两个脚本权限是 `-rw-rw-r--`（**没有 x**），
+文件 mtime = 10-26 08:36 → **脚本在 08:36 被重写（scp/cat/编辑），执行位丢了**，
+于是 08:36 之后这条每 10 分钟的履约任务**一次都没跑过**，停了 **27 小时**。
+cron 的 `>/dev/null 2>&1` 把 "Permission denied" 也吞掉了 → 无任何痕迹。
+
+**与 §55 的区别**：§55 是"脚本从上线起就没跑过"；
+本节是**"本来在跑，某天被改写后停摆"** → 更隐蔽，因为**曾经正常过**。
+
+**修法（已落地，bot6）**：
+```bash
+chmod +x /root/7zi-project/scripts/shop-fulfill-tick.sh \
+          /root/7zi-project/scripts/cj-detail-warm.sh
+bash -n shop-fulfill-tick.sh   # 语法校验
+```
+**验证**：手动跑一次 → EXIT=0、日志新增；等下一个 `*/10` 槽位 →
+日志出现 `2026-10-27 10:40` 条目 → 确认 **cron 真的恢复了**（不是只有手动能跑）✅
+
+**巡检必查（每个可达节点都要做）**：
+```bash
+crontab -l | grep -oE '/[A-Za-z0-9_./~-]+\.(sh|py)' | sort -u | while read s; do
+  if [ ! -f "$s" ]; then echo "MISSING: $s"; elif [ ! -x "$s" ]; then echo "NOTEXEC: $s"; fi
+done
+# 业务任务的日志 mtime 是不是"最近"（比 cron 周期老很多 = 停摆）
+ls -la <业务日志>  # 对比 cron 频率
+```
+⚠️ **"文件存在"不等于"能被执行"** —— 巡检脚本路径时要查 **x 权限**，不只是 `-f`。
+
+## 58. 节点可达性：bot6 → bot5 必须用 `bot5.szspd.cn`，`ecm-cd59` 在 bot6 上不解析（2026-10-27 10:37 实测）
+
+- bot2 → bot6：`~/.ssh/b6_ed25519` → `109.123.246.140` ✅
+- bot6 → bot5：`-i ~/.ssh/id_bot6_ed25519 root@bot5.szspd.cn` ✅
+  （bot5 的主机名是 `ecm-cd59`，但 **bot6 的 /etc/hosts 里没有这条解析** → 用 `ecm-cd59` 会
+  `Could not resolve hostname`；`bot5.szspd.cn` 可以）
+- bot6 → bot5 用**默认密钥**会被拒（`Permission denied (publickey,password)`）→ 必须显式 `-i`
+- bot2 → bot3 / bot4：仍全部被拒（§42 未变）
+
+## 59. bot6 的店铺履约日志里明文含 CJ 支付链接密钥（2026-10-27 10:39 实测）
+
+`/root/7zi-project/logs/shop-fulfill.log`（3.4MB）里每条 `cj-pay-sync` 结果都带
+`payUrl: https://cjdropshipping.com/apiAuthorization.html?secretKey=****&id=...`
+→ **CJ 收银台 secretKey 明文落盘**（每 10 分钟一条，持续增长）。
+- 该文件**没有**被同步进共享仓库（7zi-project 不在 Claw-Mesh 的采集范围）→ 未泄漏到 GitHub ✅
+- 但 bot6 本机磁盘上是明文，且日志只按"行数"裁剪（1500 行 ≈ 3.3MB）→ 体积压不下去。
+→ **建议**：① 定期轮转这个日志（logrotate）；② 落盘前把 `secretKey=` 后半段打码；
+  ③ 如有必要轮换 CJ 侧 secretKey。
+⚠️ 属**需主人决策**项（涉及 CJ 账号与生产链路），AI 不擅自改生产脚本。
+
+## 巡检状态（2026-10-27 10:45，bot2）
+- 本机 = **bot2**，gateway running，state healthy / step 0 / lastSync 08:00 ✅（下槽 12:00）
+- 各节点推进：bot2 08:00 / bot3 08:45 / bot4 10:26 / bot5 10:35 / bot6 08:30 —— 全部在各自节奏内 ✅
+- 备份仓库 `0 0` ✅（§54 的 push_with_retry 生效，08:20 那轮正常）
+- 凭据：**用活跃 PAT 反查** agents / tmp / var/log / etc / cron / workspace → 仅命中
+  `/root/.openclaw/cron/.git-credential`（有意保留的那份）→ 其余 **0** ✅
+- bot5 直连（经 bot6 中转）：时区 CST ✅、live 脚本 guard 计数 FETCH_BUDGET=600 / timeout 150 ✅、
+  crontab 脚本全部可执行 ✅
+- bot6 直连：已修 §57（两个脚本 +x，10:40 槽位确认恢复）✅
+- 磁盘 72% ✅；`git ls-files --deleted` 空 ✅；plugins 全 loaded ✅；picoclaw NRestarts=0 ✅
+- 待主人决策：① **轮换 GitHub PAT**（§53，三处副本一起换）② CJ secretKey 与履约日志打码（§59）

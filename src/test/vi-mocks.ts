@@ -939,8 +939,13 @@ declare global {
 // ============================================================================
 
 // Mock logger
-vi.mock('../lib/logger', () => ({
-  logger: {
+//
+// 注意：必须同时导出 `log`（便捷函数集合）。src/lib/logger/index.ts 里
+// `log` 和 `logger` 是两个具名导出，只 mock `logger` 会让
+// `import { log } from '@/lib/logger'` 在运行期抛
+// "No 'log' export is defined on the mock"。
+vi.mock('../lib/logger', () => {
+  const logger = {
     error: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
@@ -956,27 +961,53 @@ vi.mock('../lib/logger', () => ({
     clearContext: vi.fn(),
     child: vi.fn(),
     updateConfig: vi.fn(),
-  },
-  default: function () {
-    return {
-      error: vi.fn(),
-      info: vi.fn(),
-      warn: vi.fn(),
-      debug: vi.fn(),
-      fatal: vi.fn(),
-      api: vi.fn(),
-      auth: vi.fn(),
-      perf: vi.fn(),
-      user: vi.fn(),
-      security: vi.fn(),
-      business: vi.fn(),
-      setContext: vi.fn(),
-      clearContext: vi.fn(),
-      child: vi.fn(),
-      updateConfig: vi.fn(),
-    }
-  },
-}))
+  }
+
+  // 便捷函数保持与真实实现一致的委托关系：
+  // log.x(...) 最终落到 logger.x(...)，测试才能断言「log 确实调用了 logger」。
+  const log = {
+    debug: (message: string, data?: Record<string, unknown>) => logger.debug(message, data),
+    info: (message: string, data?: Record<string, unknown>) => logger.info(message, data),
+    warn: (message: string, data?: Record<string, unknown>) => logger.warn(message, data),
+    error: (message: string, error?: Error | unknown, data?: Record<string, unknown>) =>
+      logger.error(message, error, data),
+    fatal: (message: string, error?: Error | unknown, data?: Record<string, unknown>) =>
+      logger.fatal(message, error, data),
+    api: (message: string, data?: Record<string, unknown>, level?: string) =>
+      logger.api(message, data, level),
+    auth: (message: string, data?: Record<string, unknown>, level?: string) =>
+      logger.auth(message, data, level),
+    perf: (message: string, data?: Record<string, unknown>) => logger.perf(message, data),
+    user: (message: string, data?: Record<string, unknown>) => logger.user(message, data),
+    security: (message: string, data?: Record<string, unknown>, level?: string) =>
+      logger.security(message, data, level),
+    business: (message: string, data?: Record<string, unknown>) => logger.business(message, data),
+  }
+
+  return {
+    logger,
+    log,
+    default: function () {
+      return {
+        error: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        debug: vi.fn(),
+        fatal: vi.fn(),
+        api: vi.fn(),
+        auth: vi.fn(),
+        perf: vi.fn(),
+        user: vi.fn(),
+        security: vi.fn(),
+        business: vi.fn(),
+        setContext: vi.fn(),
+        clearContext: vi.fn(),
+        child: vi.fn(),
+        updateConfig: vi.fn(),
+      }
+    },
+  }
+})
 
 vi.mock('../lib/db/index', () => ({
   // `db` 是 src/lib/db/index.ts 的具名导出（`export const db = getDatabase()`）。

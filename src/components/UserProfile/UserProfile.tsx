@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 interface UserProfile {
   id: string
@@ -70,7 +71,9 @@ export default function UserProfile({ userId }: { userId: string }) {
 
   // Load user data
   useEffect(() => {
-    void loadUser()
+    queueMicrotask(() => {
+      void loadUser()
+    })
   }, [loadUser])
 
   // Handle avatar file selection
@@ -247,7 +250,14 @@ export default function UserProfile({ userId }: { userId: string }) {
             <div className="group relative">
               <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt={user.name} className="h-full w-full object-cover" />
+                  <Image
+                    src={avatarPreview}
+                    alt={user.name}
+                    width={128}
+                    height={128}
+                    unoptimized
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <div className="text-5xl font-bold text-cyan-500">
                     {user.name.charAt(0).toUpperCase()}

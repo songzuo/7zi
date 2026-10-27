@@ -13,7 +13,7 @@
  * - Time to First Byte (TTFB)
  */
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { logger } from '@/lib/logger'
 
 // ============================================
@@ -136,22 +136,35 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
   const {
     reportToApi = true,
     onMetric,
-    enabledMetrics = ['LCP', 'FID', 'CLS', 'INP', 'FCP', 'TTFB'],
+    enabledMetrics: enabledMetricsProp,
   } = options
+
+  // Keep a stable reference so the collection effect is not re-registered on
+  // every render (a new array literal would change the callback identity).
+  const enabledMetrics = useMemo(
+    () => enabledMetricsProp ?? ['LCP', 'FID', 'CLS', 'INP', 'FCP', 'TTFB'],
+    [enabledMetricsProp]
+  )
 
   const [metrics, setMetrics] = useState<WebVitalsMetrics>({})
   const [history, setHistory] = useState<MetricEntry[]>([])
   const [isCollecting, setIsCollecting] = useState(false)
 
+  // Ref guard so the collection callback identity stays stable (it must not
+  // depend on `isCollecting`, otherwise the effect below would re-subscribe
+  // and register duplicate metric handlers).
+  const collectingRef = useRef(false)
+
   const startCollection = useCallback(async () => {
-    if (isCollecting) return
-    setIsCollecting(true)
+    if (collectingRef.current) return
 
     const webVitals = await getWebVitals()
     if (!webVitals) {
-      setIsCollecting(false)
       return
     }
+
+    collectingRef.current = true
+    setIsCollecting(true)
 
     const processMetric = (name: string, value: number) => {
       const rating = getRating(name, value)
@@ -220,10 +233,16 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
         processMetric('TTFB', metric.value)
       })
     }
-  }, [isCollecting, reportToApi, onMetric, enabledMetrics])
+  }, [reportToApi, onMetric, enabledMetrics])
 
   useEffect(() => {
-    startCollection()
+    // Defer to a macrotask so the state update happens in a callback rather
+    // than synchronously inside the effect body (avoids cascading renders).
+    const timer = setTimeout(() => {
+      startCollection()
+    }, 0)
+
+    return () => clearTimeout(timer)
   }, [startCollection])
 
   return {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useCallback, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import * as Sentry from '@sentry/nextjs'
 import {ErrorDisplay} from './ErrorDisplay'
 
@@ -92,9 +93,10 @@ export function ErrorBoundary({
   }, [reset])
 
   // 返回首页
+  const router = useRouter()
   const handleGoHome = useCallback(() => {
-    window.location.href = '/'
-  }, [])
+    router.push('/')
+  }, [router])
 
   // 返回上一页
   const handleGoBack = useCallback(() => {

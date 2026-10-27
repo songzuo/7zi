@@ -178,7 +178,9 @@ export function useGitHubData({
 
   // 初始加载
   useEffect(() => {
-    refresh()
+    queueMicrotask(() => {
+      void refresh()
+    })
   }, [refresh])
 
   // 自动刷新

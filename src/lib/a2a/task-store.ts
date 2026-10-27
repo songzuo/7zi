@@ -4,6 +4,7 @@
  */
 
 import { EventEmitter } from 'events'
+import * as fs from 'fs'
 import {
   TaskWithPriority,
   AsyncTaskStatus,
@@ -387,7 +388,6 @@ export class FileTaskStore extends InMemoryTaskStore {
    */
   private load(): void {
     try {
-      const fs = require('fs')
       if (fs.existsSync(this.filePath)) {
         const data = JSON.parse(fs.readFileSync(this.filePath, 'utf-8'))
         for (const task of data.tasks || []) {
@@ -407,7 +407,6 @@ export class FileTaskStore extends InMemoryTaskStore {
    */
   private save(): void {
     try {
-      const fs = require('fs')
       const data = {
         tasks: Array.from(this.tasks.values()),
       }

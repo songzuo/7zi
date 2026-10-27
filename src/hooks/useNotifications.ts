@@ -43,26 +43,31 @@ export const useNotifications = (options: UseNotificationsOptions = {}) => {
   // Load notifications from localStorage on mount
   useEffect(() => {
     if (!persist) {
-      setIsLoaded(true)
+      queueMicrotask(() => {
+        setIsLoaded(true)
+      })
       return
     }
 
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
+      try {
         const parsed = JSON.parse(stored) as StoredNotification[]
         // Convert string dates back to Date objects
         const loaded = parsed.map(n => ({
           ...n,
           createdAt: new Date(n.createdAt),
         }))
-        setNotifications(loaded)
+        queueMicrotask(() => {
+          setNotifications(loaded)
+        })
+      } catch (error) {
+        logger.error('Failed to load notifications', error)
       }
-    } catch (error) {
-      logger.error('Failed to load notifications', error)
-    } finally {
-      setIsLoaded(true)
     }
+    queueMicrotask(() => {
+      setIsLoaded(true)
+    })
   }, [persist])
 
   // Save notifications to localStorage whenever they change

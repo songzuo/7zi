@@ -191,7 +191,7 @@ async function logToServer(error: Error | AppError): Promise<void> {
 // Error Handler (Server-Safe - No Toast)
 // ============================================================================
 
-function isRetryable(error: Error | AppError): boolean {
+function _isRetryable(error: Error | AppError): boolean {
   const appError = error as AppError
 
   if (typeof appError.retryable === 'boolean') {
@@ -213,10 +213,8 @@ export function handleError(
   customMessage?: string
 ): void {
   const {
-    showNotification = false,  // Default to false for server
     logToConsole: doLogToConsole = true,
     logToServer: doLogToServer = true,
-    showToast = false,  // Always false for server
   } = config
 
   if (doLogToConsole) {
@@ -315,7 +313,7 @@ export function withErrorBoundary<P extends object>(
 // Exports
 // ============================================================================
 
-export default {
+const errorHandler = {
   handleError,
   withErrorHandling,
   withErrorBoundary,
@@ -324,3 +322,5 @@ export default {
   getUserFriendlyMessage,
   getErrorTitle,
 }
+
+export default errorHandler

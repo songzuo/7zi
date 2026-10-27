@@ -45,7 +45,9 @@ export function useThemeEnhanced(): UseThemeEnhancedReturn {
     if (typeof window === 'undefined') return
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    setSystemPrefersDark(mediaQuery.matches)
+    queueMicrotask(() => {
+      setSystemPrefersDark(mediaQuery.matches)
+    })
 
     const handler = (e: MediaQueryListEvent) => {
       setSystemPrefersDark(e.matches)

@@ -185,11 +185,17 @@ export function NodeEditorPanel({
   // 同步节点数据
   useEffect(() => {
     if (node) {
-      setEditedNode({ ...node })
+      queueMicrotask(() => {
+        setEditedNode({ ...node })
+      })
     } else {
-      setEditedNode(null)
+      queueMicrotask(() => {
+        setEditedNode(null)
+      })
     }
-    setValidationErrors({})
+    queueMicrotask(() => {
+      setValidationErrors({})
+    })
   }, [node])
 
   // 关闭面板

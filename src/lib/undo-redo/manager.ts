@@ -54,7 +54,6 @@ interface UndoRedoManagerState {
 // ============================================================================
 
 const DEFAULT_MAX_HISTORY_SIZE = 100
-const STORAGE_KEY = '7zi-undo-redo-manager'
 
 // ============================================================================
 // Helper Functions

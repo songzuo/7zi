@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { tenantService } from '../tenant/service'
-import { TenantMemberStatus, TenantQuota } from '../tenant/types'
+import { TenantQuota } from '../tenant/types'
 import { logger } from '../logger'
 import { resolveIdentity } from './identity'
 

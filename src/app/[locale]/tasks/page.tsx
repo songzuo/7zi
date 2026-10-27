@@ -16,6 +16,7 @@ import { Skeleton, SkeletonList } from '@/components/ui/Skeleton'
 import type { GitHubIssue } from '@/types'
 import { logger } from '@/lib/logger'
 import { isBelowBreakpoint } from '@/lib/utils/breakpoints'
+import Image from 'next/image'
 
 type ViewMode = 'list' | 'kanban' | 'mobile'
 
@@ -40,9 +41,9 @@ export default function TasksPage() {
   // Auto-switch to mobile view on small screens
   useEffect(() => {
     if (isMobile && viewMode === 'kanban') {
-      setViewMode('mobile')
+      queueMicrotask(() => setViewMode('mobile'))
     } else if (!isMobile && viewMode === 'mobile') {
-      setViewMode('list')
+      queueMicrotask(() => setViewMode('list'))
     }
   }, [isMobile, viewMode])
 
@@ -458,9 +459,11 @@ function KanbanCard({ issue }: KanbanCardProps) {
         {issue.assignee && (
           <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
             <div className="h-5 w-5 overflow-hidden rounded-full">
-              <img
+              <Image
                 src={issue.assignee.avatar_url}
                 alt={issue.assignee.login}
+                width={20}
+                height={20}
                 className="h-full w-full object-cover"
               />
             </div>

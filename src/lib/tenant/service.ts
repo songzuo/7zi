@@ -18,7 +18,6 @@ import {
   TenantQuota,
   CreateTenantRequest,
   UpdateTenantRequest,
-  InviteMemberRequest,
   UpdateMemberRoleRequest,
 } from './types'
 

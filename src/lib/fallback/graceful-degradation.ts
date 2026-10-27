@@ -272,7 +272,7 @@ export function withDegradation<T extends (...args: unknown[]) => Promise<unknow
   const manager = DegradationManager.getInstance()
 
   return (async (...args: Parameters<T>) => {
-    const { feature, fallback, fallbackFn, level } = options
+    const { feature, fallback, fallbackFn } = options
 
     // Check if feature is degraded
     if (manager.isDegraded(feature)) {

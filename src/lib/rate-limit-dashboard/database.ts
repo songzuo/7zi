@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Rate Limiting & Security Dashboard - Database Layer
  * 限流与安全仪表板 - 数据库层
@@ -158,7 +157,7 @@ export class RateLimitRulesRepository {
     // Convert boolean values
     const convertedItems = items.map(item => ({
       ...item,
-      enabled: item.enabled === 1,
+      enabled: Number(item.enabled) === 1,
     }))
 
     const totalPages = Math.ceil(total / limit)
@@ -184,7 +183,7 @@ export class RateLimitRulesRepository {
 
     return {
       ...row,
-      enabled: row.enabled === 1,
+      enabled: Number(row.enabled) === 1,
     }
   }
 
@@ -487,8 +486,8 @@ export class RateLimitEventsRepository {
 
     return {
       ...row,
-      allowed: row.allowed === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
+      allowed: Number(row.allowed) === 1,
+      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
     }
   }
 
@@ -506,8 +505,8 @@ export class RateLimitEventsRepository {
 
     return rows.map(row => ({
       ...row,
-      allowed: row.allowed === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
+      allowed: Number(row.allowed) === 1,
+      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
     }))
   }
 
@@ -522,8 +521,8 @@ export class RateLimitEventsRepository {
 
     return rows.map(row => ({
       ...row,
-      allowed: row.allowed === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
+      allowed: Number(row.allowed) === 1,
+      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
     }))
   }
 
@@ -579,8 +578,8 @@ export class AttackEventsRepository {
 
     return {
       ...row,
-      resolved: row.resolved === 1,
-      evidence: row.evidence ? JSON.parse(row.evidence as string) : undefined,
+      resolved: Number(row.resolved) === 1,
+      evidence: row.evidence ? JSON.parse(row.evidence as unknown as string) : undefined,
     }
   }
 
@@ -628,8 +627,8 @@ export class AttackEventsRepository {
 
     const items = rows.map(row => ({
       ...row,
-      resolved: row.resolved === 1,
-      evidence: row.evidence ? JSON.parse(row.evidence as string) : undefined,
+      resolved: Number(row.resolved) === 1,
+      evidence: row.evidence ? JSON.parse(row.evidence as unknown as string) : undefined,
     }))
 
     const totalPages = Math.ceil(total / limit)
@@ -704,8 +703,8 @@ export class SecurityAlertsRepository {
 
     return {
       ...row,
-      dismissed: row.dismissed === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
+      dismissed: Number(row.dismissed) === 1,
+      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
     }
   }
 
@@ -743,8 +742,8 @@ export class SecurityAlertsRepository {
 
     const items = rows.map(row => ({
       ...row,
-      dismissed: row.dismissed === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
+      dismissed: Number(row.dismissed) === 1,
+      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
     }))
 
     const totalPages = Math.ceil(total / limit)
@@ -853,7 +852,7 @@ export class AuditLogRepository {
 
     return rows.map(row => ({
       ...row,
-      details: row.details ? JSON.parse(row.details as string) : undefined,
+      details: row.details ? JSON.parse(row.details as unknown as string) : undefined,
     }))
   }
 

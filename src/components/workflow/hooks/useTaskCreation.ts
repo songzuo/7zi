@@ -73,7 +73,10 @@ const initialState: TaskCreationState = {
 export function useTaskCreation(): UseTaskCreationReturn {
   const [state, setState] = useState<TaskCreationState>(initialState)
   const stateRef = useRef(state)
-  stateRef.current = state
+  // 同步最新 state 到 ref（避免在渲染期写入 ref 触发 refs 规则告警）
+  useEffect(() => {
+    stateRef.current = state
+  }, [state])
 
   /**
    * 解析用户输入的文本

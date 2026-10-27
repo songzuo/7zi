@@ -445,10 +445,12 @@ export function runAllBenchmarks(): void {
 // Export
 // ============================================
 
-export default {
+const performanceBenchmark = {
   benchmarkMetricsAggregation,
   benchmarkAnomalyDetection,
   benchmarkWebSocketMessages,
   benchmarkMemory,
   runAllBenchmarks,
 }
+
+export default performanceBenchmark

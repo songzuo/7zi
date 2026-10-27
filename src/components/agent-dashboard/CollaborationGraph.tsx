@@ -161,8 +161,7 @@ const AgentNode = memo(({ data }: { data: FlowNodeData }) => {
   const colors = STATUS_COLORS[agent.status] || STATUS_COLORS.offline
   const icon = agent.avatar || AGENT_ICONS[agent.id] || AGENT_ICONS.default
 
-  const formatLastActivity = (timestamp: number): string => {
-    const now = Date.now()
+  const formatLastActivity = (timestamp: number, now: number): string => {
     const diff = now - timestamp
 
     if (diff < 60000) return '刚刚'

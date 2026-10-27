@@ -4,6 +4,7 @@
  */
 
 import { EventEmitter } from 'events'
+import * as fs from 'fs'
 import {
   AgentRegistration,
   RegistryStats,
@@ -334,7 +335,6 @@ export class FileAgentRegistry extends InMemoryAgentRegistry {
    */
   private load(): void {
     try {
-      const fs = require('fs')
       if (fs.existsSync(this.filePath)) {
         const data = JSON.parse(fs.readFileSync(this.filePath, 'utf-8'))
         // 恢复 Agent
@@ -365,7 +365,6 @@ export class FileAgentRegistry extends InMemoryAgentRegistry {
    */
   private save(): void {
     try {
-      const fs = require('fs')
       const data = {
         agents: Array.from(this.agents.values()),
       }

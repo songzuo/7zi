@@ -9,6 +9,7 @@
 
 import type { ConnectionState } from '@/lib/websocket'
 import type { RoomUser } from '@/lib/websocket/types'
+import Image from 'next/image'
 
 interface ConnectionStatusProps {
   connectionState: ConnectionState
@@ -150,9 +151,11 @@ export function UserList({ users, currentUserId }: UserListProps) {
           title={`${user.name} ${user.id === currentUserId ? '(you)' : ''}`}
         >
           {user.avatar ? (
-            <img
+            <Image
               src={user.avatar}
               alt={user.name}
+              width={24}
+              height={24}
               className="h-6 w-6 rounded-full border-2"
               style={{ borderColor: user.color }}
             />

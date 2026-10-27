@@ -14,6 +14,7 @@ import {
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
 import {Rating} from '@/types/feedback'
+import Image from 'next/image'
 
 export interface ReviewItemProps {
   rating: Rating
@@ -196,10 +197,12 @@ export function ReviewItem({
           {rating.images && rating.images.length > 0 && (
             <div className="mb-4 flex gap-2 overflow-x-auto">
               {rating.images.map((image, index) => (
-                <img
+                <Image
                   key={index}
                   src={image}
                   alt={`Review image ${index + 1}`}
+                  width={80}
+                  height={80}
                   className="h-20 w-20 rounded-lg border border-zinc-200 object-cover"
                 />
               ))}

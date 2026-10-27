@@ -203,7 +203,9 @@ export function useDashboardData(
 
   // 初始加载
   useEffect(() => {
-    refreshData()
+    queueMicrotask(() => {
+      void refreshData()
+    })
   }, [refreshData])
 
   return {

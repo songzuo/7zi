@@ -12,7 +12,6 @@
 
 import { getDatabaseAsync } from './db'
 import { logger } from './logger'
-import { memoize } from './utils/async'
 
 export type ExportFormat = 'csv' | 'json'
 export type ImportFormat = 'csv' | 'json'
@@ -372,7 +371,7 @@ export function parseCSV(csv: string): Record<string, unknown[]> {
         if (value.startsWith('{') || value.startsWith('[')) {
           try {
             row[header] = JSON.parse(value)
-          } catch (error) {
+          } catch (_error) {
             row[header] = value
           }
         } else if (value === '') {

@@ -136,7 +136,7 @@ export const url = (message?: string): ValidationRule =>
       try {
         const parsed = new URL(value)
         return ['http:', 'https:', 'ftp:', 'ftps:'].includes(parsed.protocol)
-      } catch (error) {
+      } catch (_error) {
         return false
       }
     },

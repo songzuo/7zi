@@ -8,6 +8,7 @@
 
 import { useState, useMemo } from 'react'
 import type { RoomParticipant, UserRole } from '@/lib/websocket/rooms'
+import Image from 'next/image'
 
 // ============================================================================
 // Types
@@ -165,10 +166,12 @@ function ParticipantItem({
           style={{ backgroundColor: participant.color }}
         >
           {participant.avatar ? (
-            <img
+            <Image
               data-testid="participant-avatar"
               src={participant.avatar}
               alt={participant.name}
+              width={40}
+              height={40}
               className="h-full w-full rounded-full object-cover"
             />
           ) : (

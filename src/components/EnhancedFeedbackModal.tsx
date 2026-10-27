@@ -7,6 +7,7 @@
 import React, { useState, useCallback } from 'react'
 import { StarRating } from './StarRating'
 import { FeedbackType, CreateFeedbackDto } from '@/types/feedback'
+import Image from 'next/image'
 
 interface EnhancedFeedbackModalProps {
   isOpen: boolean
@@ -85,7 +86,10 @@ export function EnhancedFeedbackModal({
 
   // Reset form when modal opens
   React.useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) {
+      return
+    }
+    queueMicrotask(() => {
       setType(feedbackType)
       setRating(5)
       setTitle('')
@@ -93,7 +97,7 @@ export function EnhancedFeedbackModal({
       setEmail('')
       setImages([])
       setPreviewImages([])
-    }
+    })
   }, [isOpen, feedbackType])
 
   const handleImageSelect = useCallback(
@@ -351,9 +355,12 @@ export function EnhancedFeedbackModal({
                 <div className="mt-4 grid grid-cols-3 gap-2">
                   {previewImages.map((preview, index) => (
                     <div key={index} className="group relative">
-                      <img
+                      <Image
                         src={preview}
                         alt={`Preview ${index + 1}`}
+                        width={96}
+                        height={96}
+                        unoptimized
                         className="h-24 w-full rounded-lg border border-zinc-200 object-cover dark:border-zinc-700"
                       />
                       <button

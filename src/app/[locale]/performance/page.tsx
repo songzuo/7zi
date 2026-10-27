@@ -285,7 +285,9 @@ export default function PerformanceDashboard() {
   }, [selectedPeriod])
 
   useEffect(() => {
-    fetchPerformanceData()
+    queueMicrotask(() => {
+      void fetchPerformanceData()
+    })
     const interval = setInterval(fetchPerformanceData, 60000) // Refresh every minute
     return () => clearInterval(interval)
   }, [fetchPerformanceData])

@@ -8,7 +8,7 @@
  * @author AI Architect
  */
 
-import type { Span, TraceId, SpanId } from '../tracing/types'
+import type { Span } from '../tracing/types'
 import { SpanStatusCode } from '../tracing/types'
 import type { LogEntry } from '../trace/StructuredLogger'
 
@@ -726,7 +726,7 @@ export class RCAEngine {
       case 'regex':
         try {
           return new RegExp(signature.pattern as string, 'i').test(value)
-        } catch (error) {
+        } catch (_error) {
           return false
         }
       default:

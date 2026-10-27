@@ -12,6 +12,7 @@
  */
 
 import { useState, useRef, useEffect, CSSProperties } from 'react'
+import Image from 'next/image'
 
 interface OptimizedImageProps {
   src: string
@@ -42,7 +43,7 @@ export function OptimizedImage({
   priority = false,
   blurDataURL,
   placeholder = 'empty',
-  quality = 75,
+  quality: _quality = 75,
   sizes,
   onLoad,
   onError,
@@ -86,11 +87,9 @@ export function OptimizedImage({
     onError?.()
   }
 
-  // 构建优化后的 URL (如果使用 Next.js Image Optimization API)
-  const optimizedSrc =
-    src.startsWith('http') || src.startsWith('/')
-      ? src
-      : `/_next/image?url=${encodeURIComponent(src)}&w=${width || 640}&q=${quality}`
+  // next.config 已配置 images.unoptimized=true，Image 组件会原样输出 src。
+  // 统一补齐前导斜杠，避免相对路径被解析为当前路由。
+  const optimizedSrc = src.startsWith('/') || /^https?:\/\//.test(src) ? src : `/${src}`
 
   return (
     <div
@@ -109,9 +108,12 @@ export function OptimizedImage({
           aria-hidden="true"
         >
           {placeholder === 'blur' && blurDataURL && !hasError && (
-            <img
+            <Image
               src={blurDataURL}
               alt=""
+              width={width || 640}
+              height={height || 480}
+              unoptimized
               className="h-full w-full scale-110 object-cover blur-sm"
               aria-hidden="true"
             />
@@ -133,12 +135,13 @@ export function OptimizedImage({
 
       {/* 实际图片 */}
       {isInView && !hasError && (
-        <img
+        <Image
           src={optimizedSrc}
           alt={alt}
-          width={width}
-          height={height}
+          width={width || 640}
+          height={height || 480}
           sizes={sizes}
+          priority={priority}
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
           onLoad={handleLoad}

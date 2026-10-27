@@ -155,7 +155,7 @@ export async function runInChunks<T, R>(
   processor: (item: T, index: number) => R | Promise<R>,
   options: { chunkSize?: number; maxDuration?: number; yieldDuration?: number } = {}
 ): Promise<R[]> {
-  const { chunkSize = 50, maxDuration = 50, yieldDuration = 5 } = options
+  const { chunkSize = 50, yieldDuration = 5 } = options
   const results: R[] = []
   let index = 0
 
@@ -338,7 +338,7 @@ export function performanceMark(name: string, detail?: unknown) {
 
   try {
     performance.mark(name, detail ? { detail } : undefined)
-  } catch (error) {
+  } catch (_error) {
     // 标记已存在，忽略错误
     console.warn('[Performance] Mark already exists:', name)
   }

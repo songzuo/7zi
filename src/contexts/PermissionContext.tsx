@@ -31,8 +31,6 @@ interface PermissionProviderProps {
 
 export function PermissionProvider({ children, skipFetch = false }: PermissionProviderProps) {
   const { setLoading, setError, initializeFromAuthData, reset } = usePermissionActions()
-  const loading = usePermissionLoading()
-  const error = usePermissionError()
 
   useEffect(() => {
     if (skipFetch) {

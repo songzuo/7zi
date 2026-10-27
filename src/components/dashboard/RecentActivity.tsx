@@ -24,6 +24,7 @@ import {
   Activity,
   type LucideIcon,
 } from 'lucide-react'
+import Image from 'next/image'
 
 // ============================================================================
 // 类型定义
@@ -251,9 +252,11 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = React.memo(
 
           <div className="flex items-center gap-2">
             {activity.actor?.avatar && (
-              <img
+              <Image
                 src={activity.actor.avatar}
                 alt={activity.actor.name}
+                width={20}
+                height={20}
                 className="h-5 w-5 rounded-full"
               />
             )}

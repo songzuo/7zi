@@ -10,7 +10,7 @@
 
 import { logger } from '@/lib/logger'
 import { getTimeThreshold } from '../common'
-import type { RoomUser, Room } from './server'
+import type { RoomUser } from './server'
 
 // ============================================================================
 // Types

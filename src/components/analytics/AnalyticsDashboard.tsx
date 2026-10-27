@@ -158,7 +158,10 @@ const AnalyticsDashboardComponent: React.FC<AnalyticsDashboardProps> = ({
     const savedLayout = localStorage.getItem('analytics-layout')
     if (savedLayout) {
       try {
-        setLayout(JSON.parse(savedLayout))
+        const parsed = JSON.parse(savedLayout)
+        queueMicrotask(() => {
+          setLayout(parsed)
+        })
       } catch (error) {
         console.error('Failed to load saved layout:', error)
       }
@@ -217,7 +220,9 @@ const AnalyticsDashboardComponent: React.FC<AnalyticsDashboardProps> = ({
 
   // Initial fetch
   useEffect(() => {
-    fetchData()
+    queueMicrotask(() => {
+      void fetchData()
+    })
   }, [fetchData])
 
   // Auto refresh

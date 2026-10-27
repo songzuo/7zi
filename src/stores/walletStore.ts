@@ -24,7 +24,6 @@ import type {
   WalletConfig,
   TransactionType,
   TransactionStatus,
-  DEFAULT_WALLET_CONFIG,
 } from '../types/wallet'
 import { DEFAULT_WALLET_CONFIG as defaultConfig } from '../types/wallet'
 

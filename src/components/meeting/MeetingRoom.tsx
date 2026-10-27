@@ -14,6 +14,7 @@ import {
 } from '@/hooks/useWebRTCMeeting'
 import { Mic, MicOff, Phone, Users, Settings, Copy, Check } from 'lucide-react'
 import { toast } from '@/stores/uiStore'
+import Image from 'next/image'
 
 // ============================================================================
 // Global Type Extensions
@@ -187,9 +188,11 @@ function ParticipantCard({
         {isSpeaking && <div className={styles.speakingIndicator} />}
         <div className={styles.avatar}>
           {participant.avatar ? (
-            <img
+            <Image
               src={participant.avatar}
               alt={participant.name}
+              width={40}
+              height={40}
               className="h-full w-full rounded-full object-cover"
             />
           ) : (
@@ -237,9 +240,11 @@ function ParticipantSidebar({ participants }: { participants: Map<string, Meetin
             <div key={participant.id} className={styles.participantListItem}>
               <div className={styles.participantAvatar}>
                 {participant.avatar ? (
-                  <img
+                  <Image
                     src={participant.avatar}
                     alt={participant.name}
+                    width={40}
+                    height={40}
                     className="h-full w-full rounded-full object-cover"
                   />
                 ) : (

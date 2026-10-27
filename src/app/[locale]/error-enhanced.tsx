@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 
 interface ErrorPageProps {
@@ -14,6 +15,7 @@ interface ErrorPageProps {
  */
 export default function Error({ error, reset }: ErrorPageProps) {
   const t = useTranslations('errors.serverError')
+  const router = useRouter()
   const [isRetrying, setIsRetrying] = useState(false)
   const [hasRecovered, setHasRecovered] = useState(false)
 
@@ -30,8 +32,8 @@ export default function Error({ error, reset }: ErrorPageProps) {
   }, [reset])
 
   const handleGoHome = useCallback(() => {
-    window.location.href = '/'
-  }, [])
+    router.push('/')
+  }, [router])
 
   useEffect(() => {
     // 开发环境输出错误详情

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * API Rate Limiting & Security Dashboard - Type Definitions
  * API 限流与安全仪表板 - 类型定义

@@ -195,11 +195,11 @@ export function getPerformanceEntriesByName(
   }
 }
 
-export function getMarks(name?: string): PerformanceMark[] {
+export function getMarks(_name?: string): PerformanceMark[] {
   return getEntriesByType('mark') as PerformanceMark[];
 }
 
-export function getMeasures(name?: string): PerformanceMeasure[] {
+export function getMeasures(_name?: string): PerformanceMeasure[] {
   return getEntriesByType('measure') as PerformanceMeasure[];
 }
 
@@ -581,7 +581,7 @@ export function createPerformanceObserver(
 // 导出
 // ============================================
 
-export default {
+const timing = {
   // Mark APIs
   mark: performanceMark,
   clearMark: performanceClearMark,
@@ -612,4 +612,6 @@ export default {
   getNavigationTiming,
   getResourceTiming,
   formatDuration,
-};
+}
+
+export default timing

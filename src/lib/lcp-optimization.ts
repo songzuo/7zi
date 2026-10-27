@@ -306,7 +306,7 @@ interface LCPPerformanceEntry extends PerformanceEntry {
  *
  * 用于性能分析和调试
  */
-export function markLCPElement(element: HTMLElement) {
+export function markLCPElement(_element: HTMLElement) {
   if (typeof performance === 'undefined') return
 
   // 标记 LCP 元素加载

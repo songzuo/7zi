@@ -9,6 +9,8 @@
 
 import '@testing-library/jest-dom'
 import { vi, afterAll } from 'vitest'
+// 本文件是 .ts（不是 .tsx），不能写 JSX —— lucide-react mock 用 createElement 实现。
+import { createElement } from 'react'
 
 // Set test environment variables first
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-key'
@@ -185,282 +187,282 @@ vi.mock('next/image', () => ({
 // → 改成渲染一个真实元素并**透传 className**：
 // 既保留"不需要真 svg"的初衷，又让 className 断言可用。
 vi.mock('lucide-react', () => ({
-Activity: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Activity" className={className} />
-  )),
-AlertCircle: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="AlertCircle" className={className} />
-  )),
-AlertTriangle: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="AlertTriangle" className={className} />
-  )),
-ArrowDown: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ArrowDown" className={className} />
-  )),
-ArrowRight: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ArrowRight" className={className} />
-  )),
-ArrowUp: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ArrowUp" className={className} />
-  )),
-ArrowUpDown: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ArrowUpDown" className={className} />
-  )),
-BarChart3: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="BarChart3" className={className} />
-  )),
-Bell: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Bell" className={className} />
-  )),
-BookOpen: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="BookOpen" className={className} />
-  )),
-Bot: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Bot" className={className} />
-  )),
-Calendar: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Calendar" className={className} />
-  )),
-Check: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Check" className={className} />
-  )),
-CheckCircle: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="CheckCircle" className={className} />
-  )),
-CheckCircle2: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="CheckCircle2" className={className} />
-  )),
-ChevronDown: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ChevronDown" className={className} />
-  )),
-ChevronLeft: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ChevronLeft" className={className} />
-  )),
-ChevronRight: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ChevronRight" className={className} />
-  )),
-ChevronUp: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ChevronUp" className={className} />
-  )),
-Clock: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Clock" className={className} />
-  )),
-Copy: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Copy" className={className} />
-  )),
-Cpu: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Cpu" className={className} />
-  )),
-Crown: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Crown" className={className} />
-  )),
-Database: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Database" className={className} />
-  )),
-DollarSign: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="DollarSign" className={className} />
-  )),
-Download: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Download" className={className} />
-  )),
-Edit3: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Edit3" className={className} />
-  )),
-Eye: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Eye" className={className} />
-  )),
-EyeOff: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="EyeOff" className={className} />
-  )),
-FileJson: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="FileJson" className={className} />
-  )),
-FileSpreadsheet: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="FileSpreadsheet" className={className} />
-  )),
-FileText: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="FileText" className={className} />
-  )),
-Filter: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Filter" className={className} />
-  )),
-Flag: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Flag" className={className} />
-  )),
-GitCompare: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="GitCompare" className={className} />
-  )),
-Globe: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Globe" className={className} />
-  )),
-GripVertical: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="GripVertical" className={className} />
-  )),
-HardDrive: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="HardDrive" className={className} />
-  )),
-HelpCircle: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="HelpCircle" className={className} />
-  )),
-History: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="History" className={className} />
-  )),
-Home: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Home" className={className} />
-  )),
-Image: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Image" className={className} />
-  )),
-Info: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Info" className={className} />
-  )),
-Layout: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Layout" className={className} />
-  )),
-LayoutDashboard: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="LayoutDashboard" className={className} />
-  )),
-LineChart: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="LineChart" className={className} />
-  )),
-ListTodo: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ListTodo" className={className} />
-  )),
-Loader2: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Loader2" className={className} />
-  )),
-Lock: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Lock" className={className} />
-  )),
-LucideIcon: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="LucideIcon" className={className} />
-  )),
-Mail: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Mail" className={className} />
-  )),
-MessageCircle: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="MessageCircle" className={className} />
-  )),
-MessageSquare: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="MessageSquare" className={className} />
-  )),
-Mic: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Mic" className={className} />
-  )),
-MicOff: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="MicOff" className={className} />
-  )),
-Minus: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Minus" className={className} />
-  )),
-MoreHorizontal: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="MoreHorizontal" className={className} />
-  )),
-MoreVertical: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="MoreVertical" className={className} />
-  )),
-MousePointer: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="MousePointer" className={className} />
-  )),
-Pause: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Pause" className={className} />
-  )),
-PauseCircle: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="PauseCircle" className={className} />
-  )),
-Phone: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Phone" className={className} />
-  )),
-PieChart: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="PieChart" className={className} />
-  )),
-Play: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Play" className={className} />
-  )),
-Plus: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Plus" className={className} />
-  )),
-Redo2: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Redo2" className={className} />
-  )),
-RefreshCw: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="RefreshCw" className={className} />
-  )),
-RotateCcw: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="RotateCcw" className={className} />
-  )),
-Save: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Save" className={className} />
-  )),
-Search: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Search" className={className} />
-  )),
-Send: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Send" className={className} />
-  )),
-Server: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Server" className={className} />
-  )),
-Settings: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Settings" className={className} />
-  )),
-Shield: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Shield" className={className} />
-  )),
-Star: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Star" className={className} />
-  )),
-StarHalf: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="StarHalf" className={className} />
-  )),
-Subscript: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Subscript" className={className} />
-  )),
-ThumbsUp: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="ThumbsUp" className={className} />
-  )),
-Timer: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Timer" className={className} />
-  )),
-Trash2: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Trash2" className={className} />
-  )),
-TrendingDown: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="TrendingDown" className={className} />
-  )),
-TrendingUp: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="TrendingUp" className={className} />
-  )),
-Undo2: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Undo2" className={className} />
-  )),
-Upload: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Upload" className={className} />
-  )),
-User: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="User" className={className} />
-  )),
-UserPlus: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="UserPlus" className={className} />
-  )),
-Users: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Users" className={className} />
-  )),
-Wifi: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Wifi" className={className} />
-  )),
-WifiOff: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="WifiOff" className={className} />
-  )),
-X: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="X" className={className} />
-  )),
-XCircle: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="XCircle" className={className} />
-  )),
-Zap: vi.fn(({ className }: { className?: string }) => (
-    <span data-lucide="Zap" className={className} />
-  )),
+  Activity: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Activity', className })
+  ),
+  AlertCircle: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'AlertCircle', className })
+  ),
+  AlertTriangle: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'AlertTriangle', className })
+  ),
+  ArrowDown: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ArrowDown', className })
+  ),
+  ArrowRight: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ArrowRight', className })
+  ),
+  ArrowUp: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ArrowUp', className })
+  ),
+  ArrowUpDown: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ArrowUpDown', className })
+  ),
+  BarChart3: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'BarChart3', className })
+  ),
+  Bell: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Bell', className })
+  ),
+  BookOpen: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'BookOpen', className })
+  ),
+  Bot: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Bot', className })
+  ),
+  Calendar: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Calendar', className })
+  ),
+  Check: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Check', className })
+  ),
+  CheckCircle: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'CheckCircle', className })
+  ),
+  CheckCircle2: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'CheckCircle2', className })
+  ),
+  ChevronDown: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ChevronDown', className })
+  ),
+  ChevronLeft: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ChevronLeft', className })
+  ),
+  ChevronRight: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ChevronRight', className })
+  ),
+  ChevronUp: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ChevronUp', className })
+  ),
+  Clock: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Clock', className })
+  ),
+  Copy: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Copy', className })
+  ),
+  Cpu: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Cpu', className })
+  ),
+  Crown: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Crown', className })
+  ),
+  Database: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Database', className })
+  ),
+  DollarSign: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'DollarSign', className })
+  ),
+  Download: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Download', className })
+  ),
+  Edit3: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Edit3', className })
+  ),
+  Eye: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Eye', className })
+  ),
+  EyeOff: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'EyeOff', className })
+  ),
+  FileJson: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'FileJson', className })
+  ),
+  FileSpreadsheet: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'FileSpreadsheet', className })
+  ),
+  FileText: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'FileText', className })
+  ),
+  Filter: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Filter', className })
+  ),
+  Flag: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Flag', className })
+  ),
+  GitCompare: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'GitCompare', className })
+  ),
+  Globe: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Globe', className })
+  ),
+  GripVertical: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'GripVertical', className })
+  ),
+  HardDrive: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'HardDrive', className })
+  ),
+  HelpCircle: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'HelpCircle', className })
+  ),
+  History: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'History', className })
+  ),
+  Home: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Home', className })
+  ),
+  Image: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Image', className })
+  ),
+  Info: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Info', className })
+  ),
+  Layout: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Layout', className })
+  ),
+  LayoutDashboard: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'LayoutDashboard', className })
+  ),
+  LineChart: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'LineChart', className })
+  ),
+  ListTodo: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ListTodo', className })
+  ),
+  Loader2: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Loader2', className })
+  ),
+  Lock: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Lock', className })
+  ),
+  LucideIcon: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'LucideIcon', className })
+  ),
+  Mail: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Mail', className })
+  ),
+  MessageCircle: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'MessageCircle', className })
+  ),
+  MessageSquare: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'MessageSquare', className })
+  ),
+  Mic: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Mic', className })
+  ),
+  MicOff: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'MicOff', className })
+  ),
+  Minus: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Minus', className })
+  ),
+  MoreHorizontal: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'MoreHorizontal', className })
+  ),
+  MoreVertical: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'MoreVertical', className })
+  ),
+  MousePointer: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'MousePointer', className })
+  ),
+  Pause: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Pause', className })
+  ),
+  PauseCircle: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'PauseCircle', className })
+  ),
+  Phone: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Phone', className })
+  ),
+  PieChart: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'PieChart', className })
+  ),
+  Play: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Play', className })
+  ),
+  Plus: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Plus', className })
+  ),
+  Redo2: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Redo2', className })
+  ),
+  RefreshCw: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'RefreshCw', className })
+  ),
+  RotateCcw: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'RotateCcw', className })
+  ),
+  Save: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Save', className })
+  ),
+  Search: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Search', className })
+  ),
+  Send: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Send', className })
+  ),
+  Server: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Server', className })
+  ),
+  Settings: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Settings', className })
+  ),
+  Shield: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Shield', className })
+  ),
+  Star: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Star', className })
+  ),
+  StarHalf: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'StarHalf', className })
+  ),
+  Subscript: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Subscript', className })
+  ),
+  ThumbsUp: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'ThumbsUp', className })
+  ),
+  Timer: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Timer', className })
+  ),
+  Trash2: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Trash2', className })
+  ),
+  TrendingDown: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'TrendingDown', className })
+  ),
+  TrendingUp: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'TrendingUp', className })
+  ),
+  Undo2: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Undo2', className })
+  ),
+  Upload: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Upload', className })
+  ),
+  User: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'User', className })
+  ),
+  UserPlus: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'UserPlus', className })
+  ),
+  Users: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Users', className })
+  ),
+  Wifi: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Wifi', className })
+  ),
+  WifiOff: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'WifiOff', className })
+  ),
+  X: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'X', className })
+  ),
+  XCircle: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'XCircle', className })
+  ),
+  Zap: vi.fn(({ className }: { className?: string }) =>
+    createElement('span', { 'data-lucide': 'Zap', className })
+  ),
 }))
 
 // Mock WebSocket
@@ -644,15 +646,46 @@ if (typeof window !== 'undefined') {
 }
 
 // Mock logger
-vi.mock('@/lib/logger', () => ({
-  logger: { auth: vi.fn(),
+//
+// 同样要导出 `log` 便捷函数集合（见 src/test/vi-mocks.ts 里的同名说明），
+// 否则 `import { log } from '@/lib/logger'` 会在运行期报
+// "No 'log' export is defined on the mock"。
+vi.mock('@/lib/logger', () => {
+  const logger = {
+    auth: vi.fn(),
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
     fatal: vi.fn(),
-  },
-}))
+    api: vi.fn(),
+    perf: vi.fn(),
+    user: vi.fn(),
+    security: vi.fn(),
+    business: vi.fn(),
+  }
+
+  const log = {
+    debug: (message: string, data?: Record<string, unknown>) => logger.debug(message, data),
+    info: (message: string, data?: Record<string, unknown>) => logger.info(message, data),
+    warn: (message: string, data?: Record<string, unknown>) => logger.warn(message, data),
+    error: (message: string, error?: Error | unknown, data?: Record<string, unknown>) =>
+      logger.error(message, error, data),
+    fatal: (message: string, error?: Error | unknown, data?: Record<string, unknown>) =>
+      logger.fatal(message, error, data),
+    api: (message: string, data?: Record<string, unknown>, level?: string) =>
+      logger.api(message, data, level),
+    auth: (message: string, data?: Record<string, unknown>, level?: string) =>
+      logger.auth(message, data, level),
+    perf: (message: string, data?: Record<string, unknown>) => logger.perf(message, data),
+    user: (message: string, data?: Record<string, unknown>) => logger.user(message, data),
+    security: (message: string, data?: Record<string, unknown>, level?: string) =>
+      logger.security(message, data, level),
+    business: (message: string, data?: Record<string, unknown>) => logger.business(message, data),
+  }
+
+  return { logger, log }
+})
 
 // Mock web-vitals
 vi.mock('web-vitals', () => ({

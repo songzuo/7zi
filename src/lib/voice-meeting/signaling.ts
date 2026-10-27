@@ -7,7 +7,6 @@
 
 import type { Server as SocketIOServer } from 'socket.io'
 import { logger } from '@/lib/logger'
-import type { Socket } from 'socket.io'
 import type { AuthenticatedSocket } from '@/lib/websocket/types'
 
 // ============================================================================
@@ -80,7 +79,7 @@ const socketToRoom = new Map<string, string>()
 /**
  * Get or create a meeting room
  */
-function getOrCreateRoom(roomId: string, hostId: string, hostName: string): MeetingRoom {
+function getOrCreateRoom(roomId: string, hostId: string, _hostName: string): MeetingRoom {
   let room = meetingRooms.get(roomId)
 
   if (!room) {
@@ -116,7 +115,7 @@ function cleanupEmptyRoom(roomId: string): void {
 /**
  * Get room by socket ID
  */
-function getRoomBySocket(socketId: string): MeetingRoom | undefined {
+function _getRoomBySocket(socketId: string): MeetingRoom | undefined {
   const roomId = socketToRoom.get(socketId)
   return roomId ? meetingRooms.get(roomId) : undefined
 }
@@ -619,7 +618,7 @@ export function setupVoiceMeetingHandlers(io: SocketIOServer): void {
   // Schedule cleanup of inactive rooms every hour
   setInterval(
     () => {
-      const cleaned = cleanupInactiveRooms()
+      cleanupInactiveRooms()
       logger.info(`[Meeting] Cleanup check complete. Active rooms: ${meetingRooms.size}`)
     },
     60 * 60 * 1000

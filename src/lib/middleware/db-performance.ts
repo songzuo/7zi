@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Database Performance Logger
  * Logs performance metrics for database queries
@@ -497,6 +496,22 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
 
     pragma: (name: string, options?: { simple: boolean }) => {
       return db.pragma(name, options)
+    },
+
+    beginTransaction: () => {
+      db.beginTransaction()
+    },
+
+    commit: () => {
+      db.commit()
+    },
+
+    rollback: () => {
+      db.rollback()
+    },
+
+    isInTransaction: () => {
+      return db.isInTransaction()
     },
   }
 }

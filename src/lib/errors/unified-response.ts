@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { UnifiedErrorType, UnifiedErrorInfo } from './unified-types'
-import { UnifiedAppError, toUnifiedError, extractErrorInfo } from './unified-error'
+import { UnifiedAppError, toUnifiedError } from './unified-error'
 import { logger } from '../logger'
 
 /**
@@ -348,7 +348,7 @@ export function parseUnifiedResponse<T>(
         retryable: false,
       },
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       success: false,
       error: {

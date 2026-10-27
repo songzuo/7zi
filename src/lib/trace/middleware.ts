@@ -12,7 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { TraceManager, getTraceManager } from '@/lib/trace/TraceManager'
-import type { TraceId, SpanId, TraceContext, Span } from '@/lib/tracing/types'
+import type { TraceContext, Span } from '@/lib/tracing/types'
 import { SpanStatusCode, SpanKind } from '@/lib/tracing/types'
 
 // Re-export types for convenience
@@ -72,7 +72,7 @@ export interface TraceMiddlewareOptions {
  * }
  * ```
  */
-export async function withTrace<T>(
+export async function withTrace<_T>(
   request: NextRequest,
   handler: (
     context: TraceContext & {
@@ -199,7 +199,7 @@ export async function withTrace<T>(
 /**
  * 快捷包装器：认证 API 追踪
  */
-export function withAuthTrace<T>(
+export function withAuthTrace<_T>(
   handler: (
     context: TraceContext & {
       traceManager: TraceManager
@@ -218,7 +218,7 @@ export function withAuthTrace<T>(
 /**
  * 快捷包装器：Agent API 追踪
  */
-export function withAgentTrace<T>(
+export function withAgentTrace<_T>(
   handler: (
     context: TraceContext & {
       traceManager: TraceManager
@@ -237,7 +237,7 @@ export function withAgentTrace<T>(
 /**
  * 快捷包装器：Room API 追踪
  */
-export function withRoomTrace<T>(
+export function withRoomTrace<_T>(
   handler: (
     context: TraceContext & {
       traceManager: TraceManager

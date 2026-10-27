@@ -129,7 +129,7 @@ export function validateUrl(value: string): string | null {
   try {
     new URL(value)
     return null
-  } catch (error) {
+  } catch (_error) {
     return '请输入有效的URL地址'
   }
 }

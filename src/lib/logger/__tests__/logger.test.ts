@@ -102,59 +102,81 @@ describe('Logger 基础功能', () => {
 
   describe('便捷函数', () => {
     it('log.debug 应该调用 logger.debug', () => {
+      vi.mocked(logger.debug).mockClear()
       log.debug('Debug via log', { test: true })
+      expect(logger.debug).toHaveBeenCalledWith('Debug via log', { test: true })
       expect(consoleDebugSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.info 应该调用 logger.info', () => {
+      vi.mocked(logger.info).mockClear()
       log.info('Info via log', { test: true })
+      expect(logger.info).toHaveBeenCalledWith('Info via log', { test: true })
       expect(consoleInfoSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.warn 应该调用 logger.warn', () => {
+      vi.mocked(logger.warn).mockClear()
       log.warn('Warn via log', { test: true })
+      expect(logger.warn).toHaveBeenCalledWith('Warn via log', { test: true })
       expect(consoleWarnSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.error 应该调用 logger.error', () => {
       const error = new Error('Test error')
+      vi.mocked(logger.error).mockClear()
       log.error('Error via log', error, { test: true })
+      expect(logger.error).toHaveBeenCalledWith('Error via log', error, { test: true })
       expect(consoleErrorSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.fatal 应该调用 logger.fatal', () => {
       const error = new Error('Fatal error')
+      vi.mocked(logger.fatal).mockClear()
       log.fatal('Fatal via log', error, { test: true })
+      expect(logger.fatal).toHaveBeenCalledWith('Fatal via log', error, { test: true })
       expect(consoleErrorSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.api 应该调用 logger.api', () => {
+      vi.mocked(logger.api).mockClear()
       log.api('API via log', { endpoint: '/test' })
+      expect(logger.api).toHaveBeenCalledWith('API via log', { endpoint: '/test' }, undefined)
       expect(consoleInfoSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.auth 应该调用 logger.auth', () => {
+      vi.mocked(logger.auth).mockClear()
       log.auth('Auth via log', { userId: '123' })
+      expect(logger.auth).toHaveBeenCalledWith('Auth via log', { userId: '123' }, undefined)
       expect(consoleInfoSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.perf 应该调用 logger.perf', () => {
+      vi.mocked(logger.perf).mockClear()
       log.perf('Perf via log', { duration: 100 })
+      expect(logger.perf).toHaveBeenCalledWith('Perf via log', { duration: 100 })
       expect(consoleInfoSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.user 应该调用 logger.user', () => {
+      vi.mocked(logger.user).mockClear()
       log.user('User via log', { action: 'test' })
+      expect(logger.user).toHaveBeenCalledWith('User via log', { action: 'test' })
       expect(consoleInfoSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.security 应该调用 logger.security', () => {
+      vi.mocked(logger.security).mockClear()
       log.security('Security via log', { alert: true })
+      expect(logger.security).toHaveBeenCalledWith('Security via log', { alert: true }, undefined)
       expect(consoleWarnSpy).toHaveBeenCalledTimes(0)
     })
 
     it('log.business 应该调用 logger.business', () => {
+      vi.mocked(logger.business).mockClear()
       log.business('Business via log', { event: 'test' })
+      expect(logger.business).toHaveBeenCalledWith('Business via log', { event: 'test' })
       expect(consoleInfoSpy).toHaveBeenCalledTimes(0)
     })
   })

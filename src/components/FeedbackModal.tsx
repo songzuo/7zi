@@ -53,13 +53,16 @@ export function FeedbackModal({
 
   // Reset form when modal opens
   React.useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) {
+      return
+    }
+    queueMicrotask(() => {
       setType(feedbackType)
       setRating(5)
       setTitle('')
       setDescription('')
       setEmail('')
-    }
+    })
   }, [isOpen, feedbackType])
 
   const handleSubmit = async (e: React.FormEvent) => {

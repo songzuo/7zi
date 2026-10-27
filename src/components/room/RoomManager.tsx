@@ -38,7 +38,7 @@ export interface RoomManagerProps {
 
 export function RoomManager({
   wsUrl: _wsUrl = 'ws://localhost:3001',
-  userId = 'user-' + Math.random().toString(36).substring(7),
+  userId,
   userName = '匿名用户',
   userAvatar,
   autoConnect = true,
@@ -73,8 +73,10 @@ export function RoomManager({
   useEffect(() => {
     if (!autoConnect) return
 
-    setIsConnecting(true)
-    setError(null)
+    queueMicrotask(() => {
+      setIsConnecting(true)
+      setError(null)
+    })
 
     // Simulate connection
     const connectTimer = setTimeout(() => {
@@ -397,7 +399,7 @@ export function RoomManager({
   )
 
   // Connection status
-  const ConnectionStatus = () => {
+  const renderConnectionStatus = () => {
     if (isConnecting) {
       return (
         <div
@@ -470,7 +472,7 @@ export function RoomManager({
           <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             💬 WebSocket 房间
           </h1>
-          <ConnectionStatus />
+          {renderConnectionStatus()}
         </div>
 
         <div className="flex items-center gap-3">

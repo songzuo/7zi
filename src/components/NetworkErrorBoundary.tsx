@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface NetworkErrorBoundaryProps {
   children: React.ReactNode
@@ -43,6 +44,7 @@ export function NetworkErrorBoundary({
   detectInterval = 30000,
   timeout = 5000,
 }: NetworkErrorBoundaryProps) {
+  const router = useRouter()
   const [status, setStatus] = useState<NetworkStatus>(() => ({
     isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     isChecking: false,
@@ -148,9 +150,7 @@ export function NetworkErrorBoundary({
           <button
             type="button"
             onClick={() => {
-              if (typeof window !== 'undefined') {
-                window.location.href = '/'
-              }
+              router.push('/')
             }}
             className="rounded border px-4 py-2 text-sm"
           >

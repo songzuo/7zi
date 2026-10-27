@@ -24,6 +24,7 @@ import {
   getDatabaseHealth as runGetDatabaseHealth,
 } from './migrations'
 import { logger } from '../logger'
+import { withPerformanceLogging } from '../middleware/db-performance'
 import { UnifiedAppError } from '../errors/unified-error'
 
 // Connection pool for better performance
@@ -356,7 +357,6 @@ export function getDatabase(): DatabaseConnection {
     process.env.NODE_ENV === 'development'
   ) {
     try {
-      const { withPerformanceLogging } = require('@/lib/middleware/db-performance')
       return withPerformanceLogging(baseConnection)
     } catch {
       // Performance logging module not available, return base connection

@@ -3,7 +3,6 @@
  * @description High-level search API that integrates all search components
  */
 
-import Fuse from 'fuse.js'
 import { AdvancedSearchManager } from './advanced-search'
 import { SearchIndexManager } from './index-manager'
 import { SQLiteFTSManager } from './sqlite-fts'
@@ -13,14 +12,11 @@ import {
   createFiltersFromSearchFilters,
   parseSortOption,
   type SortConfig,
-  type AdvancedFilter,
 } from './sort-filter'
 import type {
   UnifiedEntity,
   SearchFilters,
-  AdvancedSearchQuery,
   PaginatedSearchResult,
-  SearchIndexConfig,
 } from './types'
 import type { SearchResult } from '@/types/search-filter'
 

@@ -6,9 +6,7 @@
 import { EventEmitter } from 'events'
 import { z } from 'zod'
 import {
-  A2AMessage,
   Message,
-  MessageHeaders,
   MessageType,
   MessagePriority,
   MultiAgentError,

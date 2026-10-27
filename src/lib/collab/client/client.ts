@@ -5,7 +5,6 @@
 
 import { EventEmitter } from 'events';
 import { Operation, CRDTTextImpl, CRDTUpdate } from '../core/crdt';
-import { generateId } from '../utils/id';
 
 // ============================================================================
 // Types
@@ -355,7 +354,7 @@ export class CollabClient extends EventEmitter {
    * Handle sync response
    */
   private handleSync(data: SyncResponseData): void {
-    const { content, crdtState, clients, vectorClock } = data;
+    const { content, crdtState, clients } = data;
 
     // Initialize or update CRDT
     if (crdtState) {

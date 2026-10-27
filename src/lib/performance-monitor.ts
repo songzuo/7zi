@@ -167,7 +167,7 @@ export class PerformanceMonitor {
       const observer = new PerformanceObserver(callback)
       observer.observe({ type, buffered: true })
       this.observers.push(observer)
-    } catch (e) {
+    } catch (_e) {
       // Performance type not supported in this browser - silently skip
     }
   }

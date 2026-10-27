@@ -2,12 +2,29 @@
  * A2A Registry API Integration Tests
  *
  * Tests for agent registration, unregistration, and status management.
+ *
+ * 契约对齐说明（与 src/app/api/a2a/registry/** 真实实现一致）：
+ *   - 集合路由 GET  /api/a2a/registry  → 200, data = { agents, count }
+ *   - 集合路由 POST /api/a2a/registry  → 201, data = { message, agent }；body 必填 name + url
+ *   - 单体路由 GET/PUT/DELETE/PATCH /api/a2a/registry/[id]
+ *     GET    → 200, data 就是 agent 对象本身（不是 data.agent）
+ *     PUT    → 200, data = { message, agent }；不存在 → 404
+ *     DELETE → 200, data = { message, id }；不存在 → 404
+ *     PATCH  → 200, data = { message, agent }（心跳更新）
+ *   - AgentRegistration 字段：id/name/url/capabilities[]/skills[]/status/lastHeartbeat/load?/metadata?
+ *     （没有 createdAt，也没有 type 字段）
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { agentScheduler } from './mocks/agent-scheduler-compat'
-import { GET, POST, PUT, DELETE } from '@/app/api/a2a/registry/route'
+import { GET, POST } from '@/app/api/a2a/registry/route'
+import {
+  GET as GETAgent,
+  PUT,
+  DELETE,
+  PATCH,
+} from '@/app/api/a2a/registry/[id]/route'
 
 // Mock auth
 // A2A 路由的鉴权走 src/lib/agents/a2a/auth.ts，
@@ -20,25 +37,6 @@ vi.mock('@/lib/auth/service', () => ({
 // A2A 的 X-API-Key 方式按 AgentCard 声明的 apiKey securityScheme 校验，
 // 合法值从环境变量读（部署时决定）。这里声明测试用的 key。
 process.env.A2A_API_KEY = 'test-api-key'
-
-// Mock error handler
-vi.mock('@/lib/api/error-handler', () => ({
-  createSuccessResponse: vi.fn((data, status = 200) => {
-    return new Response(JSON.stringify({ success: true, data }), {
-      status,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }),
-  createErrorResponse: vi.fn((error: Error) => {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: { type: 'INTERNAL', message: 'An internal error occurred' },
-      }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    )
-  }),
-}))
 
 import { authenticateToken } from '@/lib/auth/service'
 import { UserRole, UserStatus } from '@/lib/auth/types'
@@ -74,7 +72,6 @@ function authenticatedResult() {
   }
 }
 
-
 /** 构造一个带有效 Bearer 凭据的请求 */
 function authRequest(url: string, init?: RequestInit): NextRequest {
   return new NextRequest(url, {
@@ -85,6 +82,14 @@ function authRequest(url: string, init?: RequestInit): NextRequest {
     },
   })
 }
+
+/** 构造单体路由的 context（Next.js 15+ 的 params 是 Promise） */
+function agentContext(id: string) {
+  return { params: Promise.resolve({ id }) }
+}
+
+/** AgentRegistration.status 的合法取值 */
+const VALID_STATUSES = ['online', 'offline', 'busy'] as const
 
 describe('A2A Registry API - GET /api/a2a/registry', () => {
   beforeEach(() => {
@@ -113,7 +118,9 @@ describe('A2A Registry API - GET /api/a2a/registry', () => {
 
       expect(response.status).toBe(401)
       expect(json.success).toBe(false)
-      expect(json.error).toBe('Unauthorized')
+      // 鉴权错误的 error 是对象，不是字符串
+      expect(json.error.type).toBe('UNAUTHORIZED')
+      expect(typeof json.error.message).toBe('string')
     })
 
     it('should allow authenticated user to list agents', async () => {
@@ -186,27 +193,34 @@ describe('A2A Registry API - GET /api/a2a/registry', () => {
     it('should return single agent by ID', async () => {
       agentScheduler.registerAgent('agent-1', 'Agent 1', 'type-a', ['cap-a'])
 
-      const request = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const request = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'GET',
       })
 
-      const response = await GET(request)
+      const response = await GETAgent(request, agentContext('agent-1'))
       const json = await response.json()
 
       expect(response.status).toBe(200)
-      expect(json.data.agent.id).toBe('agent-1')
+      // 单体路由的 data 就是 agent 对象本身
+      expect(json.data.id).toBe('agent-1')
+      expect(json.data.name).toBe('Agent 1')
+      expect(json.data.url).toBe('http://localhost/agents/agent-1')
+      expect(json.data.capabilities).toEqual(['cap-a'])
+      expect(VALID_STATUSES).toContain(json.data.status)
+      expect(typeof json.data.lastHeartbeat).toBe('string')
     })
 
     it('should return 404 for non-existent agent ID', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry?id=non-existent', {
+      const request = authRequest('http://localhost/api/a2a/registry/non-existent', {
         method: 'GET',
       })
 
-      const response = await GET(request)
+      const response = await GETAgent(request, agentContext('non-existent'))
       const json = await response.json()
 
       expect(response.status).toBe(404)
       expect(json.success).toBe(false)
+      expect(json.error.type).toBe('NOT_FOUND')
     })
   })
 })
@@ -229,16 +243,20 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'test',
+          url: 'http://localhost:3000/agents/agent-1',
           capabilities: ['cap-a'],
         }),
       })
 
       const response = await POST(request)
+      const json = await response.json()
+
       expect(response.status).toBe(400)
+      expect(json.success).toBe(false)
+      expect(json.error.type).toBe('VALIDATION_ERROR')
     })
 
-    it('should return 400 when type is missing', async () => {
+    it('should return 400 when url is missing', async () => {
       const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -249,21 +267,29 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
       })
 
       const response = await POST(request)
+      const json = await response.json()
+
       expect(response.status).toBe(400)
+      expect(json.success).toBe(false)
+      expect(json.error.type).toBe('VALIDATION_ERROR')
     })
 
-    it('should return 400 when capabilities is missing', async () => {
+    it('should allow capabilities to be omitted and default to empty array', async () => {
       const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Test Agent',
-          type: 'test',
+          url: 'http://localhost:3000/agents/agent-1',
         }),
       })
 
       const response = await POST(request)
-      expect(response.status).toBe(400)
+      const json = await response.json()
+
+      expect(response.status).toBe(201)
+      expect(json.data.agent.capabilities).toEqual([])
+      expect(json.data.agent.skills).toEqual([])
     })
 
     it('should return 400 when capabilities is not an array', async () => {
@@ -272,13 +298,17 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Test Agent',
-          type: 'test',
+          url: 'http://localhost:3000/agents/agent-1',
           capabilities: 'not-an-array',
         }),
       })
 
       const response = await POST(request)
+      const json = await response.json()
+
       expect(response.status).toBe(400)
+      expect(json.success).toBe(false)
+      expect(json.error.type).toBe('VALIDATION_ERROR')
     })
   })
 
@@ -289,7 +319,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Test Agent',
-          type: 'test',
+          url: 'http://localhost:3000/agents/agent-1',
           capabilities: ['cap-a', 'cap-b'],
         }),
       })
@@ -301,7 +331,8 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
       expect(json.success).toBe(true)
       expect(json.data.agent).toBeDefined()
       expect(json.data.agent.name).toBe('Test Agent')
-      expect(json.data.agent.status).toBe('idle')
+      expect(json.data.agent.url).toBe('http://localhost:3000/agents/agent-1')
+      expect(json.data.agent.status).toBe('online')
       expect(json.data.agent.capabilities).toEqual(['cap-a', 'cap-b'])
     })
 
@@ -311,7 +342,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Test Agent',
-          type: 'test',
+          url: 'http://localhost:3000/agents/agent-1',
           capabilities: ['cap-a'],
           metadata: {
             version: '1.0.0',
@@ -336,7 +367,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Agent 1',
-          type: 'test',
+          url: 'http://localhost:3000/agents/agent-1',
           capabilities: ['cap-a'],
         }),
       })
@@ -346,7 +377,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Agent 2',
-          type: 'test',
+          url: 'http://localhost:3000/agents/agent-2',
           capabilities: ['cap-a'],
         }),
       })
@@ -357,16 +388,18 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
       const json1 = await response1.json()
       const json2 = await response2.json()
 
+      expect(json1.data.agent.id).toBeTruthy()
+      expect(json2.data.agent.id).toBeTruthy()
       expect(json1.data.agent.id).not.toBe(json2.data.agent.id)
     })
 
-    it('should set initial status to idle', async () => {
+    it('should set initial status to online', async () => {
       const request = authRequest('http://localhost/api/a2a/registry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Test Agent',
-          type: 'test',
+          url: 'http://localhost:3000/agents/agent-1',
           capabilities: ['cap-a'],
         }),
       })
@@ -374,10 +407,11 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
       const response = await POST(request)
       const json = await response.json()
 
-      expect(json.data.agent.status).toBe('idle')
+      expect(response.status).toBe(201)
+      expect(json.data.agent.status).toBe('online')
     })
 
-    it('should record creation timestamp', async () => {
+    it('should record last heartbeat as a valid ISO timestamp', async () => {
       const beforeRegister = Date.now()
 
       const request = authRequest('http://localhost/api/a2a/registry', {
@@ -385,7 +419,7 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Test Agent',
-          type: 'test',
+          url: 'http://localhost:3000/agents/agent-1',
           capabilities: ['cap-a'],
         }),
       })
@@ -395,35 +429,18 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
 
       const afterRegister = Date.now()
 
-      expect(json.data.agent.createdAt).toBeGreaterThanOrEqual(beforeRegister)
-      expect(json.data.agent.createdAt).toBeLessThanOrEqual(afterRegister)
-    })
-
-    it('should record last heartbeat timestamp', async () => {
-      const beforeRegister = Date.now()
-
-      const request = authRequest('http://localhost/api/a2a/registry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Test Agent',
-          type: 'test',
-          capabilities: ['cap-a'],
-        }),
-      })
-
-      const response = await POST(request)
-      const json = await response.json()
-
-      const afterRegister = Date.now()
-
-      expect(json.data.agent.lastHeartbeat).toBeGreaterThanOrEqual(beforeRegister)
-      expect(json.data.agent.lastHeartbeat).toBeLessThanOrEqual(afterRegister)
+      const heartbeat = json.data.agent.lastHeartbeat
+      // 是合法的 ISO 8601 时间字符串
+      expect(typeof heartbeat).toBe('string')
+      expect(new Date(heartbeat).toISOString()).toBe(heartbeat)
+      // 且落在注册前后区间内
+      expect(Date.parse(heartbeat)).toBeGreaterThanOrEqual(beforeRegister)
+      expect(Date.parse(heartbeat)).toBeLessThanOrEqual(afterRegister)
     })
   })
 })
 
-describe('A2A Registry API - PUT /api/a2a/registry', () => {
+describe('A2A Registry API - PUT /api/a2a/registry/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
@@ -437,8 +454,8 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
   })
 
   describe('Validation', () => {
-    it('should return 400 when agentId is missing', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry', {
+    it('should return 404 when agent id is missing from the path', async () => {
+      const request = authRequest('http://localhost/api/a2a/registry/', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -446,12 +463,15 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
         }),
       })
 
-      const response = await PUT(request)
-      expect(response.status).toBe(400)
+      const response = await PUT(request, agentContext(''))
+      const json = await response.json()
+
+      expect(response.status).toBe(404)
+      expect(json.error.type).toBe('NOT_FOUND')
     })
 
-    it('should return 400 when status is missing', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry', {
+    it('should keep existing fields when status is not provided', async () => {
+      const request = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -459,132 +479,143 @@ describe('A2A Registry API - PUT /api/a2a/registry', () => {
         }),
       })
 
-      const response = await PUT(request)
-      expect(response.status).toBe(400)
+      const response = await PUT(request, agentContext('agent-1'))
+      const json = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(json.data.agent.status).toBe('online')
+      expect(json.data.agent.name).toBe('Test Agent')
+      expect(json.data.agent.capabilities).toEqual(['cap-a'])
     })
 
     it('should return 400 for invalid status', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          agentId: 'agent-1',
           status: 'invalid-status',
         }),
       })
 
-      const response = await PUT(request)
+      const response = await PUT(request, agentContext('agent-1'))
+      const json = await response.json()
+
       expect(response.status).toBe(400)
+      expect(json.success).toBe(false)
+      expect(json.error.type).toBe('VALIDATION_ERROR')
     })
 
     it('should return 404 for non-existent agent', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry/non-existent', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          agentId: 'non-existent',
           status: 'busy',
         }),
       })
 
-      const response = await PUT(request)
+      const response = await PUT(request, agentContext('non-existent'))
+      const json = await response.json()
+
       expect(response.status).toBe(404)
+      expect(json.error.type).toBe('NOT_FOUND')
     })
   })
 
   describe('Status Updates', () => {
     it('should update agent status to busy', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          agentId: 'agent-1',
           status: 'busy',
         }),
       })
 
-      const response = await PUT(request)
+      const response = await PUT(request, agentContext('agent-1'))
       const json = await response.json()
 
       expect(response.status).toBe(200)
       expect(json.data.agent.status).toBe('busy')
     })
 
-    it('should update agent status to idle', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry', {
+    it('should update agent status to online', async () => {
+      const request = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          agentId: 'agent-1',
-          status: 'idle',
+          status: 'online',
         }),
       })
 
-      const response = await PUT(request)
+      const response = await PUT(request, agentContext('agent-1'))
       const json = await response.json()
 
       expect(response.status).toBe(200)
-      expect(json.data.agent.status).toBe('idle')
+      expect(json.data.agent.status).toBe('online')
     })
 
     it('should update agent status to offline', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry', {
+      const request = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          agentId: 'agent-1',
           status: 'offline',
         }),
       })
 
-      const response = await PUT(request)
+      const response = await PUT(request, agentContext('agent-1'))
       const json = await response.json()
 
       expect(response.status).toBe(200)
       expect(json.data.agent.status).toBe('offline')
     })
 
-    it('should update agent status to error', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry', {
+    it('should update agent name and url', async () => {
+      const request = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          agentId: 'agent-1',
-          status: 'error',
+          name: 'Renamed Agent',
+          url: 'http://localhost:3000/agents/renamed',
+          capabilities: ['cap-b'],
         }),
       })
 
-      const response = await PUT(request)
+      const response = await PUT(request, agentContext('agent-1'))
       const json = await response.json()
 
       expect(response.status).toBe(200)
-      expect(json.data.agent.status).toBe('error')
+      expect(json.data.agent.name).toBe('Renamed Agent')
+      expect(json.data.agent.url).toBe('http://localhost:3000/agents/renamed')
+      expect(json.data.agent.capabilities).toEqual(['cap-b'])
+      expect(json.data.agent.id).toBe('agent-1')
     })
 
-    it('should update lastHeartbeat on status change', async () => {
+    it('should update lastHeartbeat on heartbeat refresh', async () => {
       const beforeUpdate = Date.now()
 
-      const request = authRequest('http://localhost/api/a2a/registry', {
-        method: 'PUT',
+      const request = authRequest('http://localhost/api/a2a/registry/agent-1', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agentId: 'agent-1',
-          status: 'busy',
-        }),
+        body: JSON.stringify({}),
       })
 
-      const response = await PUT(request)
+      const response = await PATCH(request, agentContext('agent-1'))
       const json = await response.json()
 
       const afterUpdate = Date.now()
 
-      expect(json.data.agent.lastHeartbeat).toBeGreaterThanOrEqual(beforeUpdate)
-      expect(json.data.agent.lastHeartbeat).toBeLessThanOrEqual(afterUpdate)
+      expect(response.status).toBe(200)
+      const heartbeat = json.data.agent.lastHeartbeat
+      expect(new Date(heartbeat).toISOString()).toBe(heartbeat)
+      expect(Date.parse(heartbeat)).toBeGreaterThanOrEqual(beforeUpdate)
+      expect(Date.parse(heartbeat)).toBeLessThanOrEqual(afterUpdate)
     })
   })
 })
 
-describe('A2A Registry API - DELETE /api/a2a/registry', () => {
+describe('A2A Registry API - DELETE /api/a2a/registry/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentScheduler.clear()
@@ -597,22 +628,28 @@ describe('A2A Registry API - DELETE /api/a2a/registry', () => {
   })
 
   describe('Validation', () => {
-    it('should return 400 when agentId is missing', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry', {
+    it('should return 404 when agent id is missing from the path', async () => {
+      const request = authRequest('http://localhost/api/a2a/registry/', {
         method: 'DELETE',
       })
 
-      const response = await DELETE(request)
-      expect(response.status).toBe(400)
+      const response = await DELETE(request, agentContext(''))
+      const json = await response.json()
+
+      expect(response.status).toBe(404)
+      expect(json.error.type).toBe('NOT_FOUND')
     })
 
     it('should return 404 for non-existent agent', async () => {
-      const request = authRequest('http://localhost/api/a2a/registry?id=non-existent', {
+      const request = authRequest('http://localhost/api/a2a/registry/non-existent', {
         method: 'DELETE',
       })
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, agentContext('non-existent'))
+      const json = await response.json()
+
       expect(response.status).toBe(404)
+      expect(json.error.type).toBe('NOT_FOUND')
     })
   })
 
@@ -620,26 +657,27 @@ describe('A2A Registry API - DELETE /api/a2a/registry', () => {
     it('should unregister an agent successfully', async () => {
       agentScheduler.registerAgent('agent-1', 'Test Agent', 'test', ['cap-a'])
 
-      const request = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const request = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'DELETE',
       })
 
-      const response = await DELETE(request)
+      const response = await DELETE(request, agentContext('agent-1'))
       const json = await response.json()
 
       expect(response.status).toBe(200)
       expect(json.success).toBe(true)
+      expect(json.data.id).toBe('agent-1')
       expect(json.data.message).toBe('Agent unregistered successfully')
     })
 
     it('should remove agent from registry', async () => {
       agentScheduler.registerAgent('agent-1', 'Test Agent', 'test', ['cap-a'])
 
-      const deleteRequest = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const deleteRequest = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'DELETE',
       })
 
-      await DELETE(deleteRequest)
+      await DELETE(deleteRequest, agentContext('agent-1'))
 
       const agents = agentScheduler.getAllAgents()
       expect(agents.length).toBe(0)
@@ -648,17 +686,17 @@ describe('A2A Registry API - DELETE /api/a2a/registry', () => {
     it('should handle unregistering already removed agent', async () => {
       agentScheduler.registerAgent('agent-1', 'Test Agent', 'test', ['cap-a'])
 
-      const deleteRequest1 = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const deleteRequest1 = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'DELETE',
       })
 
-      await DELETE(deleteRequest1)
+      await DELETE(deleteRequest1, agentContext('agent-1'))
 
-      const deleteRequest2 = authRequest('http://localhost/api/a2a/registry?id=agent-1', {
+      const deleteRequest2 = authRequest('http://localhost/api/a2a/registry/agent-1', {
         method: 'DELETE',
       })
 
-      const response2 = await DELETE(deleteRequest2)
+      const response2 = await DELETE(deleteRequest2, agentContext('agent-1'))
       expect(response2.status).toBe(404)
     })
   })
@@ -683,7 +721,7 @@ describe('A2A Registry API - Integration Tests', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: 'Lifecycle Agent',
-        type: 'test',
+        url: 'http://localhost:3000/agents/lifecycle',
         capabilities: ['cap-a'],
       }),
     })
@@ -693,27 +731,30 @@ describe('A2A Registry API - Integration Tests', () => {
     const agentId = postJson.data.agent.id
 
     expect(postResponse.status).toBe(201)
+    expect(agentId).toBeTruthy()
 
     // Update status
-    const putRequest = authRequest('http://localhost/api/a2a/registry', {
+    const putRequest = authRequest(`http://localhost/api/a2a/registry/${agentId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        agentId,
         status: 'busy',
       }),
     })
 
-    const putResponse = await PUT(putRequest)
+    const putResponse = await PUT(putRequest, agentContext(agentId))
+    const putJson = await putResponse.json()
     expect(putResponse.status).toBe(200)
+    expect(putJson.data.agent.status).toBe('busy')
 
     // Unregister
-    const deleteRequest = authRequest(`http://localhost/api/a2a/registry?id=${agentId}`, {
+    const deleteRequest = authRequest(`http://localhost/api/a2a/registry/${agentId}`, {
       method: 'DELETE',
     })
 
-    const deleteResponse = await DELETE(deleteRequest)
+    const deleteResponse = await DELETE(deleteRequest, agentContext(agentId))
     expect(deleteResponse.status).toBe(200)
+    expect(agentScheduler.getAllAgents().length).toBe(0)
   })
 
   it('should list multiple registered agents', async () => {
@@ -723,7 +764,7 @@ describe('A2A Registry API - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Agent 1',
-          type: 'type-a',
+          url: 'http://localhost:3000/agents/agent-1',
           capabilities: ['cap-a'],
         }),
       })
@@ -735,7 +776,7 @@ describe('A2A Registry API - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Agent 2',
-          type: 'type-b',
+          url: 'http://localhost:3000/agents/agent-2',
           capabilities: ['cap-b'],
         }),
       })
@@ -747,7 +788,7 @@ describe('A2A Registry API - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Agent 3',
-          type: 'type-a',
+          url: 'http://localhost:3000/agents/agent-3',
           capabilities: ['cap-a', 'cap-b'],
         }),
       })
@@ -762,5 +803,6 @@ describe('A2A Registry API - Integration Tests', () => {
 
     expect(getResponse.status).toBe(200)
     expect(getJson.data.agents.length).toBe(3)
+    expect(getJson.data.count).toBe(3)
   })
 })

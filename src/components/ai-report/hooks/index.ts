@@ -79,7 +79,9 @@ export function useReportConfig() {
   }, [])
   
   useEffect(() => {
-    loadHistory()
+    queueMicrotask(() => {
+      void loadHistory()
+    })
   }, [loadHistory])
   
   return {

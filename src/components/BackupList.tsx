@@ -110,7 +110,9 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
   }
 
   useEffect(() => {
-    fetchBackups()
+    queueMicrotask(() => {
+      void fetchBackups()
+    })
   }, [refreshTrigger])
 
   if (loading) {

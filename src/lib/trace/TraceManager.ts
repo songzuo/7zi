@@ -21,7 +21,6 @@ import {
   type TraceMetadata,
   SpanStatusCode,
   SpanKind,
-  generateTraceId as generateTraceIdBase,
   generateSpanId as generateSpanIdBase,
 } from '../tracing/types'
 

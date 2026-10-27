@@ -103,7 +103,9 @@ export function RatingList({
   }, [targetType, targetId, sortBy, sortOrder, ratingMin, ratingMax, searchQuery, page, perPage])
 
   useEffect(() => {
-    void fetchRatings()
+    queueMicrotask(() => {
+      void fetchRatings()
+    })
   }, [fetchRatings])
 
   /**

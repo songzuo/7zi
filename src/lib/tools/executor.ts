@@ -97,7 +97,7 @@ export class FileTools {
       // Check if file exists
       try {
         await fs.access(filePath)
-      } catch (error) {
+      } catch (_error) {
         return {
           content: [{ type: 'text', text: `File not found: ${filePath}` }],
           isError: true,
@@ -337,7 +337,7 @@ export class WebTools {
    */
   static async webSearch(
     query: string,
-    options?: { count?: number }
+    _options?: { count?: number }
   ): Promise<ToolExecutionResult> {
     // Note: This requires integration with OpenClaw's web_search tool
     // For now, return a placeholder indicating integration needed
@@ -359,7 +359,7 @@ export class WebTools {
    */
   static async webFetch(
     url: string,
-    options?: { extractMode?: 'markdown' | 'text' }
+    _options?: { extractMode?: 'markdown' | 'text' }
   ): Promise<ToolExecutionResult> {
     // Note: This requires integration with OpenClaw's web_fetch tool
     // For now, return a placeholder indicating integration needed

@@ -13,6 +13,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
+import Image from 'next/image'
 
 // ============================================================================
 // 类型定义
@@ -534,9 +535,11 @@ const ActivityItem = memo<ActivityItemProps>(({ activity, config }) => {
         {/* 头像 */}
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-gray-100 to-gray-200 text-sm dark:from-zinc-700 dark:to-zinc-600">
           {activity.actor.avatar ? (
-            <img
+            <Image
               src={activity.actor.avatar}
               alt={activity.actor.name}
+              width={32}
+              height={32}
               className="h-full w-full object-cover"
             />
           ) : (

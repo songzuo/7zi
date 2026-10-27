@@ -168,7 +168,7 @@ export async function getSeedingStats(): Promise<{
       defaultRolesCount: Object.values(Role).length,
       needsSeeding: await needsSeeding(),
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       rolesInDb: 0,
       permissionsInDb: 0,

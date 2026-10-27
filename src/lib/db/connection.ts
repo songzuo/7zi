@@ -9,6 +9,7 @@
 
 import Database from 'better-sqlite3'
 import { logger } from '../logger'
+import { withPerformanceLogging } from '../middleware/db-performance'
 
 // Connection pool for better performance
 let dbInstance: Database.Database | null = null
@@ -359,7 +360,6 @@ export function getDatabase(): DatabaseConnection {
     process.env.NODE_ENV === 'development'
   ) {
     try {
-      const { withPerformanceLogging } = require('@/lib/middleware/db-performance')
       return withPerformanceLogging(baseConnection)
     } catch {
       return baseConnection as unknown as DatabaseConnection

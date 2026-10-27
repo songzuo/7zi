@@ -5,6 +5,7 @@
 'use client'
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
 import { AlertCircle, RefreshCw, Home } from 'lucide-react'
 
 // Extend Window interface to include Sentry
@@ -21,6 +22,8 @@ interface Props {
   children: ReactNode
   fallback?: ReactNode
   onError?: (error: Error, errorInfo: ErrorInfo) => void
+  /** 返回首页的回调（由外层函数组件通过 useRouter 注入） */
+  onNavigateHome?: () => void
 }
 
 interface State {
@@ -29,7 +32,7 @@ interface State {
   errorInfo: ErrorInfo | null
 }
 
-export class AnalyticsErrorBoundary extends Component<Props, State> {
+class AnalyticsErrorBoundaryBase extends Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -85,7 +88,7 @@ export class AnalyticsErrorBoundary extends Component<Props, State> {
   }
 
   handleGoHome = () => {
-    window.location.href = '/'
+    this.props.onNavigateHome?.()
   }
 
   render() {
@@ -152,6 +155,18 @@ export class AnalyticsErrorBoundary extends Component<Props, State> {
 
     return this.props.children
   }
+}
+
+/**
+ * 函数组件包装层：提供 useRouter 导航能力（类组件无法直接使用 Hook）
+ */
+export function AnalyticsErrorBoundary(props: Props) {
+  const router = useRouter()
+  const handleNavigateHome = React.useCallback(() => {
+    router.push('/')
+  }, [router])
+
+  return <AnalyticsErrorBoundaryBase {...props} onNavigateHome={handleNavigateHome} />
 }
 
 // Functional wrapper for convenience

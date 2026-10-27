@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 /**
  * 根级别错误处理组件
@@ -13,6 +14,8 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const router = useRouter()
+
   useEffect(() => {
     // 记录错误到控制台
     console.error('🚨 Global Error Boundary 捕获到错误:', error)
@@ -79,7 +82,7 @@ export default function GlobalError({
                 重新加载
               </button>
               <button
-                onClick={() => (window.location.href = '/')}
+                onClick={() => router.push('/')}
                 className="flex items-center justify-center gap-2 rounded-full border-2 border-zinc-300 px-6 py-3 font-semibold text-zinc-700 transition-all hover:border-cyan-500 hover:text-cyan-500 dark:border-zinc-700 dark:text-zinc-300"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

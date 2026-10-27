@@ -7,7 +7,6 @@ import {
   ApprovalRequest,
   ApprovalStatus,
   ApprovalType,
-  ApprovalPriority,
   ApprovalWorkflowConfig,
   CreateApprovalRequest,
   DEFAULT_WORKFLOW_CONFIGS,

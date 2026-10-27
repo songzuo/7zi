@@ -114,9 +114,12 @@ const BlurPlaceholder: React.FC<BlurPlaceholderProps> = memo(
         aria-hidden="true"
       >
         {blurDataURL ? (
-          <img
+          <Image
             src={blurDataURL}
             alt=""
+            width={640}
+            height={480}
+            unoptimized
             className="h-full w-full scale-110 object-cover opacity-60 blur-xl"
           />
         ) : (

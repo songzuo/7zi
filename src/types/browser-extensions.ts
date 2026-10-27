@@ -25,7 +25,7 @@ interface NavigatorWithStandalone extends Navigator {
 /**
  * Window with debug variables for development
  */
-interface WindowWithDebugVars extends Window {
+export interface WindowWithDebugVars extends Window {
   __THEME__?: {
     stored: 'light' | 'dark' | 'system'
     effective: 'light' | 'dark'
@@ -38,6 +38,7 @@ interface WindowWithDebugVars extends Window {
     hasUpdate: boolean
   }
 }
+
 
 // ============================================================================
 // Navigator Extensions (Network Information API)

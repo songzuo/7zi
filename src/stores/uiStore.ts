@@ -84,10 +84,6 @@ export interface FormDraft {
 /**
  * 可序列化的 UI 存储状态（用于 localStorage）
  */
-interface SerializableUIState {
-  formDrafts: Array<[string, FormDraft]>
-}
-
 interface UIState {
   // 侧边栏
   sidebar: SidebarState
@@ -531,7 +527,7 @@ export const useUIStore = create<UIState>()(
                 data.state.formDrafts = new Map(data.state.formDrafts)
               }
               return data
-            } catch (error) {
+            } catch {
               return null
             }
           },
@@ -539,11 +535,7 @@ export const useUIStore = create<UIState>()(
             if (typeof window === 'undefined') return
             // 将 Map 转为数组存储
             const data = { ...value }
-            if (data.state?.formDrafts instanceof Map) {
-              const serializableState = data.state as Partial<SerializableUIState>
-              // @ts-ignore - Map.entries() type doesn't perfectly match Array<[string, FormDraft]>
-              serializableState.formDrafts = Array.from(data.state.formDrafts.entries())
-            }
+            // partialize 已将 Map 转为数组，这里无需再次处理
             try {
               localStorage.setItem(name, JSON.stringify(data))
             } catch (error) {

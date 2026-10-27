@@ -5,7 +5,7 @@
 
 import { EventEmitter } from 'events';
 import { WebSocket, WebSocketServer } from 'ws';
-import { CRDTTextImpl, Operation, CRDTUpdate } from '../core/crdt';
+import { CRDTTextImpl, Operation } from '../core/crdt';
 import { generateId } from '../utils/id';
 
 // ============================================================================

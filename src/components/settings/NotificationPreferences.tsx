@@ -121,7 +121,9 @@ export function NotificationPreferences({
 
   // Load preferences on mount
   useEffect(() => {
-    void loadPreferences()
+    queueMicrotask(() => {
+      void loadPreferences()
+    })
   }, [loadPreferences])
 
   // Save preferences to API

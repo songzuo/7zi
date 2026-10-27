@@ -57,17 +57,22 @@ export class TimeoutError extends Error {
 export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   timeoutMs: number = 30000,
-  _locale: SupportedLocale = 'zh'
+  _locale: SupportedLocale = 'zh',
+  operationName?: string
 ): T {
   return (async (...args: Parameters<T>) => {
     // Create timeout promise
+    //
+    // timeoutId 必须声明在 Promise 外面：Promise executor 是同步执行的，
+    // 如果在 executor 内部引用 timeoutPromise 自身，会踩到 const 的 TDZ
+    // （"Cannot access 'timeoutPromise' before initialization"），
+    // 表现为所有 withTimeout 调用直接抛 TDZ 错误而不是超时。
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
+
     const timeoutPromise = new Promise<never>((_, reject) => {
-      const timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(() => {
         reject(new TimeoutError(`Operation timed out after ${timeoutMs}ms`))
       }, timeoutMs)
-
-      // Store timeout ID for cleanup
-      ;(timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId = timeoutId
     })
 
     try {
@@ -75,7 +80,6 @@ export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
       const result = await Promise.race([fn(...args), timeoutPromise])
 
       // Clear timeout if operation completed first
-      const timeoutId = (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId
       if (timeoutId) {
         clearTimeout(timeoutId)
       }
@@ -83,14 +87,13 @@ export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
       return result
     } catch (error) {
       // Clear timeout on error
-      const timeoutId = (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId
       if (timeoutId) {
         clearTimeout(timeoutId)
       }
 
       // Handle timeout error
       if (error instanceof TimeoutError) {
-        logger.warn(`Operation timed out: ${fn.name || 'anonymous'}`, {
+        logger.warn(`Operation timed out: ${operationName || fn.name || 'anonymous'}`, {
           timeoutMs,
           args: args.length > 0 ? args : undefined,
         })
@@ -265,5 +268,5 @@ export async function withTimeoutAndMeasurement<T>(
   timeoutMs: number,
   name: string
 ): Promise<T> {
-  return withMeasurement(() => withTimeout(fn, timeoutMs)(), name)
+  return withMeasurement(() => withTimeout(fn, timeoutMs, 'zh', name)(), name)
 }

@@ -11,7 +11,6 @@ import {
   MessagePriority,
   Subscription,
   TransportType,
-  MessageBusEvent,
   MultiAgentError,
   MultiAgentErrorType,
 } from './types'

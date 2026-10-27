@@ -119,7 +119,9 @@ export function MetricsDashboard() {
 
   // 获取指标数据
   useEffect(() => {
-    void fetchMetrics()
+    queueMicrotask(() => {
+      void fetchMetrics()
+    })
 
     // 每30秒刷新一次
     const interval = setInterval(() => {

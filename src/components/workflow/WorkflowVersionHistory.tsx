@@ -184,8 +184,10 @@ export function WorkflowVersionHistory({
   }, [workflowId])
 
   useEffect(() => {
-    fetchVersions()
-    fetchSettings()
+    queueMicrotask(() => {
+      void fetchVersions()
+      void fetchSettings()
+    })
   }, [fetchVersions, fetchSettings])
 
   // Compare versions

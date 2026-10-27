@@ -85,17 +85,6 @@ export interface FilterConfig {
   pagination: PaginationState
 }
 
-/**
- * 可序列化的存储状态（用于 localStorage）
- * 使用 Record 而不是数组，因为 Map.entries() 的类型推断问题
- */
-interface SerializableFilterStoreState {
-  activeFilters: Record<string, FiltersState>
-  activeSorts: Record<string, SortCondition | null>
-  activePagination: Record<string, PaginationState>
-  isLoaded: boolean
-}
-
 interface FilterStoreState {
   // 数据
   activeFilters: Map<string, FiltersState> // 按组件/页面分离的过滤状态
@@ -139,12 +128,6 @@ const STORAGE_KEY = '7zi-filters-storage'
 const DEFAULT_FILTERS: FiltersState = {
   conditions: [],
   searchQuery: '',
-}
-
-const DEFAULT_PAGINATION: PaginationState = {
-  page: 1,
-  pageSize: 20,
-  total: 0,
 }
 
 // ============================================================================
@@ -476,7 +459,7 @@ export const useFilterStore = create<FilterStoreState>()(
               }
               
               return data
-            } catch (error) {
+            } catch {
               return null
             }
           },

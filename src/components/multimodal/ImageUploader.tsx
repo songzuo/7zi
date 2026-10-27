@@ -8,6 +8,7 @@
 import React, { useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import type { ImageData } from '@/lib/multimodal/types'
+import Image from 'next/image'
 
 interface ImageUploaderProps {
   onImageSelect: (file: File) => void
@@ -135,7 +136,13 @@ export function ImageUploader({
   if (preview) {
     return (
       <div className="group relative">
-        <img src={preview} alt="Preview" className="h-auto w-full rounded-lg shadow-lg" />
+        <Image
+          src={preview}
+          alt="Preview"
+          width={800}
+          height={600}
+          className="h-auto w-full rounded-lg shadow-lg"
+        />
         <button
           onClick={clearPreview}
           className="absolute top-2 right-2 rounded-full bg-red-500 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100"

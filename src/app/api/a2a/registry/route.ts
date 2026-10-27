@@ -5,6 +5,7 @@
  */
 
 import { NextRequest } from 'next/server'
+import { randomUUID } from 'node:crypto'
 import { withA2AAuth, canAccessAgent } from '@/lib/agents/a2a/auth'
 import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry'
 import { AgentRegistration } from '@/lib/agents/a2a/types'
@@ -79,8 +80,22 @@ async function POSTHandler(request: NextRequest) {
       return createValidationError('Missing required fields', { fields: ['name', 'url'] })
     }
 
+    // capabilities / skills 必须是数组（缺省时才算合法）
+    if (
+      (body.capabilities !== undefined && !Array.isArray(body.capabilities)) ||
+      (body.skills !== undefined && !Array.isArray(body.skills))
+    ) {
+      return createValidationError('capabilities and skills must be arrays', {
+        fields: ['capabilities', 'skills'],
+      })
+    }
+
     const registration: AgentRegistration = {
-      id: body.id,
+      // registry.register() 内部虽然会用 uuidv4() 兜底，
+      // 但不会把补出来的 id 回写给调用方 —— 如果这里不自己生成 id，
+      // 后面 registry.get(registration.id) 会拿到 undefined，
+      // 导致 201 响应的 data.agent 是 undefined。
+      id: body.id || randomUUID(),
       name: body.name,
       url: body.url,
       capabilities: body.capabilities || [],

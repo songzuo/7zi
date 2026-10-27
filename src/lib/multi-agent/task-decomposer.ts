@@ -7,12 +7,10 @@ import {
   Task,
   SubTask,
   TaskStatus,
-  TaskDependency,
   MessagePriority,
   TaskEvent,
   MultiAgentError,
   MultiAgentErrorType,
-  AgentCapability,
   MessageType,
 } from './types'
 import { AgentRegistry } from './registry'

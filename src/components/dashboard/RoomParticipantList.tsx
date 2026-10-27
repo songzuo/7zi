@@ -14,6 +14,7 @@ import { Users, MoreVertical, Crown, Shield, User, Clock, MessageSquare, X } fro
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
 import type { RoomParticipant, UserRole } from '@/lib/websocket/rooms'
+import Image from 'next/image'
 
 // ============================================================================
 // 类型定义
@@ -258,9 +259,11 @@ const ParticipantItem: React.FC<ParticipantItemProps> = ({
           style={{ backgroundColor: participant.color }}
         >
           {participant.avatar ? (
-            <img
+            <Image
               src={participant.avatar}
               alt={participant.name}
+              width={40}
+              height={40}
               className="h-full w-full rounded-full object-cover"
             />
           ) : (
@@ -517,9 +520,11 @@ export const RoomParticipantListCompact: React.FC<RoomParticipantListCompactProp
             title={`${participant.name} (${getRoleName(participant.role)})`}
           >
             {participant.avatar ? (
-              <img
+              <Image
                 src={participant.avatar}
                 alt={participant.name}
+                width={32}
+                height={32}
                 className="h-full w-full rounded-full object-cover"
               />
             ) : (

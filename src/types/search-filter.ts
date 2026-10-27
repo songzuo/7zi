@@ -91,7 +91,7 @@ export interface FilterConfig<T = unknown> {
 /**
  * 过滤器选项
  */
-export interface FilterOption<T = unknown> {
+export interface FilterOption<_T = unknown> {
   /** 选项值 */
   value: unknown
   /** 选项标签 */
@@ -109,7 +109,7 @@ export interface FilterOption<T = unknown> {
 /**
  * 活动过滤器状态
  */
-export interface ActiveFilters<T = unknown> {
+export interface ActiveFilters<_T = unknown> {
   /** 过滤器ID映射到选中的值 */
   [filterId: string]: unknown[]
 }

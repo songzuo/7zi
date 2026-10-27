@@ -367,7 +367,7 @@ class Logger {
           keepalive: true,
         })
       }
-    } catch (error) {
+    } catch (_error) {
       // 静默失败，避免日志系统本身导致问题
     }
   }

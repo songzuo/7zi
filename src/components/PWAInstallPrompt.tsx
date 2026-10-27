@@ -40,7 +40,9 @@ export function PWAInstallPrompt() {
       return isIOSStandalone || isStandalone
     }
 
-    setIsInstalled(checkInstalled())
+    queueMicrotask(() => {
+      setIsInstalled(checkInstalled())
+    })
 
     if (isInstalled) {
       return // Don't show prompt if already installed

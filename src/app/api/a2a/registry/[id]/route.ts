@@ -13,8 +13,12 @@ import { AgentRegistration } from '@/lib/agents/a2a/types'
 import {
   createSuccessResponse,
   createErrorResponse,
+  createValidationError,
   createNotFoundError,
 } from '@/lib/api/error-handler'
+
+/** AgentRegistration.status 的合法取值 */
+const VALID_STATUSES = ['online', 'offline', 'busy'] as const
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -62,6 +66,24 @@ async function PUTHandler(request: NextRequest, context: RouteContext) {
 
     if (!existingAgent) {
       return createNotFoundError(`No agent found with ID: ${id}`)
+    }
+
+    // status 必须是合法枚举值
+    if (body.status !== undefined && !VALID_STATUSES.includes(body.status)) {
+      return createValidationError('Invalid status', {
+        field: 'status',
+        allowed: VALID_STATUSES,
+      })
+    }
+
+    // capabilities / skills 必须是数组
+    if (
+      (body.capabilities !== undefined && !Array.isArray(body.capabilities)) ||
+      (body.skills !== undefined && !Array.isArray(body.skills))
+    ) {
+      return createValidationError('capabilities and skills must be arrays', {
+        fields: ['capabilities', 'skills'],
+      })
     }
 
     // Update agent (create new registration with updated fields)

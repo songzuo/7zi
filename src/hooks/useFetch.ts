@@ -48,7 +48,9 @@ export function useFetch<T>(
   }, [url]) // Only depend on URL to prevent unnecessary re-creation
 
   useEffect(() => {
-    fetchData()
+    queueMicrotask(() => {
+      void fetchData()
+    })
   }, [fetchData])
 
   // Revalidate on focus

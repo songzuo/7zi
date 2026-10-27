@@ -88,7 +88,7 @@ async function getPermissionContextFromRequest(
     // Get full permission context from database
     const context = await getUserPermissionContext(authResult.context.userId)
     return context
-  } catch (error) {
+  } catch (_error) {
     return null
   }
 }

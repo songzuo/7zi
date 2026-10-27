@@ -24,7 +24,7 @@ type UndoRedoImpl = <
 
 // Type workaround for StoreMutators - use module augmentation with proper types
 declare module 'zustand/vanilla' {
-  interface StoreMutators<S, A> {
+  interface StoreMutators<S, _A> {
     'zustand/undo-redo': Write<Cast<S, object>, UndoRedoStoreActions>
   }
 }
@@ -171,7 +171,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
     // api.subscribe(() => syncDerived()) —— 那会形成
     // set -> notify -> subscribe -> set 的无限递归
     // （RangeError: Maximum call stack size exceeded）。
-    const syncDerivedState = (): void => {
+    const _syncDerivedState = (): void => {
       const prev = get() as Record<string, unknown>
       const canUndo = history.past.length > 0
       const canRedo = history.future.length > 0

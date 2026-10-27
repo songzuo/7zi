@@ -5,7 +5,6 @@
 
 import { db } from '../db'
 import { logger } from '../logger'
-import { TenantPlan } from '../tenant/types'
 
 /**
  * 订阅状态

@@ -109,7 +109,9 @@ export function QuickTaskModal({ isOpen, onClose, onCreate, className }: QuickTa
   // 关闭时重置
   useEffect(() => {
     if (!isOpen) {
-      resetState()
+      queueMicrotask(() => {
+        resetState()
+      })
     }
   }, [isOpen, resetState])
 

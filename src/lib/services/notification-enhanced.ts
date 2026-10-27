@@ -60,7 +60,7 @@ export class EnhancedNotificationService {
   /**
    * Initialize the enhanced notification service
    */
-  async initialize(dbPath?: string): Promise<void> {
+  async initialize(_dbPath?: string): Promise<void> {
     try {
       // Initialize storage
       notificationStorage.initialize()

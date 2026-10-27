@@ -11,10 +11,15 @@ import {
   withPerformanceLogging,
   getQueryMetricsSummary,
   getQueryInsights,
+  clearQueryMetrics,
 } from '../middleware/db-performance'
 import { getSlowQueryLogger } from './slow-query-logger'
 import type { SlowQueryLogger } from './slow-query-logger'
-import { getNPlus1Detector, NPlus1Detection } from './nplus1-detector'
+import {
+  getNPlus1Detector,
+  NPlus1Detection,
+  resetNPlus1Detector as resetNPlus1DetectorImpl,
+} from './nplus1-detector'
 import { logger } from '../logger'
 import type { DatabaseConnection } from './index'
 
@@ -266,10 +271,7 @@ class PerformanceLoggerManager {
   clearMetrics(): void {
     // 清除数据库性能指标
     try {
-      const dbMetricsModule = require('../middleware/db-performance')
-      if (dbMetricsModule.clearQueryMetrics) {
-        dbMetricsModule.clearQueryMetrics()
-      }
+      clearQueryMetrics()
     } catch (error) {
       // db-performance 模块可能不存在，忽略错误
       logger.warn('Failed to clear db-performance metrics', { error, category: 'db' })
@@ -344,8 +346,7 @@ class PerformanceLoggerManager {
  */
 function resetNPlus1Detector(): void {
   try {
-    const { resetNPlus1Detector: reset } = require('./nplus1-detector')
-    reset()
+    resetNPlus1DetectorImpl()
   } catch (error) {
     logger.warn('Failed to reset N+1 detector', { error, category: 'db' })
   }

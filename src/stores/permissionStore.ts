@@ -11,7 +11,6 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { shallow } from 'zustand/shallow'
 import { Permission, Role } from '@/lib/permissions/types'
 import type { PermissionContext } from '@/lib/permissions/types'
 

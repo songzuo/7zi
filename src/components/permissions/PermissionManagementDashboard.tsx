@@ -5,7 +5,7 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   EnhancedRoleDefinition,
   FineGrainedPermission,
@@ -68,11 +68,7 @@ function RoleManagement() {
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
-  useEffect(() => {
-    fetchRoles()
-  }, [])
-
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch('/api/v2/permissions/roles')
@@ -85,7 +81,13 @@ function RoleManagement() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void fetchRoles()
+    })
+  }, [fetchRoles])
 
   const handleCreateRole = async (roleData: Partial<EnhancedRoleDefinition>) => {
     try {
@@ -382,11 +384,7 @@ function PermissionManagement() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<{ resourceType?: string; action?: string }>({})
 
-  useEffect(() => {
-    fetchPermissions()
-  }, [filter])
-
-  const fetchPermissions = async () => {
+  const fetchPermissions = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch('/api/v2/permissions')
@@ -410,7 +408,13 @@ function PermissionManagement() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void fetchPermissions()
+    })
+  }, [fetchPermissions])
 
   const handleCreatePermission = async (permissionData: Partial<FineGrainedPermission>) => {
     try {
@@ -640,11 +644,7 @@ function AuditLogViewer() {
     endDate?: string
   }>({})
 
-  useEffect(() => {
-    fetchLogs()
-  }, [filter])
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -662,7 +662,13 @@ function AuditLogViewer() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void fetchLogs()
+    })
+  }, [fetchLogs])
 
   const handleExport = async (format: 'json' | 'csv') => {
     try {

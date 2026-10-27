@@ -166,7 +166,7 @@ export function startSpan<T>(
  * Legacy startTransaction for backward compatibility
  * @deprecated Use startSpan instead
  */
-export function startTransaction(name: string, op: string): unknown {
+export function startTransaction(_name: string, _op: string): unknown {
   if (!isInitialized) return null
 
   // In Sentry v10+, startSpan should be used instead

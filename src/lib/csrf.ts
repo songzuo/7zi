@@ -77,7 +77,7 @@ export function validateCsrfToken(headerToken: string | null, cookieToken: strin
     }
 
     return headerBuf.equals(cookieBuf)
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }

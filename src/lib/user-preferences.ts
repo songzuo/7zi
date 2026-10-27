@@ -138,12 +138,18 @@ export function useUserPreferences(): UseUserPreferencesReturn {
   })
   const [isLoading, setIsLoading] = useState(false)
 
-  // Load preferences on mount
+  // Load preferences on mount.
+  // Deferred to a macrotask so the state update is not applied synchronously
+  // inside the effect body (avoids cascading renders on the initial paint).
   useEffect(() => {
-    const stored = loadPreferencesFromStorage()
-    if (stored) {
-      setPreferences(stored)
-    }
+    const timer = setTimeout(() => {
+      const stored = loadPreferencesFromStorage()
+      if (stored) {
+        setPreferences(stored)
+      }
+    }, 0)
+
+    return () => clearTimeout(timer)
   }, [])
 
   // Update locale preference

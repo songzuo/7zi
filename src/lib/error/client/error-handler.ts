@@ -8,8 +8,8 @@
 
 import React from 'react'
 import { toast } from '@/stores/uiStore'
-import { UnifiedAppError, toUnifiedError, isUnifiedError } from '@/lib/errors/unified-error'
-import { UnifiedErrorType, isRetryableErrorType } from '@/lib/errors/unified-types'
+import { UnifiedAppError, isUnifiedError } from '@/lib/errors/unified-error'
+import { UnifiedErrorType } from '@/lib/errors/unified-types'
 
 // ============================================================================
 // Types (Re-export from unified system)

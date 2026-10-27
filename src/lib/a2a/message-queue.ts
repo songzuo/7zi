@@ -4,6 +4,7 @@
  */
 
 import { EventEmitter } from 'events'
+import * as fs from 'fs'
 import {
   QueueMessage,
   QueueConfig,
@@ -11,7 +12,6 @@ import {
   QueueEvent,
   MessageQueue,
   TaskPriority,
-  PRIORITY_WEIGHTS,
   A2AError,
   A2AErrorType,
   generateId,
@@ -298,7 +298,6 @@ export class FileMessageQueue extends PriorityMessageQueue {
    */
   private load(): void {
     try {
-      const fs = require('fs')
       if (fs.existsSync(this.filePath)) {
         const data = JSON.parse(fs.readFileSync(this.filePath, 'utf-8'))
         // 恢复队列状态
@@ -316,7 +315,6 @@ export class FileMessageQueue extends PriorityMessageQueue {
    */
   private save(): void {
     try {
-      const fs = require('fs')
       const data = {
         messages: Array.from(this.getMessages()),
         config: this.getConfig(),

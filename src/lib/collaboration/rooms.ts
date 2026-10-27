@@ -4,7 +4,6 @@
  * Helper functions for managing collaboration rooms
  */
 
-import { getCollaborationManager } from './manager'
 import { getTimeThreshold } from '../common'
 import type { RoomUser, Room } from './server'
 

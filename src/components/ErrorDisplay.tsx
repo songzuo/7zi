@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 
 export type ErrorVariant = 'default' | 'compact' | 'fullscreen'
 export type ErrorType =
@@ -148,13 +149,14 @@ export function ErrorDisplay({
     }
   }, [onReset])
 
+  const router = useRouter()
   const handleGoHome = useCallback(() => {
     if (onGoHome) {
       onGoHome()
     } else {
-      window.location.href = '/'
+      router.push('/')
     }
-  }, [onGoHome])
+  }, [onGoHome, router])
 
   const handleGoBack = useCallback(() => {
     if (onGoBack) {

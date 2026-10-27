@@ -165,7 +165,9 @@ export const RoomCreateModal: React.FC<RoomCreateModalProps> = ({
   // 当弹窗打开时重置表单
   React.useEffect(() => {
     if (isOpen) {
-      resetForm()
+      queueMicrotask(() => {
+        resetForm()
+      })
     }
   }, [isOpen, resetForm])
 

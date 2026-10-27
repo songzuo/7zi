@@ -60,7 +60,7 @@ export class EnhancedNotificationService {
   /**
    * Initialize the enhanced notification service
    */
-  async initialize(dbPath?: string): Promise<void> {
+  async initialize(_dbPath?: string): Promise<void> {
     try {
       // Initialize storage
       notificationStorage.initialize()
@@ -410,7 +410,7 @@ export class EnhancedNotificationService {
    * Get email recipients for notification
    */
   private getNotificationRecipients(
-    notification: Notification
+    _notification: Notification
   ): EmailRecipient | EmailRecipient[] | undefined {
     // If notification has user ID, we would normally fetch user's email from user service
     // For now, return undefined (should be provided via options)

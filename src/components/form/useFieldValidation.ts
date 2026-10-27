@@ -156,7 +156,9 @@ export function useFieldValidation(
 
   // 当外部 defaultValue 变化时重置
   useEffect(() => {
-    setValueState(defaultValue)
+    queueMicrotask(() => {
+      setValueState(defaultValue)
+    })
   }, [defaultValue])
 
   return {

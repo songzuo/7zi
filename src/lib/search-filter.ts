@@ -351,14 +351,12 @@ export function searchItems<T extends object>(
       let score = 0
       let start = -1
       let end = -1
-      let matchType = ''
 
       // 1. 完全匹配（最高优先级）
       if (exactMatch) {
         if (text === searchQuery) {
           match = true
           score = 3 * weight // 完全匹配得高分
-          matchType = 'exact'
           start = 0
           end = value.length
         }
@@ -373,7 +371,6 @@ export function searchItems<T extends object>(
           score = (2.5 - index * 0.05) * weight
           // Cap minimum score at 1.0
           score = Math.max(score, 1.0)
-          matchType = 'substring'
           start = index
           end = index + searchQuery.length
         }
@@ -383,7 +380,6 @@ export function searchItems<T extends object>(
           if (fuzzyResult.match) {
             match = true
             score = fuzzyResult.score * weight * 0.8 // 模糊匹配分数略低
-            matchType = 'fuzzy'
             start = fuzzyResult.start
             end = fuzzyResult.start + searchQuery.length
           }
@@ -395,7 +391,6 @@ export function searchItems<T extends object>(
           if (pinyinResult.match) {
             match = true
             score = pinyinResult.score * weight * 0.7 // 拼音匹配分数更低
-            matchType = 'pinyin'
             start = pinyinResult.start
             end = Math.min(pinyinResult.start + searchQuery.length * 2, value.length)
           }

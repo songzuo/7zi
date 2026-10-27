@@ -96,7 +96,9 @@ export function SearchHistory({
 
   // Load initial history
   useEffect(() => {
-    void fetchHistory(defaultTab)
+    queueMicrotask(() => {
+      void fetchHistory(defaultTab)
+    })
   }, [fetchHistory, defaultTab])
 
   // Tab configurations

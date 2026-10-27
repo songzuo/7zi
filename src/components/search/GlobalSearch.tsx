@@ -253,7 +253,9 @@ export function GlobalSearch({
   // Load history on mount
   useEffect(() => {
     if (showHistory) {
-      fetchHistory()
+      queueMicrotask(() => {
+        void fetchHistory()
+      })
     }
   }, [showHistory, fetchHistory])
 
