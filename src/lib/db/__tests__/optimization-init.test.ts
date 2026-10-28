@@ -10,6 +10,7 @@ import {
   cleanupDatabaseOptimization,
   getOptimizationStatus,
 } from '../optimization-init'
+import { logger } from '@/lib/logger'
 // Mock dependencies
 vi.mock('@/lib/db', () => ({
   getDatabaseAsync: vi.fn().mockResolvedValue({
@@ -96,7 +97,7 @@ describe('Database Optimization Initialization', () => {
       // 全局 setup 的 db 假库的 exec 是 vi.fn()，永不抛错 → catch 分支进不去。
       // 这里自己制造一次初始化失败。
       const failingDb = {
-        ...(global.testDb as Record<string, unknown>),
+        ...(global.testDb as unknown as Record<string, unknown>),
         exec: vi.fn().mockImplementation(() => {
           throw new Error('init failed')
         }),
@@ -106,9 +107,11 @@ describe('Database Optimization Initialization', () => {
 
       const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => {})
       await expect(initializeDatabaseOptimization()).rejects.toThrow()
+      // 实现的 error 字段是错误消息字符串（不是 Error 实例）：
+      // { error: error instanceof Error ? error.message : String(error) }
       expect(loggerSpy).toHaveBeenCalledWith(
         'DB Optimization',
-        expect.objectContaining({ error: expect.any(Error) })
+        expect.objectContaining({ error: expect.stringContaining('init failed') })
       )
       loggerSpy.mockRestore()
       getDbSpy.mockRestore()
