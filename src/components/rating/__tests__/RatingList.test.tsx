@@ -147,10 +147,14 @@ describe('RatingList', () => {
   it('filters by targetType and targetId', async () => {
     render(<RatingList targetType="agent" targetId="agent-1" />)
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('target_type=agent'),
-      expect.anything()
-    )
+    // fetch 是在 useEffect 里发的，同步断言会看到 0 次调用。
+    // 其余用例都用了 waitFor —— 这里补上同样的等待。
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('target_type=agent'),
+        expect.anything()
+      )
+    })
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('target_id=agent-1'),
       expect.anything()
@@ -207,7 +211,8 @@ describe('RatingList', () => {
     render(<RatingList />)
 
     await waitFor(() => {
-      expect(screen.getByText('4')).toBeInTheDocument()
+      // 平均分统一显示一位小数（与 RatingStats 一致）→ 4 显示为 '4.0'
+      expect(screen.getByText('4.0')).toBeInTheDocument()
       expect(screen.getByText('average')).toBeInTheDocument()
     })
   })

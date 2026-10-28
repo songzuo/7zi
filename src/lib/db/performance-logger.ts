@@ -182,7 +182,47 @@ class PerformanceLoggerManager {
       return db as DatabaseConnection
     }
 
-    return withPerformanceLogging(db as DatabaseConnection)
+    const logged = withPerformanceLogging(db as DatabaseConnection)
+    const slowLogger = this.slowQueryLogger
+
+    // withPerformanceLogging 只把指标写进全局 queryMetrics；
+    // slowQueryLogger 之前从未被喂过数据（logQuery() 全仓无调用点），
+    // 导致 getSlowQueries() / getSlowQueryStats() 永远为空，
+    // getPerformanceSummary() 里的 slowQueryCount 也恒为 0。
+    // 这里补上接线：把每次查询的耗时/行数喂给 slowQueryLogger。
+    //
+    // 用 Proxy 而不是对象展开：logged 是 withPerformanceLogging 返回的 Proxy，
+    // 展开成 { ...logged } 会丢掉 getDatabase / close / transaction 等方法。
+    return new Proxy(logged, {
+      get(target, prop, receiver) {
+        if (prop !== 'query') {
+          return Reflect.get(target, prop, receiver)
+        }
+        return async (sql: string, params?: unknown[]) => {
+          const startTime = performance.now()
+          try {
+            const result = await target.query(sql, params)
+            slowLogger.logQuery(
+              sql,
+              performance.now() - startTime,
+              Array.isArray(result) ? result.length : 0,
+              false,
+              params
+            )
+            return result
+          } catch (error) {
+            slowLogger.logQuery(
+              sql,
+              performance.now() - startTime,
+              0,
+              false,
+              params
+            )
+            throw error
+          }
+        }
+      },
+    })
   }
 
   /**

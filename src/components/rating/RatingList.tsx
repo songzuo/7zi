@@ -171,7 +171,8 @@ export function RatingList({
                   />
                 ))}
               </div>
-              <span className="text-sm font-medium">{averageRating}</span>
+              {/* 与 RatingStats 保持一致：平均分固定一位小数 */}
+              <span className="text-sm font-medium">{averageRating.toFixed(1)}</span>
               <span className="text-sm text-zinc-500">average</span>
             </div>
           )}

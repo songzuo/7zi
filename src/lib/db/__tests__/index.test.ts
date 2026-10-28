@@ -4,6 +4,13 @@
  * 测试数据库主入口功能
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+// 本文件测的是 **真实 better-sqlite3 语义**（真实建表、真实 SQL、真实 changes）。
+// 全局 setup（src/test/vi-mocks.ts）把 db/index 与 db/connection 换成了内存假库，
+// 这里必须显式 unmock 才能测到真实实现。
+vi.unmock('@/lib/db/index')
+vi.unmock('@/lib/db/connection')
+vi.unmock('../index')
+vi.unmock('../connection')
 import {
   getDatabase,
   getDatabaseAsync,

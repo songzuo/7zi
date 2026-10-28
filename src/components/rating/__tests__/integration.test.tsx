@@ -185,7 +185,11 @@ describe('Rating System Integration', () => {
   it('displays stats correctly', async () => {
     render(<RatingStats stats={mockStats} />)
 
-    expect(screen.getByText('5.0')).toBeInTheDocument()
+    // RatingStats 有两处渲染平均分：大数字（text-5xl）+ 底部 Average 小字。
+    // 两处都应显示 '5.0'，所以用 getAllByText 而不是 getByText。
+    const averageTexts = screen.getAllByText('5.0')
+    expect(averageTexts.length).toBeGreaterThanOrEqual(1)
+    expect(averageTexts[0]).toBeInTheDocument()
     expect(screen.getByText('1 rating')).toBeInTheDocument()
     expect(screen.getByText('100%')).toBeInTheDocument()
   })

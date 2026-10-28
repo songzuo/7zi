@@ -131,7 +131,15 @@ const rateLimitStore = new LRUCache<string, RateLimitEntry>(10000)
  * Generate rate limit key for a request
  */
 function generateRateLimitKey(request: NextRequest, identifier?: string): string {
-  const path = request.nextUrl.pathname
+  // `nextUrl` 只存在于 NextRequest；普通 Request 没有这个属性。
+  // withRateLimit 明确支持传入普通 Request（见下方 path 的取值方式），
+  // 这里如果直接读 request.nextUrl.pathname 就会抛 TypeError，
+  // 外层 CORS wrapper 会把异常吞成 403 CORS_ERROR，
+  // 表现为"接口莫名 403"，排查成本极高。
+  const path =
+    'nextUrl' in request && request.nextUrl
+      ? request.nextUrl.pathname
+      : new URL((request as Request).url).pathname
 
   // Use provided identifier (e.g., user ID or API key) or IP
   const id = identifier || getClientIP(request)
@@ -339,7 +347,11 @@ export function withSmartRateLimit(
   identifier?: string
 ) {
   return async (req: NextRequest): Promise<NextResponse> => {
-    const path = req.nextUrl.pathname
+    // 同 generateRateLimitKey：普通 Request 没有 nextUrl
+    const path =
+      'nextUrl' in req && req.nextUrl
+        ? req.nextUrl.pathname
+        : new URL((req as Request).url).pathname
 
     // Get config for this path or use defaults
     const pathConfig = DEFAULT_LIMITS[path] || {

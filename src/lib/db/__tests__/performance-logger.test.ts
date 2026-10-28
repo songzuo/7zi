@@ -26,6 +26,7 @@ type TestDatabaseConnection = DatabaseConnection & {
 }
 // Type definition for the extended logger interface expected by tests
 type TestPerformanceLogger = {
+  wrapDatabase: (db: any) => any
   getStats: () => {
     totalQueries: number
     avgExecutionTime: number
@@ -67,15 +68,19 @@ describe('Performance Logger', () => {
       resetPerformanceLogger()
     }
     const baseLogger = getPerformanceLogger()
-    if (config) {
-      // Note: maxHistorySize is test-specific and may not be supported by the actual API
-      // We'll handle it in the test expectations
-      const { maxHistorySize, ...baseConfig } = config
-      baseLogger.updateConfig(baseConfig)
-    }
+    // 全局单例：必须无条件设置 enabled，
+    // 否则会继承上一个用例残留的状态（用例间互相污染 ——
+    // 「关闭采集」用例就因此失效：上��例把它打开了）。
+    // Note: maxHistorySize is test-specific and may not be supported by the actual API
+    // We'll handle it in the test expectations
+    const { maxHistorySize: _maxHistorySize, ...baseConfig } = config ?? {}
+    // 注意顺序：updateConfig 是 merge 语义，baseConfig 在后会把 enabled 覆盖回去，
+    // 所以 enabled 必须放在 baseConfig 之后。
+    baseLogger.updateConfig({ ...baseConfig, enabled: baseConfig?.enabled ?? true })
     const slowQueryLoggerInstance = getSlowQueryLogger()
     // Create a wrapper object with test-compatible methods
     const enhancedLogger: TestPerformanceLogger = {
+      wrapDatabase: (db: any) => baseLogger.wrapDatabase(db),
       getStats: () => {
         const summary = baseLogger.getPerformanceSummary()
         const slowQueryStats = slowQueryLoggerInstance.getSlowQueryStats()
@@ -138,6 +143,17 @@ describe('Performance Logger', () => {
     // Use in-memory database for tests
     process.env.DATABASE_PATH = ':memory:'
     resetPerformanceLogger()
+    // 关键 1：logger 的采集默认是关闭的 ——
+    // PerformanceLoggerManager 构造时 enabled = (ENABLE_DB_PERFORMANCE_LOGGING === 'true'
+    // || NODE_ENV === 'development')，而测试环境 NODE_ENV='test' → 不采集任何指标，
+    // wrapDatabase 也直接原样返回 db（不做任何包装）。
+    // 所以每个用例都必须显式打开开关。
+    getPerformanceLogger().updateConfig({ enabled: true })
+    // 关键 2：resetPerformanceLogger() 只在 managerInstance 已存在时才清指标，
+    // 而首个用例调用时它是 null → 全局 queryMetrics 计数器从未被清过，
+    // 用例之间互相污染（"关闭采集"用例就因此失效）。
+    // 这里显式清一次。
+    getPerformanceLogger().clearMetrics()
     logger = createTestLogger()
     // Initialize test database
     const db = await getDatabaseAsync()
@@ -219,9 +235,17 @@ describe('Performance Logger', () => {
       expect(stats.maxExecutionTime).toBeGreaterThan(0)
     })
     it('should track error count', async () => {
-      const db = global.testDb as TestDatabaseConnection
+      // 全局 setup 的 testDb 假库不会因为不存在的表抛错（query 是 vi.fn()），
+      // 所以这里用一个必定抛错的 db 来验证错误计数。
+      const failingDb = {
+        ...(global.testDb as TestDatabaseConnection),
+        query: () => {
+          throw new Error('no such table: nonexistent_table')
+        },
+      }
+      const loggedDb = logger.wrapDatabase(failingDb)
       try {
-        await db.query('SELECT * FROM nonexistent_table')
+        await loggedDb.query('SELECT * FROM nonexistent_table')
       } catch (e) {
         // Expected error
       }
@@ -355,9 +379,14 @@ describe('Performance Logger', () => {
       }
       const disabledLogger = createTestLogger(config)
       const db = global.testDb as TestDatabaseConnection
-      await db.query('SELECT * FROM users')
-      const stats = disabledLogger.getStats()
-      expect(stats.totalQueries).toBe(0)
+      // 用包装后的实例来查 —— 关闭时 wrapDatabase 直接原样返回 db，不做包装，
+      // 指标不会被采集。
+      // 注意：getStats 读的是模块级全局计数器，所以用「前后对比」而不是绝对值 0
+      // （前面用例可能已往全局计数里写过）。
+      const before = disabledLogger.getStats().totalQueries
+      await disabledLogger.wrapDatabase(db).query('SELECT * FROM users')
+      const after = disabledLogger.getStats().totalQueries
+      expect(after).toBe(before)
     })
     it('should enable tracking when enabled', async () => {
       const config: PerformanceLoggerConfig = {
@@ -365,7 +394,7 @@ describe('Performance Logger', () => {
       }
       const enabledLogger = createTestLogger(config)
       const db = global.testDb as TestDatabaseConnection
-      await db.query('SELECT * FROM users')
+      await enabledLogger.wrapDatabase(db).query('SELECT * FROM users')
       const stats = enabledLogger.getStats()
       expect(stats.totalQueries).toBeGreaterThan(0)
     })
