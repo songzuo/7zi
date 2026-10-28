@@ -169,7 +169,8 @@ describe('Database Query Optimization', () => {
   describe('Query Caching', () => {
     it('should use query builder with caching', async () => {
       const db = await getDatabaseAsync()
-      const { executeQuery } = await import('@/lib/db/query-builder')
+      const { executeQuery, getCacheStats } = await import('@/lib/db/query-builder')
+      const statsBefore = getCacheStats()
       // First query (cache miss)
       const start1 = performance.now()
       const result1 = executeQuery(
@@ -192,8 +193,13 @@ describe('Database Query Optimization', () => {
         console.log(`First query (cache miss): ${duration1.toFixed(2)}ms`)
         console.log(`Second query (cache hit): ${duration2.toFixed(2)}ms`)
       }
-      // Cached query should be faster
-      expect(duration2).toBeLessThan(duration1)
+      // 断言缓存**命中**，而不是"第二次耗时更短"。
+      // 计时断言在共享 CI 机器上是 flaky 的（第一次查询可能因预热/JIT
+      // 反而更快，实测出现 duration2=7.27ms > duration1=1.04ms）。
+      // 缓存命中的稳定可观察证据是 hits 计数 +1。
+      const statsAfter = getCacheStats()
+      expect(statsAfter.queryCache.hits).toBeGreaterThan(statsBefore.queryCache.hits)
+
       // Results should be identical
       expect(result1).toEqual(result2)
     })
