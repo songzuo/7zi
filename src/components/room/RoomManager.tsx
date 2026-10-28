@@ -24,6 +24,35 @@ import type {
 // Types
 // ============================================================================
 
+/**
+ * A room config patch as accepted by the settings panel.
+ *
+ * `name` is a special case: the room name lives on the top-level {@link Room}
+ * object, not inside {@link RoomConfig}. The settings panel sends both kinds of
+ * update through the same callback, so the split has to happen here.
+ */
+export type RoomConfigPatch = Partial<RoomConfig> & { name?: string }
+
+/**
+ * Build the `Partial<Room>` payload for a settings-panel config update.
+ *
+ * The room name is routed to the top-level `name` field; everything else is
+ * merged into `config`. Merging `name` into `config` instead would leave the
+ * real room name untouched while polluting the config with a field that does
+ * not exist there — i.e. renaming would silently do nothing.
+ */
+export function buildRoomConfigPatch(
+  currentConfig: RoomConfig | undefined,
+  patch: RoomConfigPatch
+): Partial<Room> {
+  const { name, ...configPatch } = patch
+
+  return {
+    ...(name !== undefined ? { name } : {}),
+    config: { ...currentConfig, ...configPatch },
+  }
+}
+
 export interface RoomManagerProps {
   wsUrl?: string
   userId?: string
@@ -315,11 +344,8 @@ export function RoomManager({
   )
 
   const handleUpdateConfig = useCallback(
-    (roomId: string, config: Partial<RoomConfig>) => {
-      updateRoom(roomId, {
-        config: { ...currentRoom?.config, ...config },
-        updatedAt: new Date(),
-      })
+    (roomId: string, config: Partial<RoomConfig> & { name?: string }) => {
+      updateRoom(roomId, buildRoomConfigPatch(currentRoom?.config, config))
     },
     [updateRoom, currentRoom?.config]
   )

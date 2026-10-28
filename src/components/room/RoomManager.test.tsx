@@ -12,7 +12,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { RoomManager } from './RoomManager'
+import { RoomManager, buildRoomConfigPatch } from './RoomManager'
 import type { Room, RoomType, RoomVisibility } from '@/lib/websocket/rooms'
 
 // ============================================================================
@@ -430,6 +430,28 @@ describe('RoomManager', () => {
       render(<RoomManager />)
 
       expect(screen.queryByTestId('room-settings')).not.toBeInTheDocument()
+    })
+
+    it('should write room name to the top-level name field, not into config', () => {
+      // 回归测试：曾经 onUpdateConfig({ name }) 会把 name spread 进 room.config，
+      // 导致房间真正的 name 从未被修改（重命名功能实际从未生效）。
+      const patch = buildRoomConfigPatch({ maxParticipants: 100 }, { name: '新名称' })
+
+      expect(patch.name).toBe('新名称')
+      // config 的类型里根本没有 name 字段，用 hasOwn 检查它确实没被塞进去
+      expect(Object.hasOwn(patch.config ?? {}, 'name')).toBe(false)
+      // 其它配置不能被 name 覆盖掉
+      expect(patch.config?.maxParticipants).toBe(100)
+    })
+
+    it('should merge non-name config updates into the existing config', () => {
+      const patch = buildRoomConfigPatch(
+        { maxParticipants: 100, allowGuests: false },
+        { maxParticipants: 200 }
+      )
+
+      expect(patch.name).toBeUndefined()
+      expect(patch.config).toEqual({ maxParticipants: 200, allowGuests: false })
     })
   })
 

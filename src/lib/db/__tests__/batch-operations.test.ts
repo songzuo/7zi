@@ -13,6 +13,16 @@ import {
 } from '../batch-operations'
 import { getDatabase } from '../index'
 
+// 本文件测试的是 **真实 better-sqlite3 实现**（真实表、真实事务、真实 changes）。
+// 全局 setup（src/test/vi-mocks.ts）把 '@/lib/db/index' 与 '@/lib/db/connection'
+// 整体替换成了内存假库 —— 假库的 SQL 解析器不认 INSERT INTO ... VALUES (?)，
+// 于是批量插入恒为 0 行。这里必须显式 unmock，mock 路径覆盖被测实现真正依赖的
+// 模块：batch-operations.ts import 自 './connection'，index.ts 亦然。
+vi.unmock('@/lib/db/index')
+vi.unmock('@/lib/db/connection')
+vi.unmock('../index')
+vi.unmock('../connection')
+
 describe('Batch Operations', () => {
   let db: ReturnType<typeof getDatabase>
 
@@ -131,9 +141,13 @@ describe('Batch Operations', () => {
         status: 'active',
       }))
 
-      db.prepare('INSERT INTO test_agents (id, name, status) VALUES (?, ?, ?)').run(
-        ...records.flatMap(r => [r.id, r.name, r.status])
-      )
+      // 真实 better-sqlite3 的 prepare().run() 要求参数个数与占位符个数严格一致，
+      // 不能一次拍平 50×3 个参数（内存假库宽松，所以以前没暴露）。
+      // 逐条插入。
+      const stmt = db.prepare('INSERT INTO test_agents (id, name, status) VALUES (?, ?, ?)')
+      for (const r of records) {
+        stmt.run(r.id, r.name, r.status)
+      }
     })
 
     it('should update records in batches', async () => {
@@ -192,9 +206,13 @@ describe('Batch Operations', () => {
         status: 'active',
       }))
 
-      db.prepare('INSERT INTO test_agents (id, name, status) VALUES (?, ?, ?)').run(
-        ...records.flatMap(r => [r.id, r.name, r.status])
-      )
+      // 真实 better-sqlite3 的 prepare().run() 要求参数个数与占位符个数严格一致，
+      // 不能一次拍平 50×3 个参数（内存假库宽松，所以以前没暴露）。
+      // 逐条插入。
+      const stmt = db.prepare('INSERT INTO test_agents (id, name, status) VALUES (?, ?, ?)')
+      for (const r of records) {
+        stmt.run(r.id, r.name, r.status)
+      }
     })
 
     it('should delete records in batches', async () => {
@@ -232,9 +250,13 @@ describe('Batch Operations', () => {
         status: 'active',
       }))
 
-      db.prepare('INSERT INTO test_agents (id, name, status) VALUES (?, ?, ?)').run(
-        ...records.flatMap(r => [r.id, r.name, r.status])
-      )
+      // 真实 better-sqlite3 的 prepare().run() 要求参数个数与占位符个数严格一致，
+      // 不能一次拍平 50×3 个参数（内存假库宽松，所以以前没暴露）。
+      // 逐条插入。
+      const stmt = db.prepare('INSERT INTO test_agents (id, name, status) VALUES (?, ?, ?)')
+      for (const r of records) {
+        stmt.run(r.id, r.name, r.status)
+      }
     })
 
     it('should execute multiple statements in transaction', async () => {

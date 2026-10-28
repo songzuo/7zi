@@ -122,6 +122,18 @@ function GeneralSettings({
     onUpdateConfig({ name: roomName })
   }
 
+  // 滑块提交：鼠标用 onMouseUp，键盘用户没有 mouseup，
+  // 因此键盘（onKeyUp）与失焦（onBlur）也必须能提交，否则无障碍路径改不动配置。
+  const commitMaxParticipants = () => {
+    if (!canManage) return
+    onUpdateConfig({ maxParticipants })
+  }
+
+  const commitAutoCleanup = () => {
+    if (!canManage) return
+    onUpdateConfig({ autoCleanupMinutes: autoCleanup })
+  }
+
   return (
     <div className="space-y-6">
       {/* Room Name */}
@@ -188,12 +200,15 @@ function GeneralSettings({
           type="range"
           name="maxParticipants"
           data-testid="max-participants-input"
+          aria-label="最大参与人数"
           min="2"
           max="500"
           value={maxParticipants}
           onChange={e => setMaxParticipants(Number(e.target.value))}
           disabled={!canManage}
-          onMouseUp={() => canManage && onUpdateConfig({ maxParticipants })}
+          onMouseUp={commitMaxParticipants}
+          onKeyUp={commitMaxParticipants}
+          onBlur={commitMaxParticipants}
           className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700"
         />
         <div className="mt-1 flex justify-between text-xs text-gray-600 dark:text-gray-400">
@@ -211,13 +226,16 @@ function GeneralSettings({
         </label>
         <input
           type="range"
+          aria-label="空房间自动清理"
           min="0"
           max="120"
           step="5"
           value={autoCleanup}
           onChange={e => setAutoCleanup(Number(e.target.value))}
           disabled={!canManage}
-          onMouseUp={() => canManage && onUpdateConfig({ autoCleanupMinutes: autoCleanup })}
+          onMouseUp={commitAutoCleanup}
+          onKeyUp={commitAutoCleanup}
+          onBlur={commitAutoCleanup}
           className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700"
         />
         <div className="mt-1 flex justify-between text-xs text-gray-600 dark:text-gray-400">
@@ -438,6 +456,7 @@ function Members({
           {participants.map(participant => (
             <div
               key={participant.id}
+              data-testid="participant-item"
               className="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800"
             >
               {/* Avatar */}
@@ -496,6 +515,7 @@ function Members({
                   </select>
                   <button
                     onClick={() => onKickUser(participant.id)}
+                    aria-label={`踢出 ${participant.name}`}
                     className="rounded p-1.5 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                     title="踢出"
                   >
@@ -510,6 +530,7 @@ function Members({
                   </button>
                   <button
                     onClick={() => onBanUser(participant.id)}
+                    aria-label={`封禁 ${participant.name}`}
                     className="rounded p-1.5 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                     title="封禁"
                   >

@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import RoomSettings from './RoomSettings'
 import type { Room, RoomConfig, RoomVisibility, RoomType } from '@/lib/websocket/rooms'
@@ -556,16 +556,18 @@ describe('RoomSettings', () => {
         btn.closest('[data-testid="participant-item"]')?.textContent?.includes('李四')
       )
 
-      if (memberRoleButton) {
-        await user.click(memberRoleButton)
+      // 断言必须真的执行 —— 不加 if 包裹，否则定位失败会静默跳过整条用例
+      if (!memberRoleButton) throw new Error('未找到李四的角色下拉框')
+      await user.click(memberRoleButton)
 
-        const memberOption = screen.getByText('Member')
-        await user.click(memberOption)
+      // 角色是原生 <select>，必须用 selectOptions 才会触发 change；
+      // 点击 option 文本在 jsdom 里不会触发 onChange。
+      await user.selectOptions(memberRoleButton as HTMLElement, 'member')
 
-        await waitFor(() => {
-          expect(mockOnChangeRole).toHaveBeenCalledWith('user-2', 'member')
-        })
-      }
+      await waitFor(() => {
+        // onChangeRole 的签名是 (roomId, userId, newRole)
+        expect(mockOnChangeRole).toHaveBeenCalledWith('room-1', 'user-2', 'member')
+      })
     })
 
     it('should kick user', async () => {
@@ -597,13 +599,14 @@ describe('RoomSettings', () => {
         btn.closest('[data-testid="participant-item"]')?.textContent?.includes('王五')
       )
 
-      if (kickButton) {
-        await user.click(kickButton)
+      // 断言必须真的执行 —— 不加 if 包裹，否则定位失败会静默跳过整条用例
+      if (!kickButton) throw new Error('未找到王五的踢出按钮')
+      await user.click(kickButton)
 
-        await waitFor(() => {
-          expect(mockOnKickUser).toHaveBeenCalledWith('user-3')
-        })
-      }
+      await waitFor(() => {
+        // onKickUser 的签名是 (roomId, userId)
+        expect(mockOnKickUser).toHaveBeenCalledWith('room-1', 'user-3')
+      })
     })
 
     it('should ban user', async () => {
@@ -635,13 +638,14 @@ describe('RoomSettings', () => {
         btn.closest('[data-testid="participant-item"]')?.textContent?.includes('王五')
       )
 
-      if (banButton) {
-        await user.click(banButton)
+      // 断言必须真的执行 —— 不加 if 包裹，否则定位失败会静默跳过整条用例
+      if (!banButton) throw new Error('未找到王五的封禁按钮')
+      await user.click(banButton)
 
-        await waitFor(() => {
-          expect(mockOnBanUser).toHaveBeenCalledWith('user-3')
-        })
-      }
+      await waitFor(() => {
+        // onBanUser 的签名是 (roomId, userId)
+        expect(mockOnBanUser).toHaveBeenCalledWith('room-1', 'user-3')
+      })
     })
 
     it('should show banned users list', async () => {
