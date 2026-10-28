@@ -16,7 +16,11 @@ export interface Migration {
   down: () => Promise<void>
 }
 
-const MIGRATIONS: Migration[] = [
+/**
+ * 有序迁移列表（对外只读）。
+ * 导出它是为了让测试能断言「迁移到哪个版本」，而不必在测试里硬编码版本号。
+ */
+export const MIGRATIONS: Migration[] = [
   {
     version: 1,
     name: 'initial_schema',

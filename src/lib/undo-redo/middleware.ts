@@ -349,7 +349,11 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
       // zustand 的 set 支持两种形态：
       //   set(partial)              —— partial 里可能带 { type } 作为动作标记
       //   set(updaterFn)            —— 函数式更新，没有动作信息
-      // 只在能拿到动作标记时做过滤；函数式更新一律记录（保持既有行为）。
+      // 只在能拿到动作标记时做**类型**过滤；shouldRecordAction 则对
+      // **每一次** set 生效（它是「这个变更要不要进历史」的总开关）。
+      //
+      // 函数式更新没有动作标记，用合成的 { type: 'unknown' } 代替，
+      // 这样用户提供的过滤器仍能安全访问 action.type，并且配置不会形同虚设。
       const action = extractAction(args)
       if (action !== undefined) {
         const actionType = fullConfig.getActionType(action)
@@ -358,11 +362,13 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
           set(...args)
           return
         }
-        if (!fullConfig.shouldRecordAction(action, currentState as never)) {
-          // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
-          set(...args)
-          return
-        }
+      }
+
+      const actionForFilter = action !== undefined ? action : { type: 'unknown' }
+      if (!fullConfig.shouldRecordAction(actionForFilter, currentState as never)) {
+        // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
+        set(...args)
+        return
       }
 
       // Skip if we're in the middle of undo/redo

@@ -13,10 +13,24 @@ import type { HistoryEntry, HistoryExport, HistoryStatistics } from './types'
 
 interface UndoRedoManagerState {
   // History stack
+  //
+  // 契约：history 采用 **append** 语义 —— 尾部最新（history[history.length - 1]
+  // 是最近一次操作），currentIndex 指向「当前生效的那条记录」。
+  // 该契约由消费方决定：
+  // - src/components/undo-redo/HistoryViewer.tsx:148-158 用 index < currentIndex
+  //   表示「已撤销」、index > currentIndex 表示「可重做」，并在 :285 显示
+  //   「已撤销: {currentIndex + 1} / {history.length}」——只有 append 语义成立。
+  // - src/components/undo-redo/UndoRedo.tsx:93-94
+  //   pastCount = currentIndex + 1 / futureCount = history.length - currentIndex - 1
+  //   ——同样是 append 语义。
   history: HistoryEntry[]
   currentIndex: number
   canUndo: boolean
   canRedo: boolean
+
+  // 派生计数（由 history + currentIndex 推导，随历史变动同步刷新）
+  pastStatesCount: number
+  futureStatesCount: number
 
   // Grouping
   isGrouping: boolean
@@ -75,8 +89,9 @@ function generateStatistics(history: HistoryEntry[]): HistoryStatistics {
     totalGroups: 0, // Can be calculated if needed
     totalOperations: history.length,
     uniqueActionTypes: Object.keys(operationsByType).length,
-    oldestEntry: history.length > 0 ? history[history.length - 1].timestamp : null,
-    newestEntry: history.length > 0 ? history[0].timestamp : null,
+    // append 语义：history[0] 是最老的一条，history[history.length - 1] 是最新的一条
+    oldestEntry: history.length > 0 ? history[0].timestamp : null,
+    newestEntry: history.length > 0 ? history[history.length - 1].timestamp : null,
     operationsByType,
     operationsByUser,
   }
@@ -94,6 +109,8 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
       currentIndex: -1,
       canUndo: false,
       canRedo: false,
+      pastStatesCount: 0,
+      futureStatesCount: 0,
       isGrouping: false,
       groupStack: [],
       totalOperations: 0,
@@ -113,11 +130,15 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
           entry.undo()
         }
 
-        set(state => ({
-          currentIndex: state.currentIndex - 1,
-          canUndo: state.currentIndex - 1 >= 0,
+        const nextIndex = currentIndex - 1
+
+        set({
+          currentIndex: nextIndex,
+          canUndo: nextIndex >= 0,
           canRedo: true,
-        }))
+          pastStatesCount: Math.max(0, nextIndex),
+          futureStatesCount: history.length - nextIndex - 1,
+        })
       },
 
       // Redo
@@ -133,11 +154,13 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
           entry.redo()
         }
 
-        set(state => ({
-          currentIndex: state.currentIndex + 1,
+        set({
+          currentIndex: nextIndex,
           canUndo: true,
-          canRedo: state.currentIndex + 2 < state.history.length,
-        }))
+          canRedo: nextIndex < history.length - 1,
+          pastStatesCount: nextIndex,
+          futureStatesCount: history.length - nextIndex - 1,
+        })
       },
 
       // Push single entry
@@ -154,11 +177,11 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
 
         // Remove any future entries (we're creating a new timeline branch)
         const newHistory = history.slice(0, currentIndex + 1)
-        newHistory.unshift(entry)
+        newHistory.push(entry)
 
-        // Trim history if needed
-        if (newHistory.length > maxHistorySize) {
-          newHistory.pop()
+        // Trim history if needed (keep the newest entries)
+        while (newHistory.length > maxHistorySize) {
+          newHistory.shift()
         }
 
         // Update statistics
@@ -170,11 +193,15 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
           operationsByUser[entry.userId] = (operationsByUser[entry.userId] || 0) + 1
         }
 
+        const newIndex = newHistory.length - 1
+
         set({
           history: newHistory,
-          currentIndex: 0,
+          currentIndex: newIndex,
           canUndo: true,
           canRedo: false,
+          pastStatesCount: newIndex,
+          futureStatesCount: 0,
           totalOperations: get().totalOperations + 1,
           operationsByType,
           operationsByUser,
@@ -199,11 +226,11 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
           data: { entries },
         }
 
-        newHistory.unshift(groupEntry)
+        newHistory.push(groupEntry)
 
-        // Trim history if needed
-        if (newHistory.length > maxHistorySize) {
-          newHistory.pop()
+        // Trim history if needed (keep the newest entries)
+        while (newHistory.length > maxHistorySize) {
+          newHistory.shift()
         }
 
         // Update statistics
@@ -217,11 +244,15 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
           }
         })
 
+        const newIndex = newHistory.length - 1
+
         set({
           history: newHistory,
-          currentIndex: 0,
+          currentIndex: newIndex,
           canUndo: true,
           canRedo: false,
+          pastStatesCount: newIndex,
+          futureStatesCount: 0,
           totalOperations: get().totalOperations + entries.length,
           operationsByType,
           operationsByUser,
@@ -235,9 +266,18 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
           currentIndex: -1,
           canUndo: false,
           canRedo: false,
+          pastStatesCount: 0,
+          futureStatesCount: 0,
           totalOperations: 0,
           operationsByType: {},
           operationsByUser: {},
+          // 分组状态必须一并重置，否则 isGrouping 残留会让后续 push 全部
+          // 进入 groupStack，history 永远为空（状态泄漏）。
+          isGrouping: false,
+          groupStack: [],
+          // 配置同样复位：clear() 的语义是「回到初始状态」。否则上一个用例
+          // 调小的 maxHistorySize 会残留到下一个用例，导致历史被过早裁剪。
+          maxHistorySize: DEFAULT_MAX_HISTORY_SIZE,
         })
       },
 
@@ -320,11 +360,16 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
             }
           })
 
+          // append 语义：导入后最新一条为当前项
+          const newIndex = history.length - 1
+
           set({
             history,
-            currentIndex: -1,
+            currentIndex: newIndex,
             canUndo: history.length > 0,
             canRedo: false,
+            pastStatesCount: Math.max(0, newIndex),
+            futureStatesCount: 0,
             totalOperations: history.length,
             operationsByType,
             operationsByUser,
@@ -344,13 +389,19 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
       setMaxHistorySize: size => {
         const { history } = get()
 
-        // Trim history if needed
-        const newHistory = history.length > size ? history.slice(0, size) : history
+        // Trim history if needed —— 保留**最新的** maxHistorySize 条
+        // （append 语义：尾部是最新的）
+        const newHistory = history.length > size ? history.slice(history.length - size) : history
+        const newIndex = newHistory.length - 1
 
         set({
           maxHistorySize: size,
           history: newHistory,
-          currentIndex: Math.min(get().currentIndex, newHistory.length - 1),
+          currentIndex: newIndex,
+          canUndo: newIndex >= 0,
+          canRedo: false,
+          pastStatesCount: Math.max(0, newIndex),
+          futureStatesCount: 0,
         })
       },
     }),
@@ -367,6 +418,8 @@ export const useCanRedo = () => useUndoRedoManager(s => s.canRedo)
 export const useHistory = () => useUndoRedoManager(s => s.history)
 export const useHistoryStats = () => useUndoRedoManager(s => s.getStatistics())
 export const useCurrentHistoryIndex = () => useUndoRedoManager(s => s.currentIndex)
+export const usePastStatesCount = () => useUndoRedoManager(s => s.pastStatesCount)
+export const useFutureStatesCount = () => useUndoRedoManager(s => s.futureStatesCount)
 
 // ============================================================================
 // Convenience Functions

@@ -58,79 +58,60 @@ describe('Database Optimization Initialization', () => {
       expect(startCacheCleanup).toHaveBeenCalledWith(60 * 1000)
     })
     it('should log initialization steps', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      // 实现走的是项目自带的结构化日志 logger.info(msg, { category: 'db' })，
+      // 没有任何 console.log —— 断言必须打在这个通道上。
+      const loggerSpy = vi.spyOn(logger, 'info').mockImplementation(() => {})
       await initializeDatabaseOptimization()
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DB Optimization] Initializing database optimization')
-      )
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DB Optimization] Database connected')
-      )
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DB Optimization] Warming up cache')
-      )
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DB Optimization] Cache warmed up successfully')
-      )
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DB Optimization] Starting periodic cache cleanup')
-      )
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DB Optimization] Cache cleanup started')
-      )
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DB Optimization] Initialization completed')
-      )
-      consoleSpy.mockRestore()
+      expect(loggerSpy).toHaveBeenCalledWith('Initializing database optimization...', {
+        category: 'db',
+      })
+      expect(loggerSpy).toHaveBeenCalledWith('Database connected', { category: 'db' })
+      expect(loggerSpy).toHaveBeenCalledWith('Warming up cache...', { category: 'db' })
+      expect(loggerSpy).toHaveBeenCalledWith('Cache warmed up successfully', { category: 'db' })
+      expect(loggerSpy).toHaveBeenCalledWith('Starting periodic cache cleanup...', {
+        category: 'db',
+      })
+      expect(loggerSpy).toHaveBeenCalledWith('Cache cleanup started', { category: 'db' })
+      expect(loggerSpy).toHaveBeenCalledWith('Initialization completed', { category: 'db' })
+      loggerSpy.mockRestore()
     })
     it('should detect production environment', async () => {
-      ;(process.env as any).NODE_ENV = 'production'
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      // Reflect.set 绕开 TS 对 process.env 只读索引签名的限制（不用 as any）
+      Reflect.set(process.env, 'NODE_ENV', 'production')
+      // 实现里生产环境分支是 logger.debug('Production mode detected', ...)
+      const loggerSpy = vi.spyOn(logger, 'debug').mockImplementation(() => {})
       await initializeDatabaseOptimization()
-      expect(consoleSpy).toHaveBeenCalledWith('[DB Optimization] Production mode detected')
-      consoleSpy.mockRestore()
+      expect(loggerSpy).toHaveBeenCalledWith('Production mode detected', { category: 'db' })
+      loggerSpy.mockRestore()
     })
     it('should handle initialization errors', async () => {
-      const { warmupCache } = await import('../cache')
-      // @ts-expect-error - mockRejectedValueOnce exists on vitest mock
-      warmupCache.mockRejectedValueOnce(new Error('Cache warmup failed'))
-      // 全局 setup 的 db 假库的 exec 是 vi.fn()，永不抛错 → catch 分支进不去。
-      // 这里自己制造一次初始化失败。
-      const failingDb = {
-        ...(global.testDb as unknown as Record<string, unknown>),
-        exec: vi.fn().mockImplementation(() => {
-          throw new Error('init failed')
-        }),
-      }
-      const dbModule = await import('@/lib/db')
-      const getDbSpy = vi.spyOn(dbModule, 'getDatabase').mockReturnValue(failingDb as never)
+      const { getDatabaseAsync } = await import('@/lib/db')
+      // 实现通过 getDatabaseAsync() 拿连接；这里让连接失败来触发 catch 分支。
+      vi.mocked(getDatabaseAsync).mockRejectedValueOnce(new Error('init failed'))
 
       const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => {})
-      await expect(initializeDatabaseOptimization()).rejects.toThrow()
-      // 实现的 error 字段是错误消息字符串（不是 Error 实例）：
-      // { error: error instanceof Error ? error.message : String(error) }
+      await expect(initializeDatabaseOptimization()).rejects.toThrow('init failed')
+      // 实现把原始 Error 实例直接交给 logger.error(msg, error, context)
       expect(loggerSpy).toHaveBeenCalledWith(
-        'DB Optimization',
-        expect.objectContaining({ error: expect.stringContaining('init failed') })
+        'Initialization failed',
+        expect.any(Error),
+        expect.objectContaining({ category: 'db' })
       )
       loggerSpy.mockRestore()
-      getDbSpy.mockRestore()
     })
     it('should throw error when database connection fails', async () => {
       const { getDatabaseAsync } = await import('@/lib/db')
-      // @ts-expect-error - mockRejectedValueOnce exists on vitest mock
-      getDatabaseAsync.mockRejectedValueOnce(new Error('DB connection failed'))
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.mocked(getDatabaseAsync).mockRejectedValueOnce(new Error('DB connection failed'))
+      const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => {})
       await expect(initializeDatabaseOptimization()).rejects.toThrow('DB connection failed')
-      consoleSpy.mockRestore()
+      loggerSpy.mockRestore()
     })
     it('should throw error when cache warmup fails', async () => {
       const { warmupCache } = await import('../cache')
-      // @ts-expect-error - mockRejectedValueOnce exists on vitest mock
-      warmupCache.mockRejectedValueOnce(new Error('Warmup failed'))
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.mocked(warmupCache).mockRejectedValueOnce(new Error('Warmup failed'))
+      const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => {})
       await expect(initializeDatabaseOptimization()).rejects.toThrow('Warmup failed')
-      consoleSpy.mockRestore()
+      loggerSpy.mockRestore()
     })
   })
   describe('cleanupDatabaseOptimization', () => {
@@ -139,21 +120,20 @@ describe('Database Optimization Initialization', () => {
     })
     it('should clear cache cleanup interval', async () => {
       await initializeDatabaseOptimization()
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const loggerSpy = vi.spyOn(logger, 'info').mockImplementation(() => {})
       cleanupDatabaseOptimization()
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DB Optimization] Cleaning up database optimization resources')
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'Cleaning up database optimization resources...',
+        { category: 'db' }
       )
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DB Optimization] Cache cleanup interval cleared')
-      )
-      consoleSpy.mockRestore()
+      expect(loggerSpy).toHaveBeenCalledWith('Cache cleanup interval cleared', { category: 'db' })
+      loggerSpy.mockRestore()
     })
     it('should log cleanup completion', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const loggerSpy = vi.spyOn(logger, 'info').mockImplementation(() => {})
       cleanupDatabaseOptimization()
-      expect(consoleSpy).toHaveBeenCalledWith('[DB Optimization] Cleanup completed')
-      consoleSpy.mockRestore()
+      expect(loggerSpy).toHaveBeenCalledWith('Cleanup completed', { category: 'db' })
+      loggerSpy.mockRestore()
     })
     it('should handle cleanup when not initialized', () => {
       expect(() => cleanupDatabaseOptimization()).not.toThrow()

@@ -51,6 +51,14 @@ export interface HistoryState<T = unknown> {
 export interface UndoRedoState {
   canUndo: boolean
   canRedo: boolean
+  /**
+   * 可撤销的历史条目数量（当前生效条目之前的条目数）
+   */
+  pastStatesCount: number
+  /**
+   * 可重做的历史条目数量（当前生效条目之后的条目数）
+   */
+  futureStatesCount: number
   undo: () => void
   redo: () => void
   clear: () => void

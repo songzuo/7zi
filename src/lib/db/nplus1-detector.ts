@@ -214,8 +214,11 @@ class NPlus1Detector {
           // Potential N+1 detected
           detected = true
           // Generate suggestions
+          // 注意：patternQueries.length 恒为 1 —— recordQuery() 会把同一条 SQL
+          // 合并进同一个 QueryPattern（count++），所以「相似查询条数」必须用
+          // totalCount（该 pattern 在本次请求里的实际执行次数）。
           suggestions.push(
-            `N+1 query detected on table '${table}': ${patternQueries.length} similar queries`
+            `N+1 query detected on table '${table}': ${totalCount} similar queries`
           )
 
           if (totalCount > 10) {

@@ -452,8 +452,10 @@ describe('batchLoad', () => {
     const result = await batchLoad(mockDb, 'test_table', ['1', '2', '3'])
 
     expect(result).toEqual(items)
+    // 实现的占位符是用 ',' 拼接的（query-optimizations.ts batchLoad）：
+    // `WHERE ${idColumn} IN (${batchIds.map(() => '?').join(',')})`
     expect(mockDb.queryRows).toHaveBeenCalledWith(
-      expect.stringContaining('WHERE id IN (?, ?, ?)'),
+      expect.stringContaining('WHERE id IN (?,?,?)'),
       ['1', '2', '3']
     )
   })
@@ -467,8 +469,13 @@ describe('batchLoad', () => {
 
   it('should split into batches for large id lists', async () => {
     const ids = Array.from({ length: 250 }, (_, i) => String(i + 1))
-    const items = ids.map(id => ({ id, name: `Item ${id}` }))
-    ;(mockDb.queryRows as ReturnType<typeof vi.fn>).mockReturnValue(items)
+    // 每批只返回本批的行数（真实 DB 行为）：
+    // 之前用 mockReturnValue(items) 会让每批都返回全部 250 行，
+    // 结果集变成 750 条 —— 那是 mock 的问题，不是实现的 bug。
+    ;(mockDb.queryRows as ReturnType<typeof vi.fn>).mockImplementation(
+      (_sql: string, params?: unknown[]) =>
+        (params ?? []).map(id => ({ id, name: `Item ${String(id)}` }))
+    )
 
     const result = await batchLoad(mockDb, 'test_table', ids)
 

@@ -18,27 +18,15 @@ import {
   optimizeDatabase,
   closeDatabase,
 } from '../index'
-import Database from 'better-sqlite3'
 import fs from 'fs/promises'
 // Mock logger
-vi.mock('../logger', () => ({
-  logger: {
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    fatal: vi.fn(),
-    api: vi.fn(),
-    auth: vi.fn(),
-    perf: vi.fn(),
-    user: vi.fn(),
-    security: vi.fn(),
-    setContext: vi.fn(),
-    clearContext: vi.fn(),
-    child: vi.fn(),
-    updateConfig: vi.fn(),
-  },
-}))
+//
+// 注意：这里**不能**再写 `vi.mock('../logger', ...)` —— 从 __tests__/ 出发
+// '../logger' 指向 src/lib/db/logger（并不存在），而 connection.ts 里的
+// '../logger' 解析到的是 src/lib/logger/index.ts，是两个不同的模块 ID。
+// 全局 setup（src/test/vi-mocks.ts）已经把 src/lib/logger 整个 mock 掉了，
+// 所以这里直接用真实的（已被 mock 的）logger 断言调用即可。
+import { logger } from '@/lib/logger'
 // Mock migrations
 vi.mock('../migrations', () => ({
   migrate: vi.fn().mockResolvedValue(undefined),

@@ -91,7 +91,13 @@ describe('NPlus1Detector', () => {
       // Simulate N+1: one query to get users, then N queries to get posts for each
       detector.recordQuery('req-1', 'SELECT * FROM users LIMIT 10', 10)
 
-      for (let i = 0; i < 10; i++) {
+      // 实现里的 severity 阈值是（见 nplus1-detector.ts analyzeQueries）：
+      //   totalCount > 2  → 判定为 N+1
+      //   totalCount > 10 → 'high'
+      //   totalCount >= 5 → 'medium'
+      //   其余（3~4 次）  → 'low'
+      // 所以要拿到 'high' 必须让同一 pattern 在一次请求里执行 11 次以上。
+      for (let i = 0; i < 11; i++) {
         detector.recordQuery('req-1', 'SELECT * FROM posts WHERE user_id = ?', 5)
       }
 
@@ -116,8 +122,9 @@ describe('NPlus1Detector', () => {
     it('should detect medium severity N+1', () => {
       detector.startRequest('req-1')
 
-      // 3 similar queries - medium severity
-      for (let i = 0; i < 3; i++) {
+      // 5 similar queries - medium severity
+      // 实现阈值：totalCount >= 5 → 'medium'（见 nplus1-detector.ts analyzeQueries）
+      for (let i = 0; i < 5; i++) {
         detector.recordQuery('req-1', 'SELECT * FROM posts WHERE user_id = ?', 5)
       }
 
@@ -130,14 +137,29 @@ describe('NPlus1Detector', () => {
     it('should detect low severity N+1', () => {
       detector.startRequest('req-1')
 
-      // 2 similar queries - low severity
-      for (let i = 0; i < 2; i++) {
+      // 3 similar queries - low severity
+      // 实现阈值：totalCount > 2 才判定为 N+1；3~4 次属于 low 档
+      for (let i = 0; i < 3; i++) {
         detector.recordQuery('req-1', 'SELECT * FROM posts WHERE user_id = ?', 5)
       }
 
       const result = detector.endRequest('req-1')
 
       expect(result.detected).toBe(true)
+      expect(result.severity).toBe('low')
+    })
+
+    it('should not detect N+1 for only 2 similar queries', () => {
+      detector.startRequest('req-1')
+
+      // 实现阈值是 totalCount > 2，2 次重复还不算 N+1
+      for (let i = 0; i < 2; i++) {
+        detector.recordQuery('req-1', 'SELECT * FROM posts WHERE user_id = ?', 5)
+      }
+
+      const result = detector.endRequest('req-1')
+
+      expect(result.detected).toBe(false)
       expect(result.severity).toBe('low')
     })
   })
@@ -185,14 +207,19 @@ describe('NPlus1Detector', () => {
       const result = detector.endRequest('req-1')
 
       expect(result.suggestions.length).toBeGreaterThan(0)
-      expect(result.suggestions[0]).toContain('batch')
+      // WHERE user_id = ? 命中实现的 "batch" 建议分支（nplus1-detector.ts）
+      expect(result.suggestions).toContain(
+        'Consider using WHERE id IN (...) to batch 5 queries into one'
+      )
     })
 
     it('should suggest eager loading', () => {
       detector.startRequest('req-1')
 
+      // 实现里 "eager loading" 建议是 WHERE / JOIN 都不命中时的兜底分支，
+      // 所以这里必须用一条没有 WHERE 子句的重复查询才能触发
       for (let i = 0; i < 5; i++) {
-        detector.recordQuery('req-1', 'SELECT * FROM posts WHERE user_id = ?', 5)
+        detector.recordQuery('req-1', 'SELECT * FROM posts', 5)
       }
 
       const result = detector.endRequest('req-1')

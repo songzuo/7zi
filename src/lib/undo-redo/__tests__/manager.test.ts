@@ -423,7 +423,8 @@ describe('Undo-Redo Manager', () => {
 
       state = useUndoRedoManager.getState()
       expect(state.futureStatesCount).toBe(0)
-      expect(state.history[0].id).toBe(entry3.id)
+      // append 语义：最新的条目在数组尾部（history[history.length - 1]）
+      expect(state.history[state.history.length - 1].id).toBe(entry3.id)
     })
 
     it('should track correct current index', () => {

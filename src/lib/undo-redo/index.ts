@@ -40,6 +40,8 @@ export {
   useHistory,
   useHistoryStats,
   useCurrentHistoryIndex,
+  usePastStatesCount,
+  useFutureStatesCount,
   createHistoryEntry,
   pushOperation,
   executeOperation,
