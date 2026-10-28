@@ -1855,3 +1855,78 @@ bot6: SYNTAX_OK [15:38:02] ✅ 身份不变量全部通过
 - **一个护栏在部分节点上"从未成功过"，却没人发现** —— 因为大家只看"护栏脚本存在"。
   → **护栏必须有"最近一次成功"的日志**，且巡检要逐节点看这行日志，不能看本机。
 - **中途失败的 clone 会留下损坏的 .git** → 必须 `rm -rf` 后重试，不能在坏仓库上 fetch。
+
+## 77. A2A 路由的鉴权不能"建了模块就以为接上了"（2026-10-27 00:30 实测，bot6）
+
+**现象**：并发代理把 A2A 鉴权模块（`src/lib/agents/a2a/auth.ts`）建好了，
+还写了 23 个单元测试全绿，**但路由一个都没接** ——
+`withA2AAuth` 只在模块的注释里出现过。
+
+集成测试一跑 137 个用例挂了 100 个，才暴露出来。
+
+**为什么模块能建好、路由能漏掉**：
+- `withA2AAuth` 是一个**被导出的、被单元测试覆盖的**函数 → 有测试就"绿"
+- 但"路由有没有调用它"**不是任何测试断言的东西**
+- **单元测试全绿 ≠ 防护生效**
+
+**漏洞本体**（比"漏接"更值得记）：
+- AgentCard 自己声明了 `securitySchemes: bearerAuth + apiKey`，
+  并且 `extended agent card` 写明是「for authenticated users」、
+  含「Administrative operations for authenticated users」
+- 但 A2A registry / queue / jsonrpc **完全没有鉴权** ——
+  任何人都能列 agent、注册 agent、改名、删 agent、清队列，
+  甚至拿到标注为"管理操作"的 extended card
+- 仓库**没有根 `middleware.ts`**（`src/middleware/` 只是目录，不是 Next 的入口），
+  `matcher` 是 `[]` → **没有全局兜底**，路由不自己守门就是裸奔
+
+**→ 结论：加新 API 路由时，鉴权要算在"路由本体"里，
+不能指望有个全局 middleware 兜着。**
+
+**后续实测（2026-10-27 00:50 复核，bot6 补齐）**：
+并发代理修完 registry 三个路由后，**queue 与 jsonrpc 仍然裸奔** ——
+`/api/a2a/queue`（GET/POST/DELETE，队列里是待执行的任务消息）
+和 `/api/a2a/jsonrpc`（返回含管理操作的 extended card）都没接鉴权。
+→ 一共是 **6 个文件 11 个端点**，不是 5 个。
+→ 教训再加一条：**"接了几个"和"接全了"是两回事**，
+收尾时应该用 `grep -rn 'withA2AAuth' src/app/api/<模块>/` 逐端点核对，
+而不是看"已经有路由 import 了"。
+
+**另一个坑（同一批改动里踩到）**：
+包装鉴权时若把路由签名写成
+`export async function GET(request: NextRequest)`，
+而原实现是 `GET(request, context)`（Next 的动态路由要 context.params），
+则 `context` 在包装函数里**不在作用域内** → TS2304。
+→ 包装鉴权时**必须保留原签名**：
+```ts
+export async function GET(request: NextRequest, context: RouteContext) {
+  return withA2AAuth(request, (req) => GETHandler(req, context))
+}
+```
+（`context` 要透传给内部 handler，不能在包装层丢掉。）
+
+**检查清单（下次加 A2A 路由时照着走）**：
+1. 加完路由立刻 grep 核对**每个端点**，不要只看"已经有 import 了"：
+   ```bash
+   grep -rn 'withA2AAuth' src/app/api/a2a/ | grep -v __tests__
+   # 每个端点都该有一行 return withA2AAuth(...)
+   ```
+2. **验证标准是"打过去拿到 401"**，不是"函数被调用了"。
+3. 打包鉴权时**保留原签名**（见上）。
+4. 401 响应体用仓库统一的 ErrorResponse 形状：
+   `{ success:false, error:{ type:'UNAUTHORIZED', message, timestamp } }`
+
+## 78. 查共享仓库节点状态前必须先 `git fetch`（2026-10-28 21:00 实测，bot6）
+
+**现象**：我看共享仓库的**本地克隆**，bot3 的 state 停在 16:49，
+而其它节点都是 20:2x → 一度判定"bot3 停摆 4 小时"。
+
+**实际**：`git fetch origin` 之后看 `origin/main`，
+bot3 **20:45 准时同步了**（`21550c0174`）—— 只是我的本地克隆没更新。
+
+→ **"落后"的第一嫌疑是"我看的是旧数据"，不是"对方没干活"。**
+查共享仓库一律先 `git fetch origin` 再看 `origin/main`，
+或直接 `git ls-remote origin main` 看远端 HEAD。
+
+**顺带一条 §31 的补充**：各节点节奏不同（bot5 每 5 分钟；
+bot2/bot3/bot4/bot6 每 4 小时，槽位分别是 :00/:45/:15/:30），
+**别用"落后于其它节点"当停摆判据**，要按各自节奏算周期数。
