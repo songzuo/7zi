@@ -667,7 +667,7 @@ fatal: could not read Password for 'https://ghp_%5B%E5%B7%B2%E7%A7%BB%E9%99%A4%5
 - 本机 live 脚本：`git add` 只加 `"$MACHINE_NAME"/` + static ✅（无 `git add botN/`）
 - 凭据扫描（origin/main + 本机 cron/agents/tmp/var/log）：0 处明文 ✅
   （唯一保留：`/root/.openclaw/cron/.git-credential`，有意为之）
-- **发现并修复**（见 §76）：每日上传 03:00 连败 8 次 → 根因是 pat-scan
+- **发现并修复**（见《pat-scan 脱敏破坏 git remote URL》那节，bot4 记为 **§64**）：每日上传 03:00 连败 8 次 → 根因是 pat-scan
   把 `.git/config` 里的 token 脱敏成 `ghp_[已移除]`
   → 已修 `clawmesh-credential.sh` + `pat-scan.sh`，重跑验证 ✅
   → 修复已推到共享仓库 `e39000e78d`（含新增 `clawmesh-credential.sh`）
@@ -685,10 +685,14 @@ fatal: could not read Password for 'https://ghp_%5B%E5%B7%B2%E7%A7%BB%E9%99%A4%5
 
 **为什么会撞**：各节点各自给新章节编号，彼此不知道对方编到几号了；
 `merge-heartbeat.py` 的章节键是**标题文字**（去编号）→ **内容不会丢**，
-但正文里的 "见 §76" 这类交叉引用会指到别人的章节上。
+但正文里的 "见 §N" 这类交叉引用会指到别人的章节上。
 
-**本次处置**：bot4 把自己那条改成 **§67**（bot2 已用到 64/65/66），
+**本次处置**：bot4 把自己那条改号为 **§64**（2026-10-28 10:37），
 并修正了本节内的自引用。
+⚠️ 2026-10-28 20:11 复核：bot2 之后把它的几条重新编号到 70–76，
+期间有人把本节里的 `见 §67` **机械替换**成了 `见 §76` ——
+而 §76 是 bot2 的 fail2ban 节，指错了。
+→ 交叉引用改成**带标题关键词**的写法（见《pat-scan 脱敏破坏 git remote URL》）。
 ⚠️ bot2 自己那两条 §64 仍重号（内容不丢，但引用会歧义）→ **由 bot2 自己改**。
 
 **教训（给所有节点）**：
@@ -696,7 +700,7 @@ fatal: could not read Password for 'https://ghp_%5B%E5%B7%B2%E7%A7%BB%E9%99%A4%5
   再往后接（别凭自己机器上的记忆编号）。
 - 交叉引用尽量**写章节标题关键词**而不是只写 "§N"，
   例如写"见《pat-scan 脱敏破坏 remote URL》那节"。
-- 更稳的做法：**章节号 + 标题关键词一起写**（`§67 pat-scan 脱敏`），
+- 更稳的做法：**章节号 + 标题关键词一起写**（`§64 pat-scan 脱敏`），
   撞号时读者仍能定位。
 
 ## 已知遗留（需用户决策，勿擅自处理）
@@ -1855,78 +1859,3 @@ bot6: SYNTAX_OK [15:38:02] ✅ 身份不变量全部通过
 - **一个护栏在部分节点上"从未成功过"，却没人发现** —— 因为大家只看"护栏脚本存在"。
   → **护栏必须有"最近一次成功"的日志**，且巡检要逐节点看这行日志，不能看本机。
 - **中途失败的 clone 会留下损坏的 .git** → 必须 `rm -rf` 后重试，不能在坏仓库上 fetch。
-
-## 77. A2A 路由的鉴权不能"建了模块就以为接上了"（2026-10-27 00:30 实测，bot6）
-
-**现象**：并发代理把 A2A 鉴权模块（`src/lib/agents/a2a/auth.ts`）建好了，
-还写了 23 个单元测试全绿，**但路由一个都没接** ——
-`withA2AAuth` 只在模块的注释里出现过。
-
-集成测试一跑 137 个用例挂了 100 个，才暴露出来。
-
-**为什么模块能建好、路由能漏掉**：
-- `withA2AAuth` 是一个**被导出的、被单元测试覆盖的**函数 → 有测试就"绿"
-- 但"路由有没有调用它"**不是任何测试断言的东西**
-- **单元测试全绿 ≠ 防护生效**
-
-**漏洞本体**（比"漏接"更值得记）：
-- AgentCard 自己声明了 `securitySchemes: bearerAuth + apiKey`，
-  并且 `extended agent card` 写明是「for authenticated users」、
-  含「Administrative operations for authenticated users」
-- 但 A2A registry / queue / jsonrpc **完全没有鉴权** ——
-  任何人都能列 agent、注册 agent、改名、删 agent、清队列，
-  甚至拿到标注为"管理操作"的 extended card
-- 仓库**没有根 `middleware.ts`**（`src/middleware/` 只是目录，不是 Next 的入口），
-  `matcher` 是 `[]` → **没有全局兜底**，路由不自己守门就是裸奔
-
-**→ 结论：加新 API 路由时，鉴权要算在"路由本体"里，
-不能指望有个全局 middleware 兜着。**
-
-**后续实测（2026-10-27 00:50 复核，bot6 补齐）**：
-并发代理修完 registry 三个路由后，**queue 与 jsonrpc 仍然裸奔** ——
-`/api/a2a/queue`（GET/POST/DELETE，队列里是待执行的任务消息）
-和 `/api/a2a/jsonrpc`（返回含管理操作的 extended card）都没接鉴权。
-→ 一共是 **6 个文件 11 个端点**，不是 5 个。
-→ 教训再加一条：**"接了几个"和"接全了"是两回事**，
-收尾时应该用 `grep -rn 'withA2AAuth' src/app/api/<模块>/` 逐端点核对，
-而不是看"已经有路由 import 了"。
-
-**另一个坑（同一批改动里踩到）**：
-包装鉴权时若把路由签名写成
-`export async function GET(request: NextRequest)`，
-而原实现是 `GET(request, context)`（Next 的动态路由要 context.params），
-则 `context` 在包装函数里**不在作用域内** → TS2304。
-→ 包装鉴权时**必须保留原签名**：
-```ts
-export async function GET(request: NextRequest, context: RouteContext) {
-  return withA2AAuth(request, (req) => GETHandler(req, context))
-}
-```
-（`context` 要透传给内部 handler，不能在包装层丢掉。）
-
-**检查清单（下次加 A2A 路由时照着走）**：
-1. 加完路由立刻 grep 核对**每个端点**，不要只看"已经有 import 了"：
-   ```bash
-   grep -rn 'withA2AAuth' src/app/api/a2a/ | grep -v __tests__
-   # 每个端点都该有一行 return withA2AAuth(...)
-   ```
-2. **验证标准是"打过去拿到 401"**，不是"函数被调用了"。
-3. 打包鉴权时**保留原签名**（见上）。
-4. 401 响应体用仓库统一的 ErrorResponse 形状：
-   `{ success:false, error:{ type:'UNAUTHORIZED', message, timestamp } }`
-
-## 78. 查共享仓库节点状态前必须先 `git fetch`（2026-10-28 21:00 实测，bot6）
-
-**现象**：我看共享仓库的**本地克隆**，bot3 的 state 停在 16:49，
-而其它节点都是 20:2x → 一度判定"bot3 停摆 4 小时"。
-
-**实际**：`git fetch origin` 之后看 `origin/main`，
-bot3 **20:45 准时同步了**（`21550c0174`）—— 只是我的本地克隆没更新。
-
-→ **"落后"的第一嫌疑是"我看的是旧数据"，不是"对方没干活"。**
-查共享仓库一律先 `git fetch origin` 再看 `origin/main`，
-或直接 `git ls-remote origin main` 看远端 HEAD。
-
-**顺带一条 §31 的补充**：各节点节奏不同（bot5 每 5 分钟；
-bot2/bot3/bot4/bot6 每 4 小时，槽位分别是 :00/:45/:15/:30），
-**别用"落后于其它节点"当停摆判据**，要按各自节奏算周期数。
