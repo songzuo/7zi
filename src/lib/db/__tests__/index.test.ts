@@ -71,18 +71,30 @@ describe('Database Module', () => {
       expect(db).toHaveProperty('prepare')
     })
     it('should use DATABASE_PATH from environment', () => {
-      process.env.DATABASE_PATH = '/custom/path.db'
+      const customPath = '/tmp/t231-custom-path.sqlite'
+      // 连接实例是模块级单例，切换 DATABASE_PATH 前必须先关掉旧连接，
+      // 否则 initializeDatabase() 会直接复用缓存实例，路径不会生效。
+      closeDatabase()
+      process.env.DATABASE_PATH = customPath
       const db = getDatabase()
       expect(db).toBeDefined()
+      // getConnection() 返回底层 better-sqlite3 实例，name 即实际落盘路径
+      const connection = db.getConnection?.() as { name?: string } | undefined
+      expect(connection?.name).toBe(customPath)
     })
     it('should handle connection errors gracefully', () => {
-      // Set invalid path
+      // 目录不存在时 better-sqlite3 会在 new Database() 阶段抛错。
+      // initializeDatabase() 不吞这个错（错误发生在实例创建之前，
+      // 没有任何已建立连接需要保护），所以这里断言真实行为：
+      // 抛出的错误可辨识，且失败后模块仍可重新连接（单例未被写坏）。
       process.env.DATABASE_PATH = '/invalid/path/that/does/not/exist/test.db'
-      // This should throw an error
-      expect(() => {
-        const db = getDatabase()
-        db.exec('SELECT 1')
-      }).not.toThrow()
+      expect(() => getDatabase()).toThrow(/directory does not exist/i)
+
+      // 失败后 dbInstance 仍为 null，恢复合法路径可以正常建连
+      process.env.DATABASE_PATH = testDbPath
+      const db = getDatabase()
+      expect(db).toBeDefined()
+      expect(db.queryRows('SELECT 1 as value')).toHaveLength(1)
     })
   })
   describe('query operations', () => {
@@ -129,9 +141,16 @@ describe('Database Module', () => {
     })
     it('should handle query errors gracefully', () => {
       const db = getDatabase()
+      // connection.ts 的 query() 会先 logger.error('[Database Query Error]', ...)
+      // 再把原始错误抛给调用方 —— 错误没有被静默吞掉。
       expect(() => {
         db.query('SELECT * FROM non_existent_table')
-      }).not.toThrow()
+      }).toThrow(/no such table: non_existent_table/i)
+
+      const errorMock = logger.error as unknown as { mock?: { calls: unknown[][] } }
+      const calls = errorMock.mock?.calls ?? []
+      expect(calls.length).toBeGreaterThan(0)
+      expect(calls[0][0]).toBe('[Database Query Error]')
     })
   })
   describe('prepared statements', () => {
@@ -175,8 +194,20 @@ describe('Database Module', () => {
     it('should return null for non-existent row with get', () => {
       const db = getDatabase()
       const stmt = db.prepare('SELECT * FROM sqlite_master WHERE name = ?')
-      const result: Record<string, unknown> | null = stmt.get(['non_existent_table'])
+      // DatabaseStatement.get 的签名声明返回 Record<string, unknown> | null
+      // （见 src/lib/db/connection.ts 的 interface DatabaseStatement）。
+      // better-sqlite3 原生未命中时返回 undefined，所以 connection.ts 的
+      // prepare().get 把 undefined 归一成 null —— 让实现符合自己的声明，
+      // 调用方 `if (row === null)` 才不会被 undefined 绕过。
+      // 这个用例最初的断言就是 toBeNull()，与声明一致。
+      const result: Record<string, unknown> | null = stmt.get('non_existent_table')
       expect(result).toBeNull()
+      // 命中行时必须拿到真实数据，避免"永远返回空"也能通过上面的断言
+      db.exec('CREATE TABLE IF NOT EXISTS get_existing_test (id INTEGER PRIMARY KEY, value TEXT)')
+      db.exec('INSERT INTO get_existing_test (value) VALUES (?)', ['present'])
+      const found = db.prepare('SELECT value FROM get_existing_test WHERE id = ?').get(1)
+      expect(found).toBeDefined()
+      expect(found?.value).toBe('present')
     })
     it('should return empty array for no results with all', () => {
       const db = getDatabase()
@@ -215,11 +246,20 @@ describe('Database Module', () => {
         { sql: 'INSERT INTO batch_error_test (value) VALUES (?)', params: ['test'] },
         { sql: 'INVALID SQL STATEMENT', params: [] },
       ]
-      if (db.batch) {
-        expect(() => {
-          db.batch(statements)
-        }).not.toThrow()
+      // connection.ts 的 batch() 用 db.transaction() 包裹整批语句：
+      // 任一语句失败 → 整批回滚 → 抛出包装过的 DatabaseBatchError
+      // （error.name = 'DatabaseBatchError'，message 以 'Database batch failed:' 开头）。
+      let thrown: Error | undefined
+      try {
+        db.batch(statements)
+      } catch (error) {
+        thrown = error as Error
       }
+      expect(thrown).toBeDefined()
+      expect(thrown?.name).toBe('DatabaseBatchError')
+      expect(thrown?.message).toMatch(/^Database batch failed:/)
+      // 事务回滚：失败批次里的第一条 INSERT 也不能留下
+      expect(db.queryRows('SELECT * FROM batch_error_test')).toEqual([])
     })
   })
   describe('async operations', () => {
@@ -229,10 +269,15 @@ describe('Database Module', () => {
       expect(db).toHaveProperty('query')
     })
     it('should handle async connection errors', async () => {
-      // Set invalid path
+      // 目录不存在 → better-sqlite3 抛错；getDatabaseAsync() 不会吞掉它
       process.env.DATABASE_PATH = '/invalid/async/path.db'
+      await expect(getDatabaseAsync()).rejects.toThrow(/directory does not exist/i)
+
+      // 失败后单例未被污染，恢复合法路径仍可异步建连
+      process.env.DATABASE_PATH = testDbPath
       const db = await getDatabaseAsync()
       expect(db).toBeDefined()
+      expect(db.queryRows('SELECT 1 as value')).toHaveLength(1)
     })
   })
   describe('database health', () => {
@@ -269,8 +314,12 @@ describe('Database Module', () => {
       expect(true).toBe(true)
     })
     it('should handle closing already closed database', async () => {
-      await closeDatabase()
-      await expect(closeDatabase()).resolves.not.toThrow()
+      // closeDatabase() 是同步函数（返回 void），且对已关闭的库是幂等的：
+      // dbInstance 为 null 时直接 no-op，不抛错。
+      closeDatabase()
+      expect(() => closeDatabase()).not.toThrow()
+      // 连续多次关闭依然安全
+      expect(() => closeDatabase()).not.toThrow()
     })
     it('should reinitialize database after close', () => {
       const db1 = getDatabase()
@@ -284,8 +333,11 @@ describe('Database Module', () => {
     it('should handle null results safely', () => {
       const db = getDatabase()
       const stmt = db.prepare('SELECT * FROM sqlite_master WHERE name = ?')
-      const result: Record<string, unknown> | null = stmt.get(['non_existent'])
+      // 未命中行时归一成 null（见上面 DatabaseStatement.get 的契约）。
+      const result: Record<string, unknown> | null = stmt.get('non_existent')
       expect(result).toBeNull()
+      // 并且不会因为空结果而抛异常
+      expect(() => stmt.get('non_existent')).not.toThrow()
     })
     it('should handle undefined results safely', () => {
       const db = getDatabase()
@@ -304,15 +356,26 @@ describe('Database Module', () => {
   describe('edge cases', () => {
     it('should handle empty SQL', () => {
       const db = getDatabase()
+      // 空 SQL 在 better-sqlite3 的 prepare() 阶段就抛 RangeError
+      // （'The supplied SQL string contains no statements'）。
+      // connection.ts 的 query() 会记录 '[Database Query Error]' 后原样抛出，
+      // 不会静默返回空结果。
       expect(() => {
         db.query('')
-      }).not.toThrow()
+      }).toThrow(RangeError)
+      expect(() => {
+        db.query('')
+      }).toThrow(/contains no statements/i)
     })
     it('should handle SQL with only whitespace', () => {
       const db = getDatabase()
+      // 只有空白字符的 SQL 同样没有语句 → RangeError，行为与空 SQL 一致
       expect(() => {
         db.query('   ')
-      }).not.toThrow()
+      }).toThrow(RangeError)
+      expect(() => {
+        db.query('   ')
+      }).toThrow(/contains no statements/i)
     })
     it('should handle very long queries', () => {
       const db = getDatabase()
@@ -322,24 +385,30 @@ describe('Database Module', () => {
     })
     it('should handle special characters in parameters', () => {
       const db = getDatabase()
-      db.exec('CREATE TABLE IF NOT EXISTS special_test (id INTEGER, value TEXT)')
+      // id 必须是 INTEGER PRIMARY KEY（rowid 别名），否则 id 列不会自动填充，
+      // 用 lastInsertRowid 回查会永远查不到行。
+      db.exec('CREATE TABLE IF NOT EXISTS special_test (id INTEGER PRIMARY KEY, value TEXT)')
       const specialValue = 'test\'with"quotes\\and\\slashes'
       const result = db.exec('INSERT INTO special_test (value) VALUES (?)', [specialValue])
       expect(result.changes).toBe(1)
+      expect(result.lastInsertRowid).toBeDefined()
       const retrieved = db.queryRows('SELECT value FROM special_test WHERE id = ?', [
         result.lastInsertRowid,
       ])
+      expect(retrieved).toHaveLength(1)
       expect(retrieved[0].value).toBe(specialValue)
     })
     it('should handle Unicode characters', () => {
       const db = getDatabase()
-      db.exec('CREATE TABLE IF NOT EXISTS unicode_test (id INTEGER, value TEXT)')
+      db.exec('CREATE TABLE IF NOT EXISTS unicode_test (id INTEGER PRIMARY KEY, value TEXT)')
       const unicodeValue = '测试中文🎉Test'
       const result = db.exec('INSERT INTO unicode_test (value) VALUES (?)', [unicodeValue])
       expect(result.changes).toBe(1)
+      expect(result.lastInsertRowid).toBeDefined()
       const retrieved = db.queryRows('SELECT value FROM unicode_test WHERE id = ?', [
         result.lastInsertRowid,
       ])
+      expect(retrieved).toHaveLength(1)
       expect(retrieved[0].value).toBe(unicodeValue)
     })
   })

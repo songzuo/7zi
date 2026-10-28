@@ -43,23 +43,20 @@ export async function initializeUserPreferencesTable(): Promise<void> {
   try {
     const db = await getDatabaseAsync()
 
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS user_preferences (
-        user_id TEXT PRIMARY KEY,
-        locale TEXT NOT NULL DEFAULT 'zh',
-        theme TEXT NOT NULL DEFAULT 'system' CHECK(theme IN ('light', 'dark', 'system')),
-        timezone TEXT,
-        notifications_enabled INTEGER NOT NULL DEFAULT 1,
-        email_notifications INTEGER NOT NULL DEFAULT 1,
-        sound_enabled INTEGER NOT NULL DEFAULT 1,
-        created_at TEXT NOT NULL DEFAULT (datetime('now')),
-        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-      );
 
-      -- Create indexes for common queries
-      CREATE INDEX IF NOT EXISTS idx_user_preferences_locale ON user_preferences(locale);
-      CREATE INDEX IF NOT EXISTS idx_user_preferences_theme ON user_preferences(theme);
-    `)
+    // better-sqlite3 的 exec() 只支持**单条**语句，
+    // 多条一起传会抛 "The supplied SQL string contains more than one statement"。
+    {
+    
+    const statements = [
+      'CREATE TABLE IF NOT EXISTS user_preferences ( user_id TEXT PRIMARY KEY, locale TEXT NOT NULL DEFAULT \'zh\', theme TEXT NOT NULL DEFAULT \'system\' CHECK(theme IN (\'light\', \'dark\', \'system\')), timezone TEXT, notifications_enabled INTEGER NOT NULL DEFAULT 1, email_notifications INTEGER NOT NULL DEFAULT 1, sound_enabled INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL DEFAULT (datetime(\'now\')), updated_at TEXT NOT NULL DEFAULT (datetime(\'now\')) )',
+  'CREATE INDEX IF NOT EXISTS idx_user_preferences_locale ON user_preferences(locale)',
+  'CREATE INDEX IF NOT EXISTS idx_user_preferences_theme ON user_preferences(theme)',
+    ]
+    for (const sql of statements) {
+      db.exec(sql)
+    }
+    }
 
     logger.info('User preferences table initialized', { category: 'db' })
   } catch (error) {

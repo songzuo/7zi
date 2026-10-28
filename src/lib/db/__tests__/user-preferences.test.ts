@@ -76,8 +76,11 @@ describe('user-preferences', () => {
     it('should create indexes for common queries', async () => {
       await initializeUserPreferencesTable()
       const sql = mockDb.exec.mock.calls[0][0]
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_user_preferences_locale')
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_user_preferences_theme')
+      // 实现现在逐条 exec（表和索引分成多次调用），
+      // 所以不能只看第 0 次调用 —— 要看所有调用。
+      const allSql = mockDb.exec.mock.calls.map((call: unknown[]) => String(call[0])).join('\n')
+      expect(allSql).toContain('CREATE INDEX IF NOT EXISTS idx_user_preferences_locale')
+      expect(allSql).toContain('CREATE INDEX IF NOT EXISTS idx_user_preferences_theme')
     })
     it('should log successful initialization', async () => {
       await initializeUserPreferencesTable()

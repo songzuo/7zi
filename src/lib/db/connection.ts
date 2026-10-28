@@ -150,7 +150,10 @@ export function getDatabase(): DatabaseConnection {
       try {
         const stmt = db.prepare(sql)
         const result = params && params.length > 0 ? stmt.get(...params) : stmt.get()
-        return result as T | null
+        // better-sqlite3 的 get() 无匹配时返回 undefined，
+        // 但本接口声明的是 T | null —— 声明与实现不一致会让调用方
+        // `if (row === null)` 判断失效。统一成 null。
+        return (result ?? null) as T | null
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         logger.error('[Database Get Error]', error, {
@@ -215,7 +218,9 @@ export function getDatabase(): DatabaseConnection {
         },
         get: (...params: unknown[]) => {
           try {
-            return stmt.get(...params) as Record<string, unknown> | null
+            // 同 get()：better-sqlite3 未命中时返回 undefined，
+            // 而本方法声明返回 null —— 统一成 null，别让声明和实现打架。
+            return (stmt.get(...params) ?? null) as Record<string, unknown> | null
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
             logger.error('[Database Prepare.Get Error]', error, {

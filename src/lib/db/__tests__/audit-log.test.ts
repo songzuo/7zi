@@ -104,11 +104,14 @@ describe('audit-log', () => {
     it('should create indexes for common queries', async () => {
       await initializeAuditLogsTable()
       const sql = mockDb.exec.mock.calls[0][0]
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id')
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_action')
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_entity')
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_status')
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at')
+      // 实现现在逐条 exec（表和索引分成多次调用），
+      // 所以不能只看第 0 次调用 —— 要看所有调用。
+      const allSql = mockDb.exec.mock.calls.map((call: unknown[]) => String(call[0])).join('\n')
+      expect(allSql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id')
+      expect(allSql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_action')
+      expect(allSql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_entity')
+      expect(allSql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_status')
+      expect(allSql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at')
     })
     it('should log successful initialization', async () => {
       await initializeAuditLogsTable()

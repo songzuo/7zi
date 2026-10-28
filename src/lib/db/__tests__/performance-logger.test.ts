@@ -378,15 +378,22 @@ describe('Performance Logger', () => {
         enabled: false,
       }
       const disabledLogger = createTestLogger(config)
-      const db = global.testDb as TestDatabaseConnection
-      // 用包装后的实例来查 —— 关闭时 wrapDatabase 直接原样返回 db，不做包装，
-      // 指标不会被采集。
-      // 注意：getStats 读的是模块级全局计数器，所以用「前后对比」而不是绝对值 0
-      // （前面用例可能已往全局计数里写过）。
+      // 关键：必须用「未包装」的原始连接。
+      // global.testDb 是 beforeEach 里在 enabled=true 时用 wrapDatabaseWithLogging
+      // 包过的日志代理（withPerformanceLogging），它内部无条件调用 addQueryMetric。
+      // 关闭采集时 wrapDatabase 只是原样返回入参 → 拿 global.testDb 进去，
+      // 拿回来的仍是那个「已在采集」的代理，查询照样写入全局指标 → 用例必然失败。
+      // 这里取一个裸连接（getDatabaseAsync 返回底层连接，未被日志包装）。
+      const rawDb = await getDatabaseAsync()
+      const wrapped = disabledLogger.wrapDatabase(rawDb)
+      // 关闭时应原样返回 db，不做任何包装（不产生新的日志代理）
+      expect(wrapped).toBe(rawDb)
       const before = disabledLogger.getStats().totalQueries
-      await disabledLogger.wrapDatabase(db).query('SELECT * FROM users')
+      await wrapped.query('SELECT * FROM users')
       const after = disabledLogger.getStats().totalQueries
+      // 关闭采集 → 一次查询都不应被计数
       expect(after).toBe(before)
+      expect(after).toBe(0)
     })
     it('should enable tracking when enabled', async () => {
       const config: PerformanceLoggerConfig = {

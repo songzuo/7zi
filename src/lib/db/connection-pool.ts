@@ -549,19 +549,27 @@ class ConnectionPoolManager {
 
   /**
    * Get an idle connection from the pool
+   *
+   * LIFO（最近使用优先）：优先返回最近一次被 release 的连接。
+   *
+   * 之前这里取的是 lastUsedAt **最小**的空闲连接（FIFO / 最久未使用优先），
+   * 于是"取出 → 归还 → 再取出"会拿到另一条空闲连接：归还时 release() 把
+   * lastUsedAt 刷新成 now，这条连接变成"最新"，反而排在队尾，下次拿到的是
+   * 从没被用过的那条。连接池的标准做法是 LIFO —— 刚被归还的连接最"热"，
+   * 复用它可以保住 SQLite 的 page cache，避免冷连接重新预热。
    */
   private getIdleConnection(): PooledConnection | null {
-    let oldestIdle: PooledConnection | null = null
+    let mostRecentIdle: PooledConnection | null = null
 
     for (const connection of this.connections.values()) {
       if (!connection.inUse && connection.healthy) {
-        if (!oldestIdle || connection.lastUsedAt < oldestIdle.lastUsedAt) {
-          oldestIdle = connection
+        if (!mostRecentIdle || connection.lastUsedAt > mostRecentIdle.lastUsedAt) {
+          mostRecentIdle = connection
         }
       }
     }
 
-    return oldestIdle
+    return mostRecentIdle
   }
 
   /**

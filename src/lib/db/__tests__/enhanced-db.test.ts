@@ -6,6 +6,44 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { getEnhancedDatabase, type EnhancedDatabase } from '../enhanced-db'
 
+// ---------------------------------------------------------------------------
+// 本文件必须覆盖掉 tests/setup.ts → src/test/vi-mocks.ts 里对
+// '../lib/db/index' 的全局 mock。
+//
+// 全局 mock 的 prepare() 走的是内存表模拟（executeAll/executeRun），
+// 它对任何 SQL 都返回空数组 / { changes: 0 }，**不会抛错** —— 于是
+// "should handle invalid SQL" 拿到的是 `[]` 而不是 reject，测试永远红。
+//
+// 这里换成真 better-sqlite3：prepare() 会真正解析 SQL，语法错误直接抛
+// SqliteError，正好覆盖 enhanced-db 的错误处理路径。语句本身仍然返回
+// 与生产一致的结构（all → 行数组，run → { changes }）。
+// 工厂用动态 import 是因为 vi.mock 的工厂会被提升到 import 之前执行。
+// ---------------------------------------------------------------------------
+vi.mock('../index', async () => {
+  const Database = (await import('better-sqlite3')).default
+  const realDb = new Database(':memory:')
+
+  return {
+    getDatabase: () => ({
+      prepare: (sql: string) => {
+        // 语法错误在这里抛出 —— 真实 better-sqlite3 行为
+        const realStmt = realDb.prepare(sql)
+        return {
+          all: (...params: unknown[]) => realStmt.all(...params),
+          get: (...params: unknown[]) => realStmt.get(...params) ?? null,
+          run: (...params: unknown[]) => {
+            // 返回数据的语句（SELECT）不能用 run()，与真实行为保持一致
+            if (realStmt.reader) {
+              return { changes: 0, lastInsertRowid: 0 }
+            }
+            return realStmt.run(...params)
+          },
+        }
+      },
+    }),
+  }
+})
+
 // Enhanced Database Configuration Interface
 interface EnhancedDatabaseConfig {
   databasePath?: string

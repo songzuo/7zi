@@ -129,34 +129,26 @@ export async function initializeAuditLogsTable(): Promise<void> {
   try {
     const db = await getDatabaseAsync()
 
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS audit_logs (
-        id TEXT PRIMARY KEY,
-        user_id TEXT,
-        action TEXT NOT NULL,
-        entity_type TEXT NOT NULL,
-        entity_id TEXT,
-        resource_type TEXT,
-        resource_id TEXT,
-        details TEXT DEFAULT '{}',
-        ip_address TEXT,
-        user_agent TEXT,
-        status TEXT NOT NULL DEFAULT 'success',
-        error_message TEXT,
-        created_at TEXT NOT NULL DEFAULT (datetime('now')),
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-      );
 
-      -- Create indexes for common queries
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON audit_logs(resource_type, resource_id);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_status ON audit_logs(status);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_user_created ON audit_logs(user_id, created_at DESC);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_action_created ON audit_logs(action, created_at DESC);
-    `)
+    // better-sqlite3 的 exec() 只支持**单条**语句，
+    // 多条一起传会抛 "The supplied SQL string contains more than one statement"。
+    {
+    
+    const statements = [
+      'CREATE TABLE IF NOT EXISTS audit_logs ( id TEXT PRIMARY KEY, user_id TEXT, action TEXT NOT NULL, entity_type TEXT NOT NULL, entity_id TEXT, resource_type TEXT, resource_id TEXT, details TEXT DEFAULT \'{}\', ip_address TEXT, user_agent TEXT, status TEXT NOT NULL DEFAULT \'success\', error_message TEXT, created_at TEXT NOT NULL DEFAULT (datetime(\'now\')), FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL )',
+  'CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id)',
+  'CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action)',
+  'CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id)',
+  'CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON audit_logs(resource_type, resource_id)',
+  'CREATE INDEX IF NOT EXISTS idx_audit_logs_status ON audit_logs(status)',
+  'CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC)',
+  'CREATE INDEX IF NOT EXISTS idx_audit_logs_user_created ON audit_logs(user_id, created_at DESC)',
+  'CREATE INDEX IF NOT EXISTS idx_audit_logs_action_created ON audit_logs(action, created_at DESC)',
+    ]
+    for (const sql of statements) {
+      db.exec(sql)
+    }
+    }
 
     logger.info('Audit logs table initialized', { category: 'db' })
   } catch (error) {

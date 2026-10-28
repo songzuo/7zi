@@ -224,26 +224,6 @@ export const LazyMeetingRoom = dynamic(
   }
 )
 
-/**
- * 协作组件
- * - 大小: ~349 行
- * - 用途: 实时协作编辑
- * @deprecated 使用 ConnectionStatus 和 UserList 组件替代
- */
-// export const LazyCollaboration = dynamic(
-//   () => import('@/components/collaboration/OptimizedComponents').then(mod => ({ default: mod.default })),
-//   {
-//     loading: () => (
-//       <LoadingFallback
-//         message="加载协作组件..."
-//         size="md"
-//         className="bg-white dark:bg-zinc-800 rounded-xl"
-//       />
-//     ),
-//     ssr: false,
-//   }
-// );
-
 // ============================================================================
 // 功能组件动态导入
 // ============================================================================
@@ -369,52 +349,6 @@ export const LazyLazyLoadImage = dynamic(
     ssr: false,
   }
 )
-
-// ============================================================================
-// 性能监控仪表盘（7zi-frontend 项目）
-// ============================================================================
-
-/**
- * 性能仪表盘组件
- * - 大小: ~332 行
- * - 来源: 7zi-frontend 项目
- * - 用途: 性能监控指标
- * @deprecated PerformanceDashboard 组件不存在，使用 PerformanceMonitor 替代
- */
-// export const LazyPerformanceDashboard = dynamic(
-//   () => import('@/components/PerformanceDashboard').then(mod => ({ default: mod.PerformanceDashboard })),
-//   {
-//     loading: () => (
-//       <LoadingFallback
-//         message="加载性能仪表盘..."
-//         size="lg"
-//         className="bg-zinc-900 rounded-lg"
-//       />
-//     ),
-//     ssr: false,
-//   }
-// );
-
-/**
- * 简化性能仪表盘组件
- * - 大小: ~100 行
- * - 来源: 7zi-frontend 项目
- * - 用途: 轻量级性能监控
- * @deprecated SimplePerformanceDashboard 组件不存在
- */
-// export const LazySimplePerformanceDashboard = dynamic(
-//   () => import('@/components/SimplePerformanceDashboard').then(mod => ({ default: mod.SimplePerformanceDashboard })),
-//   {
-//     loading: () => (
-//       <LoadingFallback
-//         message="加载监控..."
-//         size="sm"
-//         className="bg-zinc-900 rounded-lg"
-//       />
-//     ),
-//     ssr: false,
-//   }
-// );
 
 // ============================================================================
 // 工具函数
