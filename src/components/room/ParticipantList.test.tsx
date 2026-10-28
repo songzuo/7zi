@@ -173,7 +173,7 @@ describe('ParticipantList', () => {
     it('should show management actions for admins', async () => {
       const user = userEvent.setup()
       // 必须是「别人」：实现对当前用户本人隐藏管理操作（!isCurrentUser）
-      const participants = [createMockParticipant({ id: 'user-2', role: 'member' })]
+      const participants = [createMockParticipant({ id: 'user-2', name: '张三', role: 'member' })]
 
       render(
         <ParticipantList
@@ -224,7 +224,7 @@ describe('ParticipantList', () => {
 
     it('should handle role change', async () => {
       const user = userEvent.setup()
-      const participants = [createMockParticipant({ id: 'user-2', role: 'member' })]
+      const participants = [createMockParticipant({ id: 'user-2', name: '张三', role: 'member' })]
 
       render(
         <ParticipantList

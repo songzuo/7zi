@@ -361,7 +361,7 @@ describe('RoomCard', () => {
       //     用 userEvent.click 移指针过去会触发卡片的 onMouseLeave → 菜单卸载
       //     所以这里用 fireEvent.click 直接触发，不移动指针。
       await user.hover(screen.getByTestId('room-card'))
-      const deleteButton = await screen.findByRole('button', { name: '删除房间' })
+      const deleteButton = await screen.findByTitle('删除房间')
       fireEvent.click(deleteButton)
 
       expect(mockOnDelete).toHaveBeenCalledWith(room.id)

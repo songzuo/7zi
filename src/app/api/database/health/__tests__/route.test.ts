@@ -28,8 +28,8 @@ describe('/api/database/health', () => {
       expect(response.status).toBeGreaterThanOrEqual(200)
       expect(data).toHaveProperty('success')
       if (response.status === 200) {
-        expect(data).toHaveProperty('health')
-        expect(data).toHaveProperty('healthScore')
+        expect(data.data).toHaveProperty('health')
+        expect(data.data).toHaveProperty('healthScore')
         expect(data).toHaveProperty('timestamp')
       }
     })
@@ -48,7 +48,7 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(['healthy', 'degraded', 'unhealthy']).toContain(data.health)
+        expect(['healthy', 'degraded', 'unhealthy']).toContain(data.data.health)
       }
     })
 
@@ -57,9 +57,9 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(typeof data.healthScore).toBe('number')
-        expect(data.healthScore).toBeGreaterThanOrEqual(0)
-        expect(data.healthScore).toBeLessThanOrEqual(100)
+        expect(typeof data.data.healthScore).toBe('number')
+        expect(data.data.healthScore).toBeGreaterThanOrEqual(0)
+        expect(data.data.healthScore).toBeLessThanOrEqual(100)
       }
     })
 
@@ -77,11 +77,11 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data).toHaveProperty('connection')
-        expect(data.connection).toHaveProperty('connected')
-        expect(data.connection).toHaveProperty('isOpen')
-        expect(typeof data.connection.connected).toBe('boolean')
-        expect(typeof data.connection.isOpen).toBe('boolean')
+        expect(data.data).toHaveProperty('connection')
+        expect(data.data.connection).toHaveProperty('connected')
+        expect(data.data.connection).toHaveProperty('isOpen')
+        expect(typeof data.data.connection.connected).toBe('boolean')
+        expect(typeof data.data.connection.isOpen).toBe('boolean')
       }
     })
 
@@ -90,9 +90,9 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data).toHaveProperty('database')
-        expect(data.database).toHaveProperty('size')
-        expect(data.database).toHaveProperty('migrations')
+        expect(data.data).toHaveProperty('database')
+        expect(data.data.database).toHaveProperty('size')
+        expect(data.data.database).toHaveProperty('migrations')
       }
     })
 
@@ -101,10 +101,10 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data).toHaveProperty('performance')
-        expect(data.performance).toHaveProperty('slowQueries')
-        expect(data.performance).toHaveProperty('missingIndexes')
-        expect(data.performance).toHaveProperty('databaseSize')
+        expect(data.data).toHaveProperty('performance')
+        expect(data.data.performance).toHaveProperty('slowQueries')
+        expect(data.data.performance).toHaveProperty('missingIndexes')
+        expect(data.data.performance).toHaveProperty('databaseSize')
       }
     })
 
@@ -113,13 +113,13 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data).toHaveProperty('cache')
-        expect(data.cache).toHaveProperty('hits')
-        expect(data.cache).toHaveProperty('misses')
-        expect(data.cache).toHaveProperty('hitRate')
-        expect(data.cache).toHaveProperty('entries')
-        expect(data.cache).toHaveProperty('totalSize')
-        expect(data.cache).toHaveProperty('evictions')
+        expect(data.data).toHaveProperty('cache')
+        expect(data.data.cache).toHaveProperty('hits')
+        expect(data.data.cache).toHaveProperty('misses')
+        expect(data.data.cache).toHaveProperty('hitRate')
+        expect(data.data.cache).toHaveProperty('entries')
+        expect(data.data.cache).toHaveProperty('totalSize')
+        expect(data.data.cache).toHaveProperty('evictions')
       }
     })
 
@@ -128,8 +128,8 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data).toHaveProperty('recommendations')
-        expect(Array.isArray(data.recommendations)).toBe(true)
+        expect(data.data).toHaveProperty('recommendations')
+        expect(Array.isArray(data.data.recommendations)).toBe(true)
       }
     })
 
@@ -138,9 +138,9 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data).toHaveProperty('details')
-        expect(data.details).toHaveProperty('tables')
-        expect(Array.isArray(data.details.tables)).toBe(true)
+        expect(data.data).toHaveProperty('details')
+        expect(data.data.details).toHaveProperty('tables')
+        expect(Array.isArray(data.data.details.tables)).toBe(true)
       }
     })
   })
@@ -151,10 +151,10 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data.database.migrations).toHaveProperty('current')
-        expect(data.database.migrations).toHaveProperty('latest')
-        expect(data.database.migrations).toHaveProperty('needsMigration')
-        expect(typeof data.database.migrations.needsMigration).toBe('boolean')
+        expect(data.data.database.migrations).toHaveProperty('current')
+        expect(data.data.database.migrations).toHaveProperty('latest')
+        expect(data.data.database.migrations).toHaveProperty('needsMigration')
+        expect(typeof data.data.database.migrations.needsMigration).toBe('boolean')
       }
     })
   })
@@ -165,10 +165,10 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data.cache).toHaveProperty('hitRatePercent')
-        expect(typeof data.cache.hitRatePercent).toBe('number')
-        expect(data.cache.hitRatePercent).toBeGreaterThanOrEqual(0)
-        expect(data.cache.hitRatePercent).toBeLessThanOrEqual(100)
+        expect(data.data.cache).toHaveProperty('hitRatePercent')
+        expect(typeof data.data.cache.hitRatePercent).toBe('number')
+        expect(data.data.cache.hitRatePercent).toBeGreaterThanOrEqual(0)
+        expect(data.data.cache.hitRatePercent).toBeLessThanOrEqual(100)
       }
     })
 
@@ -177,9 +177,9 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data.cache).toHaveProperty('totalSizeMB')
-        expect(typeof data.cache.totalSizeMB).toBe('number')
-        expect(data.cache.totalSizeMB).toBeGreaterThanOrEqual(0)
+        expect(data.data.cache).toHaveProperty('totalSizeMB')
+        expect(typeof data.data.cache.totalSizeMB).toBe('number')
+        expect(data.data.cache.totalSizeMB).toBeGreaterThanOrEqual(0)
       }
     })
 
@@ -188,8 +188,8 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data.cache).toHaveProperty('status')
-        expect(['good', 'fair', 'poor']).toContain(data.cache.status)
+        expect(data.data.cache).toHaveProperty('status')
+        expect(['good', 'fair', 'poor']).toContain(data.data.cache.status)
       }
     })
 
@@ -198,16 +198,16 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(typeof data.cache.hits).toBe('number')
-        expect(typeof data.cache.misses).toBe('number')
-        expect(typeof data.cache.entries).toBe('number')
-        expect(typeof data.cache.totalSize).toBe('number')
-        expect(typeof data.cache.evictions).toBe('number')
-        expect(data.cache.hits).toBeGreaterThanOrEqual(0)
-        expect(data.cache.misses).toBeGreaterThanOrEqual(0)
-        expect(data.cache.entries).toBeGreaterThanOrEqual(0)
-        expect(data.cache.totalSize).toBeGreaterThanOrEqual(0)
-        expect(data.cache.evictions).toBeGreaterThanOrEqual(0)
+        expect(typeof data.data.cache.hits).toBe('number')
+        expect(typeof data.data.cache.misses).toBe('number')
+        expect(typeof data.data.cache.entries).toBe('number')
+        expect(typeof data.data.cache.totalSize).toBe('number')
+        expect(typeof data.data.cache.evictions).toBe('number')
+        expect(data.data.cache.hits).toBeGreaterThanOrEqual(0)
+        expect(data.data.cache.misses).toBeGreaterThanOrEqual(0)
+        expect(data.data.cache.entries).toBeGreaterThanOrEqual(0)
+        expect(data.data.cache.totalSize).toBeGreaterThanOrEqual(0)
+        expect(data.data.cache.evictions).toBeGreaterThanOrEqual(0)
       }
     })
   })
@@ -218,8 +218,8 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(typeof data.performance.slowQueries).toBe('number')
-        expect(data.performance.slowQueries).toBeGreaterThanOrEqual(0)
+        expect(typeof data.data.performance.slowQueries).toBe('number')
+        expect(data.data.performance.slowQueries).toBeGreaterThanOrEqual(0)
       }
     })
 
@@ -228,8 +228,8 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(typeof data.performance.missingIndexes).toBe('number')
-        expect(data.performance.missingIndexes).toBeGreaterThanOrEqual(0)
+        expect(typeof data.data.performance.missingIndexes).toBe('number')
+        expect(data.data.performance.missingIndexes).toBeGreaterThanOrEqual(0)
       }
     })
 
@@ -238,7 +238,7 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(typeof data.performance.databaseSize).toBe('object')
+        expect(typeof data.data.performance.databaseSize).toBe('object')
       }
     })
   })
@@ -248,8 +248,8 @@ describe('/api/database/health', () => {
       const response = await GET(mockRequest)
       const data = await response.json()
 
-      if (response.status === 200 && data.details.tables.length > 0) {
-        const table = data.details.tables[0]
+      if (response.status === 200 && data.data.details.tables.length > 0) {
+        const table = data.data.details.tables[0]
         expect(table).toHaveProperty('name')
         expect(table).toHaveProperty('rowCount')
         expect(table).toHaveProperty('indexCount')
@@ -262,7 +262,7 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        data.details.tables.forEach((table: { rowCount: number; indexCount: number }) => {
+        data.data.details.tables.forEach((table: { rowCount: number; indexCount: number }) => {
           expect(typeof table.rowCount).toBe('number')
           expect(typeof table.indexCount).toBe('number')
           expect(table.rowCount).toBeGreaterThanOrEqual(0)
@@ -276,7 +276,7 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        data.details.tables.forEach((table: { hasSuggestions: boolean }) => {
+        data.data.details.tables.forEach((table: { hasSuggestions: boolean }) => {
           expect(typeof table.hasSuggestions).toBe('boolean')
         })
       }
@@ -316,8 +316,8 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(data.healthScore).toBeGreaterThanOrEqual(0)
-        expect(data.healthScore).toBeLessThanOrEqual(100)
+        expect(data.data.healthScore).toBeGreaterThanOrEqual(0)
+        expect(data.data.healthScore).toBeLessThanOrEqual(100)
       }
     })
   })
@@ -328,7 +328,7 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        const healthScore = data.healthScore
+        const healthScore = data.data.healthScore
         let expectedStatus = 'healthy'
 
         if (healthScore < 50) {
@@ -337,7 +337,7 @@ describe('/api/database/health', () => {
           expectedStatus = 'degraded'
         }
 
-        expect(data.health).toBe(expectedStatus)
+        expect(data.data.health).toBe(expectedStatus)
       }
     })
 
@@ -347,7 +347,7 @@ describe('/api/database/health', () => {
 
       if (response.status === 200) {
         const validStatuses = ['healthy', 'degraded', 'unhealthy']
-        expect(validStatuses).toContain(data.health)
+        expect(validStatuses).toContain(data.data.health)
       }
     })
   })
@@ -358,8 +358,8 @@ describe('/api/database/health', () => {
       const data = await response.json()
 
       if (response.status === 200) {
-        expect(Array.isArray(data.recommendations)).toBe(true)
-        data.recommendations.forEach((rec: string) => {
+        expect(Array.isArray(data.data.recommendations)).toBe(true)
+        data.data.recommendations.forEach((rec: string) => {
           expect(typeof rec).toBe('string')
         })
       }

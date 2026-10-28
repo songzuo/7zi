@@ -93,13 +93,25 @@ describe('Database Optimization Initialization', () => {
       const { warmupCache } = await import('../cache')
       // @ts-expect-error - mockRejectedValueOnce exists on vitest mock
       warmupCache.mockRejectedValueOnce(new Error('Cache warmup failed'))
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      // 全局 setup 的 db 假库的 exec 是 vi.fn()，永不抛错 → catch 分支进不去。
+      // 这里自己制造一次初始化失败。
+      const failingDb = {
+        ...(global.testDb as Record<string, unknown>),
+        exec: vi.fn().mockImplementation(() => {
+          throw new Error('init failed')
+        }),
+      }
+      const dbModule = await import('@/lib/db')
+      const getDbSpy = vi.spyOn(dbModule, 'getDatabase').mockReturnValue(failingDb as never)
+
+      const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => {})
       await expect(initializeDatabaseOptimization()).rejects.toThrow()
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '[DB Optimization] Initialization failed:',
-        expect.any(Error)
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'DB Optimization',
+        expect.objectContaining({ error: expect.any(Error) })
       )
-      consoleSpy.mockRestore()
+      loggerSpy.mockRestore()
+      getDbSpy.mockRestore()
     })
     it('should throw error when database connection fails', async () => {
       const { getDatabaseAsync } = await import('@/lib/db')

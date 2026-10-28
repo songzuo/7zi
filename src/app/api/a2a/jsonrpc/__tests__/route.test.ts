@@ -34,8 +34,11 @@ vi.mock('@/lib/agents/a2a/task-store', () => ({
 // 测试要验证的是 JSON-RPC 协议行为，不是鉴权，
 // 这里把鉴权层 mock 掉，让请求直接进 handler。
 vi.mock('@/lib/agents/a2a/auth', () => ({
-  withA2AAuth: vi.fn(async (_request: unknown, handler: (req: never) => Promise<Response>) =>
-    handler({} as never)
+  // 必须把原始 request 透传给 handler：
+  // route 里的 POSTHandler 会调用 request.json() 解析 body，
+  // 传空对象会让所有用例报 "request.json is not a function"。
+  withA2AAuth: vi.fn(async (request: unknown, handler: (req: never) => Promise<Response>) =>
+    handler(request as never)
   ),
   authenticateA2ARequest: vi.fn(async () => ({ method: 'jwt', userId: 'test-user' })),
   canAccessAgent: vi.fn(() => true),
