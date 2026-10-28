@@ -40,7 +40,10 @@
 实测在 `/tmp/botmem-upload/botmem`（`songzuo/botmem` 的本地克隆）的 **git 历史对象**中扫到一个
 真实形态的 PAT（形如 `ghp_` + 36 位字母数字，**此处刻意不回显原文**）。
 
-另有占位符 `ghp_abcdefghijklmnopqrstuvwxyz123456` 与 `ghp_xxxxxxxx…`（后者是文档模板，非真实）。
+另有占位符 `gh[p]_` + 36 位字母数字（形如 `gh[p]_abcdefghij…`，非真实）
+与 `gh[p]_` + 若干 x（文档模板，非真实）。
+→ 按 HEARTBEAT §20，文档里一律写 `gh[p]_` / `sk[_]_`，
+  避免被节点上的旧版脱敏脚本 `s/gh[p]_[A-Za-z0-9]*/[已移除]/g` 当成真 token 改坏。
 `7zi` 仓库历史里只扫到**占位符** `ghp_xxxxxxxx…`，未发现真实 PAT。
 `HEARTBEAT.md` 第 6 节记录：2026-10-22 在 bot4 上发现 `/var/log/botmem-*.log`、`claw-mesh.log`
 里有 1200+ 处失效 token 明文。
