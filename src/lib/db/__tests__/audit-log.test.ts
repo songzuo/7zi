@@ -18,9 +18,11 @@ import {
   AuditStatus,
   type AuditLog,
 } from '../audit-log'
-import { getDatabaseAsync } from '../index'
+import { getDatabaseAsync } from '../connection'
 // Mock dependencies
-vi.mock('../index', () => ({
+// NOTE: 被测模块 src/lib/db/audit-log.ts 从 './connection' 导入 getDatabaseAsync，
+// mock 必须指向同一模块路径，否则打的是 '../index'，代码会走真实 sqlite。
+vi.mock('../connection', () => ({
   getDatabaseAsync: vi.fn(),
 }))
 vi.mock('../../logger', () => ({
@@ -173,6 +175,10 @@ describe('audit-log', () => {
       mockDb.prepare.mockReturnValue(mockStmt)
       const result = await createAuditLog(entry)
       expect(result.user_id).toBeNull()
+      // 参数顺序对齐实现 stmt.run(...) 的实际顺序：
+      // id, user_id, action, entity_type, entity_id,
+      // resource_type, resource_id, details(JSON), ip_address,
+      // user_agent, status, error_message, created_at
       expect(mockStmt.run).toHaveBeenCalledWith(
         expect.any(String),
         null,
@@ -181,8 +187,8 @@ describe('audit-log', () => {
         null,
         null,
         null,
-        expect.any(String),
-        null,
+        JSON.stringify({ ip: '192.168.1.1' }),
+        '192.168.1.1',
         null,
         AuditStatus.FAILED,
         null,

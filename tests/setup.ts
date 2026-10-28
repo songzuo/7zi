@@ -156,8 +156,23 @@ vi.mock('next/link', () => ({
 }))
 
 // Mock Next.js Image
+//
+// 注意：**不能返回 null / 渲染空**（与下面 lucide-react 的情况同源）。
+// 原本是 `default: vi.fn()`，渲染结果是空的 —— 于是：
+//   - `document.querySelectorAll('[data-testid="participant-avatar"]')` 永远为 0
+//   - 走 <Image> 分支的组件，alt / data-testid 等属性全部丢失
+// 断言这些属性的用例会整片失败，而跟组件实现毫无关系。
+// 这里渲染成真实的 <img>，并把 props 透传下去（alt/src/data-testid 等都能被断言到）。
 vi.mock('next/image', () => ({
-  default: vi.fn(),
+  default: ({ src, alt, width, height, ...rest }: Record<string, unknown>) =>
+    // eslint-disable-next-line @next/next/no-img-element
+    createElement('img', {
+      src: typeof src === 'string' ? src : undefined,
+      alt: typeof alt === 'string' ? alt : undefined,
+      width: typeof width === 'number' ? width : undefined,
+      height: typeof height === 'number' ? height : undefined,
+      ...rest,
+    }),
 }))
 
 // Mock lucide-react icons

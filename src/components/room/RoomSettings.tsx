@@ -19,11 +19,19 @@ import type {
 // Types
 // ============================================================================
 
+/**
+ * Config patch accepted by {@link RoomSettingsProps.onUpdateConfig}.
+ *
+ * In addition to the regular {@link RoomConfig} fields, the room name can be
+ * updated through the same callback.
+ */
+export type RoomConfigUpdate = Partial<RoomConfig> & { name?: string }
+
 export interface RoomSettingsProps {
   room: Room
   currentUserId: string | null
   canManage: boolean
-  onUpdateConfig: (roomId: string, config: Partial<RoomConfig>) => void
+  onUpdateConfig: (roomId: string, config: RoomConfigUpdate) => void
   onChangeVisibility: (roomId: string, visibility: RoomVisibility) => void
   onChangeRole: (roomId: string, userId: string, newRole: UserRole) => void
   onKickUser: (roomId: string, userId: string) => void
@@ -93,7 +101,7 @@ function Tabs({ activeTab, onChange, canManage }: TabProps) {
 interface GeneralSettingsProps {
   room: Room
   canManage: boolean
-  onUpdateConfig: (config: Partial<RoomConfig>) => void
+  onUpdateConfig: (config: RoomConfigUpdate) => void
   onChangeVisibility: (visibility: RoomVisibility) => void
 }
 
@@ -110,11 +118,8 @@ function GeneralSettings({
   const [messageHistory, _setMessageHistory] = useState(room.config.messageHistoryEnabled || true)
 
   const handleSaveName = () => {
-    // TODO: Need to add a callback to update room metadata, not just config
-    // if (roomName !== room.name && canManage) {
-    //   onUpdateConfig({ metadata: { ...room.metadata, name: roomName } });
-    // }
-    console.debug('Room name update not yet implemented:', roomName)
+    if (!canManage || roomName === room.name) return
+    onUpdateConfig({ name: roomName })
   }
 
   return (
@@ -233,6 +238,9 @@ function GeneralSettings({
           <button
             name="allowGuests"
             data-testid="toggle-allow-guests"
+            role="checkbox"
+            aria-checked={allowGuests}
+            aria-label="允许访客"
             onClick={() => canManage && onUpdateConfig({ allowGuests: !allowGuests })}
             disabled={!canManage}
             className={`relative h-6 w-12 rounded-full transition-colors ${allowGuests ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'} disabled:cursor-not-allowed disabled:opacity-50`}
@@ -249,6 +257,10 @@ function GeneralSettings({
             <div className="text-xs text-gray-600 dark:text-gray-400">保存和显示历史消息</div>
           </div>
           <button
+            data-testid="toggle-message-history"
+            role="checkbox"
+            aria-checked={messageHistory}
+            aria-label="消息历史"
             onClick={() => canManage && onUpdateConfig({ messageHistoryEnabled: !messageHistory })}
             disabled={!canManage}
             className={`relative h-6 w-12 rounded-full transition-colors ${messageHistory ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'} disabled:cursor-not-allowed disabled:opacity-50`}
@@ -296,6 +308,9 @@ function Permissions({ room, canManage, onToggleEnforce }: PermissionsProps) {
           <div className="text-xs text-gray-600 dark:text-gray-400">根据用户角色限制操作权限</div>
         </div>
         <button
+          role="checkbox"
+          aria-checked={room.config.enforcePermissions}
+          aria-label="强制权限检查"
           onClick={() => canManage && onToggleEnforce(!room.config.enforcePermissions)}
           disabled={!canManage}
           className={`relative h-6 w-12 rounded-full transition-colors ${room.config.enforcePermissions ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'} disabled:cursor-not-allowed disabled:opacity-50`}
@@ -463,6 +478,7 @@ function Members({
                 <div className="flex gap-2">
                   <select
                     value={participant.role}
+                    aria-label={`${participant.name} 的角色`}
                     onChange={e => onChangeRole(participant.id, e.target.value as UserRole)}
                     className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   >

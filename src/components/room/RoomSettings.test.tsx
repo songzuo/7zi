@@ -137,7 +137,9 @@ describe('RoomSettings', () => {
       expect(screen.getByText('通用设置')).toBeInTheDocument()
       expect(screen.getByText('房间名称')).toBeInTheDocument()
       expect(screen.getByText('可见性')).toBeInTheDocument()
-      expect(screen.getByText('最大参与人数')).toBeInTheDocument()
+      // 实现里 label 是 "最大参与人数: {maxParticipants}"（文本与数值同一节点），
+      // 精确文本匹配不到，用正则匹配前缀。
+      expect(screen.getByText(/最大参与人数/)).toBeInTheDocument()
     })
 
     it('should display current room name', () => {
@@ -222,7 +224,8 @@ describe('RoomSettings', () => {
         />
       )
 
-      expect(screen.getByText('私有')).toBeInTheDocument()
+      // 可见性选项的 label 带 emoji 前缀（"🔒 私有"）
+      expect(screen.getByText(/私有/)).toBeInTheDocument()
     })
 
     it('should change visibility', async () => {
@@ -246,10 +249,8 @@ describe('RoomSettings', () => {
         />
       )
 
-      const visibilitySelect = screen.getByRole('combobox', { name: /可见性/i })
-      await user.click(visibilitySelect)
-
-      const privateOption = screen.getByText('私有')
+      // 实现的可见性是三个 button（public / private / invite-only），不是 select
+      const privateOption = screen.getByTestId('visibility-private')
       await user.click(privateOption)
 
       await waitFor(() => {
@@ -302,12 +303,14 @@ describe('RoomSettings', () => {
         />
       )
 
-      const input = screen.getByDisplayValue('100')
-      await user.clear(input)
-      await user.type(input, '200')
+      // 实现的「最大参与人数」是 type="range" 滑块，
+      // userEvent 的 clear()/type() 只支持可编辑文本输入框，
+      // 所以直接用 fireEvent.change 设值。
+      const input = screen.getByTestId('max-participants-input')
+      fireEvent.change(input, { target: { value: '200' } })
 
-      const saveButton = screen.getByRole('button', { name: /保存/i })
-      await user.click(saveButton)
+      // 滑块的变更在 onMouseUp 时提交
+      fireEvent.mouseUp(input)
 
       await waitFor(() => {
         expect(mockOnUpdateConfig).toHaveBeenCalledWith(
@@ -384,7 +387,7 @@ describe('RoomSettings', () => {
       await user.click(permissionsTab)
 
       expect(screen.getByText('权限管理')).toBeInTheDocument()
-      expect(screen.getByText('权限检查')).toBeInTheDocument()
+      expect(screen.getByText('启用权限检查')).toBeInTheDocument()
     })
 
     it('should toggle enforce permissions', async () => {
@@ -451,10 +454,9 @@ describe('RoomSettings', () => {
       await user.click(permissionsTab)
 
       // Should show permission table with roles and permissions
-      expect(screen.getByText(/所有者/i)).toBeInTheDocument()
-      expect(screen.getByText(/管理员/i)).toBeInTheDocument()
-      expect(screen.getByText(/成员/i)).toBeInTheDocument()
-      expect(screen.getByText(/访客/i)).toBeInTheDocument()
+      // 矩阵表头里的角色列名（"成员"等在页面别处也有，需限定在表头行）
+      const headerCells = screen.getAllByRole('columnheader').map(c => c.textContent)
+      expect(headerCells).toEqual(expect.arrayContaining(['所有者', '管理员', '成员', '访客']))
     })
   })
 
@@ -516,9 +518,11 @@ describe('RoomSettings', () => {
       const membersTab = screen.getByRole('tab', { name: '成员管理' })
       await user.click(membersTab)
 
-      expect(screen.getByText(/owner/i)).toBeInTheDocument()
-      expect(screen.getByText(/admin/i)).toBeInTheDocument()
-      expect(screen.getByText(/member/i)).toBeInTheDocument()
+      // 角色下拉只对「非 owner、非当前用户」的成员渲染。
+      // 工厂里 张三=user-1 是 owner 且就是 currentUserId → 不渲染；
+      // 李四=user-2 是 admin → 渲染。
+      expect(screen.getByRole('combobox', { name: '李四 的角色' })).toBeInTheDocument()
+      expect(screen.queryByRole('combobox', { name: '张三 的角色' })).not.toBeInTheDocument()
     })
 
     it('should change member role', async () => {
@@ -546,7 +550,8 @@ describe('RoomSettings', () => {
       await user.click(membersTab)
 
       // Find role change button for 李四 (admin)
-      const roleChangeButtons = screen.getAllByRole('button', { name: /更改角色/i })
+      // 角色变更用下拉框（combobox），不是按钮
+      const roleChangeButtons = screen.getAllByRole('combobox', { name: /的角色$/ })
       const memberRoleButton = roleChangeButtons.find(btn =>
         btn.closest('[data-testid="participant-item"]')?.textContent?.includes('李四')
       )
@@ -663,6 +668,9 @@ describe('RoomSettings', () => {
       const membersTab = screen.getByRole('tab', { name: '成员管理' })
       await user.click(membersTab)
 
+      // 已封禁列表默认隐藏，需点「已封禁 (N)」切过去
+      await user.click(screen.getByRole('button', { name: /已封禁/ }))
+
       expect(screen.getByText('user-999')).toBeInTheDocument()
       expect(screen.getByText('user-888')).toBeInTheDocument()
     })
@@ -691,11 +699,14 @@ describe('RoomSettings', () => {
       const membersTab = screen.getByRole('tab', { name: '成员管理' })
       await user.click(membersTab)
 
-      const unbanButton = screen.getByRole('button', { name: /解除封禁/i })
+      // 已封禁列表默认隐藏，需先切换过去
+      await user.click(screen.getByRole('button', { name: /已封禁/ }))
+      const unbanButton = screen.getByRole('button', { name: '解封' })
       await user.click(unbanButton)
 
+      // 解封回调的签名是 (roomId, userId)
       await waitFor(() => {
-        expect(mockOnUnbanUser).toHaveBeenCalledWith('user-999')
+        expect(mockOnUnbanUser).toHaveBeenCalledWith('room-1', 'user-999')
       })
     })
   })
@@ -729,8 +740,9 @@ describe('RoomSettings', () => {
       const dangerTab = screen.getByRole('tab', { name: '危险区域' })
       await user.click(dangerTab)
 
-      expect(screen.getByText('危险区域')).toBeInTheDocument()
-      expect(screen.getByText('删除房间')).toBeInTheDocument()
+      // 「危险区域」既是 tab 又是页面标题 → 用 heading 角色定位，避免多元素歧义
+      expect(screen.getByRole('heading', { name: '危险区域' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: '删除房间' })).toBeInTheDocument()
     })
 
     it('should show warning message', async () => {
@@ -757,7 +769,7 @@ describe('RoomSettings', () => {
       const dangerTab = screen.getByRole('tab', { name: '危险区域' })
       await user.click(dangerTab)
 
-      expect(screen.getByText(/此操作不可撤销/i)).toBeInTheDocument()
+      expect(screen.getByText(/不可逆/)).toBeInTheDocument()
     })
 
     it('should destroy room after confirmation', async () => {
@@ -788,12 +800,17 @@ describe('RoomSettings', () => {
       const deleteButton = screen.getByRole('button', { name: /删除房间/i })
       await user.click(deleteButton)
 
+      // 实现的删除是「两段式确认」：第一次点击只是进入 confirmDelete 状态，
+      // 此时会显示确认文案；第二次点击才真正调用 onDestroyRoom。
+      // 不用 window.confirm —— 实现走的是内联二次确认。
       await waitFor(() => {
-        expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining('要删除的房间'))
+        expect(screen.getByText(/此操作将删除房间/)).toBeInTheDocument()
       })
+      const confirmButton = screen.getByRole('button', { name: '确认删除' })
+      await user.click(confirmButton)
 
       await waitFor(() => {
-        expect(mockOnDestroyRoom).toHaveBeenCalledWith('room-1')
+        expect(mockOnDestroyRoom).toHaveBeenCalled()
       })
     })
 

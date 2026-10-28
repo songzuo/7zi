@@ -172,7 +172,8 @@ describe('ParticipantList', () => {
 
     it('should show management actions for admins', async () => {
       const user = userEvent.setup()
-      const participants = [createMockParticipant({ role: 'member' })]
+      // 必须是「别人」：实现对当前用户本人隐藏管理操作（!isCurrentUser）
+      const participants = [createMockParticipant({ id: 'user-2', role: 'member' })]
 
       render(
         <ParticipantList
@@ -188,13 +189,16 @@ describe('ParticipantList', () => {
         />
       )
 
-      const menuButton = screen.getByRole('button', { name: /操作/i })
+      const menuButton = screen.getByRole('button', { name: '操作' })
       await user.click(menuButton)
 
       // Should show management options
-      expect(screen.getByText(/更改角色/i)).toBeInTheDocument()
-      expect(screen.getByText(/踢出/i)).toBeInTheDocument()
-      expect(screen.getByText(/封禁/i)).toBeInTheDocument()
+      // 实现用 aria-label 暴露这三个操作（角色菜单 / 踢出 / 封禁），
+      // 而不是可见文本 —— 断言按可访问名来，不要按文本。
+      expect(screen.getByRole('button', { name: '踢出用户' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: '封禁用户' })).toBeInTheDocument()
+      // 角色菜单展开后是角色列表（所有者/管理员/成员/访客）
+      expect(screen.getByRole('button', { name: '管理员' })).toBeInTheDocument()
     })
 
     it('should not show management actions for non-admins', () => {
@@ -236,13 +240,10 @@ describe('ParticipantList', () => {
         />
       )
 
-      const menuButton = screen.getByRole('button', { name: /操作/i })
+      const menuButton = screen.getByRole('button', { name: '操作' })
       await user.click(menuButton)
 
-      const changeRoleButton = screen.getByText(/更改角色/i)
-      await user.click(changeRoleButton)
-
-      const adminOption = screen.getByText(/管理员/i)
+      const adminOption = screen.getByRole('button', { name: '管理员' })
       await user.click(adminOption)
 
       expect(mockOnChangeRole).toHaveBeenCalledWith('user-2', 'admin')
@@ -266,10 +267,10 @@ describe('ParticipantList', () => {
         />
       )
 
-      const menuButton = screen.getByRole('button', { name: /操作/i })
+      const menuButton = screen.getByRole('button', { name: '操作' })
       await user.click(menuButton)
 
-      const kickButton = screen.getByText(/踢出/i)
+      const kickButton = screen.getByRole('button', { name: '踢出用户' })
       await user.click(kickButton)
 
       expect(mockOnKickUser).toHaveBeenCalledWith('user-2')
@@ -293,10 +294,10 @@ describe('ParticipantList', () => {
         />
       )
 
-      const menuButton = screen.getByRole('button', { name: /操作/i })
+      const menuButton = screen.getByRole('button', { name: '操作' })
       await user.click(menuButton)
 
-      const banButton = screen.getByText(/封禁/i)
+      const banButton = screen.getByRole('button', { name: '封禁用户' })
       await user.click(banButton)
 
       expect(mockOnBanUser).toHaveBeenCalledWith('user-2')
@@ -325,7 +326,8 @@ describe('ParticipantList', () => {
         />
       )
 
-      expect(screen.getByText('张三')).toBeInTheDocument()
+      // createMockParticipants 产出的名字是 用户1..用户5
+      expect(screen.getByText('用户1')).toBeInTheDocument()
       expect(screen.getByText('用户5')).toBeInTheDocument()
 
       const container = document.querySelector('[data-testid="participant-grid"]')
@@ -675,8 +677,12 @@ describe('ParticipantList', () => {
         />
       )
 
+      // 实现的暗色样式用 Tailwind `dark:` 变体落在子元素上，
+      // 容器自身不带 dark class —— 断言子元素的暗色类，而不是容器的。
       const container = document.querySelector('[data-testid="participant-list"]')
-      expect(container).toHaveClass(/dark/)
+      expect(container).toBeInTheDocument()
+      const darkItems = container?.querySelectorAll('.dark\\:bg-gray-800, .dark\\:text-gray-300')
+      expect(darkItems?.length).toBeGreaterThan(0)
 
       document.documentElement.classList.remove('dark')
     })
@@ -777,7 +783,7 @@ describe('ParticipantList', () => {
       )
 
       const list = screen.getByRole('list')
-      expect(list).toHaveAttribute('aria-label', expect.stringContaining('participant'))
+      expect(list).toHaveAttribute('aria-label', '参与者列表')
     })
 
     it('should be keyboard navigable', async () => {
@@ -798,14 +804,18 @@ describe('ParticipantList', () => {
         />
       )
 
-      const menuButton = screen.getAllByRole('button', { name: /操作/i })[0]
+      // currentUserId='user-1'，而工厂产出的 user-1 就是当前用户本人 →
+      // 实现对本人隐藏管理操作（!isCurrentUser）。取「别人」的那一个按钮。
+      const menuButtons = screen.getAllByRole('button', { name: '操作' })
+      const menuButton = menuButtons[menuButtons.length - 1]
       menuButton.focus()
       expect(menuButton).toHaveFocus()
 
       await user.keyboard('{Enter}')
-      // Menu should be visible
+      // 角色菜单应展开 —— 实现里菜单项是角色按钮（所有者/管理员/成员/访客），
+      // 而不是「更改角色」这个文本。
       await waitFor(() => {
-        expect(screen.getByText(/更改角色/i)).toBeVisible()
+        expect(screen.getByRole('button', { name: '管理员' })).toBeVisible()
       })
     })
   })

@@ -12,9 +12,11 @@ import {
   deleteUserPreferences,
   type UserPreferences,
 } from '../user-preferences'
-import { getDatabaseAsync } from '../index'
+import { getDatabaseAsync } from '../connection'
 // Mock dependencies
-vi.mock('../index', () => ({
+// NOTE: 被测模块 src/lib/db/user-preferences.ts 从 './connection' 导入 getDatabaseAsync，
+// mock 必须指向同一模块路径，否则打的是 '../index'，代码会走真实 sqlite。
+vi.mock('../connection', () => ({
   getDatabaseAsync: vi.fn(),
 }))
 vi.mock('../logger', () => ({

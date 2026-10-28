@@ -185,9 +185,10 @@ describe('RoomCard', () => {
         />
       )
 
-      // Check for selected class
-      const card = screen.getByText('测试房间').closest('div')
-      expect(card?.className).toMatch(/border-blue-500|border-blue-400/)
+      // 选中的高亮类落在卡片根节点上（data-testid="room-card"），
+      // 不是标题文字所在的内层 div。
+      const card = screen.getByTestId('room-card')
+      expect(card.className).toMatch(/border-blue-500|border-blue-400/)
     })
 
     it('should call onClick when card is clicked', async () => {
@@ -352,9 +353,16 @@ describe('RoomCard', () => {
         />
       )
 
-      // Owner should see delete option
-      const deleteButton = screen.getByRole('button', { name: /删除/i })
-      await user.click(deleteButton)
+      // 删除项在「菜单」下拉里 —— 实现的菜单是 hover 展开的
+      // （卡片根节点 onMouseEnter → setShowMenu(true)）。
+      // 注意两点：
+      //  1) 直接点「菜单」按钮反而会把它 toggle 关闭（hover 时已经展开过）
+      //  2) 菜单是 absolute top-full，定位在卡片盒子之外；
+      //     用 userEvent.click 移指针过去会触发卡片的 onMouseLeave → 菜单卸载
+      //     所以这里用 fireEvent.click 直接触发，不移动指针。
+      await user.hover(screen.getByTestId('room-card'))
+      const deleteButton = await screen.findByRole('button', { name: '删除房间' })
+      fireEvent.click(deleteButton)
 
       expect(mockOnDelete).toHaveBeenCalledWith(room.id)
     })
@@ -455,8 +463,9 @@ describe('RoomCard', () => {
         />
       )
 
-      const card = screen.getByText('测试房间').closest('div')
-      expect(card?.className).toMatch(/dark:/)
+      // 暗色样式用 Tailwind `dark:` 变体写在卡片根节点上
+      const card = screen.getByTestId('room-card')
+      expect(card.className).toMatch(/dark:/)
 
       document.documentElement.classList.remove('dark')
     })
