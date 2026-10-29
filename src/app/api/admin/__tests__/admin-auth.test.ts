@@ -78,11 +78,11 @@ const mockedVerify = vi.mocked(verify)
 type NextRequestInit = NonNullable<ConstructorParameters<typeof NextRequest>[1]>
 
 function requestWithAuth(url: string, authHeader?: string, init?: NextRequestInit): NextRequest {
-  const headers = new Headers(init?.headers)
+  const headers = new Headers(init?.headers as HeadersInit | undefined)
   if (authHeader !== undefined) {
     headers.set('authorization', authHeader)
   }
-  return new NextRequest(url, { ...init, headers })
+  return new NextRequest(url, { ...init, headers: headers as HeadersInit })
 }
 
 // ---------------------------------------------------------------------------
