@@ -40,12 +40,29 @@ export class AuditSignatureHandler {
    * 验证审计事件签名
    */
   public verify(event: AuditEvent): boolean {
-    if (!this.enabled || !event.signature) {
+    if (!this.enabled) {
       return true;
     }
 
+    // 启用签名后，**没有签名的事件不应被当作可信**。
+    // 原实现里 `!event.signature` 直接 return true —— 那等于
+    // 「只要把 signature 字段删掉就能绕过完整性校验」。
+    if (!event.signature) {
+      return false;
+    }
+
     const expectedSignature = this.generateSignature(event);
-    return event.signature === expectedSignature;
+
+    // 恒定时间比较，避免时序侧信道逐字节爆破签名。
+    // timingSafeEqual 要求等长 Buffer，长度不等直接判失败。
+    const provided = Buffer.from(event.signature, 'utf8')
+    const expected = Buffer.from(expectedSignature, 'utf8')
+
+    if (provided.length !== expected.length) {
+      return false
+    }
+
+    return crypto.timingSafeEqual(provided, expected)
   }
 
   /**
