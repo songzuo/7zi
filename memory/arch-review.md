@@ -124,6 +124,8 @@ barrel pattern（index.ts）提供了统一的公共 API 入口，便于模块�
 
 **问题 C - features/ 空目录**：
 - `features/notifications/` 有实际代码
+  - ⚠️ **2026-10-29 更新**：仓库根 `src/features/notifications/` 已整体删除（提交 `e11963a06e`），
+    通知实现回归 `src/lib/services/notification*.ts`。
 - `features/agents/`、`features/ai/`、`features/auth/` 均为空
 
 **改进建议**：选择一套作为主实现，清理空的 features/ 目录，明确 workflow 边界。

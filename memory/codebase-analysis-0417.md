@@ -203,6 +203,8 @@ src/
 ### 3.6 通知系统 (`src/features/notifications/`, `src/lib/notifications/`)
 - WebSocket 实时推送
 - 多渠道通知
+- ⚠️ **2026-10-29 更新**：`src/features/notifications/` 已整体删除（提交 `e11963a06e`），
+  现役路径为 `src/lib/services/notification*.ts` 与 `src/lib/notifications/`。
 
 ### 3.7 安全模块 (`src/lib/security/`, `src/lib/middleware/`)
 - RBAC 权限系统

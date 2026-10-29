@@ -1236,6 +1236,8 @@ export const GET = handleApiRoute(
 
 1. 将 `src/lib/websocket-manager.ts` 迁移到 `src/features/websocket/`
 2. 将 `src/lib/services/notification.ts` 迁移到 `src/features/notifications/`
+   - ⚠️ **2026-10-29 更新**：此建议**未执行**。仓库根 `src/features/notifications/` 已整体删除
+     （提交 `e11963a06e`），现役唯一实现为 `src/lib/services/notification*.ts`。
 3. 清理 `src/lib/services/`
 
 **具体步骤**:
@@ -1256,6 +1258,9 @@ find src -name "*.ts" -o -name "*.tsx" | xargs sed -i \
 ```
 
 **步骤 2**: 创建通知功能模块
+
+> ⚠️ **2026-10-29 更新**：以下命令**未执行**。仓库根 `src/features/notifications/` 已整体删除
+> （提交 `e11963a06e`），现役唯一实现为 `src/lib/services/notification*.ts`。
 
 ```bash
 # 创建通知模块

@@ -1033,8 +1033,13 @@ ls src/lib/services/
 
 # 3. 逐个迁移
 # 示例：迁移通知服务
-mkdir -p src/features/notifications/lib/services
-mv src/lib/services/notification-service.ts src/features/notifications/lib/services/notification-service.ts
+# ⚠️ 2026-10-29 起本步骤不再适用：通知服务已于提交 e11963a06e 中
+#    删除重复的 src/features/notifications/ 副本，现役唯一实现为
+#    src/lib/services/notification{,-enhanced,-storage}.ts。
+#    如仍要把通知服务迁入 feature 目录，请直接迁到 src/features/notifications/lib/
+#    （该目录当前不存在，需新建），不要使用下面的 services/ 子目录结构。
+# mkdir -p src/features/notifications/lib/services
+# mv src/lib/services/notification-service.ts src/features/notifications/lib/services/notification-service.ts
 
 # 4. 更新导入
 find src -name "*.ts" -o -name "*.tsx" | xargs sed -i \
@@ -1474,6 +1479,11 @@ features/notifications/lib/
 └── types.ts                    # 类型定义 (~50 行)
 ```
 
+> ⚠️ **2026-10-29 更新**：仓库根 `src/features/notifications/` 已整体删除（提交 `e11963a06e`），
+> 现役通知实现为 `src/lib/services/notification.ts` / `notification-enhanced.ts` /
+> `notification-storage.ts`。上表仅为「若未来重新迁入 feature 目录」时的目标结构参考，
+> 当前 `src/features/` 目录**不存在**。
+
 #### Step 4.5: 测试与验证 (1 天)
 
 ```bash
@@ -1481,7 +1491,9 @@ features/notifications/lib/
 npm run test:unit -- src/features/auth/permissions/
 npm run test:unit -- src/components/feedback/
 npm run test:unit -- src/features/websocket/lib/
-npm run test:unit -- src/features/notifications/lib/
+# ⚠️ 2026-10-29：src/features/notifications/ 已删除，该路径无对应测试；
+#    通知相关测试请跑 src/lib/services/
+npm run test:unit -- src/lib/services/
 
 # 完整测试套件
 npm run test:unit

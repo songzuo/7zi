@@ -135,6 +135,10 @@
 | StarRating | `components/StarRating.tsx` | `components/rating/StarRating.tsx` |
 | Notification | `components/NotificationCenter/` | `src/lib/services/notification.ts` + `src/features/notifications/` |
 
+> ⚠️ **2026-10-29 更新**：仓库根 `src/features/notifications/` 已整体删除（提交 `e11963a06e`），
+> 通知实现唯一来源为 `src/lib/services/notification*.ts`；本表第二列的历史路径仅供追溯。
+
+
 **建议**: 统一为一处，删除重复。
 
 ---
@@ -221,6 +225,7 @@
 | 5 | 清理 `lib/` 根目录的测试文件到 `__tests__/` 子目录 | 🟡 中 | 低 |
 | 6 | 创建 `lib/index.ts` 统一导出核心模块 | 🟡 中 | 低 |
 | 7 | 合并 `features/notifications/` → `lib/notifications/`，废弃 features | 🟡 中 | 中 |
+| 7b | ✅ **2026-10-29 已落地**（提交 `e11963a06e`）：仓库根 `src/features/notifications/` 整体删除，保留 `src/lib/services/notification*.ts` 为唯一实现 | ✅ | — |
 | 8 | 清理 `components/` 重复文件（ErrorBoundary, StarRating 等） | 🟡 中 | 低 |
 | 9 | 将大文件拆分：`permissions.ts`(945行) → `lib/rbac/` 目录 | 🟡 中 | 高 |
 | 10 | 添加缺失的 README.md 到主要模块 | 🟢 低 | 低 |

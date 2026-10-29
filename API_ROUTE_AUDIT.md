@@ -24,14 +24,21 @@
 
 ### 1.2 Admin Routes
 
+> ⚠️ **2026-10-29 更新**：本表的 Auth 列已按当前实现重写（核实口径：`git show a51a2c26ee` + `src/app/api/admin/` 源码逐行比对）。
+> 下表中标注 ✅ 的行**已修复**，标注 ⚠️ 的行**仍是占位实现**（源码中仍带 `// TODO: Implement proper JWT verification`）。
+
 | Path | Method(s) | Middleware | Auth | Rate Limit | Validation | Status Codes | Notes |
 |------|-----------|------------|------|------------|------------|--------------|-------|
-| `/api/admin/rate-limit/rules` | GET, POST, OPTIONS | CORS | ⚠️ Manual token check (TODO: JWT) | ❌ None | ✅ Zod schemas | 200/201/401/500 | Auth has TODO comment - JWT not implemented |
-| `/api/admin/rate-limit/rules/[id]` | GET, PUT, DELETE, OPTIONS | CORS | ⚠️ Manual token check (TODO: JWT) | ❌ None | ✅ Zod schemas | 200/201/401/404/500 | Same auth gap as above |
-| `/api/admin/rate-limit/statistics` | GET, OPTIONS | CORS | ⚠️ Manual token check (TODO: JWT) | ❌ None | ✅ Zod schemas | 200/401/500 | Statistics exposure without proper auth |
-| `/api/admin/security/blacklist` | GET, POST, OPTIONS | CORS | ⚠️ Manual token check (TODO: JWT) | ❌ None | ✅ Zod schemas | 200/201/401/500 | Blacklist management exposed |
+| `/api/admin/rate-limit/rules` | GET, POST, OPTIONS | CORS | ✅ Real JWT + admin role | ❌ None | ✅ Zod schemas | 200/201/**401**/**403**/500 | Fixed 2026-10-29 (T243, `a51a2c26ee`): `verify()` 验签 + `role`/`roles` 含 `admin`；401=未认证，403=非 admin |
+| `/api/admin/rate-limit/rules/[id]` | GET, PUT, DELETE, OPTIONS | CORS | ⚠️ Manual token check (TODO: JWT) | ❌ None | ✅ Zod schemas | 200/201/401/404/500 | **Still a stub** — any non-empty Bearer token is accepted, `userId` hardcoded `'admin'` |
+| `/api/admin/rate-limit/statistics` | GET, OPTIONS | CORS | ⚠️ Manual token check (TODO: JWT) | ❌ None | ✅ Zod schemas | 200/401/500 | **Still a stub** — same gap as above |
+| `/api/admin/security/blacklist` | GET, POST, OPTIONS | CORS | ⚠️ Manual token check (TODO: JWT) | ❌ None | ✅ Zod schemas | 200/201/401/500 | **Still a stub** — same gap as above |
 
-**⚠️ SECURITY ISSUE:** Admin routes use a stub `checkAuth()` function with `// TODO: Implement proper JWT verification`. All admin endpoints are effectively unprotected until JWT verification is implemented.
+**⚠️ SECURITY ISSUE（部分已解决）：** 提交 `a51a2c26ee`（T243）把
+`/api/admin/rate-limit/rules` 的 `checkAuth()` 从「任意非空 token 即放行」改为真 JWT 验签 + admin 角色判定，
+并区分 401（未认证）与 403（已认证但非 admin）。
+其余三个管理端路由（`rules/[id]`、`statistics`、`security/blacklist`）**仍是占位鉴权**，
+任意非空 Bearer token 即可操作 —— **待确认**是否纳入下一轮修复。
 
 ---
 
@@ -129,10 +136,11 @@
    - Anyone can register fake agents, update agent data, delete agents, or send fake heartbeats
    - A malicious actor could DoS the agent registry or impersonate agents
 
-2. **Admin Routes - TODO JWT Implementation**
-   - `/api/admin/rate-limit/*` and `/api/admin/security/blacklist` have stub auth
-   - `checkAuth()` function just checks if token exists, doesn't verify JWT signature
-   - Anyone with a non-empty Bearer token can manage rate limits and blacklists
+2. **Admin Routes - TODO JWT Implementation（部分已修复，2026-10-29）**
+   - ✅ `/api/admin/rate-limit/rules` 已修复：`checkAuth()` 改为 `verify()` 真实验签 + admin 角色判定
+   - ⚠️ `/api/admin/rate-limit/rules/[id]`、`/api/admin/rate-limit/statistics`、`/api/admin/security/blacklist`
+     仍是 stub auth —— `checkAuth()` 只检查 token 是否存在，不验签
+   - 上述剩余路由仍可被任意非空 Bearer token 操作（含**删除**限流规则）—— **待确认**下一轮修复安排
 
 3. **Workflow Routes - No Authorization**
    - All workflow CRUD and execution endpoints are completely open

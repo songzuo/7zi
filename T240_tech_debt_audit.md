@@ -460,6 +460,12 @@ $ git diff --stat src/components/LazyComponents.tsx
 |---|---|---|
 | P0-1 | `src/app/api/admin/rate-limit/rules/route.ts:61`、`[id]/route.ts:49` | `// TODO: Implement proper JWT verification` —— 管理端路由的鉴权是待实现状态，属安全风险 |
 | P0-2 | `src/lib/workflow/triggers.ts:705` | `// TODO: 实现签名验证` —— 工作流触发器未验签，Webhook 可被伪造调用 |
+
+> ✅ **P0-1 / P0-2 已于 2026-10-29 修复**（提交 `a51a2c26ee`）：
+> P0-2 → `src/lib/workflow/triggers.ts` 的 `WebhookTrigger` 现做 HMAC-SHA256 验签（`x-signature` /
+> `x-webhook-signature` / `x-hub-signature-256`，兼容 `sha256=` 前缀，`timingSafeEqual` 比较）。
+> P0-1 → `/api/admin/rate-limit/rules` 已改为真 JWT 验签 + admin 角色判定（401/403 区分）；
+> **`[id]/route.ts:49` 仍是占位鉴权**，未修复。
 | P0-3 | `src/lib/security/encryption.ts:122` | `// TODO: 重新加密所有使用旧密钥的数据` —— 密钥轮换未闭环 |
 | P0-4 | `src/lib/audit-log/export-service.ts:125` | `// TODO: 实际的签名验证` —— 审计日志导出未验签 |
 | P0-5 | `src/app/api/export/{async,sync}/route.ts:103/102` | `// TODO: 从数据库获取实际数据` —— 导出接口返回占位数据 |
@@ -468,6 +474,7 @@ $ git diff --stat src/components/LazyComponents.tsx
 | 项 | 位置 | 规模 |
 |---|---|---|
 | P1-1 | `src/features/notifications/**` 整个孤儿目录（0 引用） | 1656 行 |
+| ✅ **P1-1 已于 2026-10-29 删除**（提交 `e11963a06e`），通知模块唯一实现为 `src/lib/services/notification*.ts` | — | — |
 | P1-2 | `src/lib/agents/core/{wallet-repository,repository}.ts` vs `*-optimized-v2.ts` | 609+216 行重复 |
 | P1-3 | `src/lib/workflow/executor.ts` vs `executor-optimized.ts` vs `WorkflowExecutor.ts` | 388+281 行 |
 | P1-4 | `src/lib/monitoring/performance.monitor.ts` vs `optimized-performance-monitor.ts` | 391 行 |

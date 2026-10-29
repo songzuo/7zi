@@ -112,6 +112,7 @@ grep -n "new Function\|resolveConditionValue" 7zi-backend/workflow-service/src/e
 | 4 | `.env` **仅被 shell 脚本加载**（仓库未引入 `dotenv`），`npm start` 走脚本外路径时 `.env` 不生效 | `7zi-backend/README.md:99` | ARCH 报告未写 |
 | 5 | **前端侧 `src/lib/` 内已存在一套"后端"**（与 `7zi-backend/` 并行）：`websocket` 31 文件/13,036 LOC、`workflow` 33/13,909、`message-queue` 20/5,188、`realtime` 15/5,531、`monitoring` 54/31,896、`mcp` 10/5,124、`collab` 5/1,922、`observability` 11/3,838、`alerting` 4/1,612、`health-monitor` 8/4,447、`log-aggregator` 16/6,673、`sse` 4/453、`services` 4/1,971 | `find src/lib -name '*.ts' \| wc -l`（排除 `__tests__`） | **全部 ARCH_BACKEND_* / ARCH_HEALTH_* 文档均只讨论 `7zi-backend/`，完全未纳入 `src/lib/` 这一路**——这是"后端整合"主线最大的盲区 |
 | 6 | **通知模块三处并存**：`src/lib/services/notification.ts`(427) + `notification-enhanced.ts`(596) + `notification-storage.ts`(601) 与 `src/features/notifications/services/` 下同名三文件（行数一致、内容高度重复，`diff` 显示 enhanced 版存在细微差异） | `wc -l` + `diff -q` + `grep -rn "services/notification" src` | 无任何文档记录 |
+| 6b | ⚠️ **第 6 条已于 2026-10-29 解决**（提交 `e11963a06e`）：`src/features/notifications/` 整体删除（5 文件 / 1656 行），唯一实现为 `src/lib/services/notification*.ts` | `ls src/features/` → 不存在 |
 | 7 | `src/lib/notifications/`（25 行 index + 299 行 store，Zustand 前端 store）与 `src/lib/services/notification*.ts`（服务端 Socket.IO 通知服务）**语义同名但完全不同层** | `head src/lib/notifications/index.ts` vs `head src/lib/services/notification.ts` | 无文档记录，易误判为重复 |
 | 8 | 根 `README.md` §后端已含 `websocket-service/`/`workflow-service/` 目录树与端口表（含 Docker 独立服务 3002/3001） | `README.md:1569/1582/1626/1627` | 与 `7zi-backend/README.md` 目录树**直接冲突**（后者未列这两个目录） |
 | 9 | `workflow-engine/backend/server.js` 实为 **19 条路由**（T31 记为 22），`workflow-service/src/index.js` 为 **21 条**（T31 记为 24） | `grep -nE "app\.(get\|post\|put\|delete)\("` 实测 | T31 §1.4 计数已过时 |
@@ -238,6 +239,7 @@ grep -n "new Function\|resolveConditionValue" 7zi-backend/workflow-service/src/e
 
 ### P2 · 结构债务
 9. **通知模块三份重复**：`src/lib/services/notification*.ts` 与 `src/features/notifications/services/notification*.ts`（各 427/596/601 行）→ 建议收敛为单一实现。
+   - ✅ **已完成（2026-10-29，提交 `e11963a06e`）**：删除 `src/features/notifications/`，保留 `src/lib/services/notification*.ts`。
 10. **`src/lib/` 内的"第二套后端"未被任何架构文档纳管**：`websocket`(13,036 LOC)、`workflow`(13,909)、`monitoring`(31,896)、`message-queue`(5,188)、`realtime`(5,531)、`mcp`(5,124)、`collab`(1,922)、`observability`(3,838)、`health-monitor`(4,447)、`log-aggregator`(6,673)、`sse`(453)、`services`(1,971) 等，与 `7zi-backend/` 的职责边界**从未被定义**。建议下一轮架构体检专门处理这条线。
 11. `7zi-backend/package.json` 缺 `workspaces` 字段 → 三套独立依赖树/三份 lock 仍在（根 357 包 / ws-svc 37 / wf-svc 93）。
 

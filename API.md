@@ -7582,5 +7582,79 @@ _API 文档由 AI 主管维护 - 2026-03-29_
 | `workflow-service/src/engine/WorkflowEngine.js` 的 `safeEval` **已回迁加固版**（`new Function` + `with(scope)`，含 `resolveConditionValue`） | `grep -n 'new Function\|resolveConditionValue'` 两个实现均命中 |
 | 前端侧后端逻辑仍分散在 `src/lib/`：`websocket`(31 文件/13k LOC)、`workflow`(33/13.9k)、`message-queue`(20/5.2k)、`realtime`(15/5.5k)、`monitoring`(54/31.9k) 等 | `find src/lib -name '*.ts'` 统计 |
 | 通知模块**三处并存**：`src/lib/services/notification*.ts` 与 `src/features/notifications/services/notification*.ts`（内容高度重复） | `diff` + `wc -l`（各 427/596/601 行 ×2 处） |
+| ⚠️ **上述通知重复已于 2026-10-29 解决**（提交 `e11963a06e`）：`src/features/notifications/` 整体删除，唯一实现为 `src/lib/services/notification*.ts` | `ls src/features/` → 不存在 |
 
 _本节追加于 2026-10-25，来源报告：`T141_BACKEND_CONSOLIDATION_AUDIT.md`。_
+
+---
+
+## 🔒 Webhook 触发器签名校验（2026-10-29 更新）
+
+> 本节由 **📺 媒体/文档子代理** 追加，日期 **2026-10-29 (Asia/Shanghai)**。
+> 对应提交：`a51a2c26ee`（T241）。
+> 实现位置：`src/lib/workflow/triggers.ts` → `WebhookTrigger.handleWebhook()` / `verifySignature()`。
+> ⚠️ **注意**：这是工作流**触发器**层的校验，不是一个独立的 HTTP 端点；
+> 仓库内 `src/app/api/` 下**没有** webhook 路由文件（`find src/app/api -ipath "*webhook*"` 无命中），
+> HTTP 入口由调用方自行接入 `handleWebhook()`。**待确认**：线上是否有仓库外的接入层。
+
+### 行为变化
+
+| 项 | 变更前 | 变更后 |
+|---|---|---|
+| `config.validation.signature` | 空 TODO 分支 —— **配置了也不校验** | **HMAC-SHA256 验签生效**，失败即抛错、请求不触发回调 |
+| 签名头 | 不读取 | 按优先级查找（大小写不敏感）：`x-signature` → `x-webhook-signature` → `x-hub-signature-256` |
+| 前缀形式 | 不支持 | 兼容 `sha256=<hex>`（GitHub 风格），比较前剥离并转小写 |
+| 签名编码 | 不校验 | 必须为 hex 字符（`/^[0-9a-f]+$/`），否则判为「签名格式不正确」 |
+| 比较方式 | 不比较 | `timingSafeEqual` 恒定时间比较；Buffer 长度不等直接判失败 |
+
+### 调用方须知
+
+- 验签针对**原始请求体**。`handleWebhook()` 入参新增可选字段 `rawBody?: string | Buffer`，
+  取值优先级：`rawBody`（string / Buffer）→ `body` 为字符串时直接使用 → `JSON.stringify(body)` → 空串。
+- 若 HTTP 层已把 JSON 解析为对象且**未透传原始字节**，`JSON.stringify(body)` 的键顺序 / 空白
+  可能与服务端签名原文不一致，导致**合法请求被拒**。调用方应把原始 body 文本一并传入 `rawBody`。
+- 签名头名常量以 `WEBHOOK_SIGNATURE_HEADERS` 导出；`WebhookTrigger` 类已改为 `export`，便于外部实例化与测试。
+
+### 同次提交的相关修复（与签名无关）
+
+- `resumeTrigger()`：触发器已注册但从未启动（例如注册时即为暂停状态）时，改为**直接启动**，
+  不再抛「触发器未运行」。
+- `manualTrigger()`：使用自定义回调时，触发计数与 `lastTriggeredAt` **只累加一次**
+  （默认回调内部已更新过，此处不再重复累加）。
+
+---
+
+## 🔒 管理端限流规则 API 鉴权要求（2026-10-29 更新）
+
+> 本节由 **📺 媒体/文档子代理** 追加，日期 **2026-10-29 (Asia/Shanghai)**。
+> 对应提交：`a51a2c26ee`（T243）。
+> 实现位置：`src/app/api/admin/rate-limit/rules/route.ts` → `checkAuth()`。
+
+### `GET /api/admin/rate-limit/rules` / `POST /api/admin/rate-limit/rules`
+
+**认证方式：** `Authorization: Bearer <JWT>`
+
+| 步骤 | 判定 | 失败响应 |
+|---|---|---|
+| 1 | `authorization` 头存在且以 `Bearer ` 开头 | 401 `Missing or invalid authorization header` |
+| 2 | `@/lib/auth/jwt` 的 `verify()` 验签通过（签名 + issuer + audience + 过期） | 401（错误信息取自 `verify()`，如 `Token expired` / `Invalid signature`） |
+| 3 | admin 角色：`payload.role === 'admin'` **或** `payload.roles` 含 `'admin'` | **403** `Admin privileges required` |
+
+- 通过后 `userId` 取自 `payload.sub`（此前硬编码为 `'admin'`）。
+- **状态码语义变化**：此前鉴权失败一律返回 401；现在区分
+  **401（未认证）** 与 **403（已认证但非 admin）**。
+- ⚠️ **部署注意**：`verify()` 在缺少 `JWT_SECRET` 时会在 `jwtVerify` 之前抛错
+  （`getJwtSecret()` throw），该异常未被路由 `try/catch` 覆盖时会表现为 **500 而非 401**。
+  这是 `@/lib/auth/jwt` 的既有特性，本次未修改。**待确认**：生产环境 `JWT_SECRET` 是否始终配置。
+
+### 同族路由的鉴权现状（本次未修改）
+
+| 路由 | 方法 | 当前 `checkAuth()` | 状态 |
+|---|---|---|---|
+| `/api/admin/rate-limit/rules` | GET, POST | 真 JWT + admin 角色 | ✅ 已加固 |
+| `/api/admin/rate-limit/rules/[id]` | GET, PUT, DELETE | 占位：任意非空 token 即放行（`userId` 硬编码 `'admin'`） | ⚠️ **仍为占位** |
+| `/api/admin/rate-limit/statistics` | GET | 占位：任意非空 token 即放行 | ⚠️ **仍为占位** |
+| `/api/admin/security/blacklist` | GET, POST | 占位：任意非空 token 即放行（`userId` 硬编码 `'admin'`） | ⚠️ **仍为占位** |
+
+> 以上占位实现均位于 `src/app/api/admin/rate-limit/` 与 `src/app/api/admin/security/blacklist/` 下，
+> 源码中仍带 `// TODO: Implement proper JWT verification` 注释。**待确认**：是否纳入下一轮修复。

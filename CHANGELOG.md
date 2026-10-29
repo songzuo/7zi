@@ -7,6 +7,68 @@
 
 ---
 
+## [未发布] / 2026-10-29（安全修复与清理同步：T241 / T243 / 通知模块去重）
+
+> 本段落由 **📺 媒体/文档子代理** 追加，日期 **2026-10-29 (Asia/Shanghai)**。
+> 对应提交：`a51a2c26ee`（安全修复）、`e11963a06e`（删除重复实现）、`825adea46f`（memory 记录）。
+> 核实口径：`git show <hash>` 逐个 diff + 当前 `src/` 实现逐行比对；**未修改任何 `src/` 代码**。
+
+### 🔒 Security
+
+- **Webhook 触发器签名校验真正生效（T241，提交 `a51a2c26ee`）**
+  - `src/lib/workflow/triggers.ts` 的 `WebhookTrigger.handleWebhook()`：此前配置了
+    `validation.signature` 也**不做任何校验**（空 TODO 分支）；现在改为 **HMAC-SHA256** 验签。
+  - 签名头按优先级依次查找（大小写不敏感）：`x-signature` → `x-webhook-signature` → `x-hub-signature-256`。
+  - 兼容 GitHub 风格的 `sha256=<hex>` 前缀；签名值必须是 hex 字符。
+  - 比较使用 `timingSafeEqual`（恒定时间），长度不等直接判定失败。
+  - 验签所用的原始请求体：优先取入参新增的可选字段 `rawBody`（`string | Buffer`），
+    其次 `body` 为字符串时直接使用，否则 `JSON.stringify(body)`，body 为空则用空串。
+    → **调用方注意**：若 HTTP 层已把 JSON 解析成对象且未透传原始字节，
+    `JSON.stringify` 的键顺序/空白可能与服务端签名原文不一致，导致合法请求被拒；
+    调用方应把原始 body 一并传入 `rawBody`。
+  - 新增导出常量 `WEBHOOK_SIGNATURE_HEADERS`；`WebhookTrigger` 类改为 `export`。
+  - 顺带修复同文件两处与签名无关的缺陷：
+    `resumeTrigger()` 对「已注册但从未启动」的触发器不再抛「触发器未运行」，改为直接启动；
+    `manualTrigger()` 使用自定义回调时不再重复累加触发计数与时间戳。
+
+- **管理端限流规则 API 改为真 JWT 鉴权（T243，提交 `a51a2c26ee`）**
+  - `GET/POST /api/admin/rate-limit/rules`：鉴权从「任意非空 token 即放行」改为
+    调用 `@/lib/auth/jwt` 的 `verify()` 做**真实验签**（签名 + issuer + audience + 过期），
+    再判定 admin 角色（`payload.role === 'admin'` 或 `payload.roles` 含 `'admin'`）。
+  - **状态码语义变化**：缺失/无效/过期 token → **401**；已认证但非 admin → **403**（此前一律 401）。
+  - 鉴权通过时 `userId` 取自 `payload.sub`（此前硬编码为 `'admin'`）。
+  - ⚠️ **同族路由尚未跟进**（本次未改，源码中仍是占位 `checkAuth()`）：
+    `/api/admin/rate-limit/rules/[id]`（GET/PUT/DELETE）与 `/api/admin/rate-limit/statistics`（GET）
+    仍是「任意非空 token 即放行」，`/api/admin/security/blacklist` 同理。**待确认**：这三条是否纳入下一轮修复。
+
+### 🧹 Cleanup
+
+- **删除 `src/features/notifications/` 下的重复实现（提交 `e11963a06e`）**
+  - 删除 5 个文件、约 1656 行：`src/features/notifications/index.ts`、
+    `src/features/notifications/types/index.ts`、
+    `src/features/notifications/services/notification.ts`（427 行）、
+    `notification-enhanced.ts`（593 行）、
+    `notification-storage.ts`（601 行）。
+  - 删除理由：与 `src/lib/services/notification*.ts` 内容重复且**全仓无引用**（`grep` 无命中）。
+  - **通知模块的现役实现路径**：`src/lib/services/notification.ts`、
+    `src/lib/services/notification-enhanced.ts`、`src/lib/services/notification-storage.ts`。
+  - 全仓已无 `src/features/` 目录（`src/features/notifications` 整体消失），
+    文档中指向该路径的历史记录需按「历史快照」理解，而非当前可用路径。
+
+### 📝 Documentation
+
+- `API.md` 追加两节：「🔒 Webhook 触发器签名校验（2026-10-29 更新）」与
+  「🔒 管理端限流规则 API 鉴权要求（2026-10-29 更新）」。
+- `API_ROUTE_AUDIT.md` 中 1.2 节的管理端路由鉴权列、§2 的 CRITICAL 第 2 条已按当前实现重写
+  （标注已修复 / 仍为占位）。
+- `T240_tech_debt_audit.md`：P0-1 / P0-2 标注已修复，P1-1 标注已删除。
+- `T141_BACKEND_CONSOLIDATION_AUDIT.md`：通知模块三份重复一条标注已收敛。
+- `docs/architecture-fix-plan.md`、`memory/CODE_ORGANIZATION_REPORT.md`、`memory/arch-review.md`、
+  `memory/codebase-analysis-0417.md`、`reports/ARCHITECT_CODE_REVIEW.md`：
+  指向已删除的 `src/features/notifications/` 的路径加注「已删除，现役路径为 `src/lib/services/notification*.ts`」。
+
+---
+
 ## [未发布] / 2026-10-25（T141 后端整合架构体检）
 
 > 本段落由 **T141（📚 咨询师）** 追加，日期 **2026-10-25 (Asia/Shanghai)**。
@@ -46,6 +108,8 @@
 
 - `src/lib/services/notification*.ts` 与 `src/features/notifications/services/notification*.ts` **双份并存**（各 427/596/601 行），
   建议合并为单一实现。
+  - ✅ **已解决（2026-10-29，提交 `e11963a06e`）**：删除 `src/features/notifications/` 下的重复副本，
+    保留 `src/lib/services/notification*.ts` 为唯一实现。详见本文件顶部 2026-10-29 段落。
 - `API.md` 39 条缺失路由的请求/响应契约补全，以及「幽灵路径」段落的裁决与改写。
 - `7zi-backend/README.md` 目录树与根 `README.md` 的服务目录同步。
 
