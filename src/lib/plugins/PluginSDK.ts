@@ -329,6 +329,17 @@ export class PluginQueueClientImpl implements PluginQueueClient {
 /**
  * Plugin Config Helper Implementation
  */
+/**
+ * 判断配置键里是否有能污染原型链的段
+ *
+ * `__proto__` / `constructor` / `prototype` 三者组合起来可以把属性写到
+ * `Object.prototype` 上 —— 之后**所有**对象都会带上这个属性，
+ * 影响面远超本插件。
+ */
+function isUnsafeKey(key: string): boolean {
+  return key === '__proto__' || key === 'constructor' || key === 'prototype';
+}
+
 export class PluginConfigHelperImpl implements PluginConfigHelper {
   private config: Record<string, unknown>;
 
@@ -356,13 +367,20 @@ export class PluginConfigHelperImpl implements PluginConfigHelper {
 
     for (let i = 0; i < keys.length - 1; i++) {
       const k = keys[i];
+      if (isUnsafeKey(k)) {
+        throw new Error(`Unsafe config key: ${key}`);
+      }
       if (!current[k]) {
         current[k] = {};
       }
       current = current[k] as Record<string, unknown>;
     }
 
-    current[keys[keys.length - 1]] = value;
+    const lastKey = keys[keys.length - 1];
+    if (isUnsafeKey(lastKey)) {
+      throw new Error(`Unsafe config key: ${key}`);
+    }
+    current[lastKey] = value;
   }
 
   has(key: string): boolean {
