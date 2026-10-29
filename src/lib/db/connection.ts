@@ -169,8 +169,38 @@ export function getDatabase(): DatabaseConnection {
 
     exec: (sql: string, params?: unknown[]) => {
       try {
+        // better-sqlite3 的 db.prepare() 只接受**单条**语句，
+        // 传多语句会抛 "The supplied SQL string contains more than one statement"；
+        // 而原生 db.exec() 一次能跑多条（迁移脚本、批量 DDL 都靠这个）。
+        //
+        // 所以：单条语句走 prepare().run()（能拿到精确的 changes /
+        // lastInsertRowid）；多条语句拆开逐条跑。
+        //
+        // 注意：better-sqlite3 的 Database 实例**没有** totalChanges /
+        // lastInsertRowid 属性（那是 node-sqlite3 的 API），
+        // 所以只能用 run() 的返回值来统计。
+        if (!params || params.length === 0) {
+          const statements = sql
+            .split(';')
+            .map(stmt => stmt.trim())
+            .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'))
+
+          if (statements.length > 1) {
+            let changes = 0
+            let lastInsertRowid: number | undefined
+            for (const stmt of statements) {
+              const r = db.prepare(stmt).run()
+              changes += r?.changes ?? 0
+              if (r?.lastInsertRowid !== undefined) {
+                lastInsertRowid = Number(r.lastInsertRowid)
+              }
+            }
+            return { changes, lastInsertRowid }
+          }
+        }
+
         const stmt = db.prepare(sql)
-        const result = stmt.run(...(params || []))
+        const result = stmt.run(...params)
         return {
           changes: result?.changes ?? 0,
           lastInsertRowid:

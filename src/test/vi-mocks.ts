@@ -807,6 +807,27 @@ const mockDb: MockDatabaseConnection = {
   isInTransaction: vi.fn().mockReturnValue(false),
 
   exec: vi.fn((sql: string, params?: unknown[]) => {
+    // 不带参数时支持**多条语句**（迁移脚本、批量 DDL 都靠这个）。
+    // 真 better-sqlite3 的 db.exec() 一次能跑多条，
+    // 而 prepare() 只接受单条 —— 假库的行为得跟真库一致，
+    // 否则用真库的用例一换到假库就挂。
+    if (!params || params.length === 0) {
+      const statements = sql
+        .split(';')
+        .map(stmt => stmt.trim())
+        .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'))
+      if (statements.length > 1) {
+        let changes = 0
+        let lastInsertRowid = 0
+        for (const stmt of statements) {
+          const r = mockDb.exec(stmt)
+          changes += r?.changes ?? 0
+          lastInsertRowid = r?.lastInsertRowid ?? lastInsertRowid
+        }
+        return { changes, lastInsertRowid }
+      }
+    }
+
     // Handle CREATE INDEX —— 记进 dbIndexes，让查 sqlite_master 的用例能用。
     const idxMatch = sql.match(
       /CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?[\"\'`]?(\w+)[\"\'`]?\s+ON\s+([\"\'`]?\w+[\"\'`]?)/i
