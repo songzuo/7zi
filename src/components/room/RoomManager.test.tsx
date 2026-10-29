@@ -10,10 +10,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RoomManager, buildRoomConfigPatch } from './RoomManager'
-import type { Room, RoomType, RoomVisibility } from '@/lib/websocket/rooms'
+import type { Room, RoomParticipant } from '@/lib/websocket/rooms'
 
 // ============================================================================
 // Mocks
@@ -102,14 +102,83 @@ vi.mock('./RoomSettings', () => ({
 }))
 
 // ============================================================================
+// Helpers
+// ============================================================================
+
+/**
+ * Build a Room fixture for store-driven tests.
+ *
+ * The component reads `ownerId` and `participants` off the room object, so both
+ * have to be realistic for the leave-room semantics to be exercised.
+ */
+function makeRoom(ownerId: string, participantRole: 'owner' | 'member' = 'member'): Room {
+  const participants = new Map<string, RoomParticipant>()
+  participants.set('user-1', {
+    id: 'user-1',
+    name: '张三',
+    color: '#3b82f6',
+    role: participantRole,
+    joinedAt: new Date(),
+    isTyping: false,
+    lastActivity: new Date(),
+    isOnline: true,
+  })
+
+  return {
+    id: 'room-1',
+    name: '测试房间',
+    type: 'chat',
+    documentId: 'doc-1',
+    visibility: 'public',
+    ownerId,
+    participants,
+    data: { content: '', revision: 0 },
+    config: {
+      maxParticipants: 100,
+      messageHistoryEnabled: true,
+      persistenceEnabled: true,
+      autoCleanupMinutes: 30,
+      allowGuests: false,
+      enforcePermissions: true,
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    lastActivity: new Date(),
+    invites: new Set(),
+  }
+}
+
+/**
+ * Let the auto-connect timer (1000ms) fire.
+ *
+ * `advanceTimersByTimeAsync` is used on purpose: the component's connect effect
+ * both flips `isConnected` and calls `setRooms(...)`, so the microtask queue has
+ * to be drained before React can flush the resulting re-render.
+ */
+async function advanceConnection(): Promise<void> {
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(1100)
+  })
+}
+
+// ============================================================================
 // Test Suite
 // ============================================================================
 
 describe('RoomManager', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Use fake timers WITHOUT shouldAdvanceTime to prevent infinite loops
-    vi.useFakeTimers()
+    // Fake timers WITH shouldAdvanceTime.
+    //
+    // Why: `@testing-library/user-event` awaits an internal `setTimeout(0)`
+    // between pointer events. With plain `vi.useFakeTimers()` that timer never
+    // fires unless the test explicitly advances the clock, so `user.click()`
+    // deadlocks until the 60s test timeout. `shouldAdvanceTime: true` lets the
+    // fake clock drift forward on its own (it does not jump ahead), so
+    // user-event resolves AND the component's own timers still need an
+    // explicit `advanceTimersByTime*` to fire — which keeps the assertions
+    // below deterministic.
+    vi.useFakeTimers({ shouldAdvanceTime: true })
 
     // Reset store state - clear all state and mocks
     mockStoreState.currentRoomId = null
@@ -174,20 +243,18 @@ describe('RoomManager', () => {
       expect(screen.getByText('连接中...')).toBeInTheDocument()
     })
 
-    // TODO: Fix this test - React 18 + Vitest fake timers + act() has complex interactions
-    // The issue is that state updates triggered by fake timers don't properly flush through act()
-    it.skip('should show connected status after connection', async () => {
+    it('should show connected status after connection', async () => {
       render(<RoomManager autoConnect={true} />)
 
       // First check initial connecting state
       expect(screen.getByText('连接中...')).toBeInTheDocument()
 
       // Advance timers to trigger the connection
-      await act(async () => {
-        vi.advanceTimersByTimeAsync(1100)
-      })
+      await advanceConnection()
 
       expect(screen.getByText('已连接')).toBeInTheDocument()
+      expect(screen.queryByText('连接中...')).not.toBeInTheDocument()
+      expect(screen.getByTestId('connection-status')).toHaveAttribute('data-status', 'connected')
     })
 
     it('should not auto connect when autoConnect is false', () => {
@@ -197,15 +264,19 @@ describe('RoomManager', () => {
       expect(screen.queryByText('连接中...')).not.toBeInTheDocument()
     })
 
-    // TODO: Fix this test - same issue as "should show connected status after connection"
-    it.skip('should load mock rooms after connection', async () => {
+    it('should load mock rooms after connection', async () => {
       render(<RoomManager autoConnect={true} />)
 
-      await act(async () => {
-        vi.runAllTimers()
-      })
+      await advanceConnection()
 
       expect(mockFunctions.setRooms).toHaveBeenCalled()
+
+      // The loaded rooms must contain the two seeded mock rooms.
+      const loadedRooms = mockFunctions.setRooms.mock.calls[0][0] as Room[]
+      expect(loadedRooms).toHaveLength(2)
+      expect(loadedRooms.map(r => r.id)).toEqual(['room-1', 'room-2'])
+      expect(loadedRooms[0].name).toBe('项目讨论组')
+      expect(loadedRooms[1].name).toBe('日常聊天')
     })
   })
 
@@ -241,32 +312,38 @@ describe('RoomManager', () => {
   // ==========================================================================
 
   describe('Room List', () => {
-    // TODO: Fix this test - userEvent with advanceTimers causes hangs in vitest
-    it.skip('should create a new room', async () => {
+    it('should create a new room', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
 
       render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
-      await act(async () => {
-        vi.advanceTimersByTime(1000)
-      })
+      await advanceConnection()
 
       const createButton = screen.getByTestId('create-room-btn')
       await user.click(createButton)
 
       expect(mockFunctions.addRoom).toHaveBeenCalled()
       expect(mockFunctions.setCurrentRoom).toHaveBeenCalled()
+
+      // The new room must be owned by the current user and carry the
+      // requested name/type/visibility.
+      const newRoom = mockFunctions.addRoom.mock.calls[0][0] as Room
+      expect(newRoom.name).toBe('新房间')
+      expect(newRoom.type).toBe('chat')
+      expect(newRoom.visibility).toBe('public')
+      expect(newRoom.ownerId).toBe('user-1')
+      expect(newRoom.participants.get('user-1')?.role).toBe('owner')
+
+      // ...and it must be the room that got selected.
+      expect(mockFunctions.setCurrentRoom).toHaveBeenCalledWith(newRoom.id)
     })
 
-    // TODO: Fix this test - userEvent with advanceTimers causes hangs in vitest
-    it.skip('should select a room', async () => {
+    it('should select a room', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
 
       render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
-      await act(async () => {
-        vi.advanceTimersByTime(1000)
-      })
+      await advanceConnection()
 
       const selectButton = screen.getByTestId('select-room-btn')
       await user.click(selectButton)
@@ -282,90 +359,25 @@ describe('RoomManager', () => {
   describe('Room View', () => {
     it('should show room view when a room is selected', async () => {
       mockStoreState.currentRoomId = 'room-1'
-      mockStoreState.rooms = [
-        {
-          id: 'room-1',
-          name: '测试房间',
-          type: 'chat',
-          documentId: 'doc-1',
-          visibility: 'public',
-          ownerId: 'user-1',
-          participants: new Map([
-            [
-              'user-1',
-              {
-                id: 'user-1',
-                name: '张三',
-                color: '#3b82f6',
-                role: 'owner',
-                joinedAt: new Date(),
-                isTyping: false,
-                lastActivity: new Date(),
-                isOnline: true,
-              },
-            ],
-          ]),
-          data: { content: '', revision: 0 },
-          config: {
-            maxParticipants: 100,
-            messageHistoryEnabled: true,
-            persistenceEnabled: true,
-            autoCleanupMinutes: 30,
-            allowGuests: false,
-            enforcePermissions: true,
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          lastActivity: new Date(),
-          invites: new Set(),
-        },
-      ]
+      mockStoreState.rooms = [makeRoom('user-1', 'owner')]
 
       render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
-      await act(async () => {
-        vi.advanceTimersByTime(1000)
-      })
+      await advanceConnection()
 
       expect(screen.getByTestId('room-view')).toBeInTheDocument()
     })
 
-    // TODO: Fix this test - userEvent with advanceTimers causes hangs in vitest
-    it.skip('should handle send message', async () => {
+    it('should handle send message', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-      const consoleSpy = vi.spyOn(console, 'log')
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       mockStoreState.currentRoomId = 'room-1'
-      mockStoreState.rooms = [
-        {
-          id: 'room-1',
-          name: '测试房间',
-          type: 'chat',
-          documentId: 'doc-1',
-          visibility: 'public',
-          ownerId: 'user-1',
-          participants: new Map(),
-          data: { content: '', revision: 0 },
-          config: {
-            maxParticipants: 100,
-            messageHistoryEnabled: true,
-            persistenceEnabled: true,
-            autoCleanupMinutes: 30,
-            allowGuests: false,
-            enforcePermissions: true,
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          lastActivity: new Date(),
-          invites: new Set(),
-        },
-      ]
+      mockStoreState.rooms = [makeRoom('user-1', 'owner')]
 
       render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
-      await act(async () => {
-        vi.advanceTimersByTime(1000)
-      })
+      await advanceConnection()
 
       const sendButton = screen.getByTestId('send-message-btn')
       await user.click(sendButton)
@@ -375,42 +387,19 @@ describe('RoomManager', () => {
       consoleSpy.mockRestore()
     })
 
-    // TODO: Fix this test - userEvent with advanceTimers causes hangs in vitest
-    it.skip('should handle react to message', async () => {
+    it('should handle react to message', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-      const consoleSpy = vi.spyOn(console, 'log')
+      // The implementation logs reactions via console.debug (see
+      // RoomManager.tsx -> handleReactMessage), so the spy has to be on
+      // console.debug, not console.log.
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {})
 
       mockStoreState.currentRoomId = 'room-1'
-      mockStoreState.rooms = [
-        {
-          id: 'room-1',
-          name: '测试房间',
-          type: 'chat',
-          documentId: 'doc-1',
-          visibility: 'public',
-          ownerId: 'user-1',
-          participants: new Map(),
-          data: { content: '', revision: 0 },
-          config: {
-            maxParticipants: 100,
-            messageHistoryEnabled: true,
-            persistenceEnabled: true,
-            autoCleanupMinutes: 30,
-            allowGuests: false,
-            enforcePermissions: true,
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          lastActivity: new Date(),
-          invites: new Set(),
-        },
-      ]
+      mockStoreState.rooms = [makeRoom('user-1', 'owner')]
 
       render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
-      await act(async () => {
-        vi.advanceTimersByTime(1000)
-      })
+      await advanceConnection()
 
       const reactButton = screen.getByTestId('react-message-btn')
       await user.click(reactButton)
@@ -459,115 +448,53 @@ describe('RoomManager', () => {
   // Leave Room Tests
   // ==========================================================================
 
-  // TODO: Fix these tests - userEvent with advanceTimers causes hangs in vitest
-  describe.skip('Leave Room', () => {
+  describe('Leave Room', () => {
     it('should leave a room', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
 
-      mockStoreState.rooms = [
-        {
-          id: 'room-1',
-          name: '测试房间',
-          type: 'chat',
-          documentId: 'doc-1',
-          visibility: 'public',
-          ownerId: 'user-2', // Different owner
-          participants: new Map([
-            [
-              'user-1',
-              {
-                id: 'user-1',
-                name: '张三',
-                color: '#3b82f6',
-                role: 'member',
-                joinedAt: new Date(),
-                isTyping: false,
-                lastActivity: new Date(),
-                isOnline: true,
-              },
-            ],
-          ]),
-          data: { content: '', revision: 0 },
-          config: {
-            maxParticipants: 100,
-            messageHistoryEnabled: true,
-            persistenceEnabled: true,
-            autoCleanupMinutes: 30,
-            allowGuests: false,
-            enforcePermissions: true,
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          lastActivity: new Date(),
-          invites: new Set(),
-        },
-      ]
+      // Different owner → the current user is a plain member and may leave.
+      mockStoreState.currentRoomId = 'room-1'
+      mockStoreState.rooms = [makeRoom('user-2', 'member')]
 
       render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
-      await act(async () => {
-        vi.advanceTimersByTime(1000)
-      })
+      await advanceConnection()
 
       const leaveButton = screen.getByTestId('leave-room-btn')
       await user.click(leaveButton)
 
       expect(mockFunctions.updateRoom).toHaveBeenCalled()
+
+      const [updatedRoomId, patch] = mockFunctions.updateRoom.mock.calls[0] as [
+        string,
+        { participants: Map<string, unknown> },
+      ]
+      expect(updatedRoomId).toBe('room-1')
+      // The current user must have been removed from the participants map.
+      expect(patch.participants.has('user-1')).toBe(false)
+      // Leaving the room that is currently open clears the selection.
+      expect(mockFunctions.setCurrentRoom).toHaveBeenCalledWith(null)
     })
 
     it('should not allow owner to leave room', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
 
-      mockStoreState.rooms = [
-        {
-          id: 'room-1',
-          name: '测试房间',
-          type: 'chat',
-          documentId: 'doc-1',
-          visibility: 'public',
-          ownerId: 'user-1', // Current user is owner
-          participants: new Map([
-            [
-              'user-1',
-              {
-                id: 'user-1',
-                name: '张三',
-                color: '#3b82f6',
-                role: 'owner',
-                joinedAt: new Date(),
-                isTyping: false,
-                lastActivity: new Date(),
-                isOnline: true,
-              },
-            ],
-          ]),
-          data: { content: '', revision: 0 },
-          config: {
-            maxParticipants: 100,
-            messageHistoryEnabled: true,
-            persistenceEnabled: true,
-            autoCleanupMinutes: 30,
-            allowGuests: false,
-            enforcePermissions: true,
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          lastActivity: new Date(),
-          invites: new Set(),
-        },
-      ]
+      // Current user is the owner → leaving must be refused.
+      mockStoreState.currentRoomId = 'room-1'
+      mockStoreState.rooms = [makeRoom('user-1', 'owner')]
 
       render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
-      await act(async () => {
-        vi.advanceTimersByTime(1000)
-      })
+      await advanceConnection()
 
       const leaveButton = screen.getByTestId('leave-room-btn')
       await user.click(leaveButton)
 
       expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('房主'))
+      // No room update and no selection change may happen for an owner.
+      expect(mockFunctions.updateRoom).not.toHaveBeenCalled()
+      expect(mockFunctions.setCurrentRoom).not.toHaveBeenCalledWith(null)
 
       alertSpy.mockRestore()
     })
@@ -611,12 +538,15 @@ describe('RoomManager', () => {
   // ==========================================================================
 
   describe('Responsive Layout', () => {
-    // TODO: Fix this test - the CSS class w-80 is not being detected properly
-    it.skip('should have room list sidebar', () => {
+    it('should have room list sidebar', () => {
       render(<RoomManager />)
 
-      const sidebar = screen.getByTestId('room-list').closest('div')
-      expect(sidebar).toHaveClass(/w-80/)
+      // The fixed-width sidebar is the container the RoomList is rendered into
+      // (RoomManager.tsx -> data-testid="room-list-sidebar").
+      const sidebar = screen.getByTestId('room-list-sidebar')
+      expect(sidebar).toHaveClass('w-80')
+      // ...and the room list really is rendered inside it.
+      expect(sidebar).toContainElement(screen.getByTestId('room-list'))
     })
   })
 
