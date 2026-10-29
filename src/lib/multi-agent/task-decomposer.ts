@@ -15,6 +15,7 @@ import {
 } from './types'
 import { AgentRegistry } from './registry'
 import { MessageBus } from './message-bus'
+import { logger } from '@/lib/logger'
 
 // 任务分解策略
 export enum DecompositionStrategy {
@@ -55,6 +56,14 @@ export class TaskDecomposer extends EventEmitter {
   private activeTasks: Map<string, Task> = new Map()
   private maxSubTasks: number
   private enableAutoRetry: boolean
+  /** 最大重试次数（不含首次执行）—— 即总尝试次数 = 1 + maxRetries */
+  private maxRetries: number
+  /** 重试基础退避时长（毫秒），实际延迟 = base * 2^(第 n 次重试) */
+  private retryBaseDelayMs: number
+  /** 退避抖动上限（毫秒）—— 避免多个子任务同时重试打爆下游 */
+  private retryJitterMs: number
+  /** 注入的延迟函数 —— 测试可 mock，生产用真实定时器 */
+  private sleep: (ms: number) => Promise<void>
 
   constructor(
     registry: AgentRegistry,
@@ -62,6 +71,17 @@ export class TaskDecomposer extends EventEmitter {
     options?: {
       maxSubTasks?: number
       enableAutoRetry?: boolean
+      /**
+       * 最大**重试**次数（不含首次执行）。
+       * 默认 2 → 总尝试次数 3（首次 + 2 次重试）。
+       */
+      maxRetries?: number
+      /** 重试基础退避时长（毫秒），默认 1000 */
+      retryBaseDelayMs?: number
+      /** 退避抖动上限（毫秒），默认 500 */
+      retryJitterMs?: number
+      /** 注入延迟函数 —— 测试用 vi.fn() 替代真实等待 */
+      sleep?: (ms: number) => Promise<void>
     }
   ) {
     super()
@@ -69,6 +89,12 @@ export class TaskDecomposer extends EventEmitter {
     this.messageBus = messageBus
     this.maxSubTasks = options?.maxSubTasks || 10
     this.enableAutoRetry = options?.enableAutoRetry ?? true
+    this.maxRetries = options?.maxRetries ?? 2
+    this.retryBaseDelayMs = options?.retryBaseDelayMs ?? 1000
+    this.retryJitterMs = options?.retryJitterMs ?? 500
+    this.sleep =
+      options?.sleep ??
+      ((ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms)))
 
     // 注册内置任务模板
     this.registerBuiltInTemplates()
@@ -478,37 +504,10 @@ export class TaskDecomposer extends EventEmitter {
     } as TaskEvent)
 
     try {
-      // 准备输入（包含之前子任务的输出）
-      const input = this.prepareSubTaskInput(subTask, previousResults)
-
-      // 通过消息总线发送任务给 Agent
-      const response = await this.messageBus.request(
-        subTask.assignedAgentId!,
-        {
-          type: 'task.execute',
-          subTaskId: subTask.id,
-          input,
-        },
-        {
-          priority: subTask.priority,
-          timeout: 60000, // 60秒超时
-        }
-      )
-
-      // 更新结果
-      subTask.output = response
-      subTask.status = TaskStatus.COMPLETED
-      subTask.completedAt = Date.now()
-      previousResults.set(subTask.id, response)
-
-      this.emit('task.updated', {
-        type: 'updated',
-        taskId: subTask.parentTaskId,
-        data: subTask as unknown as Record<string, unknown>,
-      } as TaskEvent)
+      await this.executeSubTaskWithRetry(subTask, previousResults)
     } catch (error) {
+      // 重试全部用尽 —— executeSubTaskWithRetry 已经把状态和错误写好了
       subTask.status = TaskStatus.FAILED
-      subTask.error = error instanceof Error ? error.message : String(error)
       subTask.completedAt = Date.now()
 
       this.emit('task.updated', {
@@ -516,12 +515,98 @@ export class TaskDecomposer extends EventEmitter {
         taskId: subTask.parentTaskId,
         data: subTask as unknown as Record<string, unknown>,
       } as TaskEvent)
+    }
+  }
 
-      // 自动重试
-      if (this.enableAutoRetry && subTask.status === TaskStatus.FAILED) {
-        // TODO: 实现重试逻辑
+  /**
+   * 执行子任务，失败时按配置自动重试
+   *
+   * 重试策略：
+   *   - 总尝试次数 = 1 + maxRetries（默认 1 + 2 = 3 次）
+   *   - 退避：指数退避 base * 2^(已重试次数)，上限由 baseDelayMs 决定
+   *   - 抖动：额外加一个 [0, jitterMs] 的随机偏移，避免多个子任务同时重试
+   *   - 全部失败后，错误信息里带上尝试次数
+   */
+  private async executeSubTaskWithRetry(
+    subTask: SubTask,
+    previousResults: Map<string, unknown>
+  ): Promise<void> {
+    const maxAttempts = this.enableAutoRetry ? this.maxRetries + 1 : 1
+    let lastError: unknown
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        // 准备输入（包含之前子任务的输出）
+        const input = this.prepareSubTaskInput(subTask, previousResults)
+
+        // 通过消息总线发送任务给 Agent
+        const response = await this.messageBus.request(
+          subTask.assignedAgentId!,
+          {
+            type: 'task.execute',
+            subTaskId: subTask.id,
+            input,
+          },
+          {
+            priority: subTask.priority,
+            timeout: 60000, // 60秒超时
+          }
+        )
+
+        // 更新结果
+        subTask.output = response
+        subTask.status = TaskStatus.COMPLETED
+        subTask.completedAt = Date.now()
+        previousResults.set(subTask.id, response)
+
+        this.emit('task.updated', {
+          type: 'updated',
+          taskId: subTask.parentTaskId,
+          data: subTask as unknown as Record<string, unknown>,
+        } as TaskEvent)
+
+        return
+      } catch (error) {
+        lastError = error
+
+        const isLastAttempt = attempt === maxAttempts - 1
+        if (isLastAttempt) {
+          break
+        }
+
+        // 指数退避 + 抖动
+        const backoff = this.retryBaseDelayMs * Math.pow(2, attempt)
+        const jitter = this.retryJitterMs > 0 ? Math.random() * this.retryJitterMs : 0
+        const delay = backoff + jitter
+
+        logger.warn('[multi-agent] 子任务执行失败，准备重试', {
+          subTaskId: subTask.id,
+          attempt: attempt + 1,
+          maxAttempts,
+          delayMs: Math.round(delay),
+          error: error instanceof Error ? error.message : String(error),
+        })
+
+        // 重试期间回到 RUNNING —— 表示"正在重新尝试"
+        subTask.status = TaskStatus.RUNNING
+        this.emit('task.updated', {
+          type: 'updated',
+          taskId: subTask.parentTaskId,
+          data: subTask as unknown as Record<string, unknown>,
+        } as TaskEvent)
+
+        await this.sleep(delay)
       }
     }
+
+    // 全部失败
+    const message = lastError instanceof Error ? lastError.message : String(lastError)
+    subTask.status = TaskStatus.FAILED
+    subTask.error =
+      maxAttempts > 1
+        ? `${message}（已重试 ${maxAttempts - 1} 次，共尝试 ${maxAttempts} 次）`
+        : message
+    subTask.completedAt = Date.now()
   }
 
   /**

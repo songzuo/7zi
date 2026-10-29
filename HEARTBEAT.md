@@ -2009,3 +2009,50 @@ export async function channelOrderDetail(orderId: string) {
 - **"对不存在的 ID 也挂"是排除"数据问题"的关键一步** —— 一次就定性。
 - **兜底不是万能**：兜底源必须包含判定所需的**全部字段**，
   且**找不到时必须抛原错误**（否则会把"查不到"变成"已付"）。
+
+## 80. ⚠️ 全集群 LLM 供应商集体失效 → picoclaw 心跳全挂（2026-10-29 10:44-15:50 实测，bot5）
+
+**症状**：bot3 的 picoclaw 每 30 分钟报一次 `LLM call failed`，
+错误 `InvalidEndpoint.ClosedEndpoint`（HTTP 400，coze 端点已关闭），**已连续 309 次**（10-23 起）；
+bot5 报 `UnsupportedModel`（doubao-seed-code 不支持 coding plan）；
+bot6 报 `The model "abab6.5s-chat" is no longer available`（404）。
+
+**根因**：各节点 `/root/.picoclaw/config.json` 的 `agents.defaults.provider/model` 指向
+**各自不同的、且大部分已失效**的模型：
+| 节点 | 原 provider/model | 状态 |
+|---|---|---|
+| bot2 | minimax/MiniMax-M3.1-Flash | ✅ 可用 |
+| bot3 | volcengine/doubao-1-5-pro | ❌ ClosedEndpoint |
+| bot4 | custom/MiniMax-M2.5 | ❌（protocol 解析失败）|
+| bot5 | custom/doubao-seed-code | ❌ UnsupportedModel |
+| bot6 | minimax/abab6.5s-chat | ❌ 模型已下线 |
+
+**⚠️ 坑 1：picoclaw 有两套配置**（bot3）：
+- `/root/.picoclaw/config.json` —— **真正生效**的（`agents.defaults.provider/model` + `providers` + `model_list`）
+- `/root/.picoclaw/picoclaw.json` —— OpenClaw 迁移过来的旧格式，**改了没用**
+→ 改错文件 = 服务重启后错误依旧。
+
+**⚠️ 坑 2：provider 名 ≠ 模型 id 的一部分**：
+`agents.defaults.model` 写成 `minimax/MiniMax-M2.5` 时，picoclaw 会去解析
+`minimax/MiniMax-M2.5` 里的 `minimax` 当协议 → `unknown protocol "minimax"` → **服务起不来**。
+→ 正确写法：`provider` = 协议名（providers 里的 key，如 `minimax`/`custom`），
+  `model` = **纯模型名**（`MiniMax-M2.5`，不带前缀）。
+
+**⚠️ 坑 3：`model_list[].model` 字段也带前缀会 400**：
+MiniMax 请求体要 `MiniMax-M2.5`，写成 `minimax/MiniMax-M2.5` →
+`unknown model 'minimax/minimax-m2.5'`。bot5 首次修复后仍报错，就是这个原因。
+
+**修复（已落地，bot3/bot4/bot5/bot6 全部验证 ✅）**：
+```python
+ad = d['agents']['defaults']
+ad['provider'] = 'minimax'
+ad['model']   = 'MiniMax-M2.5'     # 纯模型名，无前缀
+# 且 model_list 里 MiniMax 那条的 model 字段也要改成 'MiniMax-M2.5'
+```
+重启后 `Heartbeat OK - silent`，picoclaw 错误数归零。
+
+**教训**：
+1. **provider 失效要逐节点查，不能只修一台** —— 各节点的模型配置本来就是各写各的。
+2. **改配置前先做一次真实 API 探测**（`urllib` 打一次 chat/completions），
+   否则改完还是 400/404，只是日志换了条错误。
+3. **"心跳报错"和"同步报错"是两回事** —— 别把 picoclaw 的 LLM 失败当成 Claw-Mesh 同步失败。
