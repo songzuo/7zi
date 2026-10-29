@@ -252,12 +252,10 @@ describe('useLocalStorage', () => {
     })
   })
 
-  describe('SSR 兼容性', () => {
-    it.skip('在服务端环境下应该返回初始值', () => {
-      // 此测试需要特殊环境设置，暂时跳过
-      // 在实际 SSR 环境中，hook 会返回初始值
-    })
-  })
+  // SSR 兼容性的用例原来在这里，是个零断言的 it.skip 空壳。
+  // 现在移到 src/hooks/useLocalStorage.ssr.test.ts —— 那里有 4 个真实断言，
+  // 因为它需要 mock isBrowser()，而同文件的其它用例依赖真实浏览器环境，
+  // 放在一个文件里会互相干扰。
 })
 
 describe('useSessionStorage', () => {
