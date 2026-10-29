@@ -62,6 +62,13 @@ export class ConditionNodeExecutor implements NodeExecutor {
           condition: conditionResult,
           expression: config.expression,
           label: conditionResult ? config.trueLabel || 'true' : config.falseLabel || 'false',
+          // branch 是 label 的语义化别名。
+          //
+          // label 是历史字段名（生产代码 executor.ts / WorkflowExecutor.ts /
+          // VisualWorkflowOrchestrator.ts 都读它，不能动），
+          // 但 'branch' 才是「走哪条分支」这个语义更准的名字 ——
+          // 6 个测试文件都按 branch 断言。两个都给，向后兼容。
+          branch: conditionResult ? config.trueLabel || 'true' : config.falseLabel || 'false',
         },
         logs: context.logs,
         metrics: {
@@ -84,6 +91,7 @@ export class ConditionNodeExecutor implements NodeExecutor {
           condition: false,
           expression: config.expression,
           label: config.falseLabel || 'false',
+          branch: config.falseLabel || 'false',
           error: error instanceof Error ? error.message : '条件表达式执行失败',
         },
         logs: context.logs,
