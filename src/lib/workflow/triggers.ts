@@ -4,6 +4,19 @@
  */
 
 import { EventEmitter } from 'events'
+import { createHmac, timingSafeEqual } from 'crypto'
+
+/**
+ * Webhook 签名头候选名称（小写，按优先级顺序）
+ * - x-signature: 通用约定
+ * - x-webhook-signature: 通用约定
+ * - x-hub-signature-256: GitHub 风格（sha256= 前缀）
+ */
+export const WEBHOOK_SIGNATURE_HEADERS = [
+  'x-signature',
+  'x-webhook-signature',
+  'x-hub-signature-256',
+] as const
 
 /**
  * 触发器类型
@@ -288,17 +301,23 @@ export class TriggerManager extends EventEmitter {
    * 恢复触发器
    */
   async resumeTrigger(triggerId: string): Promise<void> {
+    const trigger = this.triggers.get(triggerId)
+    if (!trigger) {
+      throw new Error(`触发器不存在: ${triggerId}`)
+    }
+
     const triggerInstance = this.activeTriggers.get(triggerId)
     if (!triggerInstance) {
-      throw new Error(`触发器未运行: ${triggerId}`)
+      // 触发器已注册但从未启动过（例如注册时即为暂停状态），
+      // 恢复操作等价于直接启动它
+      await this.startTrigger(triggerId)
+      this.emit('trigger:resumed', triggerId)
+      return
     }
 
     await triggerInstance.resume()
-    const trigger = this.triggers.get(triggerId)
-    if (trigger) {
-      trigger.status = TriggerStatus.ACTIVE
-      this.triggers.set(triggerId, trigger)
-    }
+    trigger.status = TriggerStatus.ACTIVE
+    this.triggers.set(triggerId, trigger)
 
     this.emit('trigger:resumed', triggerId)
   }
@@ -358,13 +377,17 @@ export class TriggerManager extends EventEmitter {
       throw new Error(`触发器不存在: ${triggerId}`)
     }
 
-    const callback = this.callbacks.get(triggerId) || this.defaultCallback.bind(this)
+    const customCallback = this.callbacks.get(triggerId)
+    const callback = customCallback || this.defaultCallback.bind(this)
     await callback(trigger, payload)
 
-    // 更新触发器元数据
-    trigger.metadata.lastTriggeredAt = new Date().toISOString()
-    trigger.metadata.triggerCount++
-    this.triggers.set(triggerId, trigger)
+    // 默认回调内部已经更新过触发计数与时间戳，
+    // 只有使用自定义回调时才需要在这里补一次，避免计数重复累加
+    if (customCallback) {
+      trigger.metadata.lastTriggeredAt = new Date().toISOString()
+      trigger.metadata.triggerCount++
+      this.triggers.set(triggerId, trigger)
+    }
 
     this.emit('trigger:manual', { triggerId, payload })
   }
@@ -646,7 +669,7 @@ class EventTrigger implements ITrigger {
 /**
  * Webhook 触发器实现
  */
-class WebhookTrigger implements ITrigger {
+export class WebhookTrigger implements ITrigger {
   private trigger: TriggerDefinition
   private callback?: TriggerCallback
   private isRunningFlag = false
@@ -693,6 +716,8 @@ class WebhookTrigger implements ITrigger {
     headers: Record<string, string>
     body: unknown
     ip?: string
+    /** 原始请求体（若框架已解析 JSON，建议传入原始字符串以保证签名一致） */
+    rawBody?: string | Buffer
   }): Promise<void> {
     if (!this.isRunningFlag || this.isPausedFlag || !this.callback) {
       throw new Error('Webhook 触发器未运行')
@@ -702,7 +727,7 @@ class WebhookTrigger implements ITrigger {
 
     // 验证签名
     if (config.validation?.signature) {
-      // TODO: 实现签名验证
+      this.verifySignature(config.validation.signature, request)
     }
 
     // 验证 IP 白名单
@@ -719,6 +744,82 @@ class WebhookTrigger implements ITrigger {
       triggeredAt: new Date().toISOString(),
       type: 'webhook',
     })
+  }
+
+  /**
+   * 验证 Webhook 签名（HMAC-SHA256，hex 编码，恒定时间比较）
+   */
+  private verifySignature(
+    secret: string,
+    request: { headers: Record<string, string>; body: unknown; rawBody?: string | Buffer }
+  ): void {
+    const provided = this.extractSignature(request.headers)
+
+    if (!provided) {
+      throw new Error('Webhook 签名缺失: 未在请求头中找到签名')
+    }
+
+    const rawBody = this.getRawBody(request)
+    const expected = createHmac('sha256', secret).update(rawBody).digest('hex')
+
+    // 兼容 "sha256=<hex>" 前缀形式
+    const normalized = provided.replace(/^sha256=/i, '').trim().toLowerCase()
+
+    if (!/^[0-9a-f]+$/.test(normalized)) {
+      throw new Error('Webhook 签名无效: 签名格式不正确')
+    }
+
+    const providedBuffer = Buffer.from(normalized, 'hex')
+    const expectedBuffer = Buffer.from(expected, 'hex')
+
+    // timingSafeEqual 要求等长 Buffer，长度不等直接判定失败
+    if (providedBuffer.length !== expectedBuffer.length) {
+      throw new Error('Webhook 签名验证失败')
+    }
+
+    if (!timingSafeEqual(providedBuffer, expectedBuffer)) {
+      throw new Error('Webhook 签名验证失败')
+    }
+  }
+
+  /**
+   * 从请求头中提取签名（大小写不敏感，兼容多种常见头名）
+   */
+  private extractSignature(headers: Record<string, string>): string | undefined {
+    const lowered = new Map<string, string>()
+    for (const [key, value] of Object.entries(headers || {})) {
+      if (typeof value === 'string') {
+        lowered.set(key.toLowerCase(), value)
+      }
+    }
+
+    for (const headerName of WEBHOOK_SIGNATURE_HEADERS) {
+      const value = lowered.get(headerName)
+      if (value && value.trim().length > 0) {
+        return value.trim()
+      }
+    }
+
+    return undefined
+  }
+
+  /**
+   * 获取用于签名的原始请求体
+   */
+  private getRawBody(request: { body: unknown; rawBody?: string | Buffer }): string {
+    if (typeof request.rawBody === 'string') {
+      return request.rawBody
+    }
+    if (request.rawBody && Buffer.isBuffer(request.rawBody)) {
+      return request.rawBody.toString('utf8')
+    }
+    if (typeof request.body === 'string') {
+      return request.body
+    }
+    if (request.body === undefined || request.body === null) {
+      return ''
+    }
+    return JSON.stringify(request.body)
   }
 }
 

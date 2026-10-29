@@ -4,12 +4,15 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { vi } from 'vitest'
+import { createHmac } from 'crypto'
 import {
   TriggerManager,
   TriggerType,
   TriggerStatus,
+  WebhookTrigger,
   type TriggerDefinition,
   type TriggerCallback,
+  type WebhookTriggerConfig,
 } from '../triggers'
 
 describe('TriggerManager', () => {
@@ -260,6 +263,23 @@ describe('TriggerManager', () => {
       const callback = vi.fn<TriggerCallback>()
       manager.setTriggerCallback('test-trigger', callback)
 
+      // manualTrigger 需要触发器已注册
+      await manager.registerTrigger({
+        id: 'test-trigger',
+        workflowId: 'test-workflow',
+        type: TriggerType.SCHEDULE,
+        name: '测试触发器',
+        status: TriggerStatus.ACTIVE,
+        config: { interval: 1000 },
+        metadata: {
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          createdBy: 'test',
+          triggerCount: 0,
+          errorCount: 0,
+        },
+      })
+
       await manager.manualTrigger('test-trigger', { test: 'data' })
 
       expect(callback).toHaveBeenCalledWith(
@@ -508,5 +528,247 @@ describe('TriggerManager', () => {
         payload: {},
       })
     })
+  })
+})
+
+describe('WebhookTrigger 签名验证', () => {
+  const SECRET = 'super-secret-key'
+  const PAYLOAD = { event: 'order.created', id: 42 }
+
+  function createWebhookTrigger(
+    validation?: WebhookTriggerConfig['validation']
+  ): { trigger: TriggerDefinition; instance: WebhookTrigger } {
+    const trigger: TriggerDefinition = {
+      id: 'webhook-trigger',
+      workflowId: 'workflow-1',
+      type: TriggerType.WEBHOOK,
+      name: 'Webhook 触发器',
+      status: TriggerStatus.ACTIVE,
+      config: {
+        endpoint: '/webhook',
+        method: 'POST',
+        ...(validation ? { validation } : {}),
+      },
+      metadata: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'test',
+        triggerCount: 0,
+        errorCount: 0,
+      },
+    }
+
+    return { trigger, instance: new WebhookTrigger(trigger) }
+  }
+
+  function sign(body: string, secret: string = SECRET): string {
+    return createHmac('sha256', secret).update(body).digest('hex')
+  }
+
+  it('正确签名应该触发回调', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({ signature: SECRET })
+    await instance.start(callback)
+
+    const rawBody = JSON.stringify(PAYLOAD)
+
+    await instance.handleWebhook({
+      headers: { 'x-signature': sign(rawBody) },
+      body: PAYLOAD,
+      rawBody,
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'webhook-trigger' }),
+      expect.objectContaining({ type: 'webhook' })
+    )
+  })
+
+  it('错误签名应该抛错且不触发回调', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({ signature: SECRET })
+    await instance.start(callback)
+
+    const rawBody = JSON.stringify(PAYLOAD)
+
+    await expect(
+      instance.handleWebhook({
+        headers: { 'x-signature': 'a'.repeat(64) },
+        body: PAYLOAD,
+        rawBody,
+      })
+    ).rejects.toThrow('Webhook 签名验证失败')
+
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  it('缺少签名头应该抛错且不触发回调', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({ signature: SECRET })
+    await instance.start(callback)
+
+    await expect(
+      instance.handleWebhook({
+        headers: { 'content-type': 'application/json' },
+        body: PAYLOAD,
+        rawBody: JSON.stringify(PAYLOAD),
+      })
+    ).rejects.toThrow('Webhook 签名缺失')
+
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  it('sha256= 前缀签名应该通过', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({ signature: SECRET })
+    await instance.start(callback)
+
+    const rawBody = JSON.stringify(PAYLOAD)
+
+    await instance.handleWebhook({
+      headers: { 'x-hub-signature-256': `sha256=${sign(rawBody)}` },
+      body: PAYLOAD,
+      rawBody,
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('未配置 signature 时不做校验，正常通过', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger()
+    await instance.start(callback)
+
+    await instance.handleWebhook({
+      headers: {},
+      body: PAYLOAD,
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('IP 白名单与签名同时配置时，签名正确且 IP 在白名单内应该通过', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({
+      signature: SECRET,
+      ipWhitelist: ['10.0.0.1'],
+    })
+    await instance.start(callback)
+
+    const rawBody = JSON.stringify(PAYLOAD)
+
+    await instance.handleWebhook({
+      headers: { 'x-webhook-signature': sign(rawBody) },
+      body: PAYLOAD,
+      rawBody,
+      ip: '10.0.0.1',
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('IP 白名单与签名同时配置时，IP 不在白名单内应该抛错且不触发回调', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({
+      signature: SECRET,
+      ipWhitelist: ['10.0.0.1'],
+    })
+    await instance.start(callback)
+
+    const rawBody = JSON.stringify(PAYLOAD)
+
+    await expect(
+      instance.handleWebhook({
+        headers: { 'x-webhook-signature': sign(rawBody) },
+        body: PAYLOAD,
+        rawBody,
+        ip: '10.0.0.2',
+      })
+    ).rejects.toThrow('IP 不在白名单中')
+
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  it('IP 白名单与签名同时配置时，签名错误应该优先在签名校验阶段失败', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({
+      signature: SECRET,
+      ipWhitelist: ['10.0.0.1'],
+    })
+    await instance.start(callback)
+
+    await expect(
+      instance.handleWebhook({
+        headers: { 'x-signature': 'b'.repeat(64) },
+        body: PAYLOAD,
+        rawBody: JSON.stringify(PAYLOAD),
+        ip: '10.0.0.1',
+      })
+    ).rejects.toThrow('Webhook 签名验证失败')
+
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  it('body 为对象且未提供 rawBody 时应使用 JSON.stringify 序列化结果验签', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({ signature: SECRET })
+    await instance.start(callback)
+
+    await instance.handleWebhook({
+      headers: { 'x-signature': sign(JSON.stringify(PAYLOAD)) },
+      body: PAYLOAD,
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('body 为字符串时应直接使用该字符串验签', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({ signature: SECRET })
+    await instance.start(callback)
+
+    const rawBody = 'event=order.created&id=42'
+
+    await instance.handleWebhook({
+      headers: { 'x-signature': sign(rawBody) },
+      body: rawBody,
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('签名头名大小写不敏感', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({ signature: SECRET })
+    await instance.start(callback)
+
+    const rawBody = JSON.stringify(PAYLOAD)
+
+    await instance.handleWebhook({
+      headers: { 'X-Webhook-Signature': sign(rawBody) },
+      body: PAYLOAD,
+      rawBody,
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('使用错误密钥计算出的签名应该校验失败', async () => {
+    const callback = vi.fn<TriggerCallback>()
+    const { instance } = createWebhookTrigger({ signature: SECRET })
+    await instance.start(callback)
+
+    const rawBody = JSON.stringify(PAYLOAD)
+
+    await expect(
+      instance.handleWebhook({
+        headers: { 'x-signature': sign(rawBody, 'wrong-secret') },
+        body: PAYLOAD,
+        rawBody,
+      })
+    ).rejects.toThrow('Webhook 签名验证失败')
+
+    expect(callback).not.toHaveBeenCalled()
   })
 })

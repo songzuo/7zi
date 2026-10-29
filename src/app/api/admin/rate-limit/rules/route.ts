@@ -12,6 +12,7 @@ import { repositories } from '@/lib/rate-limit-dashboard/database'
 import type   { CreateRateLimitRuleDTO, RuleFilters } from '@/lib/rate-limit-dashboard/types'
 import { logger } from '@/lib/logger'
 import { createErrorResponse, createValidationError } from '@/lib/api/error-handler'
+import { verify } from '@/lib/auth/jwt'
 
 // ============================================================================
 // Validation Schemas
@@ -47,31 +48,53 @@ const listRulesSchema = z.object({
 // ============================================================================
 
 /**
- * Check if user is authenticated and has admin privileges
+ * Auth result
  */
-async function checkAuth(request: NextRequest): Promise<{ success: boolean; userId?: string; error?: string }> {
+interface AuthResult {
+  success: boolean
+  userId?: string
+  error?: string
+  /** HTTP status to use when authentication/authorization fails (401 = unauthenticated, 403 = forbidden) */
+  status?: number
+}
+
+/**
+ * Check if user is authenticated and has admin privileges
+ *
+ * Verifies the JWT signature/claims via `@/lib/auth/jwt` `verify()` and then
+ * enforces the admin role (payload.role === 'admin' or payload.roles includes 'admin').
+ */
+async function checkAuth(request: NextRequest): Promise<AuthResult> {
   const authHeader = request.headers.get('authorization')
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return { success: false, error: 'Missing or invalid authorization header' }
+    return { success: false, error: 'Missing or invalid authorization header', status: 401 }
   }
 
-  const token = authHeader.replace('Bearer ', '')
+  const token = authHeader.substring('Bearer '.length).trim()
 
-  // TODO: Implement proper JWT verification
-  // For now, just check if token exists
-  if (!token || token === 'invalid') {
-    return { success: false, error: 'Invalid token' }
+  if (!token) {
+    return { success: false, error: 'Missing or invalid authorization header', status: 401 }
   }
 
-  // Extract user ID from token (simplified)
-  try {
-    // In production, verify JWT signature and claims
-    const userId = 'admin' // Default admin user for now
-    return { success: true, userId }
-  } catch (_error) {
-    return { success: false, error: 'Token verification failed' }
+  // Real JWT verification (signature, issuer, audience, expiration)
+  const result = await verify(token)
+
+  if (!result.valid || !result.payload) {
+    return { success: false, error: result.error || 'Invalid token', status: 401 }
   }
+
+  const { payload } = result
+
+  // Admin role check
+  const roles = payload.roles || []
+  const isAdmin = payload.role === 'admin' || roles.includes('admin')
+
+  if (!isAdmin) {
+    return { success: false, error: 'Admin privileges required', status: 403 }
+  }
+
+  return { success: true, userId: payload.sub }
 }
 
 /**
@@ -103,7 +126,7 @@ export async function GET(request: NextRequest) {
     if (!auth.success) {
       return NextResponse.json(
         { success: false, error: auth.error },
-        { status: 401 }
+        { status: auth.status || 401 }
       )
     }
 
@@ -166,7 +189,7 @@ export async function POST(request: NextRequest) {
     if (!auth.success) {
       return NextResponse.json(
         { success: false, error: auth.error },
-        { status: 401 }
+        { status: auth.status || 401 }
       )
     }
 
