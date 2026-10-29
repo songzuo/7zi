@@ -67,11 +67,12 @@ export class AuditLogService {
     this.queryService = new AuditQueryService(this.storage);
     this.analyticsService = new AuditAnalyticsService(this.storage);
     this.complianceService = new AuditComplianceService(this.storage);
-    this.exportService = new AuditExportService(this.storage);
-
     // 初始化处理器
     this.sensitiveDataHandler = new AuditSensitiveDataHandler(config.sensitiveFields);
     this.signatureHandler = new AuditSignatureHandler(config.enableSigning, config.signingKey);
+
+    // 导出服务需要签名校验器 —— 导入时校验事件完整性
+    this.exportService = new AuditExportService(this.storage, this.signatureHandler);
 
     // 如果启用异步写入，启动批量处理
     if (config.asyncWrite) {
