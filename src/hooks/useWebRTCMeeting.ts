@@ -482,6 +482,15 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     } catch (error) {
       logger.error('[WebRTC] Error joining meeting:', error)
       onError?.(error instanceof Error ? error : new Error('Failed to join meeting'))
+
+      // 加入失败时把已经建立的 socket 关掉 ——
+      // 否则 socket 连着但会议没进去，资源一直挂着
+      // （典型场景：getUserMedia 被浏览器拒绝）。
+      if (socketRef.current) {
+        socketRef.current.disconnect()
+        socketRef.current = null
+      }
+
       setIsConnecting(false)
     } finally {
       setIsConnecting(false)
