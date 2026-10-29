@@ -505,7 +505,7 @@ export class TaskDecomposer extends EventEmitter {
 
     try {
       await this.executeSubTaskWithRetry(subTask, previousResults)
-    } catch (error) {
+    } catch {
       // 重试全部用尽 —— executeSubTaskWithRetry 已经把状态和错误写好了
       subTask.status = TaskStatus.FAILED
       subTask.completedAt = Date.now()
