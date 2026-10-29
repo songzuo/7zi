@@ -200,7 +200,8 @@ export function getDatabase(): DatabaseConnection {
         }
 
         const stmt = db.prepare(sql)
-        const result = stmt.run(...params)
+        // params 可能为 undefined —— 展开运算符要求可迭代对象
+        const result = params ? stmt.run(...params) : stmt.run()
         return {
           changes: result?.changes ?? 0,
           lastInsertRowid:

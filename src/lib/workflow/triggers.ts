@@ -18,6 +18,16 @@ export const WEBHOOK_SIGNATURE_HEADERS = [
   'x-hub-signature-256',
 ] as const
 
+/** 携带签名时间戳的请求头（用于防重放） */
+export const WEBHOOK_TIMESTAMP_HEADERS = [
+  'x-signature-timestamp',
+  'x-webhook-timestamp',
+  'x-hub-signature-256-timestamp',
+] as const
+
+/** 签名时间戳可接受的时间窗口（秒）—— 超出即视为重放 */
+export const WEBHOOK_SIGNATURE_MAX_AGE_SECONDS = 300
+
 /**
  * 触发器类型
  */
@@ -760,7 +770,22 @@ export class WebhookTrigger implements ITrigger {
     }
 
     const rawBody = this.getRawBody(request)
-    const expected = createHmac('sha256', secret).update(rawBody).digest('hex')
+
+    // 防重放：签名必须绑定一个时间戳，且时间戳不能太旧。
+    // 签名串 = `${timestamp}.${rawBody}`，攻击者截获旧请求重放时
+    // 时间戳已超出窗口 → 直接拒绝。
+    const timestamp = this.extractTimestamp(request.headers)
+    if (timestamp !== undefined) {
+      const ageSeconds = Math.abs(Date.now() / 1000 - timestamp)
+      if (ageSeconds > WEBHOOK_SIGNATURE_MAX_AGE_SECONDS) {
+        throw new Error(
+          `Webhook 签名已过期: 时间戳超出 ${WEBHOOK_SIGNATURE_MAX_AGE_SECONDS}s 窗口`
+        )
+      }
+    }
+
+    const signedPayload = timestamp !== undefined ? `${timestamp}.${rawBody}` : rawBody
+    const expected = createHmac('sha256', secret).update(signedPayload).digest('hex')
 
     // 兼容 "sha256=<hex>" 前缀形式
     const normalized = provided.replace(/^sha256=/i, '').trim().toLowerCase()
@@ -797,6 +822,30 @@ export class WebhookTrigger implements ITrigger {
       const value = lowered.get(headerName)
       if (value && value.trim().length > 0) {
         return value.trim()
+      }
+    }
+
+    return undefined
+  }
+
+  /**
+   * 从请求头中提取签名时间戳（秒级 Unix 时间戳）
+   */
+  private extractTimestamp(headers: Record<string, string>): number | undefined {
+    const lowered = new Map<string, string>()
+    for (const [key, value] of Object.entries(headers || {})) {
+      if (typeof value === 'string') {
+        lowered.set(key.toLowerCase(), value)
+      }
+    }
+
+    for (const headerName of WEBHOOK_TIMESTAMP_HEADERS) {
+      const value = lowered.get(headerName)
+      if (!value || value.trim().length === 0) continue
+
+      const parsed = Number.parseInt(value.trim(), 10)
+      if (Number.isFinite(parsed)) {
+        return parsed
       }
     }
 

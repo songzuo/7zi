@@ -635,6 +635,80 @@ describe('WebhookTrigger 签名验证', () => {
     expect(callback).toHaveBeenCalledTimes(1)
   })
 
+  describe('防重放（时间戳绑定）', () => {
+    function signWithTimestamp(timestamp: number, body: string, secret: string = SECRET): string {
+      return createHmac('sha256', secret).update(`${timestamp}.${body}`).digest('hex')
+    }
+
+    it('带时间戳且签名正确应该通过', async () => {
+      const callback = vi.fn<TriggerCallback>()
+      const { instance } = createWebhookTrigger({ signature: SECRET })
+      await instance.start(callback)
+
+      const rawBody = JSON.stringify(PAYLOAD)
+      const timestamp = Math.floor(Date.now() / 1000)
+
+      await instance.handleWebhook({
+        headers: {
+          'x-signature': signWithTimestamp(timestamp, rawBody),
+          'x-signature-timestamp': String(timestamp),
+        },
+        body: PAYLOAD,
+        rawBody,
+      })
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('时间戳过期应该拒绝（重放攻击）', async () => {
+      const callback = vi.fn<TriggerCallback>()
+      const { instance } = createWebhookTrigger({ signature: SECRET })
+      await instance.start(callback)
+
+      const rawBody = JSON.stringify(PAYLOAD)
+      // 10 分钟前 —— 超出 5 分钟窗口
+      const staleTimestamp = Math.floor(Date.now() / 1000) - 600
+
+      await expect(
+        instance.handleWebhook({
+          headers: {
+            'x-signature': signWithTimestamp(staleTimestamp, rawBody),
+            'x-signature-timestamp': String(staleTimestamp),
+          },
+          body: PAYLOAD,
+          rawBody,
+        })
+      ).rejects.toThrow(/过期/)
+
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('签名与时间戳不匹配应该拒绝', async () => {
+      const callback = vi.fn<TriggerCallback>()
+      const { instance } = createWebhookTrigger({ signature: SECRET })
+      await instance.start(callback)
+
+      const rawBody = JSON.stringify(PAYLOAD)
+      const timestamp = Math.floor(Date.now() / 1000)
+
+      // 用 A 时间戳的签名，配 B 时间戳
+      const otherTimestamp = timestamp + 1
+
+      await expect(
+        instance.handleWebhook({
+          headers: {
+            'x-signature': signWithTimestamp(timestamp, rawBody),
+            'x-signature-timestamp': String(otherTimestamp),
+          },
+          body: PAYLOAD,
+          rawBody,
+        })
+      ).rejects.toThrow(/验证失败/)
+
+      expect(callback).not.toHaveBeenCalled()
+    })
+  })
+
   it('未配置 signature 时不做校验，正常通过', async () => {
     const callback = vi.fn<TriggerCallback>()
     const { instance } = createWebhookTrigger()
