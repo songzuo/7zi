@@ -113,8 +113,30 @@ export class FileAuditStorage implements AuditLogStorage {
     const endIndex = startIndex + pagination.pageSize;
     const paginatedEvents = events.slice(startIndex, endIndex);
 
+    // 应用包含选项（与 memory-storage 保持一致）：
+    // 只有**显式传 false** 才裁剪字段，不传表示「要」。
+    const includeDetails = options.includeDetails !== false;
+    const includeChanges = options.includeChanges !== false;
+    const includeMetadata = options.includeMetadata !== false;
+
+    const processedEvents = paginatedEvents.map((event) => {
+      const processed = { ...event };
+
+      if (!includeDetails) {
+        delete processed.details;
+      }
+      if (!includeChanges) {
+        delete processed.changes;
+      }
+      if (!includeMetadata) {
+        delete processed.metadata;
+      }
+
+      return processed;
+    });
+
     return {
-      data: paginatedEvents,
+      data: processedEvents,
       total,
       page: pagination.page,
       pageSize: pagination.pageSize,

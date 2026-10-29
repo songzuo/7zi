@@ -21,6 +21,32 @@ export class AuditQueryService {
   constructor(private storage: AuditLogStorage) {}
 
   /**
+   * 合并「方法自带的主过滤条件」与「调用方传入的 options」。
+   *
+   * 原实现直接写成 `{ filter: { userIds: [userId] }, ...options }`，
+   * 而 options 是 Partial<AuditQueryOptions>，**只要调用方传了 filter，
+   * 整个 filter 就会被整体替换** —— 主过滤条件（userIds / categories /
+   * timeRange …）被静默丢弃，方法名说的和实际查的完全不是一回事。
+   *
+   * 现在按字段做浅合并：filter 内部各键合并（调用方同名字段优先），
+   * sort / pagination 整体取调用方的值。
+   */
+  private mergeOptions(
+    primaryFilter: AuditQueryFilter,
+    options?: Partial<AuditQueryOptions>
+  ): AuditQueryOptions {
+    const merged: AuditQueryOptions = { ...options };
+
+    if (options?.filter) {
+      merged.filter = { ...primaryFilter, ...options.filter };
+    } else {
+      merged.filter = { ...primaryFilter };
+    }
+
+    return merged;
+  }
+
+  /**
    * 查询审计日志
    */
   public async query(options: AuditQueryOptions): Promise<AuditQueryResult> {
@@ -41,10 +67,9 @@ export class AuditQueryService {
     userId: string,
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { userIds: [userId] },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions({ userIds: [userId] }, options)
+    );
   }
 
   /**
@@ -55,10 +80,9 @@ export class AuditQueryService {
     end: Date,
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { timeRange: { start, end } },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions({ timeRange: { start, end } }, options)
+    );
   }
 
   /**
@@ -68,10 +92,9 @@ export class AuditQueryService {
     category: string,
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { categories: [category] },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions({ categories: [category] }, options)
+    );
   }
 
   /**
@@ -81,10 +104,9 @@ export class AuditQueryService {
     action: string,
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { actions: [action] },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions({ actions: [action] }, options)
+    );
   }
 
   /**
@@ -100,10 +122,9 @@ export class AuditQueryService {
       filter.resourceIds = [resourceId];
     }
 
-    return this.query({
-      filter,
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions(filter, options)
+    );
   }
 
   /**
@@ -113,10 +134,9 @@ export class AuditQueryService {
     query: string,
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { searchQuery: query },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions({ searchQuery: query }, options)
+    );
   }
 
   /**
@@ -126,10 +146,9 @@ export class AuditQueryService {
     sessionId: string,
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { sessionIds: [sessionId] },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions({ sessionIds: [sessionId] }, options)
+    );
   }
 
   /**
@@ -139,10 +158,9 @@ export class AuditQueryService {
     correlationId: string,
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { correlationId },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions({ correlationId }, options)
+    );
   }
 
   /**
@@ -152,10 +170,9 @@ export class AuditQueryService {
     clientIp: string,
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { clientIps: [clientIp] },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions({ clientIps: [clientIp] }, options)
+    );
   }
 
   /**
@@ -164,11 +181,12 @@ export class AuditQueryService {
   public async getFailedOperations(
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { statuses: ['failure'] },
-      sort: { field: 'timestamp', order: 'desc' },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions(
+        { statuses: ['failure'] },
+        { sort: { field: 'timestamp', order: 'desc' }, ...options }
+      )
+    );
   }
 
   /**
@@ -177,11 +195,12 @@ export class AuditQueryService {
   public async getSecurityEvents(
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { categories: ['security'] },
-      sort: { field: 'timestamp', order: 'desc' },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions(
+        { categories: ['security'] },
+        { sort: { field: 'timestamp', order: 'desc' }, ...options }
+      )
+    );
   }
 
   /**
@@ -190,11 +209,12 @@ export class AuditQueryService {
   public async getAdminOperations(
     options?: Partial<AuditQueryOptions>
   ): Promise<AuditQueryResult> {
-    return this.query({
-      filter: { categories: ['admin'] },
-      sort: { field: 'timestamp', order: 'desc' },
-      ...options,
-    });
+    return this.query(
+      this.mergeOptions(
+        { categories: ['admin'] },
+        { sort: { field: 'timestamp', order: 'desc' }, ...options }
+      )
+    );
   }
 
   /**

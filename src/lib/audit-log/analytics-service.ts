@@ -31,9 +31,16 @@ export class AuditAnalyticsService {
   public async aggregate(options: AuditAggregationOptions): Promise<AuditAggregationResult> {
     const startTime = Date.now();
 
+    // 时间范围解析：options.timeRange 优先；没给时回落到 options.filter.timeRange。
+    //
+    // 原实现写死 `timeRange: options.timeRange`，而 options.timeRange 允许是 undefined
+    // —— 此时它会把 filter 里**已经带好的** timeRange 覆盖成 undefined，
+    // 时间过滤被静默丢弃，聚合把范围外的历史事件也算了进来。
+    const timeRange = options.timeRange ?? options.filter?.timeRange;
+
     // 获取所有事件
     const result = await this.storage.query({
-      filter: { ...options.filter, timeRange: options.timeRange },
+      filter: { ...options.filter, timeRange },
       pagination: { page: 1, pageSize: 100000 }, // 大数量
     });
 
@@ -46,7 +53,8 @@ export class AuditAnalyticsService {
 
     return {
       field: options.field,
-      timeRange: options.timeRange || { start: new Date(0), end: new Date() },
+      // 返回实际生效的时间范围（与查询用的是同一个），而不是回退成 epoch。
+      timeRange: timeRange || { start: new Date(0), end: new Date() },
       total,
       items,
       duration: Date.now() - startTime,

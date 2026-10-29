@@ -97,8 +97,15 @@ export class AuditSensitiveDataHandler {
 
     for (const [key, value] of Object.entries(obj)) {
       const fieldPath = `${prefix}.${key}`;
+      // 精确路径 → 裸字段名 → 通配符（如 'secret*'）
+      //
+      // 原实现只查前两种，通配符配置在嵌套对象里**完全失效**：
+      // { path: 'secret*' } 对 details.secretKey 不会脱敏，
+      // 通配符只有顶层 event.* 才走到（顶层那段单独调了 findWildcardConfig）。
       const config = this.sensitiveFields.get(fieldPath) ||
-                    this.sensitiveFields.get(key);
+                    this.sensitiveFields.get(key) ||
+                    this.findWildcardConfig(fieldPath) ||
+                    this.findWildcardConfig(key);
 
       if (config) {
         result[key] = this.maskValue(value, fieldPath, config);
@@ -138,9 +145,16 @@ export class AuditSensitiveDataHandler {
       return value;
     }
 
-    // 如果没有配置，检查是否有通配符匹配
+    // 如果没有配置，检查是否有精确路径或通配符匹配
+    //
+    // 原实现只查通配符，精确路径完全没查：
+    // changes 数组脱敏时传的是 change.field（如 'password'），
+    // 而敏感字段配置里就是 'password' —— 查不到配置，
+    // 变更记录里的新旧明文口令**原样写进审计日志**。
     if (!config) {
-      config = this.findWildcardConfig(fieldPath);
+      config =
+        this.sensitiveFields.get(fieldPath) ||
+        this.findWildcardConfig(fieldPath);
     }
 
     // 如果仍然没有配置，返回原值
@@ -269,6 +283,35 @@ export class AuditSensitiveDataHandler {
   }
 
   /**
+   * 判断路径是否命中敏感字段配置
+   *
+   * 与 maskObject 的查找顺序保持一致：
+   * 1. 完整路径精确匹配（如 'details.password'）
+   * 2. 裸字段名精确匹配（如 'password'）
+   * 3. 通配符匹配（如 'secret*' 命中 'details.secretKey'）
+   */
+  private isSensitivePath(path: string): boolean {
+    if (this.sensitiveFields.has(path)) {
+      return true;
+    }
+
+    const bare = path.split('.').pop() ?? path;
+    if (bare !== path && this.sensitiveFields.has(bare)) {
+      return true;
+    }
+
+    if (this.findWildcardConfig(path)) {
+      return true;
+    }
+
+    if (bare !== path && this.findWildcardConfig(bare)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * 获取所有敏感字段路径
    */
   public getSensitiveFieldPaths(): string[] {
@@ -288,20 +331,25 @@ export class AuditSensitiveDataHandler {
   public extractSensitiveValues(obj: Record<string, unknown>): Map<string, string> {
     const sensitiveValues = new Map<string, string>();
 
+    // 顶层调用时 path 是 ''，子键路径直接是 'password' / 'user.password'。
+    //
+    // 原实现从 '' 开始拼路径，第一层就变成 '.password'（多了个前导点），
+    // 于是 isSensitiveField('.password') 永远匹配不到配置 'password'，
+    // extractSensitiveValues() **恒返回空 Map** —— 加密流程拿不到任何敏感值。
     const extract = (value: unknown, path: string): void => {
       if (value === null || value === undefined) {
         return;
       }
 
-      if (typeof value === 'string' && this.isSensitiveField(path)) {
+      if (typeof value === 'string' && path !== '' && this.isSensitiveField(path)) {
         sensitiveValues.set(path, value);
       } else if (typeof value === 'object' && !Array.isArray(value)) {
         for (const [key, val] of Object.entries(value)) {
-          extract(val, `${path}.${key}`);
+          extract(val, path === '' ? key : `${path}.${key}`);
         }
       } else if (Array.isArray(value)) {
         value.forEach((item, index) => {
-          extract(item, `${path}[${index}]`);
+          extract(item, path === '' ? `[${index}]` : `${path}[${index}]`);
         });
       }
     };
@@ -323,7 +371,12 @@ export class AuditSensitiveDataHandler {
 
       if (typeof value === 'string') {
         // 检查是否包含原始敏感数据
-        if (this.isSensitiveField(path)) {
+        // path 为 '' 时表示事件根对象，不是字段，跳过。
+        //
+        // 字段解析规则必须与 maskObject 保持一致（精确路径 → 裸字段名 → 通配符），
+        // 否则会出现「脱敏时按裸字段名脱掉了，校验时却按完整路径找不到」的
+        // 情况 —— validateMaskedData 永远返回 valid: true，形同虚设。
+        if (path !== '' && this.isSensitivePath(path)) {
           // 简单检查：如果字符串长度大于4且不包含*，可能未脱敏
           if (value.length > 4 && !value.includes('*') && !value.match(/^[a-f0-9]{16}$/)) {
             issues.push(`Sensitive field ${path} may not be properly masked`);
@@ -331,11 +384,11 @@ export class AuditSensitiveDataHandler {
         }
       } else if (typeof value === 'object' && !Array.isArray(value)) {
         for (const [key, val] of Object.entries(value)) {
-          checkValue(val, `${path}.${key}`);
+          checkValue(val, path === '' ? key : `${path}.${key}`);
         }
       } else if (Array.isArray(value)) {
         value.forEach((item, index) => {
-          checkValue(item, `${path}[${index}]`);
+          checkValue(item, path === '' ? `[${index}]` : `${path}[${index}]`);
         });
       }
     };
