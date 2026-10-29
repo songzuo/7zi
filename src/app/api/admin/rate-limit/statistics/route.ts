@@ -17,6 +17,7 @@ import type {
 } from '@/lib/rate-limit-dashboard/types'
 import { logger } from '@/lib/logger'
 import { createErrorResponse, createValidationError } from '@/lib/api/error-handler'
+import { checkAdminAuth } from '@/lib/api/admin-auth'
 
 // ============================================================================
 // Validation Schemas
@@ -31,27 +32,6 @@ const statisticsSchema = z.object({
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-async function checkAuth(request: NextRequest): Promise<{ success: boolean; userId?: string; error?: string }> {
-  const authHeader = request.headers.get('authorization')
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return { success: false, error: 'Missing or invalid authorization header' }
-  }
-
-  const token = authHeader.replace('Bearer ', '')
-
-  if (!token || token === 'invalid') {
-    return { success: false, error: 'Invalid token' }
-  }
-
-  try {
-    const userId = 'admin'
-    return { success: true, userId }
-  } catch (_error) {
-    return { success: false, error: 'Token verification failed' }
-  }
-}
 
 function getTimeRange(timeRange?: string): TimeRange {
   const now = Date.now()
@@ -97,11 +77,11 @@ function _generateTimeSeriesData(
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await checkAuth(request)
+    const auth = await checkAdminAuth(request)
     if (!auth.success) {
       return NextResponse.json(
         { success: false, error: auth.error },
-        { status: 401 }
+        { status: auth.status ?? 401 }
       )
     }
 

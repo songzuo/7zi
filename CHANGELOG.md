@@ -21,6 +21,11 @@
   - 签名头按优先级依次查找（大小写不敏感）：`x-signature` → `x-webhook-signature` → `x-hub-signature-256`。
   - 兼容 GitHub 风格的 `sha256=<hex>` 前缀；签名值必须是 hex 字符。
   - 比较使用 `timingSafeEqual`（恒定时间），长度不等直接判定失败。
+  - **防重放（提交 `f98d1e36d4`）**：单纯的 body HMAC 签名可被无限重放。
+    现签名串改为 `${timestamp}.${rawBody}`，时间戳请求头按优先级查找
+    `x-signature-timestamp` → `x-webhook-timestamp` → `x-hub-signature-256-timestamp`，
+    时间窗口 `WEBHOOK_SIGNATURE_MAX_AGE_SECONDS = 300`（允许 ±300s 时钟偏移），
+    超窗即拒。缺少时间戳头时退化为纯 body 验签（向后兼容，但放弃重放保护）。
   - 验签所用的原始请求体：优先取入参新增的可选字段 `rawBody`（`string | Buffer`），
     其次 `body` 为字符串时直接使用，否则 `JSON.stringify(body)`，body 为空则用空串。
     → **调用方注意**：若 HTTP 层已把 JSON 解析成对象且未透传原始字节，

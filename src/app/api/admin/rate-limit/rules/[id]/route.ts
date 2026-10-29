@@ -13,6 +13,7 @@ import { repositories } from '@/lib/rate-limit-dashboard/database'
 import type { UpdateRateLimitRuleDTO } from '@/lib/rate-limit-dashboard/types'
 import { logger } from '@/lib/logger'
 import { createErrorResponse, createNotFoundError, createValidationError } from '@/lib/api/error-handler'
+import { checkAdminAuth } from '@/lib/api/admin-auth'
 
 // ============================================================================
 // Validation Schemas
@@ -33,31 +34,6 @@ const updateRuleSchema = z.object({
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-/**
- * Check if user is authenticated and has admin privileges
- */
-async function checkAuth(request: NextRequest): Promise<{ success: boolean; userId?: string; error?: string }> {
-  const authHeader = request.headers.get('authorization')
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return { success: false, error: 'Missing or invalid authorization header' }
-  }
-
-  const token = authHeader.replace('Bearer ', '')
-
-  // TODO: Implement proper JWT verification
-  if (!token || token === 'invalid') {
-    return { success: false, error: 'Invalid token' }
-  }
-
-  try {
-    const userId = 'admin'
-    return { success: true, userId }
-  } catch (_error) {
-    return { success: false, error: 'Token verification failed' }
-  }
-}
 
 /**
  * Get client IP address from request
@@ -95,11 +71,11 @@ export async function GET(
 ) {
   try {
     // Check authentication
-    const auth = await checkAuth(request)
+    const auth = await checkAdminAuth(request)
     if (!auth.success) {
       return NextResponse.json(
         { success: false, error: auth.error },
-        { status: 401 }
+        { status: auth.status ?? 401 }
       )
     }
 
@@ -147,11 +123,11 @@ export async function PUT(
 ) {
   try {
     // Check authentication
-    const auth = await checkAuth(request)
+    const auth = await checkAdminAuth(request)
     if (!auth.success) {
       return NextResponse.json(
         { success: false, error: auth.error },
-        { status: 401 }
+        { status: auth.status ?? 401 }
       )
     }
 
@@ -232,11 +208,11 @@ export async function DELETE(
 ) {
   try {
     // Check authentication
-    const auth = await checkAuth(request)
+    const auth = await checkAdminAuth(request)
     if (!auth.success) {
       return NextResponse.json(
         { success: false, error: auth.error },
-        { status: 401 }
+        { status: auth.status ?? 401 }
       )
     }
 
