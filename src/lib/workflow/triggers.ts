@@ -1031,7 +1031,6 @@ export class CronTrigger implements ITrigger {
       // 注意不能简单「整点跳到下一小时」—— 那会跳过当前小时剩余的分钟
       // （比如 10:17 起找 09:30，跳到 11:00 就把 10:30~10:59 全跳过了）。
       const currentHour = cursor.getHours()
-      const nextHour = cursor.getTime()
       let advanced = false
 
       if (hours.has(currentHour)) {
@@ -1047,7 +1046,7 @@ export class CronTrigger implements ITrigger {
 
       if (!advanced) {
         // 当前小时没有更晚的匹配分钟 → 跳到下一个匹配小时的第 0 分钟
-        let probe = new Date(cursor.getTime())
+        const probe = new Date(cursor.getTime())
         probe.setHours(probe.getHours() + 1, 0, 0, 0)
 
         let foundHour = false

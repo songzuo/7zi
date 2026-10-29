@@ -1,6 +1,13 @@
 // @ts-nocheck - Test file with complex type issues
 /**
  * useWebRTCMeeting Hook Tests
+ *
+ * 断言均对照 src/hooks/useWebRTCMeeting.ts 的真实行为编写：
+ *  - socket.io 事件名以 src/lib/voice-meeting/signaling.ts 为准
+ *    ('room-joined' / 'participant-joined' / 'participant-left' /
+ *     'participant-muted' / 'mute-state-changed' / 'join-room' / 'leave-room')
+ *  - 错误统一通过 options.onError 回调上报，joinMeeting() 自身不会 reject
+ *  - getAudioElement 是「get-or-create」语义，不会返回 null
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react'
@@ -26,7 +33,8 @@ vi.mock('socket.io-client', () => {
 
 // Mock logger
 vi.mock('@/lib/logger', () => ({
-  logger: { auth: vi.fn(),
+  logger: {
+    auth: vi.fn(),
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
@@ -36,7 +44,8 @@ vi.mock('@/lib/logger', () => ({
 
 describe('useWebRTCMeeting', () => {
   let mockSocket: any
-  let mockLocalStream: MediaStream
+  let mockTrack: any
+  let mockLocalStream: any
 
   const defaultOptions = {
     roomId: 'test-room',
@@ -45,22 +54,21 @@ describe('useWebRTCMeeting', () => {
     userName: 'Test User',
   }
 
-  // Skip complex async tests that have timing issues
-  // These tests require more sophisticated mocking of WebRTC and socket.io
-  // and are more integration tests than unit tests
   vi.setConfig({ testTimeout: 10000, hookTimeout: 10000 })
 
-  // Helper to skip a test - just returns early without registering
-  const skipIfNotWorking = (name: string, fn: () => void) => {
-    console.log(`Skipping: ${name}`)
-  }
+  // 取出 mock socket 上注册的某个事件处理器
+  const getHandler = (event: string) =>
+    mockSocket.on.mock.calls.find((call: any[]) => call[0] === event)?.[1]
 
   beforeEach(() => {
     vi.clearAllMocks()
 
     // Create mock socket
+    // connected 必须是 true：实现里只有 socket.connected 为真时
+    // 才会 emit('join-room')，为 false 时 joinMeeting 走到 getLocalStream
+    // 就结束，join-room / leave-room / mute-state 这些行为全都不会发生。
     mockSocket = {
-      connected: false,
+      connected: true,
       on: vi.fn(),
       off: vi.fn(),
       emit: vi.fn(),
@@ -69,10 +77,14 @@ describe('useWebRTCMeeting', () => {
     }
     ;(io as unknown as ReturnType<typeof vi.fn>).mockReturnValue(mockSocket)
 
-    // Create mock media stream
+    // 轨道对象必须是稳定引用：实现里通过 localStreamRef.current.getTracks()
+    // 取到的轨道会被 stop()、被修改 enabled，测试断言的是同一个对象。
+    mockTrack = { enabled: true, stop: vi.fn(), kind: 'audio' }
+
     mockLocalStream = {
-      getTracks: vi.fn(() => [{ enabled: true, stop: vi.fn() }]),
-    } as unknown as MediaStream
+      getTracks: vi.fn(() => [mockTrack]),
+      getAudioTracks: vi.fn(() => [mockTrack]),
+    }
 
     // Mock navigator.mediaDevices.getUserMedia
     Object.defineProperty(navigator, 'mediaDevices', {
@@ -81,6 +93,19 @@ describe('useWebRTCMeeting', () => {
       },
       writable: true,
     })
+
+    // jsdom 没有 MediaStream 这个全局，构造远端流时会 ReferenceError
+    if (typeof global.MediaStream === 'undefined') {
+      global.MediaStream = class MediaStream {
+        id: string
+        constructor() {
+          this.id = 'mock-stream'
+        }
+        getTracks() {
+          return []
+        }
+      } as unknown as typeof MediaStream
+    }
 
     // Mock RTCPeerConnection
     global.RTCPeerConnection = vi.fn().mockImplementation(() => ({
@@ -114,17 +139,23 @@ describe('useWebRTCMeeting', () => {
     })
 
     it('should not auto-join by default', () => {
-      const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
+      renderHook(() => useWebRTCMeeting(defaultOptions))
 
-      expect(result.current.isConnected).toBe(false)
+      // autoJoin 默认 false，socket 根本不会被创建
+      expect(io).not.toHaveBeenCalled()
       expect(mockSocket.connect).not.toHaveBeenCalled()
     })
 
-    it.skip('should initialize socket with correct config', () => {
+    it('should initialize socket with correct config', async () => {
       const onError = vi.fn()
       const options = { ...defaultOptions, onError }
 
-      renderHook(() => useWebRTCMeeting(options))
+      const { result } = renderHook(() => useWebRTCMeeting(options))
+
+      // io() 只在 joinMeeting -> initializeSocket 里被调用
+      await act(async () => {
+        await result.current.joinMeeting()
+      })
 
       expect(io).toHaveBeenCalledWith(
         '/api/ws',
@@ -138,15 +169,15 @@ describe('useWebRTCMeeting', () => {
   })
 
   describe('joinMeeting', () => {
-    it.skip('should join meeting successfully', async () => {
+    it('should join meeting successfully', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
       await act(async () => {
         await result.current.joinMeeting()
       })
 
-      expect(result.current.isConnecting).toBe(true)
-      expect(mockSocket.connect).toHaveBeenCalled()
+      // joinMeeting 的 finally 里会把 isConnecting 复位
+      expect(result.current.isConnecting).toBe(false)
       expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith(
         expect.objectContaining({
           audio: expect.objectContaining({
@@ -157,9 +188,18 @@ describe('useWebRTCMeeting', () => {
           video: false,
         })
       )
+      expect(mockSocket.emit).toHaveBeenCalledWith(
+        'join-room',
+        expect.objectContaining({
+          roomId: 'test-room',
+          token: 'test-token',
+          userId: 'user-123',
+          userName: 'Test User',
+        })
+      )
     })
 
-    it.skip('should handle connection success', async () => {
+    it('should handle connection success', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
       act(() => {
@@ -167,9 +207,7 @@ describe('useWebRTCMeeting', () => {
       })
 
       // Simulate socket connection
-      const connectCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'connect'
-      )?.[1]
+      const connectCallback = getHandler('connect')
       if (connectCallback) {
         act(() => {
           connectCallback()
@@ -181,40 +219,39 @@ describe('useWebRTCMeeting', () => {
       })
     })
 
-    it.skip('should handle join-room event', async () => {
+    it('should handle join-room event', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
-      act(() => {
-        result.current.joinMeeting()
+      await act(async () => {
+        await result.current.joinMeeting()
       })
 
-      // Simulate join-room event
-      const joinRoomCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'join-room'
-      )?.[1]
-      if (joinRoomCallback) {
-        act(() => {
-          joinRoomCallback({
-            roomId: 'test-room',
-            participants: [
-              {
-                id: 'user-123',
-                name: 'Test User',
-                audioEnabled: true,
-                isSpeaking: false,
-                joinedAt: new Date(),
-              },
-            ],
-          })
+      // 服务端在 join 成功后回送 'room-joined'（见 signaling.ts handleJoinRoom）
+      const roomJoinedCallback = getHandler('room-joined')
+      expect(roomJoinedCallback).toBeDefined()
+
+      act(() => {
+        roomJoinedCallback({
+          roomId: 'test-room',
+          participants: [
+            {
+              id: 'user-123',
+              name: 'Test User',
+              audioEnabled: true,
+              isSpeaking: false,
+              joinedAt: new Date(),
+            },
+          ],
         })
-      }
+      })
 
       await waitFor(() => {
         expect(result.current.participants.size).toBeGreaterThan(0)
       })
+      expect(result.current.participants.get('user-123')?.name).toBe('Test User')
     })
 
-    it.skip('should handle errors during join', async () => {
+    it('should handle errors during join', async () => {
       const onError = vi.fn()
       const options = { ...defaultOptions, onError }
 
@@ -225,17 +262,25 @@ describe('useWebRTCMeeting', () => {
       const { result } = renderHook(() => useWebRTCMeeting(options))
 
       await act(async () => {
-        await expect(result.current.joinMeeting()).rejects.toThrow('Failed to get audio stream')
+        // 实现里错误通过 onError 上报，joinMeeting 自身不 reject
+        await result.current.joinMeeting()
       })
 
       await waitFor(() => {
         expect(onError).toHaveBeenCalled()
       })
+      // 原始错误被透传给 onError
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Permission denied' })
+      )
+      // 加入失败，不应发出 join-room
+      expect(mockSocket.emit).not.toHaveBeenCalledWith('join-room', expect.anything())
+      expect(result.current.isConnecting).toBe(false)
     })
   })
 
   describe('leaveMeeting', () => {
-    it.skip('should leave meeting successfully', async () => {
+    it('should leave meeting successfully', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
       // Join first
@@ -244,9 +289,7 @@ describe('useWebRTCMeeting', () => {
       })
 
       // Simulate connection
-      const connectCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'connect'
-      )?.[1]
+      const connectCallback = getHandler('connect')
       if (connectCallback) {
         act(() => {
           connectCallback()
@@ -264,9 +307,11 @@ describe('useWebRTCMeeting', () => {
 
       expect(mockSocket.emit).toHaveBeenCalledWith('leave-room', { roomId: 'test-room' })
       expect(mockSocket.disconnect).toHaveBeenCalled()
+      expect(result.current.isConnected).toBe(false)
+      expect(result.current.participants.size).toBe(0)
     })
 
-    it.skip('should cleanup local stream on leave', async () => {
+    it('should cleanup local stream on leave', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
       await act(async () => {
@@ -277,13 +322,12 @@ describe('useWebRTCMeeting', () => {
         await result.current.leaveMeeting()
       })
 
-      const tracks = mockLocalStream.getTracks()
-      expect(tracks[0].stop).toHaveBeenCalled()
+      expect(mockTrack.stop).toHaveBeenCalled()
     })
   })
 
   describe('toggleMute', () => {
-    it.skip('should toggle mute state', async () => {
+    it('should toggle mute state', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
       // Join first
@@ -292,9 +336,7 @@ describe('useWebRTCMeeting', () => {
       })
 
       // Simulate connection
-      const connectCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'connect'
-      )?.[1]
+      const connectCallback = getHandler('connect')
       if (connectCallback) {
         act(() => {
           connectCallback()
@@ -311,6 +353,7 @@ describe('useWebRTCMeeting', () => {
       })
 
       expect(result.current.isMuted).toBe(true)
+      expect(mockTrack.enabled).toBe(false)
 
       // Toggle again
       await act(async () => {
@@ -318,9 +361,10 @@ describe('useWebRTCMeeting', () => {
       })
 
       expect(result.current.isMuted).toBe(false)
+      expect(mockTrack.enabled).toBe(true)
     })
 
-    it.skip('should emit mute-state event', async () => {
+    it('should emit mute-state event', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
       await act(async () => {
@@ -328,9 +372,7 @@ describe('useWebRTCMeeting', () => {
       })
 
       // Simulate connection
-      const connectCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'connect'
-      )?.[1]
+      const connectCallback = getHandler('connect')
       if (connectCallback) {
         act(() => {
           connectCallback()
@@ -345,7 +387,14 @@ describe('useWebRTCMeeting', () => {
         await result.current.toggleMute()
       })
 
-      expect(mockSocket.emit).toHaveBeenCalledWith('mute-state', { muted: true })
+      // 服务端监听的事件名是 'mute-state-changed'（见 signaling.ts）
+      expect(mockSocket.emit).toHaveBeenCalledWith('mute-state-changed', { muted: true })
+
+      await act(async () => {
+        await result.current.toggleMute()
+      })
+
+      expect(mockSocket.emit).toHaveBeenCalledWith('mute-state-changed', { muted: false })
     })
   })
 
@@ -357,9 +406,7 @@ describe('useWebRTCMeeting', () => {
         result.current.joinMeeting()
       })
 
-      const joinCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'participant-joined'
-      )?.[1]
+      const joinCallback = getHandler('participant-joined')
       if (joinCallback) {
         act(() => {
           joinCallback({
@@ -390,9 +437,7 @@ describe('useWebRTCMeeting', () => {
         result.current.joinMeeting()
       })
 
-      const joinCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'participant-joined'
-      )?.[1]
+      const joinCallback = getHandler('participant-joined')
       if (joinCallback) {
         act(() => {
           joinCallback({
@@ -410,9 +455,7 @@ describe('useWebRTCMeeting', () => {
       })
 
       // Remove participant
-      const leaveCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'participant-left'
-      )?.[1]
+      const leaveCallback = getHandler('participant-left')
       if (leaveCallback) {
         act(() => {
           leaveCallback({ participantId: 'user-456' })
@@ -431,9 +474,7 @@ describe('useWebRTCMeeting', () => {
         result.current.joinMeeting()
       })
 
-      const joinCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'participant-joined'
-      )?.[1]
+      const joinCallback = getHandler('participant-joined')
       if (joinCallback) {
         act(() => {
           joinCallback({
@@ -450,9 +491,7 @@ describe('useWebRTCMeeting', () => {
         expect(result.current.participants.size).toBe(1)
       })
 
-      const muteCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'participant-muted'
-      )?.[1]
+      const muteCallback = getHandler('participant-muted')
       if (muteCallback) {
         act(() => {
           muteCallback({ participantId: 'user-456', muted: true })
@@ -467,7 +506,7 @@ describe('useWebRTCMeeting', () => {
   })
 
   describe('remote streams', () => {
-    it.skip('should add remote stream on track event', async () => {
+    it('should add remote stream on track event', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
       act(() => {
@@ -476,9 +515,6 @@ describe('useWebRTCMeeting', () => {
 
       // Simulate track event from RTCPeerConnection
       const mockRemoteStream = new MediaStream()
-      const pcCallback = mockSocket.on.mock.calls.find(
-        (call: any[]) => call[0] === 'webrtc-offer'
-      )?.[1]
 
       // This would normally be triggered by RTCPeerConnection.ontrack
       // For testing, we'll directly manipulate state
@@ -495,7 +531,7 @@ describe('useWebRTCMeeting', () => {
   })
 
   describe('cleanup', () => {
-    it.skip('should cleanup on unmount', async () => {
+    it('should cleanup on unmount', async () => {
       const { result, unmount } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
       await act(async () => {
@@ -505,16 +541,26 @@ describe('useWebRTCMeeting', () => {
       unmount()
 
       expect(mockSocket.disconnect).toHaveBeenCalled()
-      expect(mockLocalStream.getTracks()[0].stop).toHaveBeenCalled()
+      expect(mockTrack.stop).toHaveBeenCalled()
     })
   })
 
   describe('audio elements', () => {
-    it.skip('should return null for non-existent audio element', async () => {
+    it('should create audio element for a peer that has none yet', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
 
+      // getAudioElement 是 get-or-create 语义：未知 peerId 也会新建 audio 元素
       const audioElement = result.current.getAudioElement('non-existent-peer')
-      expect(audioElement).toBeNull()
+
+      expect(audioElement).not.toBeNull()
+      expect(audioElement).toBeInstanceOf(HTMLAudioElement)
+      expect(audioElement.autoplay).toBe(true)
+      expect(audioElement.style.display).toBe('none')
+      expect(document.body.contains(audioElement)).toBe(true)
+
+      // 再次调用应返回同一个元素（而不是新建）
+      const again = result.current.getAudioElement('non-existent-peer')
+      expect(again).toBe(audioElement)
     })
 
     it('should create audio element for remote stream', async () => {
@@ -532,8 +578,13 @@ describe('useWebRTCMeeting', () => {
   })
 
   describe('enableAudio / disableAudio', () => {
-    it.skip('should enable audio', async () => {
+    it('should enable audio', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
+
+      // 必须先 join，localStream 存在时才会真正切换静音状态
+      await act(async () => {
+        await result.current.joinMeeting()
+      })
 
       // First mute
       await act(async () => {
@@ -548,16 +599,23 @@ describe('useWebRTCMeeting', () => {
       })
 
       expect(result.current.isMuted).toBe(false)
+      expect(mockTrack.enabled).toBe(true)
     })
 
-    it.skip('should disable audio', async () => {
+    it('should disable audio', async () => {
       const { result } = renderHook(() => useWebRTCMeeting(defaultOptions))
+
+      // 必须先 join，localStream 存在时才会真正切换静音状态
+      await act(async () => {
+        await result.current.joinMeeting()
+      })
 
       await act(async () => {
         await result.current.disableAudio()
       })
 
       expect(result.current.isMuted).toBe(true)
+      expect(mockTrack.enabled).toBe(false)
     })
   })
 })

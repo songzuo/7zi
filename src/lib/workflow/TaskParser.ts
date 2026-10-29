@@ -53,7 +53,16 @@ interface KeywordRule {
  */
 const INTENT_RULES: KeywordRule[] = [
   {
-    keywords: ['自动化', '自动', '定时', 'schedule', 'cron', '每天', '每周', '定期'],
+    keywords: [
+      // 只放**时间/周期**线索。
+      //
+      // 「自动化」「自动」原本在这里，但它们是**通用词** ——
+      // "自动化处理订单" 应该是 automation 而非 scheduled。
+      // 留着它会让 weight 1.0 的 scheduled 压过命中数更多的 automation。
+      '定时', 'schedule', 'cron', '每天', '每周', '定期', '周期',
+      // 注意：不要用单个「点」—— "随便说点什么" 也会命中它。
+      '早上', '上午', '中午', '下午', '晚上', '凌晨', '点钟', '小时', '分钟',
+    ],
     intent: 'scheduled',
     weight: 1.0,
   },
@@ -88,9 +97,9 @@ const INTENT_RULES: KeywordRule[] = [
     weight: 0.8,
   },
   {
-    keywords: ['任务', 'task', '执行', 'run', '处理'],
+    keywords: ['任务', 'task', '执行', 'run', '处理', '自动化', '自动'],
     intent: 'automation',
-    weight: 0.5,
+    weight: 0.8,
   },
 ]
 
@@ -296,7 +305,31 @@ function recognizeIntent(text: string): { intent: TaskIntent; confidence: number
 
   INTENT_RULES.forEach(rule => {
     const matches = rule.keywords.filter(keyword => lowerText.includes(keyword.toLowerCase()))
-    const score = (matches.length / rule.keywords.length) * rule.weight
+    if (matches.length === 0) {
+      return
+    }
+
+    // 打分：命中**任一**关键词即拿满该规则的基础分，
+    // 命中更多关键词只做小幅加成。
+    //
+    // 之前用的是 (命中数 / 关键词总数) × weight —— 那会把分数按命中率
+    // 平均掉：一条规则有 8 个关键词，只命中 1 个也只有 0.125 的分数，
+    // 置信度算出来 0.325，远低于实际把握（"每天早上9点发送邮件" 明显是
+    // 定时任务）。关键词匹配是**或**关系，不是**比例**关系。
+    //
+    // 打分：命中**数量**体现具体程度，权重体现意图的典型性。
+    //
+    //   score = weight × (1 + 0.05 × (命中数 - 1))
+    //
+    // 两条关键用例说明这个组合为什么必要：
+    //   "每天早上9点发送邮件" → scheduled 命中「每天/早上/点」3 个，
+    //     notification 命中「发送/邮件」2 个 → scheduled 胜（有时间线索）
+    //   "自动化处理订单" → automation 命中「自动化/处理」2 个，
+    //     scheduled 只命中「自动化」1 个 → automation 胜
+    //
+    // 命中数相同则比权重（data_processing 0.85 > automation 0.5）。
+    const bonus = Math.min((matches.length - 1) * 0.05, 0.2)
+    const score = rule.weight * (1 + bonus)
 
     if (score > bestScore) {
       bestScore = score
@@ -304,10 +337,12 @@ function recognizeIntent(text: string): { intent: TaskIntent; confidence: number
     }
   })
 
-  // 如果没有匹配到任何意图，默认是自动化任务
+  // 没有匹配到任何关键词 → 意图未知。
+  // （之前这里硬返回 'automation' + 0.5，但 TaskIntent 里明明有
+  // 'unknown'，且解析结果里也有 unknown 分支 —— 属于实现与类型定义不一致。）
   if (bestScore === 0) {
-    bestIntent = 'automation'
-    bestScore = 0.5
+    bestIntent = 'unknown'
+    bestScore = 0.2
   }
 
   return { intent: bestIntent, confidence: Math.min(bestScore + 0.2, 1.0) }

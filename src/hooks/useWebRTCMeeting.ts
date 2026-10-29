@@ -541,6 +541,9 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     // Reset state
     setIsConnected(false)
     setIsConnecting(false)
+    // 本地流已在上面被销毁，重置静音状态，
+    // 否则离开静音中的会议后重新加入，isMuted 会残留为 true。
+    setIsMuted(false)
     setParticipants(new Map())
     setRemoteStreams(new Map())
   }, [roomId])
@@ -626,18 +629,32 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     handleIceCandidateRef.current = handleIceCandidate
   }, [cleanupPeerConnection, handleOffer, handleAnswer, handleIceCandidate])
 
+  // 保持最新的 join/leave 回调引用。
+  // joinMeeting / leaveMeeting 的 useCallback 依赖 isConnecting / isConnected 等状态，
+  // 状态一变它们的身份就变；若把这两个函数直接放进 auto-join effect 的依赖数组，
+  // effect 会在每次状态变化时重跑，其 cleanup 会调用 leaveMeeting()，
+  // 导致刚加入的会议被立刻断开（isConnected 被重置为 false、本地音轨被停止）。
+  // 因此 effect 只依赖 autoJoin，回调通过 ref 取最新实现。
+  const joinMeetingRef = useRef(joinMeeting)
+  const leaveMeetingRef = useRef(leaveMeeting)
+
+  useEffect(() => {
+    joinMeetingRef.current = joinMeeting
+    leaveMeetingRef.current = leaveMeeting
+  }, [joinMeeting, leaveMeeting])
+
   // Auto-join on mount if enabled
   useEffect(() => {
     if (autoJoin && !isCleanupRef.current) {
-      joinMeeting()
+      joinMeetingRef.current()
     }
 
     return () => {
       if (!isCleanupRef.current) {
-        leaveMeeting()
+        leaveMeetingRef.current()
       }
     }
-  }, [autoJoin, joinMeeting, leaveMeeting])
+  }, [autoJoin])
 
   return {
     // State
