@@ -1859,3 +1859,153 @@ bot6: SYNTAX_OK [15:38:02] ✅ 身份不变量全部通过
 - **一个护栏在部分节点上"从未成功过"，却没人发现** —— 因为大家只看"护栏脚本存在"。
   → **护栏必须有"最近一次成功"的日志**，且巡检要逐节点看这行日志，不能看本机。
 - **中途失败的 clone 会留下损坏的 .git** → 必须 `rm -rf` 后重试，不能在坏仓库上 fetch。
+
+## 77. 巡检全节点可达性已打通：隧道两跳法 + 身份护栏逐节点日志（2026-10-29 00:27 实测，bot5）
+
+**结论**：§70 的备份服务器反向隧道是目前**唯一稳定**的全节点通道（bot5 → 198.44.179.155 → 127.0.0.1:1600x）。
+本次巡检**首次逐台**核到了 bot2/bot3/bot4/bot6 的 state、磁盘、cron、fail2ban、护栏日志。
+
+**隧道用法（务必照抄）**：
+```bash
+ssh -A -i ~/.ssh/id_ed25519_backuptunnel -o BatchMode=yes root@198.44.179.155 \
+  "ssh -o BatchMode=yes -o StrictHostKeyChecking=no -p 16004 root@127.0.0.1 '<cmd>'"
+```
+端口：16001 bot / 16002 bot2 / 16003 bot3 / 16004 bot4 / 16005 bot5 / 16006 bot6。
+⚠️ **三坑**：① 必须 `-A`（agent forwarding，备份服务器手里没有集群私钥）
+② 端口只绑在备份服务器的 127.0.0.1，直连公网会 timeout
+③ 所有巡检 SSH 必须带 `-o IdentitiesOnly=yes`（否则多密钥挨个试会触发 fail2ban，见 §76）
+
+**本次各节点实测（2026-10-29 00:27）**：
+| 节点 | state | lastSync | 磁盘 | 时区 | 身份护栏最近成功 |
+|---|---|---|---|---|---|
+| bot2 | healthy | 00:00 | 73% | CST | — |
+| bot3 | healthy | 10-28 20:45 | 71% | CST | 00:13 ✅ |
+| bot4 | healthy | 00:10 | 65% | CST | 00:13 ✅ |
+| bot5 | healthy | 00:23 | 61% | CST | 00:13 ✅ |
+| bot6 | healthy | 10-28 20:30 | 75% | CST | 00:13 ✅ |
+- cron.d 缺 user 检查（含 `@reboot` 特判）：**三台全部无输出** ✅
+- crontab 脚本全部存在且可执行 ✅；bot6 fail2ban ignoreip 已含全部集群 IP ✅
+
+**⚠️ bot5 的 git fetch 是全集群最弱的一环（2026-10-29 00:27 实测）**
+- 今日 `fetch 失败` **59 次**，根因错误几乎全是：
+  `fatal: unable to access 'https://github.com/songzuo/botmem.git/': Operation too slow. Less than 1 bytes/sec transferred the last 30 seconds`
+- 但 **重试 4 次全部救回**：`fetch 失败（重试 4 次后仍失败）` = **0 次**，
+  `fetch 经代理链路成功` = 13 次 → 代理回退分支（attempt 3-4 走 ghproxy.net）**确实在工作** ✅
+- 根因：本地工作副本 `/tmp/botmem-upload/botmem` 是 **完整克隆**（`.git` 265M / 65979 个提交），
+  每次 fetch 都要传整个 pack → 弱链路必然触发 lowSpeed 阈值。
+→ **待改进**：把同步工作副本改成 `--depth 1` 浅克隆，或让 fetch 只取 `main` 的增量
+  （`git fetch --depth 1 origin main`），可把 pack 体积降一到两个数量级。
+  ⚠️ 浅克隆会让 `git rebase origin/main` 行为变化（§63 的 rebase 冲突自愈逻辑要一起验）。
+
+**巡检判据补充（§31 的延伸）**：bot3/bot6 的槽位是 4 小时一次（:45 / :30），
+跨天时 lastSync 停在上一槽位属于正常 —— 判断停摆要按**各自节奏**换算，别用同一把尺子。
+
+## 78. ⚠️ 本机 HEARTBEAT.md 的新增章节会被 static/ 覆盖抹掉 → 必须推给 bot2 合并（2026-10-29 10:44 实测，bot5）
+
+**症状**：bot5 在 00:28 提交了 §77（`d527d3bd17`，684 行新增），
+但 00:38 那轮同步后本机 `HEARTBEAT.md` 里 **§77 整节消失**（文件从 106KB 掉回 102KB）。
+
+**根因**：同步脚本的"步骤 3"会做
+```bash
+cp "static/HEARTBEAT.md" "$BOT4_DIR/HEARTBEAT.md"   # 仓库版本 → 本机，无条件覆盖
+```
+`static/HEARTBEAT.md` 由 **bot2 独家维护**（其他节点跳过写入）。
+→ bot5 本地新增的任何章节，**只要 bot2 的 static 还没合进去，
+下一轮 bot5 同步就会被原样覆盖回去**（§21/§32 同族：仓库改了 ≠ 本机生效）。
+
+**修法**：新章节不要只提交在 bot5 本机，必须**通过隧道把章节交给 bot2**，
+由 bot2 的 `merge-heartbeat.py` 合并进 `static/` 后再推共享仓库。
+（bot5 自己提交的那份 commit 只是"暂存"，`git checkout -- HEARTBEAT.md` 可恢复，
+但下一轮同步还会再被抹。）
+
+**判据**：巡检时对比本机 `HEARTBEAT.md` 与 `git show HEAD:HEARTBEAT.md`
+—— 出现"HEAD 里有、本机没有"的章节 = 已被覆盖抹掉。
+
+## 79. ⚠️ CJ 的 `getOrderDetail` 接口在服务端挂死 → 履约链路整体停摆 5 天（2026-10-29 05:00-05:52 实测，bot2）
+
+**这是本轮最重要的发现：一个上游单接口故障，让整条履约链路静默停摆 5 天以上。**
+
+**症状**：
+- bot6 的 `shop-fulfill.log` 里 `cj-pay-sync` **每轮都是 `failed:4`**，
+  4 笔待付货款核验失败，**持续 5 天以上**（2026-10-24 23:20 起）
+- app 侧每笔都报：`暂时无法向 CJ 核验该订单（This operation was aborted）。
+  这通常是上游限流或网络抖动，未做任何付款动作，稍后会自动重试。`
+- 看起来像"上游限流"，实际是**接口彻底挂死**
+
+**排查过程（每一步都有排除）**：
+1. 任务本身在跑（`*/10` 槽位日志都在）→ 不是 §57 的"脚本没 x 权限"
+2. CJ 站点可达（`api.cjdropshipping.com` 302 / 2.8s）→ 不是网络断
+3. CJ 余额接口正常（`/shopping/pay/getBalance` → `code:200`，308ms）
+4. CJ 订单列表正常（`/shopping/order/list` → `code:200`，**313ms**）
+5. **只有 `/shopping/order/getOrderDetail` 挂死**：
+   - Node fetch 实测：12-20s 超时，`This operation was aborted`
+   - **curl 直连同样挂**（HTTP=000, t=20s）→ 排除 Node/undici 问题
+   - **对不存在的订单号也挂**（`FAKE123456` 一样超时）→ 排除"订单数据问题"
+   - POST 更糟：`{"code":16900202,"message":"Request method 'POST' not supported"}`
+   → **结论：CJ 上游该接口故障，不是我们的代码 bug**
+
+**关键发现：列表接口已经包含判定所需的全部字段**
+```ts
+// detailPaid() 只需要这三个字段，全都在列表行里：
+orderStatus   // UNPAID / UNSHIPPED / SHIPPED / DELIVERED / PART_SHIPPED
+paymentDate   // 非空即已付
+orderAmount
+```
+→ **兜底方案**：`channelOrderDetail` 失败时改用订单列表定位该单。
+
+**修法（已落地并验证）**：
+```ts
+const DETAIL_PROBE_TIMEOUT_MS = 6000;   // 探路超时，远小于通用 20s
+let detailEndpointBroken = false;        // 进程内标记
+
+export async function channelOrderDetail(orderId: string) {
+  if (detailEndpointBroken) {            // 已知坏了 → 直接走列表，不再浪费探测
+    const found = await findOrderInList(orderId);
+    if (found) return found;
+    throw new Error(`CJ 订单详情接口不可用，且订单列表中未找到 ${orderId}`);
+  }
+  try {
+    return await cjOk<any>(`/shopping/order/getOrderDetail?...`, undefined, DETAIL_PROBE_TIMEOUT_MS);
+  } catch (e) {
+    if (!/abort|timeout|.../i.test(msg)) throw e;   // 只对"上游挂了"兜底
+    detailEndpointBroken = true;
+    const found = await findOrderInList(orderId);
+    if (!found) throw e;                              // 列表也没有 → 保留原错误，不伪造"已付"
+    return found;
+  }
+}
+```
+⚠️ **两个关键设计点**（都是踩过的坑）：
+1. **探路超时必须短（6s）+ 进程内只探一次** ——
+   我第一版每笔订单都先等满 20s 才转列表，8 笔 = 160s，**比原来还慢**，
+   实测整体仍然 HTTP 000 超时。改成"探一次就记住坏了"后 → 53s 返回 HTTP 200 ✅
+2. **列表里也没有时必须抛原错误**，不能伪造"已付" ——
+   否则会把根本没付的单标记成已付 → 真扣钱、真发货。
+
+**验证（真实调用）**：
+```
+修复前: HTTP=000  t=190s  (整体超时)
+修复后: HTTP=200  t=53.7s  {"ok":true,"scanned":8,"paid":0,"awaiting":4,"failed":4}
+```
+且 05:50 / 11:00 / 11:30 等多个 cron 槽位**稳定产出完整 JSON**，不再出现空行。
+
+**兜底生效后暴露出的真实业务问题**（原来被"上游挂了"掩盖了）：
+| 订单 | 结果 | 真实原因 |
+|---|---|---|
+| SZ-260918-3HMG4 / XTO23 / P3V3G / WIRLP | `awaiting-page` | 余额 $0 不足，需人工点 CJ 收银台链接付清 |
+| SZ-260918-44XLR / Z1Y0I / PQ4EJ / 5YE0R | `failed` | **早期 payType=3 建的空壳单**，CJ 不生成支付页、也没有接口补发 → 只能①给 CJ 充值走「余额付清」②到 CJ 后台按单号处理 |
+
+→ 这 8 笔全是 **2026-09-18** 的老单，**CJ 账户余额 $0**。
+→ **属需主人决策**：① 给 CJ 账户充值（$79.28 左右）→ 走余额付清 ② 或人工处理 4 笔空壳单。
+
+**教训（可推广）**：
+- **"上游限流"和"上游接口挂了"在错误文案里长得一模一样** ——
+  app 把 abort / timeout / 1600200 全归成"网络抖动，稍后会自动重试"，
+  于是**自动重试了 5 天也没用**，因为它永远不会自愈。
+  → **错误文案必须区分"可重试的限流"和"不可重试的故障"**，
+    否则监控里看到的一直是"暂时失败"，人会以为再等等就好。
+- **排查"上游挂了"要同时用两种客户端测**（Node fetch + curl）：
+  只有 Node 挂可能是 undici 的问题；**两个都挂才是真的上游故障**。
+- **"对不存在的 ID 也挂"是排除"数据问题"的关键一步** —— 一次就定性。
+- **兜底不是万能**：兜底源必须包含判定所需的**全部字段**，
+  且**找不到时必须抛原错误**（否则会把"查不到"变成"已付"）。

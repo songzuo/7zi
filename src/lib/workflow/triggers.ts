@@ -875,7 +875,7 @@ export class WebhookTrigger implements ITrigger {
 /**
  * Cron 触发器实现
  */
-class CronTrigger implements ITrigger {
+export class CronTrigger implements ITrigger {
   private trigger: TriggerDefinition
   private callback?: TriggerCallback
   private timer?: NodeJS.Timeout
@@ -952,31 +952,267 @@ class CronTrigger implements ITrigger {
   }
 
   /**
-   * 计算下一次运行时间（简化版 Cron 解析）
+   * 计算下一次运行时间（标准 5 字段 Cron 解析）
+   *
+   * 支持的字段语法（每字段）：
+   *   `*`        所有值
+   *   `5`        单个值
+   *   `1-5`      范围（含端点）
+   *   `1,3,5`    列表
+   *   `*\/10`    步进（可与范围组合：`1-30\/5`）
+   *   `1-5/2`    范围 + 步进
+   *
+   * 字段顺序：`分 时 日 月 周`（日与周均为 0-6，0 与 7 都表示周日）。
+   * 日与周**同时**被限定时取并集（与标准 cron 行为一致）。
    */
   private calculateNextRun(expression: string, timezone?: string): Date | null {
-    // TODO(P2): 实现完整的 Cron 表达式解析 (支持标准 5 字段格式)
+    const fields = expression.trim().split(/\s+/)
 
-    const match = expression.match(/^\*\/(\d+)\s+?\*\s+?\*\s+?\*\s+?\*$/)
-    if (!match) {
-      console.warn(`不支持的 Cron 表达式: ${expression}`)
+    if (fields.length !== 5) {
+      console.warn(`不支持的 Cron 表达式（应为 5 个字段）: ${expression}`)
       return null
     }
 
-    const minutes = parseInt(match[1], 10)
-    const now = timezone ? this.getDateInTimezone(timezone) : new Date()
-    const nextRun = new Date(now.getTime() + minutes * 60 * 1000)
+    const [minuteField, hourField, dayField, monthField, weekdayField] = fields
 
-    return nextRun
+    let minutes: Set<number>
+    let hours: Set<number>
+    let days: Set<number>
+    let months: Set<number>
+    let weekdays: Set<number>
+
+    try {
+      minutes = parseCronField(minuteField, 0, 59)
+      hours = parseCronField(hourField, 0, 23)
+      days = parseCronField(dayField, 1, 31)
+      months = parseCronField(monthField, 1, 12)
+      weekdays = parseCronField(weekdayField, 0, 7)
+    } catch (error) {
+      console.warn(
+        `无效的 Cron 表达式: ${expression} — ${error instanceof Error ? error.message : String(error)}`
+      )
+      return null
+    }
+
+    // 7 与 0 都表示周日
+    if (weekdays.has(7)) {
+      weekdays.add(0)
+      weekdays.delete(7)
+    }
+
+    const dayRestricted = dayField !== '*'
+    const weekdayRestricted = weekdayField !== '*'
+
+    // 以「当前时刻 + 1 分钟」为起点，避免在同一分钟内重复触发
+    const base = timezone ? this.getDateInTimezone(timezone) : new Date()
+    const cursor = new Date(base.getTime())
+    cursor.setSeconds(0, 0)
+    cursor.setMinutes(cursor.getMinutes() + 1)
+
+    // 最多向前找 4 年 —— 足以覆盖 2 月 29 日这类稀疏表达式
+    const limit = new Date(cursor.getTime())
+    limit.setFullYear(limit.getFullYear() + 4)
+
+    while (cursor <= limit) {
+      if (
+        months.has(cursor.getMonth() + 1) &&
+        hours.has(cursor.getHours()) &&
+        minutes.has(cursor.getMinutes()) &&
+        matchesDayAndWeekday(cursor, days, weekdays, dayRestricted, weekdayRestricted)
+      ) {
+        return cursor
+      }
+
+      // 推进到下一个候选分钟。
+      // 分层跳，避免逐分钟空转（最坏情况 4 年 ≈ 210 万次循环）：
+      //   1. 当前小时内若还有更晚的匹配分钟，直接跳到那个分钟
+      //   2. 否则跳到下一小时的第 0 分钟
+      //   3. 若该小时不在 hours 集合里，直接跳到下一个匹配小时
+      // 注意不能简单「整点跳到下一小时」—— 那会跳过当前小时剩余的分钟
+      // （比如 10:17 起找 09:30，跳到 11:00 就把 10:30~10:59 全跳过了）。
+      const currentHour = cursor.getHours()
+      const nextHour = cursor.getTime()
+      let advanced = false
+
+      if (hours.has(currentHour)) {
+        // 在当前小时内找下一个匹配分钟
+        for (let minute = cursor.getMinutes() + 1; minute <= 59; minute++) {
+          if (minutes.has(minute)) {
+            cursor.setMinutes(minute)
+            advanced = true
+            break
+          }
+        }
+      }
+
+      if (!advanced) {
+        // 当前小时没有更晚的匹配分钟 → 跳到下一个匹配小时的第 0 分钟
+        let probe = new Date(cursor.getTime())
+        probe.setHours(probe.getHours() + 1, 0, 0, 0)
+
+        let foundHour = false
+        for (let i = 0; i < 24 * 366; i++) {
+          if (hours.has(probe.getHours())) {
+            cursor.setTime(probe.getTime())
+            foundHour = true
+            break
+          }
+          probe.setHours(probe.getHours() + 1)
+        }
+
+        if (!foundHour) {
+          break
+        }
+      }
+    }
+
+    console.warn(`Cron 表达式在未来 4 年内没有匹配时间: ${expression}`)
+    return null
   }
 
   /**
    * 获取指定时区的日期
+   *
+   * 用 `Intl.DateTimeFormat` 把目标时区的墙上时间读出来，再按该时区
+   * 重新解释为一个 Date 对象 —— 这样"每天 09:00"在指定时区触发时，
+   * 算的是目标时区的 09:00，而不是运行机器本地时区的 09:00。
    */
-  private getDateInTimezone(_timezone: string): Date {
-    // TODO(P3): 实现时区转换 (使用 Intl.DateTimeFormat)
-    return new Date()
+  private getDateInTimezone(timezone: string): Date {
+    try {
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      })
+
+      const parts = formatter.formatToParts(new Date())
+      const lookup: Record<string, number> = {}
+      for (const part of parts) {
+        if (part.type !== 'literal') {
+          lookup[part.type] = Number.parseInt(part.value, 10)
+        }
+      }
+
+      // 把目标时区的墙上时间当作 UTC 读出来，再减去该时区与 UTC 的偏移
+      const asUtc = Date.UTC(
+        lookup.year,
+        lookup.month - 1,
+        lookup.day,
+        lookup.hour % 24,
+        lookup.minute,
+        lookup.second
+      )
+      const offsetMs = asUtc - Date.now()
+
+      return new Date(Date.now() + offsetMs)
+    } catch (error) {
+      // 时区非法时退回本地时间，不让整个触发器挂掉
+      console.warn(`无效的时区: ${timezone}，退回本地时间`, error)
+      return new Date()
+    }
   }
+}
+
+/**
+ * 解析单个 Cron 字段，返回该字段命中的所有取值
+ */
+function parseCronField(field: string, min: number, max: number): Set<number> {
+  const values = new Set<number>()
+
+  if (!field) {
+    throw new Error('字段为空')
+  }
+
+  for (const part of field.split(',')) {
+    const trimmed = part.trim()
+    if (!trimmed) {
+      throw new Error(`字段格式错误: ${field}`)
+    }
+
+    // 拆出步进
+    let base = trimmed
+    let step = 1
+    const slashIndex = trimmed.indexOf('/')
+    if (slashIndex !== -1) {
+      base = trimmed.slice(0, slashIndex)
+      const stepText = trimmed.slice(slashIndex + 1)
+      if (!/^\d+$/.test(stepText)) {
+        throw new Error(`无效的步进值: ${trimmed}`)
+      }
+      step = Number.parseInt(stepText, 10)
+      if (step <= 0) {
+        throw new Error(`步进值必须为正数: ${trimmed}`)
+      }
+    }
+
+    let rangeStart: number
+    let rangeEnd: number
+
+    if (base === '*') {
+      rangeStart = min
+      rangeEnd = max
+    } else if (base.includes('-')) {
+      const [startText, endText] = base.split('-')
+      if (!/^\d+$/.test(startText.trim()) || !/^\d+$/.test(endText.trim())) {
+        throw new Error(`无效的范围: ${trimmed}`)
+      }
+      rangeStart = Number.parseInt(startText.trim(), 10)
+      rangeEnd = Number.parseInt(endText.trim(), 10)
+    } else {
+      if (!/^\d+$/.test(base)) {
+        throw new Error(`无效的取值: ${trimmed}`)
+      }
+      rangeStart = Number.parseInt(base)
+      rangeEnd = step > 1 ? max : rangeStart
+    }
+
+    if (rangeStart < min || rangeEnd > max || rangeStart > rangeEnd) {
+      throw new Error(`取值超出范围 [${min}, ${max}]: ${trimmed}`)
+    }
+
+    for (let value = rangeStart; value <= rangeEnd; value += step) {
+      values.add(value)
+    }
+  }
+
+  if (values.size === 0) {
+    throw new Error(`字段没有命中任何取值: ${field}`)
+  }
+
+  return values
+}
+
+/**
+ * 判断某个日期是否命中「日」和「周」两个字段
+ *
+ * 标准 cron 语义：两者都被限定时取**并集**（满足其一即触发）；
+ * 只有一个被限定时只看那一个；都没限定则每天都命中。
+ */
+function matchesDayAndWeekday(
+  date: Date,
+  days: Set<number>,
+  weekdays: Set<number>,
+  dayRestricted: boolean,
+  weekdayRestricted: boolean
+): boolean {
+  const dayMatches = days.has(date.getDate())
+  const weekdayMatches = weekdays.has(date.getDay())
+
+  if (dayRestricted && weekdayRestricted) {
+    return dayMatches || weekdayMatches
+  }
+  if (dayRestricted) {
+    return dayMatches
+  }
+  if (weekdayRestricted) {
+    return weekdayMatches
+  }
+  return true
 }
 
 /**
