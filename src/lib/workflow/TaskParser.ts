@@ -62,6 +62,8 @@ const INTENT_RULES: KeywordRule[] = [
       '定时', 'schedule', 'cron', '每天', '每周', '定期', '周期',
       // 注意：不要用单个「点」—— "随便说点什么" 也会命中它。
       '早上', '上午', '中午', '下午', '晚上', '凌晨', '点钟', '小时', '分钟',
+      // 英文周期表达 —— "Send email at 9am every day" 这类混合输入很常见。
+      'every day', 'everyday', 'every week', 'every month', 'daily', 'weekly', 'monthly',
     ],
     intent: 'scheduled',
     weight: 1.0,
@@ -151,6 +153,7 @@ const _ACTION_PATTERNS: ActionPattern[] = [
 interface ExtractedEntities {
   timeExpressions: string[]
   recipients: string[]
+  subjects: string[]
   conditions: string[]
   actions: string[]
   targets: string[]
@@ -221,6 +224,34 @@ function extractConditions(text: string): string[] {
   })
 
   return conditions
+}
+
+/**
+ * 主题提取
+ *
+ * 「发送邮件，主题是"每日报告"」这类表达里的主题 —— 通知任务的重要实体。
+ * 支持中文（主题/标题）和英文（subject/title），引号可省略。
+ */
+function extractSubjects(text: string): string[] {
+  const subjects: string[] = []
+  const patterns = [
+    /主题(?:是|为|[:：])\s*["'“”]?([^"'“”，。\n]+)["'“”]?/g,
+    /标题(?:是|为|[:：])\s*["'“”]?([^"'“”，。\n]+)["'“”]?/g,
+    /subject\s*[:：]\s*["'“”]?([^"'“”，。\n]+)["'“”]?/gi,
+    /title\s*[:：]\s*["'“”]?([^"'“”，。\n]+)["'“”]?/gi,
+  ]
+
+  patterns.forEach(pattern => {
+    let match
+    while ((match = pattern.exec(text)) !== null) {
+      const value = match[1]?.trim()
+      if (value) {
+        subjects.push(value)
+      }
+    }
+  })
+
+  return subjects
 }
 
 /**
@@ -526,6 +557,22 @@ function generateEdges(nodes: Partial<WorkflowNode>[]): Partial<WorkflowEdge>[] 
 function generateSuggestions(text: string, intent: TaskIntent): string[] {
   const suggestions: string[] = []
 
+  // 模糊的时间表达是最需要提示的场景之一 ——
+  // 但原来所有建议都排在它前面，再被 slice(0, 3) 一截，
+  // 它永远出现在不了。所以时间建议**优先**入列。
+  const vagueTime =
+    (text.includes('某个时间') ||
+      text.includes('某时') ||
+      text.includes('某个时候') ||
+      text.includes(' sometime') ||
+      text.includes('at some point')) &&
+    !/\d{1,2}[:：]\d{2}/.test(text) &&
+    !/\d+\s*(秒|分钟|小时|天|周)/.test(text)
+
+  if (vagueTime) {
+    suggestions.push('建议指定具体时间，例如「每天早上9点」')
+  }
+
   if (!text.includes('如果') && !text.includes('条件')) {
     suggestions.push('建议添加条件分支来处理不同情况')
   }
@@ -578,10 +625,27 @@ function extractWorkflowName(text: string): string {
  * @returns 解析后的任务结构
  */
 export function parseTaskFromText(text: string): ParsedTask {
+  // 空输入 —— 置信度为 0（不是 unknown 分支的 0.4）。
+  // 空文本没有任何信息可提取，给一个非零置信度会误导调用方。
+  if (!text || text.trim().length === 0) {
+    return {
+      intent: 'unknown',
+      workflowName: '未命名工作流',
+      description: text,
+      nodes: [],
+      edges: [],
+      variables: { originalText: text },
+      confidence: 0,
+      suggestions: [],
+      rawText: text,
+    }
+  }
+
   // 1. 实体提取
   const entities: ExtractedEntities = {
     timeExpressions: parseTimeExpression(text),
     recipients: extractRecipients(text),
+    subjects: extractSubjects(text),
     conditions: extractConditions(text),
     actions: extractActions(text),
     targets: extractTargets(text),
@@ -593,6 +657,23 @@ export function parseTaskFromText(text: string): ParsedTask {
 
   // 3. 生成节点
   const nodes = generateNodesFromText(text, intent, entities)
+
+  // 3.5 条件实体如果被提取到了，但意图不是 monitoring（因而没生成
+  // CONDITION 节点），那这条条件就凭空丢了 —— 挂在业务节点的
+  // conditionConfig 上，别让提取到的信息白费。
+  if (entities.conditions.length > 0) {
+    const hasConditionNode = nodes.some((node) => node.conditionConfig)
+    if (!hasConditionNode) {
+      const businessNode = nodes.find((node) => node.agentConfig)
+      if (businessNode) {
+        businessNode.conditionConfig = {
+          expression: entities.conditions[0],
+          trueLabel: '满足条件',
+          falseLabel: '不满足条件',
+        }
+      }
+    }
+  }
 
   // 4. 生成边
   const edges = generateEdges(nodes)
