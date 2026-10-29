@@ -11,24 +11,121 @@ import { DistributedRateLimiter, KeyGenerators } from './distributed-rate-limite
 import { RedisAdapter } from './redis-adapter'
 import { RateLimitConfigManager, PresetConfigs } from './config-manager'
 
-// Mock Redis
-vi.mock('ioredis', () => {
-  const mockClient = {
-    get: vi.fn().mockResolvedValue(null),
-    setex: vi.fn().mockResolvedValue('OK'),
-    del: vi.fn().mockResolvedValue(1),
-    eval: vi.fn().mockResolvedValue(1),
-    expire: vi.fn().mockResolvedValue(1),
-    ttl: vi.fn().mockResolvedValue(3600),
-    keys: vi.fn().mockResolvedValue([]),
-    ping: vi.fn().mockResolvedValue('PONG'),
-    on: vi.fn(),
-    quit: vi.fn().mockResolvedValue('OK'),
+/**
+ * Redis 假实现（内存版）
+ *
+ * 原先这一整组 RedisAdapter 用例是 `it.skip` 空壳，理由写的是
+ * "Requires real Redis or advanced mocking"。实际上不需要真实 Redis：
+ * 下面这个内存版 fake 完整实现了 RedisAdapter 用到的那几条命令语义
+ * （get/set/setex/del/eval/expire/ttl/keys/ping/quit），
+ * 包括 TTL 过期、-1/-2 语义、Lua 计数脚本的原子自增/自减与下界截断，
+ * 因此断言可以覆盖真实行为，而不是"断言 mock 自身"。
+ */
+const { fakeRedisClient, fakeRedisStore } = vi.hoisted(() => {
+  interface FakeEntry {
+    value: string
+    expiresAt: number | null
   }
 
-  return {
-    Redis: vi.fn(() => mockClient),
+  const store = new Map<string, FakeEntry>()
+
+  const currentTime = (): number => Date.now()
+
+  /** 惰性清除已过期的键，返回仍然有效的条目 */
+  const liveEntry = (key: string): FakeEntry | undefined => {
+    const entry = store.get(key)
+    if (entry && entry.expiresAt !== null && entry.expiresAt <= currentTime()) {
+      store.delete(key)
+      return undefined
+    }
+    return entry
   }
+
+  const client = {
+    get: vi.fn(async (key: string): Promise<string | null> => {
+      const entry = liveEntry(key)
+      return entry ? entry.value : null
+    }),
+    set: vi.fn(async (key: string, value: string): Promise<string> => {
+      store.set(key, { value, expiresAt: null })
+      return 'OK'
+    }),
+    setex: vi.fn(async (key: string, ttl: number, value: string): Promise<string> => {
+      store.set(key, { value, expiresAt: currentTime() + ttl * 1000 })
+      return 'OK'
+    }),
+    del: vi.fn(async (...keys: string[]): Promise<number> => {
+      let deleted = 0
+      for (const key of keys) {
+        if (store.delete(key)) deleted++
+      }
+      return deleted
+    }),
+    /**
+     * 模拟 Lua `eval`：只支持 RedisAdapter 里那两段脚本
+     * （自增 / 自减，原子、带 TTL、自减不小于 0）。
+     */
+    eval: vi.fn(
+      async (
+        script: string,
+        numberOfKeys: number,
+        ...args: Array<string | number>
+      ): Promise<number> => {
+        const keys = args.slice(0, numberOfKeys) as string[]
+        const scriptArgs = args.slice(numberOfKeys) as Array<string | number>
+        const key = keys[0]
+        const delta = Number(scriptArgs[0])
+        const ttl = Number(scriptArgs[1])
+        const entry = liveEntry(key)
+        const current = entry ? Number(entry.value) : 0
+
+        let newValue: number
+        if (script.includes('newValue = current - tonumber(ARGV[1])')) {
+          newValue = Math.max(0, current - delta)
+        } else if (script.includes('newValue = current + tonumber(ARGV[1])')) {
+          newValue = current + delta
+        } else {
+          throw new Error('fake redis eval: unsupported lua script')
+        }
+
+        store.set(key, { value: String(newValue), expiresAt: currentTime() + ttl * 1000 })
+        return newValue
+      }
+    ),
+    expire: vi.fn(async (key: string, ttl: number): Promise<number> => {
+      const entry = liveEntry(key)
+      if (!entry) return 0
+      entry.expiresAt = currentTime() + ttl * 1000
+      return 1
+    }),
+    ttl: vi.fn(async (key: string): Promise<number> => {
+      const entry = liveEntry(key)
+      if (!entry) return -2
+      if (entry.expiresAt === null) return -1
+      return Math.ceil((entry.expiresAt - currentTime()) / 1000)
+    }),
+    keys: vi.fn(async (pattern: string): Promise<string[]> => {
+      const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.')
+      const regex = new RegExp(`^${escaped}$`)
+      return Array.from(store.keys()).filter(key => regex.test(key))
+    }),
+    ping: vi.fn(async (): Promise<string> => 'PONG'),
+    quit: vi.fn(async (): Promise<string> => 'OK'),
+    on: vi.fn(),
+  }
+
+  return { fakeRedisClient: client, fakeRedisStore: store }
+})
+
+// Mock Redis
+vi.mock('ioredis', () => {
+  // 必须是可构造函数（RedisAdapter 里用 `new Redis(...)`），
+  // 箭头函数没有 [[Construct]]，用普通函数 + 显式返回 client 实例。
+  const Redis = vi.fn(function RedisFake() {
+    return fakeRedisClient
+  })
+
+  return { Redis }
 })
 
 describe('SlidingWindow', () => {
@@ -232,21 +329,22 @@ describe('DistributedRateLimiter', () => {
       headers: { 'x-forwarded-for': '192.168.1.2' },
     }
 
-    // Make multiple requests until rate limit is hit
-    for (let i = 0; i < 10; i++) {
+    // 前 5 次请求应当被允许
+    for (let i = 0; i < 5; i++) {
       const result = await limiter.check(req)
-      // After enough requests, rate limit should kick in
-      if (!result.allowed) {
-        expect(result.remaining).toBe(0)
-        expect(result.limit).toBe(5)
-        expect(result.retryAfter).toBeDefined()
-        return
-      }
+      expect(result.allowed).toBe(true)
+      expect(result.remaining).toBe(4 - i)
+      expect(result.limit).toBe(5)
+      expect(result.retryAfter).toBeUndefined()
     }
 
-    // If we get here, the rate limiter didn't kick in as expected
-    // but the test structure is correct
-    expect(true).toBe(true)
+    // 第 6 次请求必须被限流
+    const limited = await limiter.check(req)
+    expect(limited.allowed).toBe(false)
+    expect(limited.remaining).toBe(0)
+    expect(limited.limit).toBe(5)
+    expect(limited.retryAfter).toBeDefined()
+    expect(limited.retryAfter).toBeGreaterThan(0)
   })
 
   it('应该能够重置速率限制', async () => {
@@ -322,50 +420,128 @@ describe('DistributedRateLimiter', () => {
 })
 
 describe('RedisAdapter', () => {
-  // Note: Redis tests require a real Redis instance or more sophisticated mocking
-  // These tests are skipped in the unit test suite
-  it.skip('应该成功连接到 Redis', async () => {
-    // Requires real Redis or advanced mocking
+  let adapter: RedisAdapter
+
+  beforeEach(async () => {
+    fakeRedisStore.clear()
+    vi.clearAllMocks()
+    adapter = new RedisAdapter({ keyPrefix: 'rate-limit', defaultTTL: 60 })
+    await adapter.connect()
   })
 
-  it.skip('应该能够设置值', async () => {
-    // Requires real Redis or advanced mocking
+  afterEach(async () => {
+    await adapter.disconnect()
   })
 
-  it.skip('应该能够获取值', async () => {
-    // Requires real Redis or advanced mocking
+  it('应该成功连接到 Redis', async () => {
+    expect(adapter.isClientConnected()).toBe(true)
+    expect(adapter.getClient()).not.toBeNull()
+    await expect(fakeRedisClient.ping()).resolves.toBe('PONG')
   })
 
-  it.skip('应该能够删除键', async () => {
-    // Requires real Redis or advanced mocking
+  it('应该能够设置值', async () => {
+    await adapter.set('key1', 'value1')
+
+    // 写入的是带前缀的键
+    expect(fakeRedisClient.setex).toHaveBeenCalledWith('rate-limit:key1', 60, 'value1')
+    await expect(adapter.get('key1')).resolves.toBe('value1')
   })
 
-  it.skip('应该能够执行原子递增操作', async () => {
-    // Requires real Redis or advanced mocking
+  it('应该能够获取值', async () => {
+    fakeRedisStore.set('rate-limit:key1', { value: 'hello', expiresAt: null })
+
+    await expect(adapter.get('key1')).resolves.toBe('hello')
+    await expect(adapter.get('missing')).resolves.toBeNull()
   })
 
-  it.skip('应该能够执行原子递减操作', async () => {
-    // Requires real Redis or advanced mocking
+  it('应该能够删除键', async () => {
+    fakeRedisStore.set('rate-limit:key1', { value: 'value1', expiresAt: null })
+
+    await expect(adapter.delete('key1')).resolves.toBe(true)
+    await expect(adapter.get('key1')).resolves.toBeNull()
+    // 删不存在的键返回 false
+    await expect(adapter.delete('key1')).resolves.toBe(false)
   })
 
-  it.skip('应该能够设置过期时间', async () => {
-    // Requires real Redis or advanced mocking
+  it('应该能够执行原子递增操作', async () => {
+    await expect(adapter.incr('counter')).resolves.toBe(1)
+    await expect(adapter.incr('counter')).resolves.toBe(2)
+    await expect(adapter.incr('counter', 5)).resolves.toBe(7)
+    await expect(adapter.get('counter')).resolves.toBe('7')
   })
 
-  it.skip('应该能够获取剩余过期时间', async () => {
-    // Requires real Redis or advanced mocking
+  it('应该能够执行原子递减操作', async () => {
+    fakeRedisStore.set('rate-limit:counter', { value: '10', expiresAt: null })
+
+    await expect(adapter.decr('counter')).resolves.toBe(9)
+    await expect(adapter.decr('counter', 20)).resolves.toBe(0)
+    // 自减不会低于 0
+    await expect(adapter.decr('counter')).resolves.toBe(0)
   })
 
-  it.skip('应该能够批量删除键', async () => {
-    // Requires real Redis or advanced mocking
+  it('应该能够设置过期时间', async () => {
+    fakeRedisStore.set('rate-limit:key1', { value: 'value1', expiresAt: null })
+
+    await expect(adapter.expire('key1', 30)).resolves.toBe(true)
+    const ttl = await adapter.ttl('key1')
+    expect(ttl).toBeGreaterThan(0)
+    expect(ttl).toBeLessThanOrEqual(30)
+
+    // 对不存在的键设置过期时间返回 false
+    await expect(adapter.expire('missing', 30)).resolves.toBe(false)
   })
 
-  it.skip('应该能够检查连接状态', async () => {
-    // Requires real Redis or advanced mocking
+  it('应该能够获取剩余过期时间', async () => {
+    fakeRedisStore.set('rate-limit:key1', { value: 'value1', expiresAt: null })
+    fakeRedisStore.set('rate-limit:key2', { value: 'value2', expiresAt: Date.now() + 100_000 })
+
+    // 没有过期时间的键返回 -1
+    await expect(adapter.ttl('key1')).resolves.toBe(-1)
+    // 不存在的键返回 -2
+    await expect(adapter.ttl('missing')).resolves.toBe(-2)
+    // 有过期时间的键返回剩余秒数
+    const ttl = await adapter.ttl('key2')
+    expect(ttl).toBeGreaterThan(0)
+    expect(ttl).toBeLessThanOrEqual(100)
   })
 
-  it.skip('应该能够断开连接', async () => {
-    // Requires real Redis or advanced mocking
+  it('应该能够批量删除键', async () => {
+    fakeRedisStore.set('rate-limit:user:1', { value: 'a', expiresAt: null })
+    fakeRedisStore.set('rate-limit:user:2', { value: 'b', expiresAt: null })
+    fakeRedisStore.set('rate-limit:other:1', { value: 'c', expiresAt: null })
+
+    const deleted = await adapter.deletePattern('user:*')
+
+    expect(deleted).toBe(2)
+    expect(fakeRedisStore.has('rate-limit:user:1')).toBe(false)
+    expect(fakeRedisStore.has('rate-limit:user:2')).toBe(false)
+    expect(fakeRedisStore.has('rate-limit:other:1')).toBe(true)
+  })
+
+  it('应该能够检查连接状态', async () => {
+    expect(adapter.isClientConnected()).toBe(true)
+
+    await adapter.disconnect()
+
+    expect(adapter.isClientConnected()).toBe(false)
+    expect(adapter.getClient()).toBeNull()
+  })
+
+  it('应该能够断开连接', async () => {
+    await adapter.disconnect()
+
+    expect(fakeRedisClient.quit).toHaveBeenCalled()
+    expect(adapter.isClientConnected()).toBe(false)
+
+    // 断开后调用操作应抛出 "Redis not connected"
+    await expect(adapter.get('key1')).rejects.toThrow('Redis not connected')
+    await expect(adapter.set('key1', 'value1')).rejects.toThrow('Redis not connected')
+    await expect(adapter.delete('key1')).rejects.toThrow('Redis not connected')
+    await expect(adapter.incr('key1')).rejects.toThrow('Redis not connected')
+    await expect(adapter.decr('key1')).rejects.toThrow('Redis not connected')
+    await expect(adapter.expire('key1', 10)).rejects.toThrow('Redis not connected')
+    await expect(adapter.ttl('key1')).rejects.toThrow('Redis not connected')
+    await expect(adapter.deletePattern('key:*')).rejects.toThrow('Redis not connected')
   })
 })
 
@@ -472,7 +648,7 @@ describe('RateLimitConfigManager', () => {
 
   it('应该在未知预设时抛出错误', () => {
     expect(() => {
-      configManager.createFromPreset('unknown' as any, undefined, KeyGenerators.byIP)
+      configManager.createFromPreset('unknown', undefined, KeyGenerators.byIP)
     }).toThrow('Unknown preset: unknown')
   })
 
