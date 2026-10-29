@@ -21,10 +21,21 @@ const DEFAULT_WEIGHTS: CreditWeights = {
   taskCompletionRate: 0.25,
   responseSpeed: 0.15,
   userRating: 0.2,
-  violationCount: -50, // 每次违规扣50分
-  disputeRate: -0.1,
+  violationCount: -50, // 每次违规基础扣50分（按严重度倍数放大）
+  disputeRate: -10, // 每次争议扣10分
   onTimeDeliveryRate: 0.15,
   repeatCustomerRate: 0.15,
+}
+
+/**
+ * 违规严重度倍数
+ *
+ * minor = 0.4 倍（-20 分）、major = 1 倍（-50 分）、critical = 2 倍（-100 分）。
+ */
+const VIOLATION_SEVERITY_MULTIPLIER: Record<'minor' | 'major' | 'critical', number> = {
+  minor: 0.4,
+  major: 1,
+  critical: 2,
 }
 
 /**
@@ -134,6 +145,7 @@ export class CreditScoreService {
         level: this.calculateLevel(initialScore),
         factors: initialFactors,
         history: [],
+        penaltyOffset: 0,
         lastCalculatedAt: new Date(),
       })
     }
@@ -149,6 +161,8 @@ export class CreditScoreService {
     factors: Partial<CreditFactors>
   ): Promise<CreditScore> {
     const currentScore = await this.getOrCreateCreditScore(agentId)
+
+    this.assertValidFactors(factors)
 
     // 合并因子
     const updatedFactors: CreditFactors = {
@@ -174,12 +188,16 @@ export class CreditScoreService {
     // 回头客率影响
     newScore += (updatedFactors.repeatCustomerRate - 50) * 3 * this.weights.repeatCustomerRate
 
-    // 争议率影响（负向）
+    // 争议影响（负向）：disputeRate 是「争议次数」，按权重逐次扣分
     newScore += updatedFactors.disputeRate * this.weights.disputeRate
 
-    // 违规次数影响（负向）
-    const violationPenalty = updatedFactors.violationCount * this.weights.violationCount
-    newScore += violationPenalty
+    // 违规扣分（负向）
+    //
+    // 违规扣分必须持久化（penaltyOffset）：否则下一次基于因子的重算会把
+    // 已经记在分数上的违规扣分抹掉 —— 「记录违规 → 下一次重算分数被悄悄还原」。
+    // violationCount 因子只作为计数展示，不再参与公式，避免与 penaltyOffset 重复扣分。
+    const penaltyOffset = currentScore.penaltyOffset ?? 0
+    newScore += penaltyOffset
 
     // 限制分数范围
     newScore = Math.max(0, Math.min(1000, Math.round(newScore)))
@@ -269,6 +287,10 @@ export class CreditScoreService {
     agentId: string,
     rating: number // 1-5 星评分
   ): Promise<CreditScore> {
+    if (!Number.isFinite(rating) || !Number.isInteger(rating) || rating < 1 || rating > 5) {
+      throw new Error('rating must be an integer between 1 and 5')
+    }
+
     const currentScore = await this.getOrCreateCreditScore(agentId)
 
     // 转换为0-100评分
@@ -310,11 +332,20 @@ export class CreditScoreService {
   ): Promise<CreditScore> {
     const currentScore = await this.getOrCreateCreditScore(agentId)
 
-    // 根据严重程度扣除额外分数
-    const severityPenalty = severity === 'critical' ? -100 : severity === 'major' ? -50 : -20
+    if (!(severity in VIOLATION_SEVERITY_MULTIPLIER)) {
+      throw new Error(`Unsupported violation severity: ${severity}`)
+    }
+
+    // 根据严重程度扣分：基础扣分 × 严重度倍数
+    const severityPenalty = Math.round(
+      this.weights.violationCount * VIOLATION_SEVERITY_MULTIPLIER[severity]
+    )
 
     // 更新违规次数
     const newViolationCount = currentScore.factors.violationCount + 1
+
+    // 累计违规扣分（持久化，保证后续重算不会抹掉）
+    const penaltyOffset = (currentScore.penaltyOffset ?? 0) + severityPenalty
 
     // 直接更新分数（绕过常规计算，因为违规是严重事件）
     const newScore = Math.max(0, Math.min(1000, currentScore.score + severityPenalty))
@@ -339,6 +370,7 @@ export class CreditScoreService {
         violationCount: newViolationCount,
       },
       history: updatedHistory,
+      penaltyOffset,
       lastCalculatedAt: new Date(),
     })
   }
@@ -349,7 +381,7 @@ export class CreditScoreService {
   async recordDispute(agentId: string, _resolved: boolean): Promise<CreditScore> {
     const currentScore = await this.getOrCreateCreditScore(agentId)
 
-    // 更新争议率
+    // 更新争议次数
     const newDisputeRate = currentScore.factors.disputeRate + 1
 
     return await this.calculateCreditScore(agentId, {
@@ -390,7 +422,7 @@ export class CreditScoreService {
   ): Promise<{ eligible: boolean; reason?: string }> {
     const score = await this.getOrCreateCreditScore(agentId)
 
-    if (minimumScore && score.score < minimumScore) {
+    if (minimumScore !== undefined && score.score < minimumScore) {
       return {
         eligible: false,
         reason: `信用分数不足。当前: ${score.score}, 最低要求: ${minimumScore}`,
@@ -428,6 +460,39 @@ export class CreditScoreService {
     }
 
     return discountRates[score.level]
+  }
+
+  /**
+   * 校验因子取值范围
+   *
+   * 百分比类因子必须在 0-100，计数类因子必须是非负整数，
+   * 否则 NaN / 负数会污染分数。
+   */
+  private assertValidFactors(factors: Partial<CreditFactors>): void {
+    const rateFactors: (keyof CreditFactors)[] = [
+      'taskCompletionRate',
+      'responseSpeed',
+      'userRating',
+      'onTimeDeliveryRate',
+      'repeatCustomerRate',
+    ]
+
+    for (const key of rateFactors) {
+      const value = factors[key]
+      if (value === undefined) continue
+      if (!Number.isFinite(value) || value < 0 || value > 100) {
+        throw new Error(`${key} must be a number between 0 and 100`)
+      }
+    }
+
+    const countFactors: (keyof CreditFactors)[] = ['violationCount', 'disputeRate']
+    for (const key of countFactors) {
+      const value = factors[key]
+      if (value === undefined) continue
+      if (!Number.isInteger(value) || value < 0) {
+        throw new Error(`${key} must be a non-negative integer`)
+      }
+    }
   }
 
   /**

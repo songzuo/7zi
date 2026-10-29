@@ -13,6 +13,41 @@ import {
   ITransactionRepository,
 } from './types.js'
 
+// ==================== 金额校验工具 ====================
+
+/**
+ * 校验金额为「分」单位的正整数
+ *
+ * 经济系统内部金额一律使用最小单位（分）的整数表示。
+ * 任何浮点金额都会引入累积误差（0.1 + 0.2 !== 0.3），因此在入口处一律拒绝。
+ */
+export function assertCents(amount: number, label = 'Amount'): void {
+  if (typeof amount !== 'number' || !Number.isFinite(amount)) {
+    throw new Error(`${label} must be a finite number`)
+  }
+  if (!Number.isInteger(amount)) {
+    throw new Error(`${label} must be an integer number of cents`)
+  }
+  if (amount <= 0) {
+    throw new Error(`${label} must be positive`)
+  }
+}
+
+/**
+ * 校验金额为「分」单位的非负整数
+ */
+export function assertCentsNonNegative(amount: number, label = 'Amount'): void {
+  if (typeof amount !== 'number' || !Number.isFinite(amount)) {
+    throw new Error(`${label} must be a finite number`)
+  }
+  if (!Number.isInteger(amount)) {
+    throw new Error(`${label} must be an integer number of cents`)
+  }
+  if (amount < 0) {
+    throw new Error(`${label} must not be negative`)
+  }
+}
+
 // ==================== 存储实现 ====================
 
 /**
@@ -203,6 +238,42 @@ class InMemoryTransactionRepository implements ITransactionRepository {
   }
 }
 
+// ==================== 并发锁 ====================
+
+/**
+ * 按 key 串行化的异步锁
+ *
+ * 余额的「读-判断-写」必须串行，否则并发扣费会同时通过余额校验，
+ * 造成超扣（余额变负）——这是真金白银的资损。
+ */
+class KeyedMutex {
+  private chains: Map<string, Promise<unknown>> = new Map()
+
+  async run<T>(key: string, fn: () => Promise<T>): Promise<T> {
+    const previous = this.chains.get(key) ?? Promise.resolve()
+
+    const current = previous.then(
+      () => fn(),
+      () => fn()
+    )
+
+    // 记录一条「永不 reject」的链，保证后续调用者能继续排队
+    const tracked = current.then(
+      () => undefined,
+      () => undefined
+    )
+    this.chains.set(key, tracked)
+
+    try {
+      return await current
+    } finally {
+      if (this.chains.get(key) === tracked) {
+        this.chains.delete(key)
+      }
+    }
+  }
+}
+
 // ==================== 钱包服务 ====================
 
 /**
@@ -211,10 +282,12 @@ class InMemoryTransactionRepository implements ITransactionRepository {
 export class WalletService {
   private walletRepo: IWalletRepository
   private transactionRepo: ITransactionRepository
+  private lock: KeyedMutex
 
   constructor(walletRepo?: IWalletRepository, transactionRepo?: ITransactionRepository) {
     this.walletRepo = walletRepo || new InMemoryWalletRepository()
     this.transactionRepo = transactionRepo || new InMemoryTransactionRepository()
+    this.lock = new KeyedMutex()
   }
 
   /**
@@ -259,9 +332,7 @@ export class WalletService {
     amount: number,
     metadata: TransactionMetadata = {}
   ): Promise<Transaction> {
-    if (amount <= 0) {
-      throw new Error('Amount must be positive')
-    }
+    assertCents(amount)
 
     const wallet = await this.getWallet(agentId)
 
@@ -269,22 +340,30 @@ export class WalletService {
       throw new Error(`Wallet is frozen for agent: ${agentId}`)
     }
 
-    // 创建充值交易
-    const transaction = await this.transactionRepo.create({
-      walletId: wallet.id,
-      type: 'charge',
-      amount,
-      status: 'completed',
-      description: `充值 ${this.formatAmount(amount, wallet.currency)}`,
-      metadata,
-    })
+    // 余额的读-改-写必须在锁内串行，否则并发充值会丢失更新
+    return this.lock.run(wallet.id, async () => {
+      // 锁内重新读取，避免使用过期的快照余额
+      const current = await this.getWallet(agentId)
 
-    // 更新余额
-    await this.walletRepo.update(wallet.id, {
-      balance: wallet.balance + amount,
-    })
+      if (current.frozen) {
+        throw new Error(`Wallet is frozen for agent: ${agentId}`)
+      }
 
-    return transaction
+      const transaction = await this.transactionRepo.create({
+        walletId: current.id,
+        type: 'charge',
+        amount,
+        status: 'completed',
+        description: `充值 ${this.formatAmount(amount, current.currency)}`,
+        metadata,
+      })
+
+      await this.walletRepo.update(current.id, {
+        balance: current.balance + amount,
+      })
+
+      return transaction
+    })
   }
 
   /**
@@ -296,9 +375,7 @@ export class WalletService {
     description: string,
     metadata: TransactionMetadata = {}
   ): Promise<Transaction> {
-    if (amount <= 0) {
-      throw new Error('Amount must be positive')
-    }
+    assertCents(amount)
 
     const wallet = await this.getWallet(agentId)
 
@@ -306,34 +383,46 @@ export class WalletService {
       throw new Error(`Wallet is frozen for agent: ${agentId}`)
     }
 
-    // 检查余额
-    const availableBalance = wallet.balance - wallet.frozenAmount
-    if (availableBalance < amount) {
-      throw new Error(
-        `Insufficient balance. Available: ${this.formatAmount(availableBalance, wallet.currency)}, Required: ${this.formatAmount(amount, wallet.currency)}`
-      )
-    }
+    // 余额校验与扣款必须原子化，否则并发支付会超扣
+    return this.lock.run(wallet.id, async () => {
+      const current = await this.getWallet(agentId)
 
-    // 创建支付交易
-    const transaction = await this.transactionRepo.create({
-      walletId: wallet.id,
-      type: 'payment',
-      amount: -amount, // 支出为负数
-      status: 'completed',
-      description,
-      metadata,
+      if (current.frozen) {
+        throw new Error(`Wallet is frozen for agent: ${agentId}`)
+      }
+
+      // 检查余额（冻结部分不可用）
+      const availableBalance = current.balance - current.frozenAmount
+      if (availableBalance < amount) {
+        throw new Error(
+          `Insufficient balance. Available: ${this.formatAmount(availableBalance, current.currency)}, Required: ${this.formatAmount(amount, current.currency)}`
+        )
+      }
+
+      const transaction = await this.transactionRepo.create({
+        walletId: current.id,
+        type: 'payment',
+        amount: -amount, // 支出为负数
+        status: 'completed',
+        description,
+        metadata,
+      })
+
+      await this.walletRepo.update(current.id, {
+        balance: current.balance - amount,
+      })
+
+      return transaction
     })
-
-    // 更新余额
-    await this.walletRepo.update(wallet.id, {
-      balance: wallet.balance - amount,
-    })
-
-    return transaction
   }
 
   /**
    * 退款
+   *
+   * 约束：
+   * - 只能退款本钱包的、已完成（completed）的支付交易
+   * - 退款金额必须是正整数分，且不得超过「原交易金额 - 已退款金额」
+   * - 同一笔原交易退款总额用尽后不可再退（幂等 / 防止重复退款刷余额）
    */
   async refund(
     agentId: string,
@@ -356,30 +445,56 @@ export class WalletService {
       throw new Error('Can only refund payment transactions')
     }
 
-    // 默认全额退款
-    const refundAmount = amount !== undefined ? amount : Math.abs(originalTx.amount)
-    const refundDescription = reason ? `退款: ${reason}` : `退款: ${originalTx.description}`
+    if (originalTx.status !== 'completed') {
+      throw new Error('Can only refund completed payment transactions')
+    }
 
-    // 创建退款交易
-    const transaction = await this.transactionRepo.create({
-      walletId: wallet.id,
-      type: 'refund',
-      amount: refundAmount,
-      status: 'completed',
-      description: refundDescription,
-      metadata: {
-        ...originalTx.metadata,
-        originalTransactionId,
-        refundReason: reason,
-      },
+    if (amount !== undefined) {
+      assertCents(amount, 'Refund amount')
+    }
+
+    // 锁内统计已退款金额，防止并发重复退款把余额刷高
+    return this.lock.run(wallet.id, async () => {
+      const current = await this.getWallet(agentId)
+      const refunds = await this.transactionRepo.findByWalletId(current.id, { types: ['refund'] })
+      const alreadyRefunded = refunds
+        .filter(r => r.metadata.originalTransactionId === originalTransactionId)
+        .reduce((sum, r) => sum + r.amount, 0)
+
+      const refundable = Math.abs(originalTx.amount) - alreadyRefunded
+      if (refundable <= 0) {
+        throw new Error(`Transaction already fully refunded: ${originalTransactionId}`)
+      }
+
+      // 默认全额退款（退剩余可退金额）
+      const refundAmount = amount !== undefined ? amount : refundable
+      if (refundAmount > refundable) {
+        throw new Error(
+          `Refund amount exceeds refundable amount. Refundable: ${refundable}, Requested: ${refundAmount}`
+        )
+      }
+
+      const refundDescription = reason ? `退款: ${reason}` : `退款: ${originalTx.description}`
+
+      const transaction = await this.transactionRepo.create({
+        walletId: current.id,
+        type: 'refund',
+        amount: refundAmount,
+        status: 'completed',
+        description: refundDescription,
+        metadata: {
+          ...originalTx.metadata,
+          originalTransactionId,
+          refundReason: reason,
+        },
+      })
+
+      await this.walletRepo.update(current.id, {
+        balance: current.balance + refundAmount,
+      })
+
+      return transaction
     })
-
-    // 更新余额
-    await this.walletRepo.update(wallet.id, {
-      balance: wallet.balance + refundAmount,
-    })
-
-    return transaction
   }
 
   /**
@@ -390,9 +505,7 @@ export class WalletService {
     amount: number,
     metadata: TransactionMetadata = {}
   ): Promise<Transaction> {
-    if (amount <= 0) {
-      throw new Error('Amount must be positive')
-    }
+    assertCents(amount)
 
     const wallet = await this.getWallet(agentId)
 
@@ -400,28 +513,34 @@ export class WalletService {
       throw new Error(`Wallet is frozen for agent: ${agentId}`)
     }
 
-    // 检查可用余额
-    const availableBalance = wallet.balance - wallet.frozenAmount
-    if (availableBalance < amount) {
-      throw new Error('Insufficient balance to freeze')
-    }
+    return this.lock.run(wallet.id, async () => {
+      const current = await this.getWallet(agentId)
 
-    // 创建冻结交易
-    const transaction = await this.transactionRepo.create({
-      walletId: wallet.id,
-      type: 'freeze',
-      amount: 0, // 冻结不改变总余额
-      status: 'completed',
-      description: `冻结 ${this.formatAmount(amount, wallet.currency)}`,
-      metadata,
+      if (current.frozen) {
+        throw new Error(`Wallet is frozen for agent: ${agentId}`)
+      }
+
+      // 检查可用余额
+      const availableBalance = current.balance - current.frozenAmount
+      if (availableBalance < amount) {
+        throw new Error('Insufficient balance to freeze')
+      }
+
+      const transaction = await this.transactionRepo.create({
+        walletId: current.id,
+        type: 'freeze',
+        amount: 0, // 冻结不改变总余额
+        status: 'completed',
+        description: `冻结 ${this.formatAmount(amount, current.currency)}`,
+        metadata,
+      })
+
+      await this.walletRepo.update(current.id, {
+        frozenAmount: current.frozenAmount + amount,
+      })
+
+      return transaction
     })
-
-    // 更新冻结金额
-    await this.walletRepo.update(wallet.id, {
-      frozenAmount: wallet.frozenAmount + amount,
-    })
-
-    return transaction
   }
 
   /**
@@ -432,32 +551,32 @@ export class WalletService {
     amount: number,
     metadata: TransactionMetadata = {}
   ): Promise<Transaction> {
-    if (amount <= 0) {
-      throw new Error('Amount must be positive')
-    }
+    assertCents(amount)
 
     const wallet = await this.getWallet(agentId)
 
-    if (wallet.frozenAmount < amount) {
-      throw new Error('Insufficient frozen amount to unfreeze')
-    }
+    return this.lock.run(wallet.id, async () => {
+      const current = await this.getWallet(agentId)
 
-    // 创建解冻交易
-    const transaction = await this.transactionRepo.create({
-      walletId: wallet.id,
-      type: 'unfreeze',
-      amount: 0,
-      status: 'completed',
-      description: `解冻 ${this.formatAmount(amount, wallet.currency)}`,
-      metadata,
+      if (current.frozenAmount < amount) {
+        throw new Error('Insufficient frozen amount to unfreeze')
+      }
+
+      const transaction = await this.transactionRepo.create({
+        walletId: current.id,
+        type: 'unfreeze',
+        amount: 0,
+        status: 'completed',
+        description: `解冻 ${this.formatAmount(amount, current.currency)}`,
+        metadata,
+      })
+
+      await this.walletRepo.update(current.id, {
+        frozenAmount: current.frozenAmount - amount,
+      })
+
+      return transaction
     })
-
-    // 更新冻结金额
-    await this.walletRepo.update(wallet.id, {
-      frozenAmount: wallet.frozenAmount - amount,
-    })
-
-    return transaction
   }
 
   /**
@@ -514,26 +633,41 @@ export class WalletService {
 
   /**
    * 生成钱包地址
+   *
+   * 地址必须全局唯一：原实现只对输入的前 5 个字符做哈希，
+   * 导致 `agent-a` 与 `agent-b` 这类「前缀相同、后缀不同」的 agent
+   * 拿到完全相同的钱包地址，addressIndex 会被后创建的钱包覆盖，
+   * 导致 findByAddress 返回错误的钱包。
+   *
+   * 修复：使用 FNV-1a 多轮哈希覆盖整个输入串，并掺入随机数保证同毫秒内也不碰撞。
    */
   private generateAddress(agentId: string): string {
-    const hash = this.simpleHash(agentId + Date.now())
+    const seed = `${agentId}:${Date.now()}:${Math.random().toString(36).substring(2, 12)}`
+    const hash = this.simpleHash(seed)
     // 填充到40位
     const padded = hash.padEnd(40, '0')
     return `0x${padded.substring(0, 40)}`
   }
 
   /**
-   * 简单哈希函数 - 生成足够长的十六进制字符串
+   * 简单哈希函数 - 生成 40 位十六进制字符串
+   *
+   * 使用 5 轮独立的 FNV-1a 变体，每轮输出 8 位十六进制，合计 40 位。
+   * 每轮都消费整个输入串，因此不存在「只哈希前缀」导致的碰撞。
    */
   private simpleHash(str: string): string {
-    let hash = 0
+    const seeds = [0x811c9dc5, 0x01000193, 0x9e3779b9, 0x85ebca6b, 0xc2b2ae35]
+    const multipliers = [0x01000193, 0x85ebca6b, 0xc2b2ae35, 0x27d4eb2f, 0x165667b1]
+
     let result = ''
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i)
-      hash = (hash << 5) - hash + char
-      hash = hash & hash
-      // 转换为16位十六进制
-      result += Math.abs(hash).toString(16).padStart(8, '0')
+    for (let round = 0; round < seeds.length; round++) {
+      let hash = seeds[round] >>> 0
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i)
+        hash = Math.imul(hash ^ (char + round), multipliers[round]) >>> 0
+        hash = (hash ^ (hash >>> 13)) >>> 0
+      }
+      result += hash.toString(16).padStart(8, '0')
     }
     return result
   }

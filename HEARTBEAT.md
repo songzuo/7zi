@@ -703,6 +703,131 @@ fatal: could not read Password for 'https://ghp_%5B%E5%B7%B2%E7%A7%BB%E9%99%A4%5
 - 更稳的做法：**章节号 + 标题关键词一起写**（`§64 pat-scan 脱敏`），
   撞号时读者仍能定位。
 
+## 80. 模板版本号收敛法：结束各节点护栏互相回滚的 ping-pong（2026-10-29 20:13-20:37 实测，bot2）
+
+**症状**：20 分钟内出现 **7 次**"身份护栏自动修复"提交，仓库噪声极大：
+```
+20:13 bot4   护栏自动修复（5 个副本各改 1 行）
+20:26 bot2   护栏自动修复（7 个文件 +2 行）
+20:28 bot4   模板版本号升到 4
+20:28 bot4   护栏自动修复（5 个副本各改 1 行）
+```
+
+**根因（两层）**：
+1. **各节点的 canonical 固化副本版本不同** → 护栏"本机优先"选到旧版 → 推上去 → 别人的新版被覆盖
+2. **版本号缺失/相同导致选择不稳定** —— 各节点都在抢"最高版本"，
+   但当两个源版本号**相同而内容不同**时，选择结果取决于执行顺序 → 随机翻转
+
+**修法（已落地，全节点验证）**：
+1. **模板加单调版本号** `CLAWMESH_TEMPLATE_VERSION=4`
+2. **护栏改为"收集所有候选源，取版本号最高者"**，不再本机优先：
+   ```bash
+   tpl_version() { grep -m1 '^CLAWMESH_TEMPLATE_VERSION=' "$1" | sed 's/.*=//'; }
+   # 候选源：本机固化 / 工作副本 / **raw.githubusercontent.com（远端权威副本）**
+   ```
+   ⚠️ **raw 必须进候选源** —— 本机固化副本和工作副本都可能是旧的，
+   只有 raw 拿到的才是 origin/main 的权威版本。
+3. **选定后回写本机固化副本**，避免旧版长期留在磁盘上（§40）。
+
+**验证（20:37 五节点同刻跑护栏）**：
+```
+bot2 [20:37:38] 本机固化 canonical 已更新到版本 4  ✅ 身份不变量全部通过
+bot3 [20:37:57] 本机固化 canonical 已更新到版本 4  ✅
+bot4 [20:37:41] 本机固化 canonical 已更新到版本 4  ✅
+bot5 [20:37:43] 本机固化 canonical 已更新到版本 4  ✅
+bot6 [20:32:00] 本机固化 canonical 已更新到版本 4  ✅
+```
+→ **五节点同时跑完，零护栏提交**（此前每 30 分钟必产生回滚提交）✅
+→ 仓库一致性：五个副本与 canonical 的 diff **全部 = 0 行** ✅
+
+### 巡检必查（防复发）
+```bash
+# 1) 护栏是否还在产生提交（正常应是 0）
+git log --format='%h %ad %an %s' --date=format:'%H:%M' origin/main --since='30 min ago' \
+  | grep '护栏自动修复' | wc -l
+# 2) canonical 版本号是否单调（不应反复翻转）
+git log --format='%h %ad %an %s' --date=format:'%H:%M' origin/main -- \
+  claw-mesh-deploy/scripts/claw-mesh-template-canonical.sh | head -5
+# 3) 各节点本机 canonical 版本是否一致
+for p in 16003 16004 16005 16006; do
+  ssh -A -i ~/.ssh/id_ed25519_backuptunnel -o BatchMode=yes root@198.44.179.155 \
+    "ssh -o BatchMode=yes -o StrictHostKeyChecking=no -p $p root@127.0.0.1 \
+     'grep -m1 CLAWMESH_TEMPLATE_VERSION /root/.openclaw/cron/claw-mesh-template-canonical.sh'"
+done
+```
+
+**教训（可推广）**：
+- **"本机优先"在多节点场景下是错的** —— 本机只是候选之一，
+  权威源永远在远端。护栏类脚本必须**按版本/时间选权威源**，不能按位置选。
+- **"护栏每轮都报 ✅"反而掩盖了问题** —— 护栏只检查"副本是否等于 canonical"，
+  而 canonical 本身在漂移 → 检查通过但内容在反复翻。
+  → 护栏必须**额外检查"canonical 本身有没有在变"**（版本号单调性）。
+- **多节点各跑同一个"自动修复器"时，修复器本身必须幂等且收敛**，
+  否则它就是一台"降级机"，比不装护栏更糟。
+
+## 81. ⚠️ 巡检命令自己会把 PAT 写进会话记录 → 反查命中的是"我自己"（2026-10-29 21:05 实测，bot6）
+
+**症状**：用"活跃 PAT 反查"做 §6 巡检，扫出一堆命中：
+```
+/root/.openclaw/agents/main/sessions/091fb1ec-....jsonl          （1 次）
+/root/.openclaw/agents/main/sessions/92312ed6-....jsonl          （6 次）
+/var/log/journal/.../system@42a8677352....journal                 （1 次）
+```
+看起来又是 §53/§56 说的"PAT 明文复发"，而且**每天复发**。
+
+**根因（两层，都很反直觉）**：
+
+1. **巡检命令本身是泄漏源**：
+   ```bash
+   TOK=$(grep -oE 'gh[p]_[A-Za-z0-9]{20,}' /root/.git-credentials | head -1)
+   grep -rl "$TOK" ...
+   ```
+   这条命令**把 PAT 的字面值作为参数传给了 grep** → OpenClaw 把完整命令行
+   写进当前会话的 `.jsonl` → **扫出来的命中就是这次巡检自己造成的**。
+   → 第二次扫（同一轮巡检里再跑一次）会命中得更多 —— 越查越多。
+
+2. **journal 里的命中是 5 月的归档残留**：
+   ```
+   May 07 07:46:09 bot6 node[986887]: | **环境变量泄露 GitHub Token** | `ghp_...` 直接暴露在进程环境变量中
+   ```
+   是当时那条**安全告警本身**把 token 写进了日志。
+
+**修法（已落地，bot6）**：
+- session 文件：备份到 `.redacted-backup/` 后 `sed` 替换，**备份也一起脱敏**（§53 的教训）
+- journal 文件：二进制格式**不能直接 sed**（会破坏结构）→
+  用 **等长替换**（`ghp_[REDACTED]____` 补齐到原长度），
+  **保持文件大小与所有偏移不变**，`journalctl --file=` 复核仍可读
+- 巡检命令改成**不回显 token**的形式：先读进变量、比对时用
+  `grep -rl -a "$TOK"`，但**不要 echo 变量**，且**不要把 token 写进命令行**
+
+### 巡检必查（新增，务必记住）
+```bash
+# ❌ 会把 PAT 写进会话记录
+TOK=$(grep -oE 'gh[p]_[A-Za-z0-9]{20,}' /root/.git-credentials | head -1)
+echo "$TOK"          # 这行是纯泄漏
+
+# ✅ 用 python 读文件比对，不经过命令行参数
+python3 - <<'PY'
+import re, subprocess
+tok = re.search(rb'gh[p]_[A-Za-z0-9]{20,}', open('/root/.git-credentials','rb').read()).group(0).decode()
+for t in ['/root/.openclaw/agents','/var/log','/etc']:
+    r = subprocess.run(['grep','-rl','-a',tok,t], capture_output=True, text=True, timeout=90)
+    print(t, len([h for h in r.stdout.split() if '.git-credential' not in h]))
+PY
+```
+⚠️ 即便用 python，**`grep` 的参数里仍然带着 token**（会出现在 `ps` 里，
+但不进会话记录）。更彻底的做法是 python 自己读文件比对，全程不过命令行。
+
+**教训（比技术细节重要）**：
+- **巡检工具本身会成为泄漏源** —— "扫描泄露"的动作可能制造新的泄露。
+  → 任何用**秘密做参数**的检查命令，都要先想清楚"这个参数会落到哪里"。
+- **"同一轮扫两遍，第二遍命中更多"是自污染的典型信号** —— 看到这个就该
+  怀疑是扫描命令自己写的，而不是继续加扫描范围。
+- **journal 是二进制**，`sed -i` 会破坏它；要**等长替换**保偏移。
+- **归档日志里的"安全告警"可能本身就是泄漏点** —— 告警把 token 原文写进日志，
+  等于把秘密存进了最容易被忽略的地方。
+- 结论不变：**轮换 PAT 是唯一能一次性作废所有历史副本的手段**（§53）。
+
 ## 已知遗留（需用户决策，勿擅自处理）
 - git 历史中可能仍残留旧 token —— 彻底清除需重写历史 + 强制推送
 - 仓库内 7.5 万个 node_modules 文件 —— 清理需重写历史
@@ -2010,7 +2135,69 @@ export async function channelOrderDetail(orderId: string) {
 - **兜底不是万能**：兜底源必须包含判定所需的**全部字段**，
   且**找不到时必须抛原错误**（否则会把"查不到"变成"已付"）。
 
-## 80. ⚠️ 全集群 LLM 供应商集体失效 → picoclaw 心跳全挂（2026-10-29 10:44-15:50 实测，bot5）
+## 83. ⚠️ 身份护栏的"本机优先"会变成**模板降级机** —— 各节点互相回滚 ping-pong（2026-10-29 20:30 实测并修复，bot2）
+
+**症状**：仓库里 `claw-mesh-deploy/scripts/claw-mesh-template-canonical.sh`
+每 30 分钟被改一次，两个版本来回翻转：
+```
+16:13 bot2 推 915 行版（无 own-files 修复）
+16:43 bot4 推 965 行版（有 own-files 修复）
+17:13 bot5 推 915 行版
+20:13 bot4 推 965 行版
+```
+护栏日志每次都写「✅ 身份不变量全部通过」，**看起来一切正常**，
+但 bot4 的 §61 串台修复（`claw-mesh-own-files.py` 过滤 + 辅助脚本缺失时降级）
+在 bot2/bot3/bot5/bot6 的副本里**反复被删掉**。
+
+**根因**：护栏取 canonical 的逻辑是**"本机固化副本优先"**
+（`/root/.openclaw/cron/claw-mesh-template-canonical.sh`），
+而各节点的固化副本**版本不同**（bot2/3/5/6 = 915 行，bot4 = 965 行）。
+→ 每台节点都拿自己的旧版去覆盖别人的新版 → 永远收敛不了。
+
+**修法（已落地，五节点统一）**：
+1. **模板加单调版本号** `CLAWMESH_TEMPLATE_VERSION=4`
+2. **护栏改为"收集所有候选源，取版本号最高者"**，不再本机优先：
+   ```bash
+   tpl_version() { grep -m1 '^CLAWMESH_TEMPLATE_VERSION=' "$1" | sed 's/.*=//'; }
+   # 候选源：本机固化 / 工作副本 / **raw.githubusercontent.com（远端权威副本）**
+   ```
+   ⚠️ **raw 必须进候选源** —— 本机固化副本和工作副本都可能是旧的，
+   只有 raw 拿到的才是 origin/main 的权威版本。
+   （第一版修完仍差一版：bot2 工作副本是旧的 → 选出低版本 → 又刷了一轮。）
+3. **选定后回写本机固化副本**，避免旧版长期留在磁盘上（§40）。
+4. 版本号缺失（老模板）视为 0。
+
+**验证（双向）**：
+- 五个节点的护栏**全部跑完后，仓库 HEAD 一字未变** ✅
+- 连续两轮跑完，只有 bot6 的常规 memory 同步提交，**零护栏提交** ✅
+- 仓库现状：canonical 版本 4，bot2..bot6 副本全部 ver=4 / own-files=8 ✅
+
+### 巡检必查（防复发）
+```bash
+# 1) 护栏是否还在产生提交（正常应是 0）
+git log --format='%h %ad %an %s' --date=format:'%H:%M' origin/main --since='30 min ago' \
+  | grep '身份护栏自动修复' | wc -l
+# 2) canonical 版本号是否单调（不应反复翻转）
+git log --format='%h %ad %an %s' --date=format:'%H:%M' origin/main -- \
+  claw-mesh-deploy/scripts/claw-mesh-template-canonical.sh | head -5
+# 3) 各节点本机 canonical 版本是否一致
+for p in 16003 16004 16005 16006; do
+  ssh -A -i ~/.ssh/id_ed25519_backuptunnel -o BatchMode=yes root@198.44.179.155 \
+    "ssh -o BatchMode=yes -o StrictHostKeyChecking=no -p $p root@127.0.0.1 \
+     'grep -m1 CLAWMESH_TEMPLATE_VERSION /root/.openclaw/cron/claw-mesh-template-canonical.sh'"
+done
+```
+
+**教训（可推广）**：
+- **"本机优先"在多节点场景下是错的** —— 本机只是候选之一，
+  权威源永远在远端。护栏类脚本必须**按版本/时间选权威源**，不能按位置选。
+- **"护栏每轮都报 ✅"反而掩盖了问题** —— 护栏只检查"副本是否等于 canonical"，
+  而 canonical 本身在漂移 → 检查通过但内容在反复翻。
+  → 护栏必须**额外检查"canonical 本身有没有在变"**（版本号单调性）。
+- **多节点各跑同一个"自动修复器"时，修复器本身必须幂等且收敛**，
+  否则它就是一台"降级机"，比不装护栏更糟。
+
+## 82. ⚠️ 全集群 LLM 供应商集体失效 → picoclaw 心跳全挂（2026-10-29 10:44-15:50 实测，bot5）
 
 **症状**：bot3 的 picoclaw 每 30 分钟报一次 `LLM call failed`，
 错误 `InvalidEndpoint.ClosedEndpoint`（HTTP 400，coze 端点已关闭），**已连续 309 次**（10-23 起）；

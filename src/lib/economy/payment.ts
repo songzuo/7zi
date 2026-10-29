@@ -3,6 +3,7 @@
  * @module economy/payment
  */
 
+import { assertCents } from './wallet.js'
 import {
   PaymentOrder,
   PaymentStatus,
@@ -253,6 +254,15 @@ export class PaymentService {
     metadata: PaymentOrderMetadata = {},
     expiresInMinutes: number = 30
   ): Promise<{ order: PaymentOrder; paymentUrl?: string; clientSecret?: string }> {
+    if (!customerId || !agentId || !serviceId) {
+      throw new Error('customerId, agentId and serviceId are required')
+    }
+    // 金额必须是正整数分 —— 浮点金额会引入不可控的误差
+    assertCents(amount, 'Order amount')
+    if (!Number.isFinite(expiresInMinutes) || expiresInMinutes <= 0) {
+      throw new Error('expiresInMinutes must be a positive number')
+    }
+
     const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000)
 
     const order = await this.paymentRepo.create({
@@ -298,6 +308,24 @@ export class PaymentService {
       throw new Error(`不支持的支付方式: ${paymentMethod}`)
     }
 
+    // 幂等：同一订单 + 同一支付方式已有待处理交易时，直接复用，
+    // 避免重复调用 createPayment 造成「同一笔订单被支付两次」
+    const existing = order.transactions.find(
+      t => t.type === 'payment' && t.paymentMethod === paymentMethod && t.status === 'pending'
+    )
+    if (existing) {
+      const saved = existing.gatewayResponse
+      return {
+        paymentId: existing.externalTransactionId ?? existing.id,
+        ...(saved && typeof saved.paymentUrl === 'string'
+          ? { paymentUrl: saved.paymentUrl }
+          : {}),
+        ...(saved && typeof saved.clientSecret === 'string'
+          ? { clientSecret: saved.clientSecret }
+          : {}),
+      }
+    }
+
     // 创建支付
     const payment = await gateway.createPayment(order, returnUrl, cancelUrl)
 
@@ -310,6 +338,10 @@ export class PaymentService {
       status: 'pending',
       paymentMethod,
       externalTransactionId: payment.paymentId,
+      gatewayResponse: {
+        paymentUrl: payment.paymentUrl,
+        clientSecret: payment.clientSecret,
+      },
       createdAt: new Date(),
     }
 
@@ -325,6 +357,13 @@ export class PaymentService {
     orderId: string,
     paymentMethod: PaymentMethod
   ): Promise<PaymentOrder> {
+    const existingOrder = await this.getOrder(orderId)
+
+    // 幂等：订单已完成时直接返回，绝不重复完成 / 重复扣款
+    if (existingOrder.status === 'completed') {
+      return existingOrder
+    }
+
     const order = await this.getPendingOrder(orderId)
 
     if (paymentMethod === 'balance') {
@@ -346,8 +385,12 @@ export class PaymentService {
       throw new Error('未找到待处理的支付交易')
     }
 
+    if (!transaction.externalTransactionId) {
+      throw new Error('支付交易缺少外部交易号')
+    }
+
     // 验证支付
-    const result = await gateway.verifyPayment(transaction.externalTransactionId!)
+    const result = await gateway.verifyPayment(transaction.externalTransactionId)
 
     if (result.success) {
       // 更新交易状态
@@ -409,14 +452,43 @@ export class PaymentService {
       return { success: false, refundAmount: 0, remainingAmount: 0, error: '订单不存在' }
     }
 
-    if (order.status !== 'completed') {
+    // 已全额退款 / 已取消 / 未支付的订单都不可再退
+    if (order.status !== 'completed' && order.status !== 'partial_refunded') {
       return { success: false, refundAmount: 0, remainingAmount: 0, error: '订单状态不允许退款' }
     }
 
-    const refundAmount = request.amount === 0 ? order.amount : request.amount
+    // 已退款金额（幂等：重复退款请求不会把余额刷高）
+    const alreadyRefunded = order.transactions
+      .filter(t => t.type === 'refund' && t.status === 'completed')
+      .reduce((sum, t) => sum + t.amount, 0)
+    const remainingAmount = order.amount - alreadyRefunded
 
-    if (refundAmount > order.amount) {
-      return { success: false, refundAmount: 0, remainingAmount: 0, error: '退款金额超过订单金额' }
+    if (remainingAmount <= 0) {
+      return { success: false, refundAmount: 0, remainingAmount: 0, error: '订单已全额退款' }
+    }
+
+    if (typeof request.amount !== 'number' || !Number.isFinite(request.amount)) {
+      return { success: false, refundAmount: 0, remainingAmount: 0, error: '退款金额非法' }
+    }
+
+    if (!Number.isInteger(request.amount)) {
+      return { success: false, refundAmount: 0, remainingAmount: 0, error: '退款金额必须为整数分' }
+    }
+
+    if (request.amount < 0) {
+      return { success: false, refundAmount: 0, remainingAmount: 0, error: '退款金额不能为负数' }
+    }
+
+    // amount === 0 表示全额退款
+    const refundAmount = request.amount === 0 ? remainingAmount : request.amount
+
+    if (refundAmount > remainingAmount) {
+      return {
+        success: false,
+        refundAmount: 0,
+        remainingAmount,
+        error: '退款金额超过订单可退金额',
+      }
     }
 
     // 执行退款
@@ -424,7 +496,8 @@ export class PaymentService {
 
     if (success) {
       // 更新订单状态
-      const newStatus = refundAmount === order.amount ? 'refunded' : 'partial_refunded'
+      const newRemaining = remainingAmount - refundAmount
+      const newStatus = newRemaining === 0 ? 'refunded' : 'partial_refunded'
       await this.paymentRepo.update(order.id, {
         status: newStatus,
         refundedAt: new Date(),
@@ -433,7 +506,7 @@ export class PaymentService {
       return {
         success: true,
         refundAmount,
-        remainingAmount: order.amount - refundAmount,
+        remainingAmount: newRemaining,
       }
     }
 
