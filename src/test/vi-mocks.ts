@@ -370,8 +370,8 @@ function parseUpdateSets(sql: string): string[] | null {
  * Parse WHERE clause and extract column names and operators
  * Handles patterns like: WHERE col1 = ? AND col2 > ? OR col3 <= ?
  */
-function parseWhereClause(sql: string): Array<{column: string, operator: string, paramIndex: number}> {
-  const whereClauses: Array<{column: string, operator: string, paramIndex: number}> = []
+function parseWhereClause(sql: string): Array<{column: string, operator: string, paramIndex: number; literal?: unknown}> {
+  const whereClauses: Array<{column: string, operator: string, paramIndex: number; literal?: unknown}> = []
   const whereMatch = sql.match(/WHERE\s+(.+?)(?:\s+ORDER|\s+GROUP|\s+LIMIT|\s*$)/i)
   if (!whereMatch) return whereClauses
 
@@ -389,37 +389,85 @@ function parseWhereClause(sql: string): Array<{column: string, operator: string,
     })
   }
 
+  // 字面量条件：WHERE workflow_id = 'wf_x'
+  // 之前只认 `?` 占位符，字面量 WHERE 被整个忽略 ——
+  // 于是 UPDATE/DELETE 命中的是**所有行**而不是目标行
+  // （表现为「更新没生效」「删除条数不对」）。
+  // 注意：只处理不与占位符条件重复的列，避免重复计数。
+  const literalRegex = /(\w+)\s*(=|>=|<=|>|<)\s*'([^']*)'/gi
+  let literalMatch
+  while ((literalMatch = literalRegex.exec(wherePart)) !== null) {
+    const column = literalMatch[1].toLowerCase()
+    const operator = literalMatch[2]
+    if (whereClauses.some(c => c.column === column)) continue
+    whereClauses.push({
+      column,
+      operator,
+      paramIndex: -1,
+      literal: literalMatch[3],
+    })
+  }
+
   return whereClauses
 }
 
 /**
  * Check if a row matches the WHERE conditions
  */
-function rowMatchesConditions(row: DbRow, conditions: Array<{column: string, operator: string, paramIndex: number}>, params: unknown[]): boolean {
+function rowMatchesConditions(row: DbRow, conditions: Array<{column: string, operator: string, paramIndex: number; literal?: unknown}>, params: unknown[]): boolean {
   for (const cond of conditions) {
     const rowValue: unknown = row[cond.column]
-    const paramValue: unknown = params[cond.paramIndex]
+    // literal 条件（paramIndex = -1）用内联值，不看 params
+    const paramValue: unknown = cond.literal !== undefined ? cond.literal : params[cond.paramIndex]
 
     // 行里根本没有该列时（例如 INSERT 没写 recorded_at，而查询按它过滤），
     // 直接判不匹配。原先会把 undefined 丢进比较运算，既可能抛错，
     // 也可能因 NaN 语义产生"看起来通过"的假象。
     if (rowValue === undefined || rowValue === null) return false
 
+    // 大小比较：SQLite 里列的值可能是 ISO 日期字符串（如
+    // `WHERE timestamp < ?`，参数是 cutoffDate.toISOString()）。
+    // 直接 `(rowValue as number) > (paramValue as number)` 会把字符串转成 NaN，
+    // 恒为 false —— 表现为「清理旧历史一条都删不掉」。
+    // 所以：先按数值比，数值不可用时回退到日期字符串比较。
+    const compare = (op: '>' | '>=' | '<' | '<='): boolean => {
+      const numRow = Number(rowValue)
+      const numParam = Number(paramValue)
+      if (!Number.isNaN(numRow) && !Number.isNaN(numParam)) {
+        switch (op) {
+          case '>': return numRow > numParam
+          case '>=': return numRow >= numParam
+          case '<': return numRow < numParam
+          case '<=': return numRow <= numParam
+        }
+      }
+      // 回退：按日期字符串比较（ISO 8601 字典序 == 时间序）
+      const strRow = String(rowValue)
+      const strParam = String(paramValue)
+      switch (op) {
+        case '>': return strRow > strParam
+        case '>=': return strRow >= strParam
+        case '<': return strRow < strParam
+        case '<=': return strRow <= strParam
+      }
+      return false
+    }
+
     switch (cond.operator) {
       case '=':
         if (rowValue != paramValue) return false
         break
       case '>':
-        if (!((rowValue as number) > (paramValue as number))) return false
+        if (!compare('>')) return false
         break
       case '>=':
-        if (!((rowValue as number) >= (paramValue as number))) return false
+        if (!compare('>=')) return false
         break
       case '<':
-        if (!((rowValue as number) < (paramValue as number))) return false
+        if (!compare('<')) return false
         break
       case '<=':
-        if (!((rowValue as number) <= (paramValue as number))) return false
+        if (!compare('<=')) return false
         break
       case 'LIKE':
         // Simple LIKE support
@@ -516,26 +564,21 @@ function executeAll(sql: string, params?: unknown[]): DbRow[] {
   // Extract parameters based on query structure
   let paramIndex = 0
   
-  // Handle WHERE workflow_id = ?
-  const whereWorkflowMatch = sql.match(/WHERE\s+workflow_id\s+=\s+\?/i)
-  if (whereWorkflowMatch) {
-    const workflowId = params?.[paramIndex++] as string
-    results = results.filter(row => row.workflow_id === workflowId)
-  }
-
   // 通用 WHERE 处理。
   // 之前只特判了 workflow_id，其余 `WHERE col = ?` 条件被完全忽略 ——
   // 例如 `SELECT * FROM plans WHERE id = ?` 会返回表里第一行，
   // 表现为「按 id 查不到 / 查到别人」。
-  // workflow_id 分支已消费掉第 0 个参数，因此这里的 paramIndex 要相应后移。
+  //
+  // 注意：workflow_id 原来有个「特判分支」先过滤一遍并消费掉第 0 个参数，
+  // 通用分支又把 paramIndex 整体 +1 —— **参数被重复计数**，
+  // 于是 `WHERE workflow_id = ?` 拿 workflowId 去比 row[params[1]]（其实是 LIMIT 值），
+  // 结果恒为 false，所有行被过滤掉。
+  // （表现为 WorkflowHistoryService.queryHistory 返回 entries 空但 total 正确。）
+  //
+  // 现在：workflow_id 由通用分支统一处理，特判分支彻底移除。
   const whereConditions = parseWhereClause(sql)
   if (whereConditions.length > 0 && params && params.length > 0) {
-    const offset = whereWorkflowMatch ? 1 : 0
-    const shifted = whereConditions.map(cond => ({
-      ...cond,
-      paramIndex: cond.paramIndex + offset,
-    }))
-    results = results.filter(row => rowMatchesConditions(row, shifted, params))
+    results = results.filter(row => rowMatchesConditions(row, whereConditions, params))
   }
 
   // Handle ORDER BY
@@ -735,10 +778,25 @@ function executeRun(sql: string, params: unknown[]): DatabaseResult {
     let paramIndex = 0
 
     for (const setCol of setColumns) {
-      if (setCol.includes('?')) {
-        const colName = setCol.split('=')[0].trim()
+      const eqIdx = setCol.indexOf('=')
+      if (eqIdx < 0) continue
+      const colName = setCol.slice(0, eqIdx).trim()
+      const rawValue = setCol.slice(eqIdx + 1).trim()
+
+      if (rawValue === '?') {
         updates[colName] = params[paramIndex]
         paramIndex++
+      } else if (
+        (rawValue.startsWith("'") && rawValue.endsWith("'")) ||
+        (rawValue.startsWith('"') && rawValue.endsWith('"'))
+      ) {
+        // 字面量字符串 —— 之前被整个忽略，导致
+        // `UPDATE ... SET timestamp = '2025-01-01...' WHERE ...` 不生效，
+        // （表现为「清理旧历史一条都删不掉」：行没被改成旧时间）。
+        updates[colName] = rawValue.slice(1, -1)
+      } else if (rawValue !== 'NULL') {
+        const num = Number(rawValue)
+        updates[colName] = Number.isNaN(num) ? rawValue : num
       }
     }
 
