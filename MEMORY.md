@@ -249,3 +249,13 @@ sshpass -p "$SSH_PASSWORD" ssh root@7zi.com
 ---
 
 *最后更新: 2026-10-19 07:05 UTC*
+
+---
+
+## 📋 第23轮派发（2026-10-30 01:38）
+
+- 上一轮 T260/T261 **从未真正执行**（文件 mtime 仍是 10-25，仓库零改动）。教训：派发后必须 `subagents list` 回验 running，不能只信任务书里的 session id。
+- 本轮 6 个并行子代理（全部已回验 running）：T260R/T261R（重派去重实现）、T262（billing 零测试）、T263（config-center 4893 行仅 1 测试）、T264（OT vs CRDT 双栈审计）、T265（A2A 协议 + 鉴权漏洞）。
+- 新发现的调度盲区：T240 技术债审计只扫了「未使用导出」和「重复代码」，**没扫测试覆盖率空白** —— billing/config-center 这类大面积零测试模块因此长期漏网。后续审计需补覆盖率维度。
+- T260 的陷阱：`repository.ts` 比 `repository-optimized-v2.ts` 多导出 `mapRowToAgent`，直接 `export *` 会丢导出。
+- T264 的关键事实：CRDT 栈 `src/lib/collab/` **全仓无生产 import**（只有自己的 5 个测试），OT 栈 `src/lib/collaboration/` 才是事实标准（websocket 生产路径在用）。两栈 `Operation` 同名但语义不同。
