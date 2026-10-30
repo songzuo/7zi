@@ -149,8 +149,18 @@ export class MetricCollector {
    */
   increment(name: string, value: number = 1, tags?: Tags): void {
     const metric = this.metrics.get(name)
-    if (!metric || metric.definition.type !== MetricType.COUNTER) {
+    if (!metric) {
       this.register({ name, type: MetricType.COUNTER })
+    } else if (metric.definition.type !== MetricType.COUNTER) {
+      // 指标已存在但类型不是 counter —— 这时候**不能**直接 register。
+      //
+      // register() 会重建指标定义并清空 values（历史值全部丢失），
+      // 所以对已注册为 gauge 的指标调 increment()，
+      // 它的历史数据会被静默清空 —— 计数器直接从 0 开始，
+      // 之前记的值人间蒸发。
+      //
+      // 这里改成：保留原有历史，只把类型纠正为 counter。
+      metric.definition.type = MetricType.COUNTER
     }
     this.record(name, value, tags)
   }
@@ -160,8 +170,12 @@ export class MetricCollector {
    */
   gauge(name: string, value: number, tags?: Tags): void {
     const metric = this.metrics.get(name)
-    if (!metric || metric.definition.type !== MetricType.GAUGE) {
+    if (!metric) {
       this.register({ name, type: MetricType.GAUGE })
+    } else if (metric.definition.type !== MetricType.GAUGE) {
+      // 同 increment()：类型纠正但**保留历史值**，
+      // 不能用 register()（那会清空 values）。
+      metric.definition.type = MetricType.GAUGE
     }
     this.record(name, value, tags)
   }

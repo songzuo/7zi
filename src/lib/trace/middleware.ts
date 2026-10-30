@@ -159,7 +159,11 @@ export async function withTrace<_T>(
     tm.setAttribute(span, 'http.status_code', response.status)
 
     // 7. 结束 Span
-    tm.endSpan(span, { code: 1 }) // OK
+    // SpanStatusCode.OK = 0，ERROR = 1（见 observability/types.ts）。
+    // 原来写的是 `code: 1`，那等于把**每一次成功请求**都标成 ERROR ——
+    // 注释还写着 "// OK"，代码和注释正好相反。
+    // 结果：所有正常请求在追踪里都是 error，成功率统计全错。
+    tm.endSpan(span, { code: 0 }) // OK
 
     return response
   } catch (error) {
