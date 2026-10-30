@@ -8,9 +8,12 @@ import {
   IMessageOptions,
   IQueueConfig,
   IQueueStats,
-  QueueType
+  QueueType,
 } from '../types';
 import { Message } from './message';
+
+/** 默认可见性超时 (毫秒): 已被消费但未确认的消息在此窗口内不会重复投递 */
+const DEFAULT_VISIBILITY_TIMEOUT = 30000;
 
 /**
  * 队列抽象基类
@@ -28,11 +31,18 @@ export abstract class Queue {
   /** 统计信息 */
   protected stats: IQueueStats;
 
+  /** 可见性超时 (毫秒): 消费中消息在此时长内不会重复投递 */
+  protected visibilityTimeout: number;
+
+  /** 消费中 (in-flight) 的消息: messageId -> 重新可见的时间戳 */
+  protected inFlight: Map<string, number> = new Map();
+
   /** 是否已初始化 */
   protected initialized: boolean = false;
 
   constructor(config: IQueueConfig) {
     this.config = config;
+    this.visibilityTimeout = config.visibilityTimeout ?? DEFAULT_VISIBILITY_TIMEOUT;
     this.stats = this.initStats();
   }
 
@@ -99,6 +109,9 @@ export abstract class Queue {
   public async consume(consumerId?: string): Promise<IMessage | null> {
     this.ensureInitialized();
 
+    // 释放可见性超时的消息, 允许重新投递
+    this.releaseExpiredInFlight();
+
     const message = await this.onConsume(consumerId);
     
     if (message) {
@@ -106,6 +119,19 @@ export abstract class Queue {
     }
     
     return message?.toJSON() ?? null;
+  }
+
+  /**
+   * 选定一条待投递消息: 标记消费中并进入处理状态
+   *
+   * 该方法必须在子类选取消息时同步调用, 以保证并发消费时
+   * 同一条消息不会被同时投递给多个消费者
+   */
+  protected deliver(message: Message, consumerId?: string): Message {
+    // 标记为消费中: 在可见性超时窗口内不会重复投递给其他消费者
+    this.markInFlight(message.id);
+    message.markProcessing(consumerId);
+    return message;
   }
 
   /**
@@ -125,6 +151,8 @@ export abstract class Queue {
     
     // 从队列中移除已确认的消息
     this.removeMessage(messageId);
+    this.clearInFlight(messageId);
+    this.updateStats('acknowledge');
   }
 
   /**
@@ -142,10 +170,48 @@ export abstract class Queue {
 
     if (requeue && message.canRetry()) {
       message.markRetrying();
+      // 重新入队: 解除消费中标记, 使消息可以再次被投递
+      this.clearInFlight(messageId);
       await this.onRequeue(message);
     } else {
       message.markRejected();
       this.removeMessage(messageId);
+      this.clearInFlight(messageId);
+    }
+  }
+
+  /**
+   * 标记消息为消费中
+   */
+  protected markInFlight(messageId: string): void {
+    this.inFlight.set(messageId, Date.now() + this.visibilityTimeout);
+  }
+
+  /**
+   * 解除消费中标记
+   */
+  protected clearInFlight(messageId: string): void {
+    this.inFlight.delete(messageId);
+  }
+
+  /**
+   * 检查消息是否仍在消费中 (未超过可见性超时)
+   */
+  protected isInFlight(messageId: string): boolean {
+    const deadline = this.inFlight.get(messageId);
+    if (deadline === undefined) return false;
+    return Date.now() < deadline;
+  }
+
+  /**
+   * 释放可见性超时的消息, 使其可以重新被投递
+   */
+  protected releaseExpiredInFlight(): void {
+    const now = Date.now();
+    for (const [messageId, deadline] of this.inFlight) {
+      if (now >= deadline) {
+        this.inFlight.delete(messageId);
+      }
     }
   }
 
@@ -194,16 +260,22 @@ export abstract class Queue {
   /**
    * 更新统计信息
    */
-  protected updateStats(type: 'produce' | 'consume'): void {
+  protected updateStats(type: 'produce' | 'consume' | 'acknowledge'): void {
     const now = Date.now();
     
     if (type === 'produce') {
       this.stats.totalMessages++;
       this.stats.pendingMessages = this.messageOrder.length;
       this.stats.produceRate = this.calculateRate('produce');
-    } else {
-      this.stats.acknowledgedMessages++;
+    } else if (type === 'consume') {
+      // 已投递但尚未确认: 计入处理中
+      this.stats.processingMessages = this.inFlight.size;
       this.stats.consumeRate = this.calculateRate('consume');
+    } else {
+      // 确认后才计入已确认数
+      this.stats.acknowledgedMessages++;
+      this.stats.processingMessages = this.inFlight.size;
+      this.stats.pendingMessages = this.messageOrder.length;
     }
     
     this.stats.lastUpdated = now;

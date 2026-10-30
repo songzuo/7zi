@@ -78,14 +78,16 @@ export class DeadLetterQueue extends Queue {
     // 死信队列的消息通常需要手动处理
     for (const messageId of this.messageOrder) {
       const message = this.messages.get(messageId);
-      
+
       if (!message) continue;
-      
-      // 标记为处理中
-      message.markProcessing(consumerId);
-      return message;
+
+      // 跳过仍在消费中 (尚未被确认) 的消息, 避免重复投递
+      if (this.isInFlight(messageId)) continue;
+
+      // 标记为处理中并登记 in-flight
+      return this.deliver(message, consumerId);
     }
-    
+
     return null;
   }
 

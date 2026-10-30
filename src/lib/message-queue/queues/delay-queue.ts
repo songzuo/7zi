@@ -46,13 +46,18 @@ export class DelayQueue extends Queue {
         continue;
       }
       
+      // 跳过仍在消费中 (尚未被确认) 的消息, 避免重复投递
+      if (this.isInFlight(messageId)) {
+        continue;
+      }
+      
       // 检查延迟是否到期
       if (message.delay && message.needsDelay()) {
         continue;
       }
       
-      // 标记为处理中
-      message.markProcessing(consumerId);
+      // 标记为处理中并登记 in-flight, 保证并发消费时同一条消息不会被重复投递
+      this.deliver(message, consumerId);
       
       // 清理定时器
       this.clearTimer(messageId);

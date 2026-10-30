@@ -315,6 +315,8 @@ export class Consumer {
    * 获取统计信息
    */
   public getStats(): IConsumerStats {
+    // 状态是实时变化的, 必须在读取时同步, 否则永远停留在构造时的 IDLE
+    this.stats.status = this.status;
     this.stats.lastUpdated = Date.now();
     return { ...this.stats };
   }

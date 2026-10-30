@@ -140,6 +140,11 @@ export interface IQueueConfig {
   maxSize?: number;
   /** 消息TTL (毫秒) */
   messageTTL?: number;
+  /**
+   * 可见性超时 (毫秒)
+   * 已被消费但尚未确认的消息, 在此时间窗口内不会被重复投递给其他消费者
+   */
+  visibilityTimeout?: number;
   /** 死信队列配置 */
   deadLetterQueue?: {
     /** 是否启用 */
