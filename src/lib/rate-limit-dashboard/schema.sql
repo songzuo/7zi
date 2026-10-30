@@ -74,7 +74,10 @@ CREATE TABLE IF NOT EXISTS rate_limit_events (
   rule_id TEXT,
   allowed BOOLEAN NOT NULL,
   remaining INTEGER,
-  limit INTEGER,
+  -- 列名不能叫 limit：SQLite 里 LIMIT 是保留字，
+  -- `CREATE TABLE ... (limit INTEGER)` 直接报 "near "limit": syntax error"，
+  -- 导致 initializeDatabase() 整体失败 —— 整个仪表板数据库层从来就没建起来过。
+  max_requests INTEGER,
   algorithm TEXT NOT NULL,
   timestamp INTEGER NOT NULL,
   metadata TEXT

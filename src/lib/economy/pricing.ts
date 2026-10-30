@@ -31,6 +31,10 @@ class InMemoryPricingRepository {
     return this.pricings.get(pricingId) || null
   }
 
+  async findById(id: string): Promise<ServicePricing | null> {
+    return this.pricings.get(id) || null
+  }
+
   async findByAgentId(agentId: string): Promise<ServicePricing[]> {
     return Array.from(this.pricings.values()).filter(p => p.agentId === agentId)
   }
@@ -95,7 +99,10 @@ class InMemoryCouponRepository {
   private usageRecords: Map<string, CouponUsage[]> = new Map() // couponId -> usages
 
   async findByCode(code: string): Promise<Coupon | null> {
-    const couponId = this.codeIndex.get(code)
+    // 券码统一按大写归一化存储与查找，避免「用户输入小写 → 查不到券」
+    // 这种静默失败（用户看到的是「优惠券不存在」，实际是自己打了小写）。
+    const normalized = code.toUpperCase()
+    const couponId = this.codeIndex.get(normalized) ?? this.codeIndex.get(code)
     if (!couponId) return null
     return this.coupons.get(couponId) || null
   }
@@ -121,7 +128,7 @@ class InMemoryCouponRepository {
     }
 
     this.coupons.set(id, newCoupon)
-    this.codeIndex.set(coupon.code, id)
+    this.codeIndex.set(coupon.code.toUpperCase(), id)
     this.usageRecords.set(id, [])
 
     return newCoupon

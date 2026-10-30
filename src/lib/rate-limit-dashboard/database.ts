@@ -445,6 +445,26 @@ export class WhitelistRepository {
 // Rate Limit Events Repository
 // ============================================================================
 
+/**
+ * 把 rate_limit_events 表的一行转成 RateLimitEvent
+ *
+ * 表里存的是 `max_requests`（`limit` 是 SQLite 保留字，建表时不能用），
+ * 而对外的 RateLimitEvent 类型字段叫 `limit` —— 这里做一次映射。
+ * 同时把 allowed 从 0/1 转成 boolean、metadata 从 JSON 字符串解回对象。
+ */
+function toRateLimitEvent(row: Record<string, unknown>): RateLimitEvent {
+  return {
+    ...(row as unknown as RateLimitEvent),
+    limit: Number(row.max_requests ?? row.limit ?? 0),
+    allowed: Number(row.allowed) === 1,
+    metadata: row.metadata
+      ? (typeof row.metadata === 'string'
+          ? (JSON.parse(row.metadata) as Record<string, unknown>)
+          : (row.metadata as Record<string, unknown>))
+      : undefined,
+  }
+}
+
 export class RateLimitEventsRepository {
   private db: Database.Database
 
@@ -457,7 +477,7 @@ export class RateLimitEventsRepository {
 
     const stmt = this.db.prepare(`
       INSERT INTO rate_limit_events (
-        id, identifier, path, rule_id, allowed, remaining, limit,
+        id, identifier, path, rule_id, allowed, remaining, max_requests,
         algorithm, timestamp, metadata
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `)
@@ -480,15 +500,11 @@ export class RateLimitEventsRepository {
 
   async findById(id: string): Promise<RateLimitEvent | null> {
     const stmt = this.db.prepare('SELECT * FROM rate_limit_events WHERE id = ?')
-    const row = stmt.get(id) as RateLimitEvent | undefined
+    const row = stmt.get(id) as Record<string, unknown> | undefined
 
     if (!row) return null
 
-    return {
-      ...row,
-      allowed: Number(row.allowed) === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
-    }
+    return toRateLimitEvent(row)
   }
 
   async findByIdentifier(
@@ -501,13 +517,9 @@ export class RateLimitEventsRepository {
       ORDER BY timestamp DESC
       LIMIT ?
     `)
-    const rows = stmt.all(identifier, limit) as RateLimitEvent[]
+    const rows = stmt.all(identifier, limit) as Record<string, unknown>[]
 
-    return rows.map(row => ({
-      ...row,
-      allowed: Number(row.allowed) === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
-    }))
+    return rows.map(toRateLimitEvent)
   }
 
   async findByTimeRange(startTime: number, endTime: number, limit: number = 1000): Promise<RateLimitEvent[]> {
@@ -517,13 +529,9 @@ export class RateLimitEventsRepository {
       ORDER BY timestamp DESC
       LIMIT ?
     `)
-    const rows = stmt.all(startTime, endTime, limit) as RateLimitEvent[]
+    const rows = stmt.all(startTime, endTime, limit) as Record<string, unknown>[]
 
-    return rows.map(row => ({
-      ...row,
-      allowed: Number(row.allowed) === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
-    }))
+    return rows.map(toRateLimitEvent)
   }
 
   async cleanup(olderThan: number): Promise<number> {

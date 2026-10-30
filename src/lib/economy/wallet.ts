@@ -3,6 +3,7 @@
  * @module economy/wallet
  */
 
+import { KeyedMutex } from './concurrency.js'
 import {
   AgentWallet,
   Transaction,
@@ -235,42 +236,6 @@ class InMemoryTransactionRepository implements ITransactionRepository {
 
   private generateId(): string {
     return `txn_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
-  }
-}
-
-// ==================== 并发锁 ====================
-
-/**
- * 按 key 串行化的异步锁
- *
- * 余额的「读-判断-写」必须串行，否则并发扣费会同时通过余额校验，
- * 造成超扣（余额变负）——这是真金白银的资损。
- */
-class KeyedMutex {
-  private chains: Map<string, Promise<unknown>> = new Map()
-
-  async run<T>(key: string, fn: () => Promise<T>): Promise<T> {
-    const previous = this.chains.get(key) ?? Promise.resolve()
-
-    const current = previous.then(
-      () => fn(),
-      () => fn()
-    )
-
-    // 记录一条「永不 reject」的链，保证后续调用者能继续排队
-    const tracked = current.then(
-      () => undefined,
-      () => undefined
-    )
-    this.chains.set(key, tracked)
-
-    try {
-      return await current
-    } finally {
-      if (this.chains.get(key) === tracked) {
-        this.chains.delete(key)
-      }
-    }
   }
 }
 

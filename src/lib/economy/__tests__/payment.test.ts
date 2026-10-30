@@ -166,12 +166,22 @@ describe('PaymentService', () => {
     })
 
     it('已过期的订单发起支付会被取消并抛错', async () => {
-      const order = await createOrder(1000, -1)
-      await expect(service.initiatePayment(order.id, 'stripe')).rejects.toThrow(
-        /订单已过期/
-      )
-      const updated = await service.getOrder(order.id)
-      expect(updated.status).toBe('cancelled')
+      // 用「推进时间」让订单自然过期，而不是传非法的负有效期
+      // （createOrder 对非正 expiresInMinutes 直接拒绝，那是另一个用例的职责）。
+      vi.useFakeTimers({ shouldAdvanceTime: true })
+      try {
+        const order = await createOrder(1000, 30)
+        // 推进 31 分钟，跨过 expiresAt
+        vi.advanceTimersByTime(31 * 60 * 1000)
+
+        await expect(service.initiatePayment(order.id, 'stripe')).rejects.toThrow(
+          /订单已过期/
+        )
+        const updated = await service.getOrder(order.id)
+        expect(updated.status).toBe('cancelled')
+      } finally {
+        vi.useRealTimers()
+      }
     })
 
     it('余额支付直接完成订单', async () => {
