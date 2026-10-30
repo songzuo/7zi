@@ -260,14 +260,38 @@ export class VersionManager {
     
     // 临时使用内存存储 (实际应使用持久化存储)
     this.versionStore.set(version.configId, versions);
+
+    // 维护 key -> configIds 索引，
+    // 使版本查询既能通过 configId 也能通过配置键名定位
+    // (同一个 key 可能存在于多个环境，每个环境有各自的 configId)
+    const ids = this.keyIndex.get(version.key) || new Set<string>();
+    ids.add(version.configId);
+    this.keyIndex.set(version.key, ids);
   }
 
   /**
    * 获取版本列表
+   *
+   * identifier 可以是 configId，也可以是配置键名 (key)。
    */
-  private async getVersions(configId: string): Promise<ConfigVersion[]> {
+  private async getVersions(identifier: string): Promise<ConfigVersion[]> {
     // 临时使用内存存储 (实际应使用持久化存储)
-    return this.versionStore.get(configId) || [];
+    const direct = this.versionStore.get(identifier);
+    if (direct) {
+      return direct;
+    }
+
+    // 按配置键名解析到所有 configId (跨环境合并)
+    const configIds = this.keyIndex.get(identifier);
+    if (configIds) {
+      const merged: ConfigVersion[] = [];
+      for (const configId of configIds) {
+        merged.push(...(this.versionStore.get(configId) || []));
+      }
+      return merged;
+    }
+
+    return [];
   }
 
   /**
@@ -285,6 +309,9 @@ export class VersionManager {
 
   // 临时内存存储 (实际应使用持久化存储)
   private versionStore: Map<string, ConfigVersion[]> = new Map();
+
+  // 配置键名 -> configId 集合 索引 (跨环境)
+  private keyIndex: Map<string, Set<string>> = new Map();
 
   /**
    * 批量获取版本历史

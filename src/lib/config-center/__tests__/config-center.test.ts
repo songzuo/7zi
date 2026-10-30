@@ -24,6 +24,24 @@ describe('ConfigCenter', () => {
     });
 
     await configCenter.initialize();
+
+    // 访问控制是 deny-by-default 的：没显式授权就一律拒绝。
+    // 测试要覆盖写入/删除等受保护操作，必须先给这些主体授权，
+    // 否则所有 set/delete 都会抛 "does not have write permission"。
+    // 覆盖测试里用到的全部 userId（通配资源 '*'，动作覆盖读写删）。
+    for (const uid of [
+      'test-user',
+      'audit-user',
+      'user1',
+      'user2',
+      'admin-user',
+      'auditor',
+      'expired-user',
+      'denied-user',
+      'operator',
+    ]) {
+      await configCenter.grantAccess(uid, ['read', 'write', 'delete']);
+    }
   });
 
   afterAll(async () => {
@@ -272,11 +290,16 @@ describe('ConfigCenter', () => {
       expect(auditLogger).toBeDefined();
       expect(auditLogger).not.toBeNull();
 
+      // 审计日志里 resourceId 是配置项的 UUID，resourceName 才是配置键。
+      // 用 resourceId='audit.key' 查永远查不到（键不是 UUID）。
       const logs = await auditLogger!.query({
-        resourceId: 'audit.key',
+        resourceName: 'audit.key',
       });
 
       expect(logs.length).toBeGreaterThan(0);
+      expect(logs[0].resourceName).toBe('audit.key');
+      expect(logs[0].operatorId).toBe('audit-user');
+      expect(logs[0].action).toBe('create');
     });
   });
 });
