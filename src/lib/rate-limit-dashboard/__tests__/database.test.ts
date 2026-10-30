@@ -552,11 +552,19 @@ describe('rate-limit-dashboard 数据库层', () => {
     it('count 应与 findAll 的过滤结果一致', async () => {
       const repo = new dbModule.SecurityAlertsRepository()
       await repo.create(alert({ severity: 'critical' }))
-      await repo.create(alert({ severity: 'low' }))
+      // 安全告警的 severity 取值域是 info/warning/error/critical（表里有 CHECK 约束），
+      // 不能用攻击事件的 low/medium/high —— 那是 attack_events 的口径。
+      await repo.create(alert({ severity: 'info' }))
 
       const critical = await repo.count({ severity: 'critical' })
       expect(critical).toBe(1)
       expect(await repo.count()).toBe(2)
+
+      // count 与 findAll 的 meta.total 必须恒等
+      const all = await repo.findAll({ severity: 'critical' })
+      expect(critical).toBe(all.meta.total)
+      expect(all.items).toHaveLength(1)
+      expect(all.items[0].severity).toBe('critical')
     })
   })
 

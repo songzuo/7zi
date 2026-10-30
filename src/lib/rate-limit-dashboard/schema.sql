@@ -189,18 +189,29 @@ SELECT * FROM rate_limit_rules WHERE enabled = 1;
 
 -- View: Expired blacklist entries
 CREATE VIEW IF NOT EXISTS v_expired_blacklist AS
-SELECT * FROM blacklist WHERE expires_at IS NOT NULL AND expires_at < strftime('%s', 'now') * 1000;
+SELECT * FROM blacklist
+WHERE expires_at IS NOT NULL
+  AND expires_at < CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER);
 
 -- ============================================================================
 -- Triggers for Automatic Updates
 -- ============================================================================
 
 -- Trigger: Update updated_at timestamp on rate_limit_rules
+--
+-- ⚠️ 这里必须用毫秒精度，不能用 `strftime('%s','now') * 1000`：
+-- strftime('%s') 只精确到**整秒**，乘 1000 之后得到的值总是被截断到秒边界。
+-- 而 create() 写入的 created_at / updated_at 是 JS 的 Date.now()（毫秒精度），
+-- 于是更新一条记录后 updated_at 会**倒退**（比更新前的值还小），
+-- 调用方拿到的 updatedAt 完全不可信。
+-- `julianday('now')` 自带亚秒精度，(jd - 2440587.5) * 86400000 即 Unix 毫秒。
 CREATE TRIGGER IF NOT EXISTS trg_rate_limit_rules_updated_at
 AFTER UPDATE ON rate_limit_rules
 FOR EACH ROW
 BEGIN
-  UPDATE rate_limit_rules SET updated_at = strftime('%s', 'now') * 1000 WHERE id = NEW.id;
+  UPDATE rate_limit_rules
+  SET updated_at = CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER)
+  WHERE id = NEW.id;
 END;
 
 -- ============================================================================
@@ -210,11 +221,11 @@ END;
 -- Insert common rate limit rules
 INSERT OR IGNORE INTO rate_limit_rules (id, name, description, pattern, algorithm, window_ms, max_requests, key_type, priority, enabled, created_at, updated_at)
 VALUES
-  ('rule-auth-login', 'Auth Login Limit', 'Limit login attempts per IP', '/api/auth/login', 'sliding-window', 60000, 5, 'ip', 10, 1, strftime('%s', 'now') * 1000, strftime('%s', 'now') * 1000),
-  ('rule-auth-register', 'Auth Register Limit', 'Limit registration attempts per IP', '/api/auth/register', 'sliding-window', 60000, 3, 'ip', 10, 1, strftime('%s', 'now') * 1000, strftime('%s', 'now') * 1000),
-  ('rule-api-default', 'Default API Limit', 'Default limit for all API endpoints', '/api/', 'sliding-window', 60000, 100, 'ip', 0, 1, strftime('%s', 'now') * 1000, strftime('%s', 'now') * 1000),
-  ('rule-public-api', 'Public API Limit', 'Limit for public API endpoints', '/api/public/', 'token-bucket', 60000, 300, 'ip', 5, 1, strftime('%s', 'now') * 1000, strftime('%s', 'now') * 1000),
-  ('rule-admin-api', 'Admin API Limit', 'Strict limit for admin endpoints', '/api/admin/', 'sliding-window', 60000, 60, 'user', 10, 1, strftime('%s', 'now') * 1000, strftime('%s', 'now') * 1000);
+  ('rule-auth-login', 'Auth Login Limit', 'Limit login attempts per IP', '/api/auth/login', 'sliding-window', 60000, 5, 'ip', 10, 1, CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER), CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER)),
+  ('rule-auth-register', 'Auth Register Limit', 'Limit registration attempts per IP', '/api/auth/register', 'sliding-window', 60000, 3, 'ip', 10, 1, CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER), CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER)),
+  ('rule-api-default', 'Default API Limit', 'Default limit for all API endpoints', '/api/', 'sliding-window', 60000, 100, 'ip', 0, 1, CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER), CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER)),
+  ('rule-public-api', 'Public API Limit', 'Limit for public API endpoints', '/api/public/', 'token-bucket', 60000, 300, 'ip', 5, 1, CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER), CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER)),
+  ('rule-admin-api', 'Admin API Limit', 'Strict limit for admin endpoints', '/api/admin/', 'sliding-window', 60000, 60, 'user', 10, 1, CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER), CAST(ROUND((julianday('now') - 2440587.5) * 86400000) AS INTEGER));
 
 -- ============================================================================
 -- End of Migration

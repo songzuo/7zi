@@ -21,6 +21,7 @@ import type {
   PaginationResponse,
   RuleFilters,
   SecurityFilters,
+  AttackEventFilters,
 } from './types'
 
 // ============================================================================
@@ -87,6 +88,108 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 
+/**
+ * 解析数据库里存成 TEXT 的 JSON 列。
+ * 坏数据不让整条查询炸掉 —— 返回 undefined 表示"没有可解析的内容"。
+ */
+function parseJsonColumn(value: unknown): Record<string, unknown> | undefined {
+  if (value === null || value === undefined || value === '') return undefined
+
+  // 数组不是 Record<string, unknown> —— 直接排除，否则脏数据会把数组漏给调用方
+  if (Array.isArray(value)) return undefined
+
+  if (typeof value === 'object') {
+    return value as Record<string, unknown>
+  }
+
+  if (typeof value !== 'string') return undefined
+
+  try {
+    const parsed = JSON.parse(value) as unknown
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return undefined
+    return parsed as Record<string, unknown>
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * 把 snake_case 的数据库行转成对外的 camelCase 类型。
+ *
+ * 缺陷背景：表里的列名是 `window_ms` / `max_requests` / `key_type` / `created_at`，
+ * 而对外的 `RateLimitRule` 用的是 `windowMs` / `maxRequests` / `keyType` / `createdAt`。
+ * 直接 `SELECT *` 透传出去，调用方拿到的 `windowMs` 是 `undefined` —— 限流规则读回来全是空字段。
+ */
+function toRateLimitRule(row: Record<string, unknown>): RateLimitRule {
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    description: row.description === null || row.description === undefined ? undefined : String(row.description),
+    pattern: String(row.pattern),
+    algorithm: row.algorithm as RateLimitRule['algorithm'],
+    windowMs: Number(row.window_ms),
+    maxRequests: Number(row.max_requests),
+    keyType: row.key_type as RateLimitRule['keyType'],
+    priority: Number(row.priority ?? 0),
+    enabled: Number(row.enabled) === 1,
+    createdAt: Number(row.created_at),
+    updatedAt: Number(row.updated_at),
+  }
+}
+
+function toBlacklistEntry(row: Record<string, unknown>): BlacklistEntry {
+  return {
+    id: String(row.id),
+    type: row.type as BlacklistEntry['type'],
+    value: String(row.value),
+    reason: row.reason === null || row.reason === undefined ? undefined : String(row.reason),
+    expiresAt: row.expires_at === null || row.expires_at === undefined ? null : Number(row.expires_at),
+    createdBy: row.created_by === null || row.created_by === undefined ? undefined : String(row.created_by),
+    createdAt: Number(row.created_at),
+  }
+}
+
+function toWhitelistEntry(row: Record<string, unknown>): WhitelistEntry {
+  return {
+    id: String(row.id),
+    type: row.type as WhitelistEntry['type'],
+    value: String(row.value),
+    description: row.description === null || row.description === undefined ? undefined : String(row.description),
+    createdBy: row.created_by === null || row.created_by === undefined ? undefined : String(row.created_by),
+    createdAt: Number(row.created_at),
+  }
+}
+
+function toAttackEvent(row: Record<string, unknown>): AttackEvent {
+  return {
+    id: String(row.id),
+    type: row.type as AttackEvent['type'],
+    identifier: String(row.identifier),
+    severity: row.severity as AttackEvent['severity'],
+    description: row.description === null || row.description === undefined ? undefined : String(row.description),
+    evidence: parseJsonColumn(row.evidence),
+    detectedAt: Number(row.detected_at),
+    resolved: Number(row.resolved) === 1,
+    resolvedAt: row.resolved_at === null || row.resolved_at === undefined ? undefined : Number(row.resolved_at),
+    resolvedBy: row.resolved_by === null || row.resolved_by === undefined ? undefined : String(row.resolved_by),
+  }
+}
+
+function toSecurityAlert(row: Record<string, unknown>): SecurityAlert {
+  return {
+    id: String(row.id),
+    type: String(row.type),
+    severity: row.severity as SecurityAlert['severity'],
+    title: String(row.title),
+    message: row.message === null || row.message === undefined ? undefined : String(row.message),
+    metadata: parseJsonColumn(row.metadata),
+    dismissed: Number(row.dismissed) === 1,
+    dismissedAt: row.dismissed_at === null || row.dismissed_at === undefined ? undefined : Number(row.dismissed_at),
+    dismissedBy: row.dismissed_by === null || row.dismissed_by === undefined ? undefined : String(row.dismissed_by),
+    createdAt: Number(row.created_at),
+  }
+}
+
 function buildPaginationSQL(params: PaginationParams): { limit: number; offset: number } {
   const limit = Math.min(params.limit || 20, 100)
   const page = Math.max(params.page || 1, 1)
@@ -126,6 +229,30 @@ function buildWhereClause(filters: RuleFilters): { where: string; params: unknow
   }
 }
 
+/**
+ * 安全告警的 WHERE 条件 —— `findAll` 与 `count` 共用同一份，
+ * 保证 "count 的结果 == findAll 过滤后的条数" 恒成立。
+ */
+function buildSecurityAlertWhere(filters?: SecurityFilters): { where: string; params: unknown[] } {
+  const conditions: string[] = []
+  const params: unknown[] = []
+
+  if (filters?.severity) {
+    conditions.push('severity = ?')
+    params.push(filters.severity)
+  }
+
+  if (filters?.dismissed !== undefined) {
+    conditions.push('dismissed = ?')
+    params.push(filters.dismissed ? 1 : 0)
+  }
+
+  return {
+    where: conditions.length > 0 ? conditions.join(' AND ') : '1=1',
+    params,
+  }
+}
+
 // ============================================================================
 // Rate Limit Rules Repository
 // ============================================================================
@@ -152,13 +279,10 @@ export class RateLimitRulesRepository {
       ORDER BY priority DESC, created_at DESC
       LIMIT ? OFFSET ?
     `)
-    const items = itemsStmt.all(...whereParams, limit, offset) as RateLimitRule[]
+    const items = itemsStmt.all(...whereParams, limit, offset) as Record<string, unknown>[]
 
-    // Convert boolean values
-    const convertedItems = items.map(item => ({
-      ...item,
-      enabled: Number(item.enabled) === 1,
-    }))
+    // 把 snake_case 列名映射成对外的 camelCase 字段，并转换布尔值
+    const convertedItems = items.map(toRateLimitRule)
 
     const totalPages = Math.ceil(total / limit)
 
@@ -177,14 +301,11 @@ export class RateLimitRulesRepository {
 
   async findById(id: string): Promise<RateLimitRule | null> {
     const stmt = this.db.prepare('SELECT * FROM rate_limit_rules WHERE id = ?')
-    const row = stmt.get(id) as RateLimitRule | undefined
+    const row = stmt.get(id) as Record<string, unknown> | undefined
 
     if (!row) return null
 
-    return {
-      ...row,
-      enabled: Number(row.enabled) === 1,
-    }
+    return toRateLimitRule(row)
   }
 
   async create(dto: CreateRateLimitRuleDTO): Promise<RateLimitRule> {
@@ -213,7 +334,10 @@ export class RateLimitRulesRepository {
       now
     )
 
-    return this.findById(id)! as Promise<RateLimitRule>
+    // 刚刚 INSERT 过，这一行必然存在；用 await + 非空断言，
+    // 而不是把整个 Promise 强行 cast 成 RateLimitRule（那样 null 分支就被类型系统骗过去了）。
+    const created = await this.findById(id)
+    return created!
   }
 
   async update(id: string, dto: UpdateRateLimitRuleDTO): Promise<RateLimitRule | null> {
@@ -303,8 +427,13 @@ export class BlacklistRepository {
   async findAll(pagination?: PaginationParams): Promise<PaginationResponse<BlacklistEntry>> {
     const { limit, offset } = buildPaginationSQL(pagination || {})
 
-    const countStmt = this.db.prepare('SELECT COUNT(*) as total FROM blacklist')
-    const { total } = countStmt.get() as { total: number }
+    // count 与 items 必须用同一套"未过期"条件，
+    // 否则 meta.total 会把已过期条目也算进去，与 items 长度对不上。
+    const countStmt = this.db.prepare(`
+      SELECT COUNT(*) as total FROM blacklist
+      WHERE expires_at IS NULL OR expires_at > ?
+    `)
+    const { total } = countStmt.get(Date.now()) as { total: number }
 
     const itemsStmt = this.db.prepare(`
       SELECT * FROM blacklist
@@ -312,7 +441,7 @@ export class BlacklistRepository {
       ORDER BY created_at DESC
       LIMIT ? OFFSET ?
     `)
-    const items = itemsStmt.all(Date.now(), limit, offset) as BlacklistEntry[]
+    const items = (itemsStmt.all(Date.now(), limit, offset) as Record<string, unknown>[]).map(toBlacklistEntry)
 
     const totalPages = Math.ceil(total / limit)
 
@@ -331,7 +460,8 @@ export class BlacklistRepository {
 
   async findById(id: string): Promise<BlacklistEntry | null> {
     const stmt = this.db.prepare('SELECT * FROM blacklist WHERE id = ?')
-    return stmt.get(id) as BlacklistEntry | null
+    const row = stmt.get(id) as Record<string, unknown> | undefined
+    return row ? toBlacklistEntry(row) : null
   }
 
   async create(dto: CreateBlacklistEntryDTO, createdBy?: string): Promise<BlacklistEntry> {
@@ -345,7 +475,10 @@ export class BlacklistRepository {
 
     stmt.run(id, dto.type, dto.value, dto.reason || null, dto.expiresAt || null, createdBy || null, now)
 
-    return this.findById(id)! as Promise<BlacklistEntry>
+    // 刚刚 INSERT 过，这一行必然存在；用 await + 非空断言，
+    // 而不是把整个 Promise 强行 cast 成 BlacklistEntry（那样 null 分支就被类型系统骗过去了）。
+    const created = await this.findById(id)
+    return created!
   }
 
   async delete(id: string): Promise<boolean> {
@@ -361,7 +494,8 @@ export class BlacklistRepository {
       AND (expires_at IS NULL OR expires_at > ?)
       LIMIT 1
     `)
-    return stmt.get(type, value, Date.now()) as BlacklistEntry | null
+    const row = stmt.get(type, value, Date.now()) as Record<string, unknown> | undefined
+    return row ? toBlacklistEntry(row) : null
   }
 
   async cleanupExpired(): Promise<number> {
@@ -393,7 +527,7 @@ export class WhitelistRepository {
       ORDER BY created_at DESC
       LIMIT ? OFFSET ?
     `)
-    const items = itemsStmt.all(limit, offset) as WhitelistEntry[]
+    const items = (itemsStmt.all(limit, offset) as Record<string, unknown>[]).map(toWhitelistEntry)
 
     const totalPages = Math.ceil(total / limit)
 
@@ -412,7 +546,8 @@ export class WhitelistRepository {
 
   async findById(id: string): Promise<WhitelistEntry | null> {
     const stmt = this.db.prepare('SELECT * FROM whitelist WHERE id = ?')
-    return stmt.get(id) as WhitelistEntry | null
+    const row = stmt.get(id) as Record<string, unknown> | undefined
+    return row ? toWhitelistEntry(row) : null
   }
 
   async create(dto: CreateWhitelistEntryDTO, createdBy?: string): Promise<WhitelistEntry> {
@@ -426,7 +561,10 @@ export class WhitelistRepository {
 
     stmt.run(id, dto.type, dto.value, dto.description || null, createdBy || null, now)
 
-    return this.findById(id)! as Promise<WhitelistEntry>
+    // 刚刚 INSERT 过，这一行必然存在；用 await + 非空断言，
+    // 而不是把整个 Promise 强行 cast 成 WhitelistEntry（那样 null 分支就被类型系统骗过去了）。
+    const created = await this.findById(id)
+    return created!
   }
 
   async delete(id: string): Promise<boolean> {
@@ -437,7 +575,8 @@ export class WhitelistRepository {
 
   async check(type: string, value: string): Promise<WhitelistEntry | null> {
     const stmt = this.db.prepare('SELECT * FROM whitelist WHERE type = ? AND value = ? LIMIT 1')
-    return stmt.get(type, value) as WhitelistEntry | null
+    const row = stmt.get(type, value) as Record<string, unknown> | undefined
+    return row ? toWhitelistEntry(row) : null
   }
 }
 
@@ -450,18 +589,24 @@ export class WhitelistRepository {
  *
  * 表里存的是 `max_requests`（`limit` 是 SQLite 保留字，建表时不能用），
  * 而对外的 RateLimitEvent 类型字段叫 `limit` —— 这里做一次映射。
- * 同时把 allowed 从 0/1 转成 boolean、metadata 从 JSON 字符串解回对象。
+ * 同时把 `rule_id` 映射成 `ruleId`、allowed 从 0/1 转成 boolean、
+ * metadata 从 JSON 字符串解回对象。
+ *
+ * 注意：不能简单地 `...row` 透传 —— 那样会把 `rule_id` / `max_requests`
+ * 这些 snake_case 原始列名一起漏给调用方，而 `ruleId` 反而是 undefined。
  */
 function toRateLimitEvent(row: Record<string, unknown>): RateLimitEvent {
   return {
-    ...(row as unknown as RateLimitEvent),
-    limit: Number(row.max_requests ?? row.limit ?? 0),
+    id: String(row.id),
+    identifier: String(row.identifier),
+    path: String(row.path),
+    ruleId: row.rule_id === null || row.rule_id === undefined ? undefined : String(row.rule_id),
     allowed: Number(row.allowed) === 1,
-    metadata: row.metadata
-      ? (typeof row.metadata === 'string'
-          ? (JSON.parse(row.metadata) as Record<string, unknown>)
-          : (row.metadata as Record<string, unknown>))
-      : undefined,
+    remaining: Number(row.remaining ?? 0),
+    limit: Number(row.max_requests ?? row.limit ?? 0),
+    algorithm: row.algorithm as RateLimitEvent['algorithm'],
+    timestamp: Number(row.timestamp),
+    metadata: parseJsonColumn(row.metadata),
   }
 }
 
@@ -495,7 +640,10 @@ export class RateLimitEventsRepository {
       event.metadata ? JSON.stringify(event.metadata) : null
     )
 
-    return this.findById(id)! as Promise<RateLimitEvent>
+    // 刚刚 INSERT 过，这一行必然存在；用 await + 非空断言，
+    // 而不是把整个 Promise 强行 cast 成 RateLimitEvent（那样 null 分支就被类型系统骗过去了）。
+    const created = await this.findById(id)
+    return created!
   }
 
   async findById(id: string): Promise<RateLimitEvent | null> {
@@ -575,24 +723,23 @@ export class AttackEventsRepository {
       event.resolvedBy || null
     )
 
-    return this.findById(id)! as Promise<AttackEvent>
+    // 刚刚 INSERT 过，这一行必然存在；用 await + 非空断言，
+    // 而不是把整个 Promise 强行 cast 成 AttackEvent（那样 null 分支就被类型系统骗过去了）。
+    const created = await this.findById(id)
+    return created!
   }
 
   async findById(id: string): Promise<AttackEvent | null> {
     const stmt = this.db.prepare('SELECT * FROM attack_events WHERE id = ?')
-    const row = stmt.get(id) as AttackEvent | undefined
+    const row = stmt.get(id) as Record<string, unknown> | undefined
 
     if (!row) return null
 
-    return {
-      ...row,
-      resolved: Number(row.resolved) === 1,
-      evidence: row.evidence ? JSON.parse(row.evidence as unknown as string) : undefined,
-    }
+    return toAttackEvent(row)
   }
 
   async findAll(
-    filters?: SecurityFilters,
+    filters?: AttackEventFilters,
     pagination?: PaginationParams
   ): Promise<PaginationResponse<AttackEvent>> {
     const { limit, offset } = buildPaginationSQL(pagination || {})
@@ -631,13 +778,9 @@ export class AttackEventsRepository {
       ORDER BY detected_at DESC
       LIMIT ? OFFSET ?
     `)
-    const rows = itemsStmt.all(...params, limit, offset) as AttackEvent[]
+    const rows = itemsStmt.all(...params, limit, offset) as Record<string, unknown>[]
 
-    const items = rows.map(row => ({
-      ...row,
-      resolved: Number(row.resolved) === 1,
-      evidence: row.evidence ? JSON.parse(row.evidence as unknown as string) : undefined,
-    }))
+    const items = rows.map(toAttackEvent)
 
     const totalPages = Math.ceil(total / limit)
 
@@ -700,20 +843,19 @@ export class SecurityAlertsRepository {
       alert.createdAt
     )
 
-    return this.findById(id)! as Promise<SecurityAlert>
+    // 刚刚 INSERT 过，这一行必然存在；用 await + 非空断言，
+    // 而不是把整个 Promise 强行 cast 成 SecurityAlert（那样 null 分支就被类型系统骗过去了）。
+    const created = await this.findById(id)
+    return created!
   }
 
   async findById(id: string): Promise<SecurityAlert | null> {
     const stmt = this.db.prepare('SELECT * FROM security_alerts WHERE id = ?')
-    const row = stmt.get(id) as SecurityAlert | undefined
+    const row = stmt.get(id) as Record<string, unknown> | undefined
 
     if (!row) return null
 
-    return {
-      ...row,
-      dismissed: Number(row.dismissed) === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
-    }
+    return toSecurityAlert(row)
   }
 
   async findAll(
@@ -722,20 +864,7 @@ export class SecurityAlertsRepository {
   ): Promise<PaginationResponse<SecurityAlert>> {
     const { limit, offset } = buildPaginationSQL(pagination || {})
 
-    const conditions: string[] = []
-    const params: unknown[] = []
-
-    if (filters?.severity) {
-      conditions.push('severity = ?')
-      params.push(filters.severity)
-    }
-
-    if (filters?.dismissed !== undefined) {
-      conditions.push('dismissed = ?')
-      params.push(filters.dismissed ? 1 : 0)
-    }
-
-    const where = conditions.length > 0 ? conditions.join(' AND ') : '1=1'
+    const { where, params } = buildSecurityAlertWhere(filters)
 
     const countStmt = this.db.prepare(`SELECT COUNT(*) as total FROM security_alerts WHERE ${where}`)
     const { total } = countStmt.get(...params) as { total: number }
@@ -746,13 +875,9 @@ export class SecurityAlertsRepository {
       ORDER BY created_at DESC
       LIMIT ? OFFSET ?
     `)
-    const rows = itemsStmt.all(...params, limit, offset) as SecurityAlert[]
+    const rows = itemsStmt.all(...params, limit, offset) as Record<string, unknown>[]
 
-    const items = rows.map(row => ({
-      ...row,
-      dismissed: Number(row.dismissed) === 1,
-      metadata: row.metadata ? JSON.parse(row.metadata as unknown as string) : undefined,
-    }))
+    const items = rows.map(toSecurityAlert)
 
     const totalPages = Math.ceil(total / limit)
 
@@ -781,20 +906,7 @@ export class SecurityAlertsRepository {
   }
 
   async count(filters?: SecurityFilters): Promise<number> {
-    const conditions: string[] = []
-    const params: unknown[] = []
-
-    if (filters?.severity) {
-      conditions.push('severity = ?')
-      params.push(filters.severity)
-    }
-
-    if (filters?.dismissed !== undefined) {
-      conditions.push('dismissed = ?')
-      params.push(filters.dismissed ? 1 : 0)
-    }
-
-    const where = conditions.length > 0 ? conditions.join(' AND ') : '1=1'
+    const { where, params } = buildSecurityAlertWhere(filters)
 
     const stmt = this.db.prepare(`SELECT COUNT(*) as total FROM security_alerts WHERE ${where}`)
     const { total } = stmt.get(...params) as { total: number }
@@ -818,6 +930,20 @@ export interface AuditLogEntry {
   createdAt: number
 }
 
+function toAuditLogEntry(row: Record<string, unknown>): AuditLogEntry {
+  return {
+    id: String(row.id),
+    action: String(row.action),
+    userId: String(row.user_id),
+    resource: String(row.resource),
+    resourceId: row.resource_id === null || row.resource_id === undefined ? undefined : String(row.resource_id),
+    details: parseJsonColumn(row.details),
+    ipAddress: row.ip_address === null || row.ip_address === undefined ? undefined : String(row.ip_address),
+    userAgent: row.user_agent === null || row.user_agent === undefined ? undefined : String(row.user_agent),
+    createdAt: Number(row.created_at),
+  }
+}
+
 export class AuditLogRepository {
   private db: Database.Database
 
@@ -825,8 +951,19 @@ export class AuditLogRepository {
     this.db = database || getDatabase()
   }
 
-  async create(entry: Omit<AuditLogEntry, 'id'>): Promise<AuditLogEntry> {
+  /**
+   * 写入一条审计日志。
+   *
+   * P0 缺陷修复：`created_at` 在表里是 `INTEGER NOT NULL`（毫秒时间戳），
+   * 而生产调用方不会总是传 `createdAt` —— 旧实现直接把 `undefined` 塞进 INSERT，
+   * SQLite 立刻抛 `NOT NULL constraint failed: audit_log.created_at`，写库路径整个崩掉。
+   * 现在缺省时用 `Date.now()` 兜底，保持 INTEGER ms 语义，
+   * 与 `findByUser` / `cleanup` 的比较口径完全一致。
+   */
+  async create(entry: Omit<AuditLogEntry, 'id' | 'createdAt'> & { createdAt?: number }): Promise<AuditLogEntry> {
     const id = generateId()
+    const createdAt =
+      typeof entry.createdAt === 'number' && Number.isFinite(entry.createdAt) ? entry.createdAt : Date.now()
 
     const stmt = this.db.prepare(`
       INSERT INTO audit_log (
@@ -843,10 +980,14 @@ export class AuditLogRepository {
       entry.details ? JSON.stringify(entry.details) : null,
       entry.ipAddress || null,
       entry.userAgent || null,
-      entry.createdAt
+      createdAt
     )
 
-    return { ...entry, id }
+    return {
+      ...entry,
+      id,
+      createdAt,
+    }
   }
 
   async findByUser(userId: string, limit: number = 50): Promise<AuditLogEntry[]> {
@@ -856,12 +997,9 @@ export class AuditLogRepository {
       ORDER BY created_at DESC
       LIMIT ?
     `)
-    const rows = stmt.all(userId, limit) as AuditLogEntry[]
+    const rows = stmt.all(userId, limit) as Record<string, unknown>[]
 
-    return rows.map(row => ({
-      ...row,
-      details: row.details ? JSON.parse(row.details as unknown as string) : undefined,
-    }))
+    return rows.map(toAuditLogEntry)
   }
 
   async cleanup(olderThan: number): Promise<number> {

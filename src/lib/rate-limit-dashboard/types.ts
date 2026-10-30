@@ -247,11 +247,30 @@ export interface RuleFilters {
   search?: string
 }
 
+/**
+ * 安全告警的过滤条件。
+ *
+ * 告警的 `type` 是自由文本（表里是 TEXT，代码里形如 'attack-detected'），
+ * `severity` 取值域是 info/warning/error/critical（表里有 CHECK 约束）。
+ */
 export interface SecurityFilters {
-  type?: 'ip' | 'user-id' | 'api-key' | 'email'
-  severity?: 'low' | 'medium' | 'high' | 'critical'
-  resolved?: boolean
+  type?: string
+  severity?: 'info' | 'warning' | 'error' | 'critical'
   dismissed?: boolean
+  timeRange?: TimeRange
+}
+
+/**
+ * 攻击事件的过滤条件。
+ *
+ * 攻击事件的 `type` 是 ddos/brute-force/sql-injection/xss/other，
+ * `severity` 取值域是 low/medium/high/critical —— 与安全告警完全是两套口径，
+ * 所以不能共用同一个过滤类型（之前硬凑成一个并集，类型上就骗人）。
+ */
+export interface AttackEventFilters {
+  type?: AttackEvent['type']
+  severity?: AttackEvent['severity']
+  resolved?: boolean
   timeRange?: TimeRange
 }
 
