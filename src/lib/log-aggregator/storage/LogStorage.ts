@@ -685,6 +685,21 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
    * 应用文本查询
    */
   private applyTextQuery(entries: LogEntry[], textQuery: string): LogEntry[] {
+    const trimmed = textQuery.trim();
+
+    // 通配符查询 = 匹配全部。
+    //
+    // '*' 是检索里的标准"不过滤"写法，但 tokenize() 会把它丢掉
+    // （'*'.length 只有 1，不满足 word.length > 2），
+    // 于是 words 为空 → matchingIds 为空 → **所有条目都被过滤掉**，
+    // 查询结果恒为空。
+    //
+    // 也就是说：只要带上 filters 就必然搜不到东西 ——
+    // 因为 filters 先筛一遍，紧接着 textQuery 又全清空了。
+    if (trimmed === '*' || trimmed === '') {
+      return entries;
+    }
+
     const words = this.tokenize(textQuery);
     const matchingIds = new Set<string>();
 

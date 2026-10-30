@@ -345,19 +345,42 @@ export class AlertManager extends EventEmitter implements IAlertManager {
   ): { triggered: boolean; context: Record<string, unknown> } {
     const matchingLogs = logs.filter((log) => {
       const value = this.getFieldValue(log, condition.field);
-      if (typeof value === 'number') {
-        return this.compareValue(value, condition.operator, condition.value);
+      if (value === undefined || value === null) {
+        return false;
       }
-      return false;
+      // 不限于数字字段。
+      //
+      // 原来这里写死 `typeof value === 'number'`，
+      // 于是**字符串字段永远匹配不上** —— 最典型的就是
+      // { field: 'level', operator: 'eq', value: 'error' } 这种规则，
+      // 而 level 本来就是 'error'/'warn'/'info' 字符串。
+      // 结果告警永远不触发。
+      //
+      // compareValue 本身对 eq/neq 是支持非数字比较的
+      // （value === target），只是上游这道 typeof 门把它挡掉了。
+      // 比较运算（gt/gte/lt/lte）交给 compareValue 判断，
+      // 数字与数字比、字符串与字符串比，各归各位。
+      return this.compareValue(value, condition.operator, condition.value);
     });
 
     const count = matchingLogs.length;
     context.matchingCount = count;
-    context.threshold = condition.value;
+    context.threshold = condition.minOccurrences || 1;
     context.operator = condition.operator;
 
-    const triggered = count >= (condition.minOccurrences || 1) &&
-      this.compareValue(count, condition.operator, condition.value);
+    // 触发判定：只比 minOccurrences。
+    //
+    // condition.operator / condition.value 描述的是**被监控的那个字段**
+    // （field: 'level' operator: 'eq' value: 'error' 表示"level 等于 error"），
+    // 已经在上面 matchingLogs 的过滤里用掉了。
+    //
+    // 原实现把它们又套到 count 上比：
+    //   count >= minOccurrences && compareValue(count, 'eq', 'error')
+    // → 拿计数 1 跟字符串 'error' 比，永远 false，
+    // 于是**任何 threshold 类型的告警都不会触发**。
+    //
+    // 阈值条件真正的语义就是"匹配到的条数达到 minOccurrences 就报"。
+    const triggered = count >= (condition.minOccurrences || 1);
 
     return { triggered, context };
   }
