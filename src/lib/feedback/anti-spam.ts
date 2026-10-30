@@ -3,6 +3,7 @@
  */
 
 import { getDatabaseAsync } from '../db/index'
+import { parseDbTimestamp } from './helpers'
 import { logger } from '../logger'
 import { SpamDetection, AntiSpamConfig } from '@/types/feedback'
 
@@ -32,6 +33,30 @@ const DEFAULT_ANTI_SPAM_CONFIG: AntiSpamConfig = {
 /**
  * Get anti-spam configuration
  */
+/**
+ * 从 COUNT 查询结果里取计数。
+ *
+ * 原来的写法 `db.queryRows(...)[0] as { count: number }` 有三个问题：
+ * 1. 查询没命中返回 []，[0] 是 undefined，读 .count 直接抛 TypeError
+ *    （而不是当作 0）
+ * 2. 测试用的假库对聚合查询返回的是**对象** { count: N } 而不是数组，
+ *    [0] 取到 undefined —— 真库与假库返回形状不一致
+ * 3. 裸 `as { count: number }` 是类型断言，编译器不校验实际形状，
+ *    形状不对时静默得到 undefined
+ *
+ * 三种形状都兼容：数组 / 对象 / 缺行（当 0）。
+ */
+function extractCount(rows: unknown): number {
+  if (rows === null || rows === undefined) return 0
+  if (Array.isArray(rows)) {
+    const first = rows[0] as { count?: unknown } | undefined
+    const n = Number(first?.count ?? 0)
+    return Number.isFinite(n) ? n : 0
+  }
+  const n = Number((rows as { count?: unknown })?.count ?? 0)
+  return Number.isFinite(n) ? n : 0
+}
+
 export async function getAntiSpamConfig(): Promise<AntiSpamConfig> {
   // In a real application, this would load from database or config file
   return DEFAULT_ANTI_SPAM_CONFIG
@@ -71,7 +96,7 @@ async function checkDuplicateFeedback(
   // Get recent feedbacks from the same user
   const recentFeedbacks = db.queryRows(
     `SELECT description FROM feedbacks
-     WHERE user_id = ? AND created_at > datetime('now', '-7 days')
+     WHERE user_id = ? AND datetime(created_at) > datetime('now', '-7 days')
      ORDER BY created_at DESC
      LIMIT 10`,
     [userId]
@@ -103,30 +128,30 @@ async function checkRateLimits(
   const db = await getDatabaseAsync()
 
   // Check feedbacks in the last hour
-  const lastHour = db.queryRows(
+  const lastHour = extractCount(db.queryRows(
     `SELECT COUNT(*) as count FROM feedbacks
-     WHERE user_id = ? AND created_at > datetime('now', '-1 hour')`,
+     WHERE user_id = ? AND datetime(created_at) > datetime('now', '-1 hour')`,
     [userId]
-  )[0] as { count: number }
+  ))
 
-  if (lastHour.count >= config.max_feedback_per_hour) {
+  if (lastHour >= config.max_feedback_per_hour) {
     return {
       is_rate_limited: true,
-      reason: `Rate limit exceeded: ${lastHour.count}/${config.max_feedback_per_hour} feedbacks per hour`,
+      reason: `Rate limit exceeded: ${lastHour}/${config.max_feedback_per_hour} feedbacks per hour`,
     }
   }
 
   // Check feedbacks in the last 24 hours
-  const lastDay = db.queryRows(
+  const lastDay = extractCount(db.queryRows(
     `SELECT COUNT(*) as count FROM feedbacks
-     WHERE user_id = ? AND created_at > datetime('now', '-1 day')`,
+     WHERE user_id = ? AND datetime(created_at) > datetime('now', '-1 day')`,
     [userId]
-  )[0] as { count: number }
+  ))
 
-  if (lastDay.count >= config.max_feedback_per_day) {
+  if (lastDay >= config.max_feedback_per_day) {
     return {
       is_rate_limited: true,
-      reason: `Daily limit exceeded: ${lastDay.count}/${config.max_feedback_per_day} feedbacks per day`,
+      reason: `Daily limit exceeded: ${lastDay}/${config.max_feedback_per_day} feedbacks per day`,
     }
   }
 
@@ -137,10 +162,13 @@ async function checkRateLimits(
      ORDER BY created_at DESC
      LIMIT 1`,
     [userId]
-  )[0] as { created_at: string } | undefined
+  )[0] as { created_at: string } | undefined  // 空结果集时为 undefined
 
   if (lastFeedback) {
-    const lastFeedbackTime = new Date(lastFeedback.created_at).getTime()
+    // 不能直接 new Date(str)：SQLite 的 'YYYY-MM-DD HH:MM:SS' 是 **UTC**，
+    // 而 new Date() 会按**本地时区**解析（Asia/Shanghai 偏 8 小时），
+    // 于是 min_time_between_feedback 的判断整整差 8 小时。
+    const lastFeedbackTime = parseDbTimestamp(lastFeedback.created_at)
     const currentTime = Date.now()
     const timeDiff = (currentTime - lastFeedbackTime) / 1000 // Convert to seconds
 
@@ -316,20 +344,20 @@ export async function getSpamStatistics(days: number = 7): Promise<{
 }> {
   const db = await getDatabaseAsync()
 
-  const totalChecksResult = db.queryRows(
+  const totalChecksResult = extractCount(db.queryRows(
     `SELECT COUNT(*) as count FROM spam_detection_logs
-     WHERE created_at > datetime('now', '-${days} days')`
-  )[0] as { count: number }
+     WHERE datetime(created_at) > datetime('now', '-${days} days')`
+  ))
 
-  const spamDetectedResult = db.queryRows(
+  const spamDetectedResult = extractCount(db.queryRows(
     `SELECT COUNT(*) as count FROM spam_detection_logs
-     WHERE is_spam = 1 AND created_at > datetime('now', '-${days} days')`
-  )[0] as { count: number }
+     WHERE is_spam = 1 AND datetime(created_at) > datetime('now', '-${days} days')`
+  ))
 
-  const blockedUsersResult = db.queryRows(
+  const blockedUsersResult = extractCount(db.queryRows(
     `SELECT COUNT(DISTINCT user_id) as count FROM spam_detection_logs
-     WHERE is_spam = 1 AND created_at > datetime('now', '-${days} days')`
-  )[0] as { count: number }
+     WHERE is_spam = 1 AND datetime(created_at) > datetime('now', '-${days} days')`
+  ))
 
   const recentSpam = db.queryRows(
     `SELECT id, user_id, content, reason, score, created_at
@@ -347,10 +375,10 @@ export async function getSpamStatistics(days: number = 7): Promise<{
   }>
 
   return {
-    total_checks: totalChecksResult.count,
-    spam_detected: spamDetectedResult.count,
-    spam_rate: totalChecksResult.count > 0 ? spamDetectedResult.count / totalChecksResult.count : 0,
-    blocked_users: blockedUsersResult.count,
+    total_checks: totalChecksResult,
+    spam_detected: spamDetectedResult,
+    spam_rate: totalChecksResult > 0 ? spamDetectedResult / totalChecksResult : 0,
+    blocked_users: blockedUsersResult,
     recent_spam: recentSpam,
   }
 }
