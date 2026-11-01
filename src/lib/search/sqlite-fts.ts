@@ -179,15 +179,13 @@ export class SQLiteFTSManager {
   upsertItems(indexId: string, items: UnifiedEntity[]): void {
     if (!this.initialized) this.initialize()
 
+    // FTS5 virtual tables do not support ON CONFLICT DO UPDATE (UPSERT).
+    // Use DELETE + INSERT to stay idempotent.
+    const deleteFtsStmt = this.db.prepare('DELETE FROM search_index WHERE id = ?')
+
     const insertStmt = this.db.prepare(`
       INSERT INTO search_index (id, entityId, entityType, title, description, content, tags, metadata)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      ON CONFLICT(id) DO UPDATE SET
-        title = excluded.title,
-        description = excluded.description,
-        content = excluded.content,
-        tags = excluded.tags,
-        metadata = excluded.metadata
     `)
 
     const insertMetaStmt = this.db.prepare(`
@@ -201,6 +199,9 @@ export class SQLiteFTSManager {
     this.db.transaction(() => {
       for (const item of items) {
         const ftsItem = this.entityToFTSItem(indexId, item)
+
+        // Idempotent replace: FTS5 has no UPSERT support.
+        deleteFtsStmt.run(ftsItem.id)
 
         insertStmt.run(
           ftsItem.id,
@@ -269,9 +270,16 @@ export class SQLiteFTSManager {
     } = {}
   ): SearchResult<UnifiedEntity>[] {
     if (!this.initialized) this.initialize()
-    if (!query.trim()) return []
 
     const { indices: targetIndices, limit = 50, offset = 0, sortBy = 'relevance' } = options
+
+    // 空查询语义：
+    // - 未指定索引范围 => 返回空数组（纯 FTS 引擎无“浏览”语义）
+    // - 指定了索引范围 => 进入 browse 模式，列出该范围内的全部条目
+    if (!query.trim()) {
+      if (!targetIndices || targetIndices.length === 0) return []
+      return this.browse(targetIndices, limit, offset, sortBy)
+    }
 
     // Check cache
     const cacheKey = `fts:${query}:${targetIndices?.join(',') || 'all'}:${sortBy}:${limit}:${offset}`
@@ -286,21 +294,15 @@ export class SQLiteFTSManager {
     // Get entity types to search
     let entityTypes: UnifiedEntity['type'][] = ['task', 'project', 'member', 'agent']
     if (targetIndices) {
-      entityTypes = targetIndices.map(id => {
-        if (id === 'tasks') return 'task'
-        if (id === 'projects') return 'project'
-        if (id === 'members') return 'member'
-        if (id === 'agents') return 'agent'
-        return 'task'
-      })
+      entityTypes = targetIndices.map(id => this.mapIndexToEntityType(id))
     }
 
     // Build SQL query
     let sql = `
       SELECT si.*, im.data, si.rank as fts_score
       FROM search_index si
-      INNER JOIN index_metadata im ON si.entityId = im.entityId
-      WHERE search_index MATCH ?1
+      INNER JOIN index_metadata im ON si.id = im.id
+      WHERE search_index MATCH ?
     `
 
     const params: unknown[] = [ftsQuery]
@@ -349,6 +351,71 @@ export class SQLiteFTSManager {
   }
 
   /**
+   * 列出指定索引范围内的全部条目（browse 模式）
+   * 用于空查询 + 显式索引范围的场景
+   */
+  private browse(
+    targetIndices: string[],
+    limit: number,
+    offset: number,
+    sortBy: 'relevance' | 'date' | 'hybrid'
+  ): SearchResult<UnifiedEntity>[] {
+    const entityTypes = targetIndices.map(id => this.mapIndexToEntityType(id))
+    const placeholders = entityTypes.map(() => '?').join(',')
+
+    let sql = `
+      SELECT si.entityId, si.entityType, si.title, si.description, si.content, si.tags, im.data
+      FROM search_index si
+      INNER JOIN index_metadata im ON si.id = im.id
+      WHERE si.entityType IN (${placeholders})
+    `
+
+    const params: unknown[] = [...entityTypes]
+
+    if (sortBy === 'date' || sortBy === 'hybrid') {
+      sql += ' ORDER BY im.lastUpdated DESC, si.id ASC'
+    } else {
+      sql += ' ORDER BY si.id ASC'
+    }
+
+    sql += ' LIMIT ? OFFSET ?'
+    params.push(limit, offset)
+
+    const rows = this.db.prepare(sql).bind(...params).all() as Array<FTSIndexItem & { data: string }>
+
+    return rows.map(row => {
+      const entity = JSON.parse(row.data) as UnifiedEntity
+      return {
+        item: entity,
+        matchedFields: [],
+        highlights: [],
+        score: 1,
+      }
+    })
+  }
+
+  /**
+   * 索引 ID -> 实体类型映射
+   */
+  private mapIndexToEntityType(indexId: string): UnifiedEntity['type'] {
+    switch (indexId) {
+      case 'tasks':
+        return 'task'
+      case 'projects':
+        return 'project'
+      case 'members':
+        return 'member'
+      case 'agents':
+        return 'agent'
+      default: {
+        // 去掉结尾的 's' 作为兜底（'all' 之类无法推断时返回 task 以保持向后兼容）
+        const guess = indexId.replace(/s$/, '') as UnifiedEntity['type']
+        return ['task', 'project', 'member', 'agent'].includes(guess) ? guess : 'task'
+      }
+    }
+  }
+
+  /**
    * Get autocomplete suggestions from FTS
    */
   getAutocompleteSuggestions(
@@ -364,16 +431,17 @@ export class SQLiteFTSManager {
     const { limit = 10, entityTypes } = options
 
     let sql = `
-      SELECT title, entityType, entityId, data
-      FROM search_index
-      WHERE search_index MATCH ?1 || '*'
+      SELECT si.title AS title, si.entityType AS entityType, si.entityId AS entityId, im.data AS data
+      FROM search_index si
+      INNER JOIN index_metadata im ON si.id = im.id
+      WHERE search_index MATCH ?
     `
 
-    const params: unknown[] = [prefix]
+    const params: unknown[] = [`${prefix.replace(/["*()]/g, ' ').trim()}*`]
 
     if (entityTypes && entityTypes.length > 0) {
       const placeholders = entityTypes.map(() => '?').join(',')
-      sql += ` AND entityType IN (${placeholders})`
+      sql += ` AND si.entityType IN (${placeholders})`
       params.push(...entityTypes)
     }
 
@@ -399,8 +467,8 @@ export class SQLiteFTSManager {
    */
   private countItems(indexId: string): number {
     const count = this.db
-      .prepare('SELECT COUNT(*) as count FROM index_metadata WHERE id = ?')
-      .get(indexId) as { count: number }
+      .prepare("SELECT COUNT(*) as count FROM index_metadata WHERE id LIKE ? ESCAPE '\\'")
+      .get(`${indexId.replace(/[\\%_]/g, '\\$&')}:%`) as { count: number }
 
     return count?.count || 0
   }
@@ -563,7 +631,8 @@ export class SQLiteFTSManager {
   optimize(): void {
     if (!this.initialized) return
 
-    this.db.exec('INSERT INTO search_index(search_index) VALUES("optimize")')
+    // FTS5 的 optimize 是特殊命令，必须使用单引号字符串字面量
+    this.db.exec("INSERT INTO search_index(search_index) VALUES('optimize')")
   }
 }
 

@@ -5,7 +5,12 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { AdvancedSearchManager } from '@/lib/search/advanced-search'
+import {
+  AdvancedSearchManager,
+  highlightSearchTerm,
+  parseSearchQuery,
+  buildSearchQuery,
+} from '@/lib/search/advanced-search'
 import type { UnifiedEntity } from '@/lib/search/types'
 
 describe('AdvancedSearchManager', () => {
@@ -299,7 +304,6 @@ describe('AdvancedSearchManager', () => {
 describe('Utility functions', () => {
   describe('highlightSearchTerm', () => {
     it('should highlight search terms', () => {
-      const { highlightSearchTerm } = require('@/lib/search/advanced-search')
 
       const result = highlightSearchTerm(
         'This is a test string with test word',
@@ -315,7 +319,6 @@ describe('Utility functions', () => {
     })
 
     it('should return original text if no matches', () => {
-      const { highlightSearchTerm } = require('@/lib/search/advanced-search')
 
       const result = highlightSearchTerm('This is a test', [])
 
@@ -325,7 +328,6 @@ describe('Utility functions', () => {
 
   describe('parseSearchQuery', () => {
     it('should parse filters from query', () => {
-      const { parseSearchQuery } = require('@/lib/search/advanced-search')
 
       const result = parseSearchQuery('status:open label:bug login issue')
 
@@ -335,7 +337,6 @@ describe('Utility functions', () => {
     })
 
     it('should handle query without filters', () => {
-      const { parseSearchQuery } = require('@/lib/search/advanced-search')
 
       const result = parseSearchQuery('simple search query')
 
@@ -346,7 +347,6 @@ describe('Utility functions', () => {
 
   describe('buildSearchQuery', () => {
     it('should build query from text and filters', () => {
-      const { buildSearchQuery } = require('@/lib/search/advanced-search')
 
       const result = buildSearchQuery('login', {
         status: 'open',
@@ -357,7 +357,6 @@ describe('Utility functions', () => {
     })
 
     it('should handle empty text', () => {
-      const { buildSearchQuery } = require('@/lib/search/advanced-search')
 
       const result = buildSearchQuery('', { status: 'open' })
 
@@ -365,7 +364,6 @@ describe('Utility functions', () => {
     })
 
     it('should handle empty filters', () => {
-      const { buildSearchQuery } = require('@/lib/search/advanced-search')
 
       const result = buildSearchQuery('test query', {})
 

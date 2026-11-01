@@ -77,8 +77,8 @@ export function sortResults<T>(
 
   switch (field) {
     case 'relevance':
-      // Already sorted by relevance from search engine
-      return sorted
+      // 按相关性分数降序（稳定排序，同分保持原始顺序）
+      return sorted.sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
 
     case 'date-asc':
       return sorted.sort((a, b) => {

@@ -23,49 +23,56 @@ interface TestItem {
   tags: string
 }
 
+/**
+ * 公共测试数据（多个 describe 共用，避免出现未定义变量）
+ */
+function createTestItems(): TestItem[] {
+  return [
+    {
+      id: 1,
+      title: 'Bug fix: Login issue',
+      description: 'Users cannot login to the system',
+      status: 'open',
+      priority: 'high',
+      tags: 'bug critical',
+    },
+    {
+      id: 2,
+      title: 'Feature: User dashboard',
+      description: 'Create a new user dashboard interface',
+      status: 'in-progress',
+      priority: 'medium',
+      tags: 'feature ui',
+    },
+    {
+      id: 3,
+      title: 'Documentation update',
+      description: 'Update API documentation',
+      status: 'open',
+      priority: 'low',
+      tags: 'docs',
+    },
+    {
+      id: 4,
+      title: 'Performance optimization',
+      description: 'Improve search performance',
+      status: 'closed',
+      priority: 'high',
+      tags: 'performance',
+    },
+  ]
+}
+
 describe('multiFieldSearch', () => {
   let testItems: TestItem[]
 
   beforeEach(() => {
-    testItems = [
-      {
-        id: 1,
-        title: 'Bug fix: Login issue',
-        description: 'Users cannot login to the system',
-        status: 'open',
-        priority: 'high',
-        tags: 'bug critical',
-      },
-      {
-        id: 2,
-        title: 'Feature: User dashboard',
-        description: 'Create a new user dashboard interface',
-        status: 'in-progress',
-        priority: 'medium',
-        tags: 'feature ui',
-      },
-      {
-        id: 3,
-        title: 'Documentation update',
-        description: 'Update API documentation',
-        status: 'open',
-        priority: 'low',
-        tags: 'docs',
-      },
-      {
-        id: 4,
-        title: 'Performance optimization',
-        description: 'Improve search performance',
-        status: 'closed',
-        priority: 'high',
-        tags: 'performance',
-      },
-    ]
+    testItems = createTestItems()
   })
 
   it('should return empty array for empty query', () => {
     const config = createMultiFieldConfig(['title', 'description'])
-    const results = multiFieldSearch(testItems, '', config)
+    const results = multiFieldSearch(createTestItems(), '', config)
 
     expect(results.length).toBe(testItems.length)
     expect(results.every(r => r.score === 1)).toBe(true)
@@ -80,7 +87,7 @@ describe('multiFieldSearch', () => {
 
   it('should search in title field', () => {
     const config = createMultiFieldConfig(['title'])
-    const results = multiFieldSearch(testItems, 'login', config)
+    const results = multiFieldSearch(createTestItems(), 'login', config)
 
     expect(results.length).toBe(1)
     expect(results[0].item.title.toLowerCase()).toContain('login')
@@ -89,7 +96,7 @@ describe('multiFieldSearch', () => {
 
   it('should search in description field', () => {
     const config = createMultiFieldConfig(['description'])
-    const results = multiFieldSearch(testItems, 'system', config)
+    const results = multiFieldSearch(createTestItems(), 'system', config)
 
     expect(results.length).toBe(1)
     expect(results[0].item.description).toContain('system')
@@ -97,11 +104,11 @@ describe('multiFieldSearch', () => {
 
   it('should search across multiple fields', () => {
     const config = createMultiFieldConfig(['title', 'description'])
-    const results = multiFieldSearch(testItems, 'user', config)
+    const results = multiFieldSearch(createTestItems(), 'user', config)
 
     expect(results.length).toBe(2)
-    expect(results.some(r => r.item.title.includes('user'))).toBe(true)
-    expect(results.some(r => r.item.description.includes('user'))).toBe(true)
+    expect(results.some(r => r.item.title.toLowerCase().includes('user'))).toBe(true)
+    expect(results.some(r => r.item.description.toLowerCase().includes('user'))).toBe(true)
   })
 
   it('should apply field weights', () => {
@@ -115,7 +122,7 @@ describe('multiFieldSearch', () => {
       includeHighlights: true,
     }
 
-    const results = multiFieldSearch(testItems, 'user', config)
+    const results = multiFieldSearch(createTestItems(), 'user', config)
 
     expect(results.length).toBeGreaterThan(0)
     expect(results.every(r => r.fieldMatches.length > 0)).toBe(true)
@@ -132,7 +139,7 @@ describe('multiFieldSearch', () => {
       includeHighlights: true,
     }
 
-    const results = multiFieldSearch(testItems, 'logn', config)
+    const results = multiFieldSearch(createTestItems(), 'logn', config)
 
     expect(results.length).toBeGreaterThan(0)
     expect(results.some(r => r.item.title.toLowerCase().includes('login'))).toBe(true)
@@ -150,7 +157,7 @@ describe('multiFieldSearch', () => {
       includeHighlights: true,
     }
 
-    const results = multiFieldSearch(testItems, 'user', config)
+    const results = multiFieldSearch(createTestItems(), 'user', config)
 
     // Only item with 'user' in both title and description
     expect(results.length).toBeLessThanOrEqual(1)
@@ -165,7 +172,7 @@ describe('multiFieldSearch', () => {
       includeHighlights: true,
     }
 
-    const results = multiFieldSearch(testItems, 'open', config)
+    const results = multiFieldSearch(createTestItems(), 'open', config)
 
     expect(results.every(r => r.matchedFields.length >= 2)).toBe(true)
   })
@@ -178,7 +185,7 @@ describe('multiFieldSearch', () => {
       includeHighlights: true,
     }
 
-    const results = multiFieldSearch(testItems, 'login', config)
+    const results = multiFieldSearch(createTestItems(), 'login', config)
 
     expect(results.length).toBeGreaterThan(0)
     expect(results[0].highlights.length).toBeGreaterThan(0)
@@ -193,7 +200,7 @@ describe('multiFieldSearch', () => {
       includeHighlights: false,
     }
 
-    const results = multiFieldSearch(testItems, 'login', config)
+    const results = multiFieldSearch(createTestItems(), 'login', config)
 
     expect(results[0].highlights).toEqual([])
   })
@@ -207,7 +214,7 @@ describe('multiFieldSearch', () => {
       minScore: 5,
     }
 
-    const results = multiFieldSearch(testItems, 'x', config)
+    const results = multiFieldSearch(createTestItems(), 'x', config)
 
     // Should filter out low-score results
     expect(results.every(r => r.score >= 5)).toBe(true)
@@ -216,7 +223,7 @@ describe('multiFieldSearch', () => {
   describe('fieldMatches', () => {
     it('should include match details for each field', () => {
       const config = createMultiFieldConfig(['title', 'description'])
-      const results = multiFieldSearch(testItems, 'login', config)
+      const results = multiFieldSearch(createTestItems(), 'login', config)
 
       expect(results[0].fieldMatches).toHaveLength(2)
       expect(results[0].fieldMatches.every(fm => 'matched' in fm)).toBe(true)
@@ -225,7 +232,7 @@ describe('multiFieldSearch', () => {
 
     it('should include match type', () => {
       const config = createMultiFieldConfig(['title'])
-      const results = multiFieldSearch(testItems, 'login', config)
+      const results = multiFieldSearch(createTestItems(), 'login', config)
 
       const match = results[0].fieldMatches[0]
       expect(match.matchType).toBe('substring')
@@ -290,7 +297,7 @@ describe('createRequiredFieldsConfig', () => {
 describe('toStandardSearchResult', () => {
   it('should convert multi-field results to standard results', () => {
     const config = createMultiFieldConfig(['title'])
-    const multiFieldResults = multiFieldSearch(testItems, 'login', config)
+    const multiFieldResults = multiFieldSearch(createTestItems(), 'login', config)
 
     const standardResults = toStandardSearchResult(multiFieldResults)
 
@@ -323,7 +330,7 @@ describe('getMultiFieldSearchStats', () => {
 
   it('should calculate average scores', () => {
     const config = createMultiFieldConfig(['title'])
-    const results = multiFieldSearch(testItems, 'user', config)
+    const results = multiFieldSearch(createTestItems(), 'user', config)
 
     const stats = getMultiFieldSearchStats(results)
 
@@ -334,7 +341,7 @@ describe('getMultiFieldSearchStats', () => {
 
   it('should calculate field match rates', () => {
     const config = createMultiFieldConfig(['title', 'description'])
-    const results = multiFieldSearch(testItems, 'user', config)
+    const results = multiFieldSearch(createTestItems(), 'user', config)
 
     const stats = getMultiFieldSearchStats(results)
 

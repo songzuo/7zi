@@ -167,8 +167,10 @@ describe('SQLiteFTSManager', () => {
     })
 
     it('should apply offset', () => {
-      const results1 = ftsManager.search('', { limit: 2, offset: 0 })
-      const results2 = ftsManager.search('', { limit: 2, offset: 2 })
+      // 空查询 + 显式索引范围 = browse 模式（无索引范围时返回空数组）
+      const scope = { indices: ['tasks', 'projects', 'members', 'agents'] }
+      const results1 = ftsManager.search('', { ...scope, limit: 2, offset: 0 })
+      const results2 = ftsManager.search('', { ...scope, limit: 2, offset: 2 })
 
       expect(results1).not.toEqual(results2)
     })
@@ -193,7 +195,10 @@ describe('SQLiteFTSManager', () => {
     })
 
     it('should sort by hybrid', () => {
-      const results = ftsManager.search('', { sortBy: 'hybrid' })
+      const results = ftsManager.search('', {
+        indices: ['tasks', 'projects', 'members', 'agents'],
+        sortBy: 'hybrid',
+      })
 
       expect(results.length).toBeGreaterThan(0)
       // Hybrid sort combines relevance with recency

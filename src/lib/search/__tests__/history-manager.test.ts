@@ -11,6 +11,9 @@ describe('SearchHistoryManager', () => {
   let historyManager: SearchHistoryManager
 
   beforeEach(() => {
+    // 隔离持久化状态：SearchHistoryManager 构造时会从 localStorage 恢复历史，
+    // 不清理会导致跨用例累积（测试之间互相污染）
+    localStorage.removeItem('7zi-search-history')
     // Create a new instance for each test
     historyManager = new SearchHistoryManager(10, 86400000) // 1 day max age
   })
@@ -193,8 +196,9 @@ describe('SearchHistoryManager', () => {
     })
 
     it('should limit results', () => {
+      // 使用 15 个互不相同的查询，确保 limit 逻辑真正生效
       for (let i = 0; i < 15; i++) {
-        historyManager.add({ query: `query ${i % 3}`, resultCount: 1, target: 'tasks' })
+        historyManager.add({ query: `query ${i}`, resultCount: 1, target: 'tasks' })
       }
 
       const trending = historyManager.getTrending(5)
@@ -262,8 +266,10 @@ describe('SearchHistoryManager', () => {
 
       expect(stats.totalEntries).toBe(2) // Duplicates removed
       expect(stats.uniqueQueries).toBe(2)
-      expect(stats.averageResults).toBe(7.5) // (5 + 10) / 2
-      expect(stats.searchesByTarget.tasks).toBe(2)
+      // 重复查询会被最新一次记录覆盖（与 'should remove duplicate queries' 一致）：
+      // 'search 1' 最新记录为 resultCount=3 / target=projects，'search 2' 为 10 / tasks
+      expect(stats.averageResults).toBe(6.5) // (3 + 10) / 2
+      expect(stats.searchesByTarget.tasks).toBe(1)
       expect(stats.searchesByTarget.projects).toBe(1)
       expect(stats.oldestEntry).toBeTruthy()
       expect(stats.newestEntry).toBeTruthy()

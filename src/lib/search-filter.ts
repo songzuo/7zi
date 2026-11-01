@@ -134,7 +134,7 @@ function fuzzyMatch(
     return { match: true, score: 1, start: 0 }
   }
 
-  if (query.length > text.length) {
+  if (text.length === 0) {
     return { match: false, score: 0, start: -1 }
   }
 
@@ -149,19 +149,62 @@ function fuzzyMatch(
     }
   }
 
-  // 计算编辑距离
-  const distance = levenshteinDistance(text, query)
+  // 滑动窗口 + 编辑距离：允许查询词出现在文本任意位置（而非仅前缀）
+  const best = findBestWindowMatch(text, query, threshold)
 
-  // 动态调整阈值：较长的查询允许更大的编辑距离
-  const dynamicThreshold = Math.min(threshold, Math.floor(query.length / 3))
-
-  if (distance <= dynamicThreshold) {
-    // 基于编辑距离计算分数
-    const score = Math.max(0, 1 - distance / Math.max(text.length, query.length))
-    return { match: true, score, start: 0 }
+  if (best) {
+    const score = Math.max(0, 1 - best.distance / Math.max(text.length, query.length))
+    return { match: true, score, start: best.start }
   }
 
   return { match: false, score: 0, start: -1 }
+}
+
+/** 模糊扫描的最大文本长度，避免超长文本导致性能问题 */
+const FUZZY_MAX_SCAN_LENGTH = 2000
+
+/**
+ * 在文本中滑动窗口，寻找与查询词编辑距离最小的片段
+ * @param text 目标文本
+ * @param query 查询词
+ * @param threshold 允许的最大编辑距离
+ * @returns 最佳匹配信息（未命中返回 null）
+ */
+function findBestWindowMatch(
+  text: string,
+  query: string,
+  threshold: number
+): { distance: number; start: number } | null {
+  const qLen = query.length
+  if (qLen === 0 || text.length === 0) return null
+
+  const scanText = text.length > FUZZY_MAX_SCAN_LENGTH ? text.slice(0, FUZZY_MAX_SCAN_LENGTH) : text
+
+  const minLen = Math.max(1, qLen - threshold)
+  const maxLen = Math.min(scanText.length, qLen + threshold)
+
+  let best: { distance: number; start: number } | null = null
+
+  for (let len = minLen; len <= maxLen; len++) {
+    for (let start = 0; start + len <= scanText.length; start++) {
+      const window = scanText.slice(start, start + len)
+      const distance = levenshteinDistance(window, query)
+
+      if (!best || distance < best.distance) {
+        best = { distance, start }
+      }
+
+      if (distance === 0) {
+        return best
+      }
+    }
+  }
+
+  if (best && best.distance <= threshold) {
+    return best
+  }
+
+  return null
 }
 
 /**
@@ -223,6 +266,38 @@ const PINYIN_MAP: Record<string, string[]> = {
   消: ['xiao'],
   确: ['que'],
   定: ['ding'],
+  登: ['deng'],
+  录: ['lu'],
+  用: ['yong'],
+  户: ['hu'],
+  面: ['mian'],
+  交: ['jiao'],
+  验: ['yan'],
+  体: ['ti'],
+  提: ['ti'],
+  搜: ['sou'],
+  索: ['suo'],
+  功: ['gong'],
+  能: ['neng'],
+  档: ['dang'],
+  更: ['geng'],
+  新: ['xin'],
+  增: ['zeng'],
+  优: ['you'],
+  化: ['hua'],
+  性: ['xing'],
+  问: ['wen'],
+  题: ['ti'],
+  登: ['deng'],
+  录: ['lu'],
+  陆: ['lu'],
+  系: ['xi'],
+  统: ['tong'],
+  无: ['wu'],
+  法: ['fa'],
+  的: ['de'],
+  问: ['wen'],
+  题: ['ti'],
   // 可以根据需要添加更多汉字
 }
 
@@ -242,6 +317,29 @@ function toPinyin(text: string): string {
     }
   }
   return result.trim()
+}
+
+/**
+ * 生成紧凑拼音串（不带分隔符）以及每个拼音字符对应的原始文本位置
+ * 用于支持 "denglu" 这类连续拼音查询
+ */
+function toCompactPinyin(text: string): { compact: string; positions: number[] } {
+  let compact = ''
+  const positions: number[] = []
+
+  let index = 0
+  for (const char of text) {
+    const pinyins = PINYIN_MAP[char]
+    if (pinyins) {
+      for (const p of pinyins[0]) {
+        compact += p
+        positions.push(index)
+      }
+    }
+    index++
+  }
+
+  return { compact, positions }
 }
 
 /**
@@ -274,6 +372,30 @@ function pinyinMatch(
       match: true,
       score: 0.8 + (1 - index / textPinyin.length) * 0.2, // 拼音匹配分数略低于精确匹配
       start: Math.floor(index / 2), // 粗略估计原始位置
+    }
+  }
+
+  // 紧凑拼音匹配（支持 "denglu" -> "登录" 这类连续拼音）
+  const { compact, positions } = toCompactPinyin(text.toLowerCase())
+  if (compact) {
+    const compactIndex = compact.indexOf(queryPinyin)
+    if (compactIndex !== -1) {
+      const originalStart = positions[compactIndex] ?? 0
+      return {
+        match: true,
+        score: 0.8 + (1 - compactIndex / Math.max(compact.length, 1)) * 0.2,
+        start: originalStart,
+      }
+    }
+
+    // 尝试模糊拼音匹配
+    const compactFuzzy = findBestWindowMatch(compact, queryPinyin, 1)
+    if (compactFuzzy) {
+      return {
+        match: true,
+        score: Math.max(0, 0.7 - compactFuzzy.distance * 0.1),
+        start: positions[compactFuzzy.start] ?? 0,
+      }
     }
   }
 
@@ -405,10 +527,10 @@ export function searchItems<T extends object>(
         if (includeHighlights && start >= 0) {
           highlights.push({
             field,
+            // 仅裁剪空白（原先的正则会吞掉中文/无空格文本的首尾整词）
             text: value
               .substring(Math.max(0, start - 20), Math.min(value.length, end + 20))
-              .replace(/^\S*\s*/, '')
-              .replace(/\s*\S*$/, ''),
+              .trim(),
             start: Math.max(0, start),
             end: Math.min(value.length, end),
           })

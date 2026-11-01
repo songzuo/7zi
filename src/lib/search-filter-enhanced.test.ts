@@ -185,15 +185,38 @@ describe('Enhanced search functionality', () => {
         },
       }
 
-      const results = searchItems(testItems, 'open', config)
+      // 本用例需要“标题命中”和“仅状态命中”两类样本，
+      // 公共 fixture 中没有任何标题包含 'open'，因此使用独立样本
+      const weightedItems: TestItem[] = [
+        {
+          id: 101,
+          title: 'Open session handling',
+          description: 'Handle open sessions correctly',
+          status: 'closed',
+          priority: 'high',
+          tags: 'session',
+        },
+        {
+          id: 102,
+          title: 'Fix payment issue',
+          description: 'Payment failure',
+          status: 'open',
+          priority: 'low',
+          tags: 'payment',
+        },
+      ]
+
+      const results = searchItems(weightedItems, 'open', config)
 
       // Items with 'open' in title should rank higher
-      const titleMatch = results.find(r => r.item.title.includes('open'))
+      const titleMatch = results.find(r => r.item.title.toLowerCase().includes('open'))
       const statusMatch = results.find(
-        r => r.item.status === 'open' && !r.item.title.includes('open')
+        r => r.item.status === 'open' && !r.item.title.toLowerCase().includes('open')
       )
 
-      expect(titleMatch?.score).toBeGreaterThan(statusMatch?.score || 0)
+      expect(titleMatch).toBeDefined()
+      expect(statusMatch).toBeDefined()
+      expect(titleMatch!.score).toBeGreaterThan(statusMatch!.score)
     })
 
     it('should score items based on weighted fields', () => {
