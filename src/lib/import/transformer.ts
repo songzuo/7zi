@@ -44,8 +44,9 @@ export class FieldTransformer {
         }
 
         // 类型转换
-        if (value !== null && value !== undefined) {
-          value = this.convertType(value, mapping.type || 'string')
+        // 未声明 type 时保持原始类型（不做隐式 String() 强转，避免数字/布尔被抹平成字符串）
+        if (value !== null && value !== undefined && mapping.type) {
+          value = this.convertType(value, mapping.type)
         }
 
         // 自定义转换
@@ -101,10 +102,24 @@ export class FieldTransformer {
     try {
       switch (type) {
         case 'string':
+          // 对象/数组转字符串时用 JSON，避免得到 "[object Object]"
+          if (typeof value === 'object' && value !== null) {
+            try {
+              return JSON.stringify(value)
+            } catch {
+              return String(value)
+            }
+          }
           return String(value)
 
         case 'number': {
-          const num = Number(value)
+          if (typeof value === 'number') return value
+          if (typeof value === 'boolean') return value ? 1 : 0
+          const text = String(value).trim()
+          if (text === '') return null
+          // 去除千分位分隔符
+          const normalized = text.replace(/,/g, '')
+          const num = Number(normalized)
           return isNaN(num) ? value : num
         }
 
@@ -159,11 +174,26 @@ export class FieldTransformer {
   }
 
   /**
+   * 推断值的类型
+   */
+  static inferType(value: unknown): NonNullable<FieldMapping['type']> {
+    if (typeof value === 'number') return 'number'
+    if (typeof value === 'boolean') return 'boolean'
+    if (value instanceof Date) return 'date'
+    if (typeof value === 'object' && value !== null) return 'json'
+    return 'string'
+  }
+
+  /**
    * 自动生成字段映射
+   * @param sourceFields 源字段名
+   * @param targetFields 目标字段名
+   * @param sampleValues 可选的样本值，用于推断字段类型；未提供时不做类型转换
    */
   static autoGenerateMapping(
     sourceFields: string[],
-    targetFields: string[]
+    targetFields: string[],
+    sampleValues?: Record<string, unknown>
   ): FieldMapping[] {
     const mappings: FieldMapping[] = []
 
@@ -171,11 +201,17 @@ export class FieldTransformer {
       // 尝试匹配目标字段
       const target = this.findBestMatch(source, targetFields)
 
-      mappings.push({
+      const mapping: FieldMapping = {
         sourceField: source,
         targetField: target || source,
-        type: 'string',
-      })
+      }
+
+      // 有样本值时推断类型，没有样本值时保持 type 未定义（原样透传）
+      if (sampleValues && Object.prototype.hasOwnProperty.call(sampleValues, source)) {
+        mapping.type = this.inferType(sampleValues[source])
+      }
+
+      mappings.push(mapping)
     }
 
     return mappings

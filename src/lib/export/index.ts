@@ -24,6 +24,66 @@ export type {
   ExportResult,
 } from './core/exporter'
 
+// ============================================================================
+// 格式化器
+// ============================================================================
+
+export {
+  dateFormatter,
+  booleanFormatter,
+  arrayFormatter,
+  truncateFormatter,
+  numberFormatter,
+  currencyFormatter,
+  percentFormatter,
+  enumFormatter,
+  jsonFormatter,
+  linkFormatter,
+  conditionalFormatter,
+} from './utils/formatters'
+export type {
+  DateFormatMode,
+  NumberFormatterOptions,
+  ConditionalBranch,
+  FieldFormatter,
+} from './utils/formatters'
+
+// ============================================================================
+// 字段辅助
+// ============================================================================
+
+export {
+  createFields,
+  createEnhancedFields,
+  getFieldsByGroup,
+  sortFields,
+  DEFAULT_FIELD_GROUP,
+} from './utils/field-helpers'
+export type { FieldSpec, FieldGroups } from './utils/field-helpers'
+
+// ============================================================================
+// 模板注册表
+// ============================================================================
+
+export {
+  registerTemplate,
+  getTemplate,
+  getAllTemplates,
+  deleteTemplate,
+  clearTemplates,
+} from './utils/template-registry'
+export type { ExportTemplate } from './utils/template-registry'
+
+// ============================================================================
+// 便捷导出
+// ============================================================================
+
+export { exportData, exportWithTemplate, exportMultiSheet } from './utils/convenience'
+export type {
+  MultiSheetDefinition,
+  MultiSheetExportConfig,
+} from './utils/convenience'
+
 // 任务队列
 export { ExportQueue } from './queue/export-queue'
 export type {

@@ -82,7 +82,10 @@ export async function compressBackup(
       }
 
       default:
-        return data
+        // 未知算法必须显式报错。
+        // 之前这里静默 `return data`，调用方以为压缩成功了，实际写出去的是明文 ——
+        // 备份文件体积没降、还以为是"压缩备份"，属于静默数据损坏。
+        throw new Error(`Unsupported compression algorithm: ${String(algorithm)}`)
     }
   } catch (error) {
     console.error('Failed to compress backup:', error)
@@ -151,7 +154,9 @@ export async function decompressBackup(
       }
 
       default:
-        return data
+        // 同 compressBackup：未知算法不能静默返回原文，
+        // 否则会把"没解压出来的原文"当成解压成功写回数据库。
+        throw new Error(`Unsupported compression algorithm: ${String(algorithm)}`)
     }
   } catch (error) {
     console.error('Failed to decompress backup:', error)

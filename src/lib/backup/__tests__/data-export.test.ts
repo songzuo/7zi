@@ -12,15 +12,22 @@ import {
   deleteExport,
 } from '../data-export'
 import { ExportFormat, ExportOptions } from '../types'
+import { setupIsolatedDirs, IsolatedDirs } from './helpers'
 
 describe('Data Export Module', () => {
-  beforeEach(() => {
+  let dirs: IsolatedDirs
+
+  beforeEach(async () => {
+    // 独立的导出目录：保证 "初始为空" 类用例可重复运行，
+    // 也避免把导出产物写进仓库的 exports/ 目录。
+    dirs = await setupIsolatedDirs('data-export')
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-03-21T10:00:00.000Z'))
   })
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.useRealTimers()
+    await dirs.cleanup()
   })
 
   describe('exportData (JSON)', () => {

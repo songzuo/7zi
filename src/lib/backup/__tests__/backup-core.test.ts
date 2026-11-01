@@ -12,15 +12,22 @@ import {
   getBackupStatistics,
 } from '../backup-core'
 import { BackupStatus, CompressionAlgorithm, EncryptionAlgorithm } from '../types'
+import { setupIsolatedDirs, IsolatedDirs } from './helpers'
 
 describe('Backup Core Module', () => {
-  beforeEach(() => {
+  let dirs: IsolatedDirs
+
+  beforeEach(async () => {
+    // 每个用例用独立的备份目录：避免用例之间互相污染，
+    // 也避免把运行时产物写进仓库的 backups/ 目录。
+    dirs = await setupIsolatedDirs('backup-core')
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-03-21T10:00:00.000Z'))
   })
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.useRealTimers()
+    await dirs.cleanup()
   })
 
   describe('createBackup', () => {

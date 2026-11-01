@@ -12,9 +12,15 @@ import {
   getBackupJobs,
 } from '../scheduler'
 import { BackupFrequency, CompressionAlgorithm, EncryptionAlgorithm } from '../types'
+import { setupIsolatedDirs, IsolatedDirs } from './helpers'
 
 describe('Backup Scheduler Module', () => {
-  beforeEach(() => {
+  let dirs: IsolatedDirs
+
+  beforeEach(async () => {
+    // 独立的备份目录：jobs.json / schedules.json 是运行时共享文件，
+    // 隔离后每次跑的 job 历史都是干净的，排序断言才可重复。
+    dirs = await setupIsolatedDirs('scheduler')
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-03-21T10:00:00.000Z'))
   })
@@ -27,6 +33,8 @@ describe('Backup Scheduler Module', () => {
     for (const schedule of schedules) {
       await cancelScheduledBackup(schedule.id)
     }
+
+    await dirs.cleanup()
   })
 
   describe('scheduleBackup', () => {

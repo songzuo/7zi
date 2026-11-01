@@ -9,15 +9,14 @@ import { ExportFormat, ExportOptions, ImportOptions } from './types'
 import fs from 'fs/promises'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
-
-const EXPORT_DIR = path.join(process.cwd(), 'exports')
+import { getExportDir } from './paths'
 
 /**
  * Ensure export directory exists
  */
 async function ensureExportDir(): Promise<void> {
   try {
-    await fs.mkdir(EXPORT_DIR, { recursive: true })
+    await fs.mkdir(getExportDir(), { recursive: true })
   } catch (error) {
     logger.error('Failed to create export directory', error)
     throw error
@@ -73,7 +72,7 @@ export async function exportData(
 
   // Save to file
   const filename = `export-${exportId}-${timestamp}.json`
-  const filePath = path.join(EXPORT_DIR, filename)
+  const filePath = path.join(getExportDir(), filename)
   const content = JSON.stringify(exportObj, null, 2)
 
   await fs.writeFile(filePath, content, 'utf-8')
@@ -117,7 +116,7 @@ export async function exportToCSV(
   }
 
   // Create export directory for CSV files
-  const exportSubDir = path.join(EXPORT_DIR, `export-${exportId}-${timestamp}`)
+  const exportSubDir = path.join(getExportDir(), `export-${exportId}-${timestamp}`)
   await fs.mkdir(exportSubDir, { recursive: true })
 
   let totalSize = 0
@@ -200,7 +199,7 @@ export async function importData(
   options: ImportOptions
 ): Promise<{ success: boolean; message: string; error?: string; importedRecords?: number }> {
   try {
-    const filePath = path.join(EXPORT_DIR, filename)
+    const filePath = path.join(getExportDir(), filename)
     const content = await fs.readFile(filePath, 'utf-8')
     const importObj = JSON.parse(content) as {
       version?: string
@@ -296,7 +295,7 @@ export async function importFromCSV(
   options: ImportOptions
 ): Promise<{ success: boolean; message: string; error?: string; importedRecords?: number }> {
   try {
-    const dirPath = path.join(EXPORT_DIR, directory)
+    const dirPath = path.join(getExportDir(), directory)
 
     // Read manifest
     const manifestPath = path.join(dirPath, 'manifest.json')
@@ -446,12 +445,12 @@ export async function listExports(): Promise<
   try {
     await ensureExportDir()
 
-    const entries = await fs.readdir(EXPORT_DIR, { withFileTypes: true })
+    const entries = await fs.readdir(getExportDir(), { withFileTypes: true })
     const exports: Array<{ filename: string; path: string; size: number; format: string }> = []
 
     for (const entry of entries) {
       if (entry.name.endsWith('.json')) {
-        const filePath = path.join(EXPORT_DIR, entry.name)
+        const filePath = path.join(getExportDir(), entry.name)
         const stats = await fs.stat(filePath)
         exports.push({
           filename: entry.name,
@@ -460,7 +459,7 @@ export async function listExports(): Promise<
           format: 'json',
         })
       } else if (entry.isDirectory() && entry.name.startsWith('export-')) {
-        const dirPath = path.join(EXPORT_DIR, entry.name)
+        const dirPath = path.join(getExportDir(), entry.name)
         const files = await fs.readdir(dirPath)
 
         if (files.includes('manifest.json')) {
@@ -507,7 +506,7 @@ async function getDirectorySize(dirPath: string): Promise<number> {
  */
 export async function deleteExport(filename: string): Promise<boolean> {
   try {
-    const filePath = path.join(EXPORT_DIR, filename)
+    const filePath = path.join(getExportDir(), filename)
 
     if (filename.endsWith('.json')) {
       await fs.unlink(filePath)

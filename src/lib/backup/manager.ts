@@ -10,6 +10,7 @@ import {
   deleteBackup,
   restoreBackup,
   getBackupStatistics,
+  BackupPayload,
 } from './backup-core'
 import {
   scheduleBackup,
@@ -72,7 +73,7 @@ export class BackupManager {
    */
   static async getBackup(
     backupId: string
-  ): Promise<{ metadata: BackupMetadata; data: Record<string, unknown[]> } | null> {
+  ): Promise<{ metadata: BackupMetadata; data: BackupPayload } | null> {
     return getBackup(backupId)
   }
 
