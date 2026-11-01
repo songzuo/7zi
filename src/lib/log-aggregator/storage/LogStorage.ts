@@ -164,12 +164,29 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
     for (const key of partitionKeys) {
       const partition = this._partitions.get(key);
       if (partition) {
-        candidates = candidates.concat(partition.entries);
+        // delete() 会把被删条目的数组槽位置为 null（为了保持
+        // IndexNode.offset 与数组下标对齐），所以这里必须过滤掉
+        // null —— 否则已删除的日志会作为 `null` 混进结果集，
+        // 既让 total 虚高，又会让下游 entry.id 之类的访问直接抛错。
+        candidates = candidates.concat(
+          partition.entries.filter((e): e is LogEntry => e !== null)
+        );
       }
     }
 
     // Apply filters
     candidates = this.applyFilters(candidates, query.filters || []);
+    
+    // Apply the exact time range.
+    //
+    // getPartitionKeysInRange() 只能把范围落到**小时级分区**上：
+    // 例如查询 00:00–00:10 时，00:00 这个小时分区里的所有条目
+    // 都会被收进来，包括 00:59 的日志 —— 分区粒度 ≠ 查询精度。
+    //
+    // 所以这里必须再按 entry.timestamp 精确过滤一次，
+    // 否则任何小于一小时的查询都会多返回一堆不该命中的日志，
+    // total / 分页 / 聚合全部跟着偏。
+    candidates = this.applyTimeRange(candidates, query.timeRange);
     
     // Apply text query
     if (query.textQuery) {
@@ -225,12 +242,19 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
     for (const key of partitionKeys) {
       const partition = this._partitions.get(key);
       if (partition) {
-        entries = entries.concat(partition.entries);
+        // 同 query()：过滤掉 delete() 留下的 null 槽位，
+        // 否则会凭空多出一个 key = { level: null } 的分组。
+        entries = entries.concat(
+          partition.entries.filter((e): e is LogEntry => e !== null)
+        );
       }
     }
 
     // Apply filters
     entries = this.applyFilters(entries, query.filters || []);
+
+    // 同 query()：分区只是粗筛，还要按精确时间戳过滤
+    entries = this.applyTimeRange(entries, query.timeRange);
 
     // Group by fields
     const groups = this.groupBy(entries, query.groupBy);
@@ -362,6 +386,81 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
     };
   }
 
+/**
+   * 按保留期清理过期日志
+   *
+   * config.retentionDays 之前只是个摆设：_retentionDays / _cleanupTimer
+   * 被声明出来却从来没人用过，日志会无限期堆积在内存里。
+   * 这里补上真正的清理逻辑：删除早于
+   * `now - retentionDays` 的条目，并把过期的整点分区整个摘掉。
+   *
+   * @returns 被清理掉的条目数
+   */
+  async cleanup(): Promise<number> {
+    const cutoff = Date.now() - this._retentionDays * 24 * 60 * 60 * 1000;
+    let removed = 0;
+
+    for (const [key, partition] of Array.from(this._partitions.entries())) {
+      // 整个分区都已超出保留期 → 直接丢弃
+      if (partition.end.getTime() <= cutoff) {
+        for (const node of partition.index.values()) {
+          this._totalSize -= node.size;
+          this._currentIndex.delete(node.id);
+          this.removeFromIndex(this._levelIndex, node.level, node.id);
+          this.removeFromIndex(this._sourceIndex, node.source, node.id);
+
+          const words = this.tokenize(node.message);
+          for (const word of words) {
+            this.removeFromIndex(this._fullTextIndex, word.toLowerCase(), node.id);
+          }
+        }
+        this._totalEntries -= partition.index.size;
+        this._partitions.delete(key);
+        removed += partition.index.size;
+        continue;
+      }
+
+      // 分区跨越保留期边界 → 逐条清理过期条目
+      const toDelete: string[] = [];
+      for (const [id, node] of partition.index.entries()) {
+        if (node.timestamp.getTime() < cutoff) {
+          toDelete.push(id);
+        }
+      }
+
+      for (const id of toDelete) {
+        const node = partition.index.get(id);
+        if (!node) continue;
+
+        partition.size -= node.size;
+        this._totalSize -= node.size;
+        this._totalEntries--;
+
+        partition.index.delete(id);
+        this._currentIndex.delete(id);
+        this.removeFromIndex(this._levelIndex, node.level, id);
+        this.removeFromIndex(this._sourceIndex, node.source, id);
+
+        const words = this.tokenize(node.message);
+        for (const word of words) {
+          this.removeFromIndex(this._fullTextIndex, word.toLowerCase(), id);
+        }
+
+        partition.entries[node.offset] = null as unknown as LogEntry;
+        removed++;
+      }
+
+      if (partition.index.size === 0) {
+        this._partitions.delete(key);
+      }
+    }
+
+    // 清理后回收数组里的空洞，保持 offset 与数组下标对齐
+    await this.optimize();
+
+    return removed;
+  }
+
   /**
    * 优化存储
    */
@@ -396,7 +495,9 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
     const data = {
       partitions: Array.from(this._partitions.entries()).map(([key, partition]) => ({
         key,
-        entries: partition.entries,
+        // 过滤掉 delete() 留下的 null 槽位，否则备份文件里
+        // 会混进 null，restore() 之后再查询就会炸。
+        entries: partition.entries.filter((e): e is LogEntry => e !== null),
         start: partition.start,
         end: partition.end,
       })),
@@ -444,17 +545,30 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
 
       for (const entry of partition.entries) {
         if (entry) {
-          const node: IndexNode = {
-            id: entry.id,
+          // 备份文件是 JSON —— 读回来之后 entry.timestamp 是**字符串**，
+          // 不是 Date。索引节点里做了 new Date() 转换，但条目本身
+          // 没有，于是后续按 timestamp 过滤/排序时
+          // entry.timestamp.getTime() 会直接抛
+          // "entry.timestamp.getTime is not a function"。
+          // 这里统一把时间戳重新 hydrate 成 Date。
+          const restored: LogEntry = {
+            ...entry,
             timestamp: new Date(entry.timestamp),
-            level: entry.level,
-            source: entry.source?.name || '',
-            message: entry.message,
-            offset: partition.index.size,
-            size: JSON.stringify(entry).length,
           };
 
-          partition.index.set(entry.id, node);
+          const node: IndexNode = {
+            id: restored.id,
+            timestamp: restored.timestamp,
+            level: restored.level,
+            source: restored.source?.name || '',
+            message: restored.message,
+            offset: partition.index.size,
+            size: JSON.stringify(restored).length,
+          };
+
+          partition.entries[partition.index.size] = restored;
+
+          partition.index.set(restored.id, node);
           partition.size += node.size;
           
           this._totalSize += node.size;
@@ -462,15 +576,15 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
           entries++;
 
           // Rebuild indexes
-          this.addToIndex(this._currentIndex, entry.id, entry.id);
-          this.addToIndex(this._levelIndex, entry.level, entry.id);
+          this.addToIndex(this._currentIndex, restored.id, restored.id);
+          this.addToIndex(this._levelIndex, restored.level, restored.id);
           if (entry.source?.name) {
-            this.addToIndex(this._sourceIndex, entry.source.name, entry.id);
+            this.addToIndex(this._sourceIndex, entry.source.name, restored.id);
           }
 
-          const words = this.tokenize(entry.message);
+          const words = this.tokenize(restored.message);
           for (const word of words) {
-            this.addToIndex(this._fullTextIndex, word.toLowerCase(), entry.id);
+            this.addToIndex(this._fullTextIndex, word.toLowerCase(), restored.id);
           }
         }
       }
@@ -600,9 +714,35 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
   }
 
   /**
+   * 按精确时间戳过滤条目
+   *
+   * 分区是小时级的，只用 getPartitionKeysInRange() 选分区的话，
+   * 边界小时内不在时间范围内的条目会被一并返回。
+   */
+  private applyTimeRange(entries: LogEntry[], timeRange?: TimeRange): LogEntry[] {
+    if (!timeRange) {
+      return entries;
+    }
+
+    const start = timeRange.start.getTime();
+    const end = timeRange.end.getTime();
+
+    return entries.filter((entry) => {
+      const ts = entry.timestamp.getTime();
+      return ts >= start && ts <= end;
+    });
+  }
+
+  /**
    * 匹配过滤器
    */
   private matchesFilters(entry: LogEntry, filters: QueryFilter[]): boolean {
+    // delete() 会把被删槽位置为 null；若这里不挡住，
+    // getFieldValue(entry, ...) 会在 null 上取属性而抛错。
+    if (!entry) {
+      return false;
+    }
+
     for (const filter of filters) {
       const value = this.getFieldValue(entry, filter.field);
       const matches = this.matchFilter(value, filter.operator, filter.value);
@@ -700,7 +840,16 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
       return entries;
     }
 
+    // tokenize() 会丢掉长度 ≤ 2 的词。如果查询串里的词全都这么短
+    // （例如 'co'、'id'），words 就是空数组 → matchingIds 为空 →
+    // 结果恒为空。索引侧同样用 tokenize() 建索引，所以那些短词
+    // 本来就没进过全文索引 —— 这时正确的语义是"没有可匹配的词，
+    // 保持不过滤"，而不是"匹配不到任何东西"。
     const words = this.tokenize(textQuery);
+    if (words.length === 0) {
+      return entries;
+    }
+
     const matchingIds = new Set<string>();
 
     for (const word of words) {

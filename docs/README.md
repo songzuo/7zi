@@ -121,6 +121,18 @@ RESEND_API_KEY=re_xxxxxxxx
 - **[QUICKSTART.md](./QUICKSTART.md)** - 5 分钟快速部署
 - **[CHANGELOG.md](./CHANGELOG.md)** - 版本变更日志
 
+### 🧬 核心域文档（源码实测规范文档）
+
+> T319 于 2026-11-01 从源码逐行读出并补齐。含公开 API 签名表、数据流、配置项/环境变量、错误码语义、测试覆盖与运行方式、FAQ。
+> ✅ = 当前实现事实；⚠️ = 待 T315/T316/T317 修复完成后回填。
+
+| 域 | 文档 | 源码范围 |
+| --- | --- | --- |
+| 🔍 Search | **[search/README.md](./search/README.md)** | `src/lib/search/**` + `src/lib/search-filter.ts` |
+| ⚙️ Workflow | **[workflow/README.md](./workflow/README.md)** | `src/lib/workflow/**` |
+| 💾 Backup | **[backup/README.md](./backup/README.md)** | `src/lib/backup/**` |
+| 🤖 Agents-Scheduler | **[agents-scheduler/README.md](./agents-scheduler/README.md)** | `src/lib/agents/scheduler/**` + `src/lib/agents/core/**` |
+
 ### 🏗️ 架构文档
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - 系统架构总览 ⭐

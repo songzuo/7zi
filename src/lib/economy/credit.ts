@@ -239,20 +239,27 @@ export class CreditScoreService {
     const currentScore = await this.getOrCreateCreditScore(agentId)
 
     // 计算新的任务完成率 - 使用固定基数模拟
+    //
+    // ⚠️ 这里不能把百分比四舍五入成整数：
+    // 基数为 100 时，一次任务失败只让完成率从 50% 变成 49.5%，
+    // round 之后又是 50 —— 记一次失败对完成率**毫无影响**，
+    // 「任务失败会拉低完成率」这条业务承诺是假的。
+    // 同样，一次按时交付把 50% 变成 50.495%，round 后仍是 50，
+    // 「按时交付率上升」也观察不到。
+    //
+    // 因此保留浮点精度：因子本身是 number（0-100 连续量），
+    // 单次事件的影响必须可观测。分数最终仍取整，不受影响。
     const totalTasks = 100 // 假设历史有100次任务
-    const currentCompletedTasks = Math.round(
-      totalTasks * (currentScore.factors.taskCompletionRate / 100)
-    )
+    const currentCompletedTasks = totalTasks * (currentScore.factors.taskCompletionRate / 100)
     const newCompletedTasks = currentCompletedTasks + (completed ? 1 : 0)
-    const newCompletionRate = Math.round((newCompletedTasks / (totalTasks + 1)) * 100)
+    const newCompletionRate = (newCompletedTasks / (totalTasks + 1)) * 100
 
     // 计算新的按时交付率 - 使用固定基数模拟
     const totalDeliveries = 100 // 假设历史有100次交付
-    const currentOnTimeDeliveries = Math.round(
+    const currentOnTimeDeliveries =
       totalDeliveries * (currentScore.factors.onTimeDeliveryRate / 100)
-    )
     const newOnTimeDeliveries = currentOnTimeDeliveries + (onTime ? 1 : 0)
-    const newOnTimeRate = Math.round((newOnTimeDeliveries / (totalDeliveries + 1)) * 100)
+    const newOnTimeRate = (newOnTimeDeliveries / (totalDeliveries + 1)) * 100
 
     // 计算响应速度评分（0-100）
     // 30秒内 = 100分，60秒 = 80分，120秒 = 60分，300秒 = 40分，超过 = 20分

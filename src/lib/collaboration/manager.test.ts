@@ -5,6 +5,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
+// The global test setup (src/test/vi-mocks.ts) replaces the whole
+// `collaboration/manager` module with a stub. These are unit tests for the
+// real implementation, so unmock it before importing.
+vi.unmock('./manager')
+
 import {
   transform,
   applyOperation,
@@ -179,7 +185,8 @@ describe('Operational Transformation', () => {
 
       const result = applyOperation(document, deleteOp, 'user1', 'John Doe')
 
-      expect(result.content).toBe('HellWorld')
+      // deleteOp = { position: 5, length: 3 } → removes ' Wo' from 'Hello World'
+      expect(result.content).toBe('Hellorld')
       expect(result.revision).toBe(1)
     })
 

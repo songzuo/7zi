@@ -112,8 +112,13 @@ describe('CreditScoreService', () => {
         repeatCustomerRate: 0,
       })
 
+      // 因子全为 0 时的**理论下限**是 295，不是 0：
+      //   500(基准) - 62.5(完成率) - 30(响应速度) - 60(用户评分)
+      //         - 30(按时交付) - 22.5(回头客) = 295
+      // 因子权重决定的最小跌幅只有 205 分，靠因子永远压不到 0；
+      // 真正能触底的是违规扣分（见 recordViolation 用例）。
+      expect(score.score).toBe(295)
       expect(score.score).toBeGreaterThanOrEqual(0)
-      expect(score.score).toBe(0)
       expect(score.level).toBe('poor')
     })
 
@@ -330,9 +335,11 @@ describe('CreditScoreService', () => {
   describe('recordTaskCompletion — 任务完成记录', () => {
     it('完成一次任务，完成率上升', async () => {
       const score = await service.recordTaskCompletion('agent-1', true, true, 20)
-      // 50/100 → 51/101 ≈ 50.5 → 50（round）
-      expect(score.factors.taskCompletionRate).toBe(50)
-      expect(score.factors.responseSpeed).toBe(85) // 50*0.7 + 100*0.3
+      // 50/100 → 51/101 ≈ 50.495（不取整：取整会把这次完成吃掉）
+      expect(score.factors.taskCompletionRate).toBeGreaterThan(50)
+      expect(score.factors.taskCompletionRate).toBeCloseTo((51 / 101) * 100, 10)
+      // 50*0.7 + 100*0.3 = 65
+      expect(score.factors.responseSpeed).toBe(65)
     })
 
     it('响应时间分档：≤30s=100, ≤60s=80, ≤120s=60, ≤300s=40, 更长=20', async () => {
@@ -433,7 +440,15 @@ describe('CreditScoreService', () => {
 
       const history = await service.getCreditHistory('agent-1')
       expect(history).toHaveLength(2)
-      expect(history[0].previousScore).toBeGreaterThan(history[1].newScore)
+
+      // 最新一条在前：history[0] 是第二次计算，history[1] 是第一次
+      expect(history[0].newScore).toBeGreaterThan(history[1].newScore)
+      // 链条连续：最新一条的 previousScore === 上一条的 newScore
+      expect(history[0].previousScore).toBe(history[1].newScore)
+      // 时间戳倒序
+      expect(history[0].timestamp.getTime()).toBeGreaterThanOrEqual(
+        history[1].timestamp.getTime()
+      )
     })
 
     it('历史最多保留 100 条', async () => {

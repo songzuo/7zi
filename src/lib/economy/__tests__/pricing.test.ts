@@ -30,7 +30,15 @@ describe('PricingService', () => {
   const future = (days: number) => new Date(Date.now() + days * day)
   const past = (days: number) => new Date(Date.now() - days * day)
 
-  async function makePricing(overrides: Partial<Parameters<PricingService['createServicePricing']>[]> = {}) {
+  /**
+   * 创建定价的测试辅助函数。
+   *
+   * 注意：`Parameters<T>` 作用在带默认值的函数上会得到一个**位置参数元组**，
+   * 而不是一个数组 —— 早先这里写成 `Partial<Parameters<...>[]>`
+   * （多了个 `[]`，变成元组数组）既类型不通、也没人真的传过参数，
+   * 属于纯负担。所有调用都是无参的，这里直接收敛成无参辅助函数。
+   */
+  async function makePricing() {
     return service.createServicePricing(
       'agent-1',
       'service-1',

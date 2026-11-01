@@ -84,6 +84,25 @@ export async function initializeDatabase(): Promise<void> {
 // Helper Functions
 // ============================================================================
 
+/**
+ * 排序键说明（T285 新增）。
+ *
+ * 所有列表查询都在时间戳列之后追加了 `rowid DESC` 作为**兜底排序键**。
+ *
+ * 缺陷背景：只按 `created_at DESC` 排序不是全序 —— `created_at` 是毫秒级
+ * INTEGER，同一批（尤其是批量导入、循环里连续 create）记录的时间戳
+ * 经常完全相同，这些行在排序里互相"打平"，彼此的先后顺序由 SQLite
+ * 自行决定。
+ *
+ * 后果不是"顺序不好看"，而是**分页会漏行/重行**：
+ * LIMIT/OFFSET 是按行位置切的，而打平行之间的相对顺序在
+ * count 查询与 items 查询（乃至两次不同的 items 查询）之间并不保证一致，
+ * 于是第 1 页和第 2 页可能包含同一条记录，另一条则两页都看不到。
+ *
+ * `rowid` 是 SQLite 的隐式自增主键，天然唯一且单调，
+ * 把它接在时间戳之后就能把排序变成**确定性全序** ——
+ * 同毫秒内后写入的排在前面（与"后建的在前"的直觉一致）。
+ */
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
@@ -190,12 +209,64 @@ function toSecurityAlert(row: Record<string, unknown>): SecurityAlert {
   }
 }
 
-function buildPaginationSQL(params: PaginationParams): { limit: number; offset: number } {
-  const limit = Math.min(params.limit || 20, 100)
-  const page = Math.max(params.page || 1, 1)
+const DEFAULT_PAGE_SIZE = 20
+const MAX_PAGE_SIZE = 100
+
+/**
+ * 归一化分页参数。
+ *
+ * 缺陷背景（T272R）：
+ *  1. `Math.min(params.limit || 20, 100)` 只夹上限不夹下限 ——
+ *     `limit = -1` 是 truthy，直接进了 SQL 的 `LIMIT -1`，
+ *     而 SQLite 把负数 LIMIT 解释成"不限制"，一次就把整张表吐出来。
+ *  2. `Math.min(NaN, 100)` = NaN，`Math.min(Infinity, 100)` = 100 ——
+ *     两种都不是调用方想要的每页条数。
+ *  3. 取数用 `Math.max(page || 1, 1)` 归一，但 meta 用原始的 `pagination?.page`，
+ *     于是 `page = -3` 时返回的是第 1 页的数据，元信息却说 currentPage = -3。
+ *
+ * 现在 limit / page 统一在这里归一，取数与元信息共用同一份结果。
+ */
+function buildPaginationSQL(params: PaginationParams): { page: number; limit: number; offset: number } {
+  const rawLimit = params.limit
+  const limit =
+    typeof rawLimit === 'number' && Number.isFinite(rawLimit) && Math.floor(rawLimit) > 0
+      ? Math.min(Math.floor(rawLimit), MAX_PAGE_SIZE)
+      : DEFAULT_PAGE_SIZE
+
+  const rawPage = params.page
+  const page =
+    typeof rawPage === 'number' && Number.isFinite(rawPage) ? Math.max(Math.floor(rawPage), 1) : 1
+
   const offset = (page - 1) * limit
 
-  return { limit, offset }
+  return { page, limit, offset }
+}
+
+/**
+ * 转义 LIKE 模式里的通配符。
+ *
+ * 缺陷背景（T285）：搜索词直接拼进 `%${search}%`，
+ * 用户搜 "_" 时 LIKE 把 "_" 当成"任意单个字符"，搜 "%" 时变成"匹配一切"——
+ * 结果集完全不是用户要的。修复方式：把 `\` `%` `_` 三个字符转义，
+ * SQL 侧配合 `ESCAPE '\'` 生效。
+ *
+ * 顺序很关键：必须先把 `\` 本身转义掉，否则后面补的转义符会被二次转义。
+ */
+function escapeLikePattern(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_')
+}
+
+/**
+ * 归一化"单条查询"的 limit 参数（非分页接口用）。
+ *
+ * 同样的 `LIMIT -1 == 不限制` 陷阱：负数 limit 传给 SQLite 等于"不限制"，
+ * 一次查询把整张表拉出来。这里夹住下限，非法值回退到调用方给的默认值。
+ */
+function normalizeRowLimit(limit: number, fallback: number, max: number): number {
+  if (typeof limit !== 'number' || !Number.isFinite(limit)) return fallback
+  const floored = Math.floor(limit)
+  if (floored <= 0) return fallback
+  return Math.min(floored, max)
 }
 
 function buildWhereClause(filters: RuleFilters): { where: string; params: unknown[] } {
@@ -218,8 +289,9 @@ function buildWhereClause(filters: RuleFilters): { where: string; params: unknow
   }
 
   if (filters.search) {
-    conditions.push('(name LIKE ? OR pattern LIKE ? OR description LIKE ?)')
-    const searchPattern = `%${filters.search}%`
+    // 搜索词必须按字面量匹配：转义 `\` `%` `_`，并让 SQL 用 ESCAPE '\' 解释这些转义符。
+    conditions.push("(name LIKE ? ESCAPE '\\' OR pattern LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\')")
+    const searchPattern = `%${escapeLikePattern(filters.search)}%`
     params.push(searchPattern, searchPattern, searchPattern)
   }
 
@@ -237,6 +309,11 @@ function buildSecurityAlertWhere(filters?: SecurityFilters): { where: string; pa
   const conditions: string[] = []
   const params: unknown[] = []
 
+  if (filters?.type) {
+    conditions.push('type = ?')
+    params.push(filters.type)
+  }
+
   if (filters?.severity) {
     conditions.push('severity = ?')
     params.push(filters.severity)
@@ -245,6 +322,11 @@ function buildSecurityAlertWhere(filters?: SecurityFilters): { where: string; pa
   if (filters?.dismissed !== undefined) {
     conditions.push('dismissed = ?')
     params.push(filters.dismissed ? 1 : 0)
+  }
+
+  if (filters?.timeRange) {
+    conditions.push('created_at >= ? AND created_at <= ?')
+    params.push(filters.timeRange.start, filters.timeRange.end)
   }
 
   return {
@@ -258,15 +340,29 @@ function buildSecurityAlertWhere(filters?: SecurityFilters): { where: string; pa
 // ============================================================================
 
 export class RateLimitRulesRepository {
-  private db: Database.Database
+  /**
+   * 显式注入的连接；没传就每次现取全局连接。
+   *
+   * 缺陷背景（T285）：原来构造时就 `this.db = database || getDatabase()`，
+   * 而 `repositories` 单例是在模块加载时构造的 —— 于是连接被**固化**在单例里。
+   * 一旦有人调用 `closeDatabase()`（测试清理、热重载、连接重置），
+   * 所有单例 Repository 手里拿的都是已关闭的连接，
+   * 之后每次调用都抛 `TypeError: The database connection is not open`。
+   * 现在改成惰性取连接：close 之后下次调用会自动重开。
+   */
+  private readonly injectedDb?: Database.Database
 
   constructor(database?: Database.Database) {
-    this.db = database || getDatabase()
+    this.injectedDb = database
+  }
+
+  private get db(): Database.Database {
+    return this.injectedDb ?? getDatabase()
   }
 
   async findAll(filters?: RuleFilters, pagination?: PaginationParams): Promise<PaginationResponse<RateLimitRule>> {
     const { where, params: whereParams } = buildWhereClause(filters || {})
-    const { limit, offset } = buildPaginationSQL(pagination || {})
+    const { page, limit, offset } = buildPaginationSQL(pagination || {})
 
     // Get total count
     const countStmt = this.db.prepare(`SELECT COUNT(*) as total FROM rate_limit_rules WHERE ${where}`)
@@ -276,7 +372,7 @@ export class RateLimitRulesRepository {
     const itemsStmt = this.db.prepare(`
       SELECT * FROM rate_limit_rules
       WHERE ${where}
-      ORDER BY priority DESC, created_at DESC
+      ORDER BY priority DESC, created_at DESC, rowid DESC
       LIMIT ? OFFSET ?
     `)
     const items = itemsStmt.all(...whereParams, limit, offset) as Record<string, unknown>[]
@@ -289,12 +385,12 @@ export class RateLimitRulesRepository {
     return {
       items: convertedItems,
       meta: {
-        currentPage: pagination?.page || 1,
+        currentPage: page,
         perPage: limit,
         total,
         totalPages,
-        hasNext: (pagination?.page || 1) < totalPages,
-        hasPrevious: (pagination?.page || 1) > 1,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
       },
     }
   }
@@ -418,42 +514,62 @@ export class RateLimitRulesRepository {
 // ============================================================================
 
 export class BlacklistRepository {
-  private db: Database.Database
+  /**
+   * 显式注入的连接；没传就每次现取全局连接。
+   *
+   * 缺陷背景（T285）：原来构造时就 `this.db = database || getDatabase()`，
+   * 而 `repositories` 单例是在模块加载时构造的 —— 于是连接被**固化**在单例里。
+   * 一旦有人调用 `closeDatabase()`（测试清理、热重载、连接重置），
+   * 所有单例 Repository 手里拿的都是已关闭的连接，
+   * 之后每次调用都抛 `TypeError: The database connection is not open`。
+   * 现在改成惰性取连接：close 之后下次调用会自动重开。
+   */
+  private readonly injectedDb?: Database.Database
 
   constructor(database?: Database.Database) {
-    this.db = database || getDatabase()
+    this.injectedDb = database
+  }
+
+  private get db(): Database.Database {
+    return this.injectedDb ?? getDatabase()
   }
 
   async findAll(pagination?: PaginationParams): Promise<PaginationResponse<BlacklistEntry>> {
-    const { limit, offset } = buildPaginationSQL(pagination || {})
+    const { page, limit, offset } = buildPaginationSQL(pagination || {})
 
     // count 与 items 必须用同一套"未过期"条件，
     // 否则 meta.total 会把已过期条目也算进去，与 items 长度对不上。
+    //
+    // 而且两次取 Date.now() 也不行：条目刚好在两次取数之间过期时，
+    // count 与 items 会落在过期边界的两侧，meta.total 与 items.length 对不上。
+    // 这里取一次 now，两条 SQL 共用。
+    const now = Date.now()
+
     const countStmt = this.db.prepare(`
       SELECT COUNT(*) as total FROM blacklist
       WHERE expires_at IS NULL OR expires_at > ?
     `)
-    const { total } = countStmt.get(Date.now()) as { total: number }
+    const { total } = countStmt.get(now) as { total: number }
 
     const itemsStmt = this.db.prepare(`
       SELECT * FROM blacklist
       WHERE expires_at IS NULL OR expires_at > ?
-      ORDER BY created_at DESC
+      ORDER BY created_at DESC, rowid DESC
       LIMIT ? OFFSET ?
     `)
-    const items = (itemsStmt.all(Date.now(), limit, offset) as Record<string, unknown>[]).map(toBlacklistEntry)
+    const items = (itemsStmt.all(now, limit, offset) as Record<string, unknown>[]).map(toBlacklistEntry)
 
     const totalPages = Math.ceil(total / limit)
 
     return {
       items,
       meta: {
-        currentPage: pagination?.page || 1,
+        currentPage: page,
         perPage: limit,
         total,
         totalPages,
-        hasNext: (pagination?.page || 1) < totalPages,
-        hasPrevious: (pagination?.page || 1) > 1,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
       },
     }
   }
@@ -473,7 +589,14 @@ export class BlacklistRepository {
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `)
 
-    stmt.run(id, dto.type, dto.value, dto.reason || null, dto.expiresAt || null, createdBy || null, now)
+    // expiresAt 必须用 ?? 而不是 ||：
+    // `0` 是假值，旧实现 `dto.expiresAt || null` 会把它写成 NULL，
+    // 而 NULL 在查询语义里表示"永不过期" —— 一条本该立刻失效的黑名单
+    // 变成了永久有效，过期方向完全反了（安全问题）。
+    // `??` 只在 null / undefined 时兜底，0 会被原样写入。
+    const expiresAt = dto.expiresAt === undefined || dto.expiresAt === null ? null : dto.expiresAt
+
+    stmt.run(id, dto.type, dto.value, dto.reason || null, expiresAt, createdBy || null, now)
 
     // 刚刚 INSERT 过，这一行必然存在；用 await + 非空断言，
     // 而不是把整个 Promise 强行 cast 成 BlacklistEntry（那样 null 分支就被类型系统骗过去了）。
@@ -510,21 +633,35 @@ export class BlacklistRepository {
 // ============================================================================
 
 export class WhitelistRepository {
-  private db: Database.Database
+  /**
+   * 显式注入的连接；没传就每次现取全局连接。
+   *
+   * 缺陷背景（T285）：原来构造时就 `this.db = database || getDatabase()`，
+   * 而 `repositories` 单例是在模块加载时构造的 —— 于是连接被**固化**在单例里。
+   * 一旦有人调用 `closeDatabase()`（测试清理、热重载、连接重置），
+   * 所有单例 Repository 手里拿的都是已关闭的连接，
+   * 之后每次调用都抛 `TypeError: The database connection is not open`。
+   * 现在改成惰性取连接：close 之后下次调用会自动重开。
+   */
+  private readonly injectedDb?: Database.Database
 
   constructor(database?: Database.Database) {
-    this.db = database || getDatabase()
+    this.injectedDb = database
+  }
+
+  private get db(): Database.Database {
+    return this.injectedDb ?? getDatabase()
   }
 
   async findAll(pagination?: PaginationParams): Promise<PaginationResponse<WhitelistEntry>> {
-    const { limit, offset } = buildPaginationSQL(pagination || {})
+    const { page, limit, offset } = buildPaginationSQL(pagination || {})
 
     const countStmt = this.db.prepare('SELECT COUNT(*) as total FROM whitelist')
     const { total } = countStmt.get() as { total: number }
 
     const itemsStmt = this.db.prepare(`
       SELECT * FROM whitelist
-      ORDER BY created_at DESC
+      ORDER BY created_at DESC, rowid DESC
       LIMIT ? OFFSET ?
     `)
     const items = (itemsStmt.all(limit, offset) as Record<string, unknown>[]).map(toWhitelistEntry)
@@ -534,12 +671,12 @@ export class WhitelistRepository {
     return {
       items,
       meta: {
-        currentPage: pagination?.page || 1,
+        currentPage: page,
         perPage: limit,
         total,
         totalPages,
-        hasNext: (pagination?.page || 1) < totalPages,
-        hasPrevious: (pagination?.page || 1) > 1,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
       },
     }
   }
@@ -611,10 +748,24 @@ function toRateLimitEvent(row: Record<string, unknown>): RateLimitEvent {
 }
 
 export class RateLimitEventsRepository {
-  private db: Database.Database
+  /**
+   * 显式注入的连接；没传就每次现取全局连接。
+   *
+   * 缺陷背景（T285）：原来构造时就 `this.db = database || getDatabase()`，
+   * 而 `repositories` 单例是在模块加载时构造的 —— 于是连接被**固化**在单例里。
+   * 一旦有人调用 `closeDatabase()`（测试清理、热重载、连接重置），
+   * 所有单例 Repository 手里拿的都是已关闭的连接，
+   * 之后每次调用都抛 `TypeError: The database connection is not open`。
+   * 现在改成惰性取连接：close 之后下次调用会自动重开。
+   */
+  private readonly injectedDb?: Database.Database
 
   constructor(database?: Database.Database) {
-    this.db = database || getDatabase()
+    this.injectedDb = database
+  }
+
+  private get db(): Database.Database {
+    return this.injectedDb ?? getDatabase()
   }
 
   async create(event: Omit<RateLimitEvent, 'id'>): Promise<RateLimitEvent> {
@@ -662,10 +813,10 @@ export class RateLimitEventsRepository {
     const stmt = this.db.prepare(`
       SELECT * FROM rate_limit_events
       WHERE identifier = ?
-      ORDER BY timestamp DESC
+      ORDER BY timestamp DESC, rowid DESC
       LIMIT ?
     `)
-    const rows = stmt.all(identifier, limit) as Record<string, unknown>[]
+    const rows = stmt.all(identifier, normalizeRowLimit(limit, 100, 1000)) as Record<string, unknown>[]
 
     return rows.map(toRateLimitEvent)
   }
@@ -674,10 +825,14 @@ export class RateLimitEventsRepository {
     const stmt = this.db.prepare(`
       SELECT * FROM rate_limit_events
       WHERE timestamp >= ? AND timestamp <= ?
-      ORDER BY timestamp DESC
+      ORDER BY timestamp DESC, rowid DESC
       LIMIT ?
     `)
-    const rows = stmt.all(startTime, endTime, limit) as Record<string, unknown>[]
+    const rows = stmt.all(
+      startTime,
+      endTime,
+      normalizeRowLimit(limit, 1000, 10000)
+    ) as Record<string, unknown>[]
 
     return rows.map(toRateLimitEvent)
   }
@@ -694,10 +849,24 @@ export class RateLimitEventsRepository {
 // ============================================================================
 
 export class AttackEventsRepository {
-  private db: Database.Database
+  /**
+   * 显式注入的连接；没传就每次现取全局连接。
+   *
+   * 缺陷背景（T285）：原来构造时就 `this.db = database || getDatabase()`，
+   * 而 `repositories` 单例是在模块加载时构造的 —— 于是连接被**固化**在单例里。
+   * 一旦有人调用 `closeDatabase()`（测试清理、热重载、连接重置），
+   * 所有单例 Repository 手里拿的都是已关闭的连接，
+   * 之后每次调用都抛 `TypeError: The database connection is not open`。
+   * 现在改成惰性取连接：close 之后下次调用会自动重开。
+   */
+  private readonly injectedDb?: Database.Database
 
   constructor(database?: Database.Database) {
-    this.db = database || getDatabase()
+    this.injectedDb = database
+  }
+
+  private get db(): Database.Database {
+    return this.injectedDb ?? getDatabase()
   }
 
   async create(event: Omit<AttackEvent, 'id'>): Promise<AttackEvent> {
@@ -742,7 +911,7 @@ export class AttackEventsRepository {
     filters?: AttackEventFilters,
     pagination?: PaginationParams
   ): Promise<PaginationResponse<AttackEvent>> {
-    const { limit, offset } = buildPaginationSQL(pagination || {})
+    const { page, limit, offset } = buildPaginationSQL(pagination || {})
 
     const conditions: string[] = []
     const params: unknown[] = []
@@ -775,7 +944,7 @@ export class AttackEventsRepository {
     const itemsStmt = this.db.prepare(`
       SELECT * FROM attack_events
       WHERE ${where}
-      ORDER BY detected_at DESC
+      ORDER BY detected_at DESC, rowid DESC
       LIMIT ? OFFSET ?
     `)
     const rows = itemsStmt.all(...params, limit, offset) as Record<string, unknown>[]
@@ -787,12 +956,12 @@ export class AttackEventsRepository {
     return {
       items,
       meta: {
-        currentPage: pagination?.page || 1,
+        currentPage: page,
         perPage: limit,
         total,
         totalPages,
-        hasNext: (pagination?.page || 1) < totalPages,
-        hasPrevious: (pagination?.page || 1) > 1,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
       },
     }
   }
@@ -814,14 +983,44 @@ export class AttackEventsRepository {
 // ============================================================================
 
 export class SecurityAlertsRepository {
-  private db: Database.Database
+  /**
+   * 显式注入的连接；没传就每次现取全局连接。
+   *
+   * 缺陷背景（T285）：原来构造时就 `this.db = database || getDatabase()`，
+   * 而 `repositories` 单例是在模块加载时构造的 —— 于是连接被**固化**在单例里。
+   * 一旦有人调用 `closeDatabase()`（测试清理、热重载、连接重置），
+   * 所有单例 Repository 手里拿的都是已关闭的连接，
+   * 之后每次调用都抛 `TypeError: The database connection is not open`。
+   * 现在改成惰性取连接：close 之后下次调用会自动重开。
+   */
+  private readonly injectedDb?: Database.Database
 
   constructor(database?: Database.Database) {
-    this.db = database || getDatabase()
+    this.injectedDb = database
   }
 
-  async create(alert: Omit<SecurityAlert, 'id'>): Promise<SecurityAlert> {
+  private get db(): Database.Database {
+    return this.injectedDb ?? getDatabase()
+  }
+
+  /**
+   * createdAt 缺省时兜底为当前时间。
+   *
+   * 缺陷背景（T285）：`security_alerts.created_at` 是 NOT NULL，
+   * 而 create() 把调用方没传的 createdAt 原样塞进去（undefined），
+   * SQLite 直接抛 `SqliteError: NOT NULL constraint failed: security_alerts.created_at`。
+   * 审计日志那边早就修过同样的问题（T2xx：createdAt 缺省应为当前时间 ms），
+   * 这里保持一致 —— 少传一个可选时间戳不该让整个写入炸掉。
+   */
+  async create(
+    alert: Omit<SecurityAlert, 'id' | 'createdAt'> & { createdAt?: number }
+  ): Promise<SecurityAlert> {
     const id = generateId()
+
+    const createdAt =
+      typeof alert.createdAt === 'number' && Number.isFinite(alert.createdAt)
+        ? alert.createdAt
+        : Date.now()
 
     const stmt = this.db.prepare(`
       INSERT INTO security_alerts (
@@ -840,7 +1039,7 @@ export class SecurityAlertsRepository {
       alert.dismissed ? 1 : 0,
       alert.dismissedAt || null,
       alert.dismissedBy || null,
-      alert.createdAt
+      createdAt
     )
 
     // 刚刚 INSERT 过，这一行必然存在；用 await + 非空断言，
@@ -862,7 +1061,7 @@ export class SecurityAlertsRepository {
     filters?: SecurityFilters,
     pagination?: PaginationParams
   ): Promise<PaginationResponse<SecurityAlert>> {
-    const { limit, offset } = buildPaginationSQL(pagination || {})
+    const { page, limit, offset } = buildPaginationSQL(pagination || {})
 
     const { where, params } = buildSecurityAlertWhere(filters)
 
@@ -872,7 +1071,7 @@ export class SecurityAlertsRepository {
     const itemsStmt = this.db.prepare(`
       SELECT * FROM security_alerts
       WHERE ${where}
-      ORDER BY created_at DESC
+      ORDER BY created_at DESC, rowid DESC
       LIMIT ? OFFSET ?
     `)
     const rows = itemsStmt.all(...params, limit, offset) as Record<string, unknown>[]
@@ -884,12 +1083,12 @@ export class SecurityAlertsRepository {
     return {
       items,
       meta: {
-        currentPage: pagination?.page || 1,
+        currentPage: page,
         perPage: limit,
         total,
         totalPages,
-        hasNext: (pagination?.page || 1) < totalPages,
-        hasPrevious: (pagination?.page || 1) > 1,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
       },
     }
   }
@@ -945,10 +1144,24 @@ function toAuditLogEntry(row: Record<string, unknown>): AuditLogEntry {
 }
 
 export class AuditLogRepository {
-  private db: Database.Database
+  /**
+   * 显式注入的连接；没传就每次现取全局连接。
+   *
+   * 缺陷背景（T285）：原来构造时就 `this.db = database || getDatabase()`，
+   * 而 `repositories` 单例是在模块加载时构造的 —— 于是连接被**固化**在单例里。
+   * 一旦有人调用 `closeDatabase()`（测试清理、热重载、连接重置），
+   * 所有单例 Repository 手里拿的都是已关闭的连接，
+   * 之后每次调用都抛 `TypeError: The database connection is not open`。
+   * 现在改成惰性取连接：close 之后下次调用会自动重开。
+   */
+  private readonly injectedDb?: Database.Database
 
   constructor(database?: Database.Database) {
-    this.db = database || getDatabase()
+    this.injectedDb = database
+  }
+
+  private get db(): Database.Database {
+    return this.injectedDb ?? getDatabase()
   }
 
   /**
@@ -994,10 +1207,10 @@ export class AuditLogRepository {
     const stmt = this.db.prepare(`
       SELECT * FROM audit_log
       WHERE user_id = ?
-      ORDER BY created_at DESC
+      ORDER BY created_at DESC, rowid DESC
       LIMIT ?
     `)
-    const rows = stmt.all(userId, limit) as Record<string, unknown>[]
+    const rows = stmt.all(userId, normalizeRowLimit(limit, 50, 1000)) as Record<string, unknown>[]
 
     return rows.map(toAuditLogEntry)
   }

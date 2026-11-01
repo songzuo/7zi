@@ -1,11 +1,35 @@
 # 📚 7zi Studio 文档中心索引
 
-**最后更新**: 2026-05-10
+**最后更新**: 2026-05-10（核心域文档补充：2026-11-01）
 **版本**: v1.14.3 ✅ 已发布 (2026-05-10) | v1.15.0 📋 规划中
 
 ---
 
 ## 📖 文档导航
+
+### 🧬 核心域文档（T319 新增，源码实测）
+
+> 这四份是**从源码逐行读出**的规范文档，含公开 API 签名表、数据流、配置项、错误码、测试运行方式与 FAQ。
+> 文档中用 ✅ 标注「当前实现事实」，用 ⚠️ 标注「待 T315/T316/T317 修复完成后回填的确认点」。
+
+- **[search/README.md](./search/README.md)** - 🔍 Search 域（`src/lib/search/**` + `search-filter.ts`）
+  - 三层架构：L1 纯函数 / L2 Fuse 能力层 / L3 统一搜索 + SQLite FTS5
+  - 公开 API、Fuse 默认参数、搜索历史与防抖档位、测试运行命令
+
+- **[workflow/README.md](./workflow/README.md)** - ⚙️ Workflow 域（`src/lib/workflow/**`）
+  - 定义→触发→执行→监控→版本/审计 全链路
+  - 4 套执行器并存、节点执行器注册表、DSL/触发器/调度器/版本/审计/监控 API
+  - 裸 `Error` 异常语义清单、22 个测试文件 512 例
+
+- **[backup/README.md](./backup/README.md)** - 💾 Backup 域（`src/lib/backup/**`）
+  - 备份/恢复/导出/导入/定时调度 + 压缩 + 加密
+  - 文件系统布局、结构化错误码、**该模块当前未接线**的重要事实
+  - `encryption.ts` / `manager.ts` 无测试的覆盖缺口
+
+- **[agents-scheduler/README.md](./agents-scheduler/README.md)** - 🤖 Agents-Scheduler 域（`src/lib/agents/scheduler/**` + `src/lib/agents/core/**`）
+  - 任务→匹配→打分→指派→学习闭环
+  - `AgentScheduler` / `TaskMatcher` / `LoadBalancer` / `AdaptiveLearner` / 认证与中间件 API
+  - 环境配置三档对照表、`JWT_SECRET` 等 7 个环境变量
 
 ### 🚀 快速开始
 
@@ -394,6 +418,14 @@ docs/
 ├── future-roadmap.md            # 未来规划
 ├── tech-evolution.md            # 技术演进
 ├── EXAMPLES.md                  # 使用示例
+├── search/                      # 🔍 Search 域文档（T319）
+│   └── README.md
+├── workflow/                    # ⚙️ Workflow 域文档（T319）
+│   └── README.md
+├── backup/                      # 💾 Backup 域文档（T319）
+│   └── README.md
+├── agents-scheduler/            # 🤖 Agents-Scheduler 域文档（T319）
+│   └── README.md
 └── archive/                     # 归档报告
     ├── A2A_*.md                 # A2A 协议相关
     └── ...其他归档文档

@@ -98,8 +98,12 @@ export class PluginHooks implements IHookRegistry {
         };
 
         // Execute with timeout
+        //
+        // HookHandler 允许同步返回（`Promise<TOutput> | TOutput`），
+        // 这里必须用 Promise.resolve 包一层：直接 cast 成 Promise 时，
+        // 同步 handler 返回的普通值没有 .then → "promise.then is not a function"。
         const result = await this.executeWithTimeout<TOutput>(
-          handler(context, input) as Promise<TOutput>,
+          Promise.resolve(handler(context, input)) as Promise<TOutput>,
           config.timeout || 5000
         );
 

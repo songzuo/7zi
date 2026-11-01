@@ -101,6 +101,9 @@ export function queueMetric(
     rating: metric.rating,
     route: metric.route,
     deviceType: metric.deviceType,
+    // connectionType 之前只写进了上报 payload，调试日志里看不到，
+    // 导致「应该能观测到连接类型」的用例无法验证 —— 一并补上。
+    connectionType: metric.connectionType,
   })
 
   // Check if batch is ready to send
