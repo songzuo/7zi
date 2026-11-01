@@ -259,3 +259,13 @@ sshpass -p "$SSH_PASSWORD" ssh root@7zi.com
 - 新发现的调度盲区：T240 技术债审计只扫了「未使用导出」和「重复代码」，**没扫测试覆盖率空白** —— billing/config-center 这类大面积零测试模块因此长期漏网。后续审计需补覆盖率维度。
 - T260 的陷阱：`repository.ts` 比 `repository-optimized-v2.ts` 多导出 `mapRowToAgent`，直接 `export *` 会丢导出。
 - T264 的关键事实：CRDT 栈 `src/lib/collab/` **全仓无生产 import**（只有自己的 5 个测试），OT 栈 `src/lib/collaboration/` 才是事实标准（websocket 生产路径在用）。两栈 `Operation` 同名但语义不同。
+
+---
+
+## 📋 第40轮派发（2026-11-01 16:09）—— 调度器 cron
+
+- **上一轮（T320–T324，10:40 派发）从未真正执行**：无 T32x_报告.md、仓库对应路径零改动。原因：Token Plan 429 限额，上一轮三个 subagent session 的最后一条消息都是 `429 已达到 Token Plan 用量上限`。
+- **教训固化**：派发后必须 `subagents list` 回验 status=running（本轮 5 个全部回验通过），且**不能只信任务书里写的基线数字** —— 本轮主管自己跑了 4 组 vitest 实测基线再写进任务书。
+- 主管实测基线（16:09–16:15）：search 59 failed/185 passed(244)；workflow 35/712(747)；monitoring+backup+agents 69/1290(1359)；realtime+perm 3/169(172) —— 合计约 **166 条失败**。
+- 本轮 5 个并行子代理（T320 search / T321 workflow / T322 backup+agents / T323 monitoring / T324 realtime+permissions-v2），**写入路径完全互斥**，任务书 `DEV_TASKS_20261101_1609.md`。
+- 新增铁律 #11：子代理遇 429 立即停止并写报告，不许反复重试烧时间。
