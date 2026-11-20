@@ -1,0 +1,40 @@
+# 主仓换行符策略
+#
+# 背景：部署链路用 `git archive | tar -x` 在 Linux 服务器上解包执行 shell 脚本。
+# Windows 上编辑的文件若带 CRLF，Linux 会报
+#   /usr/bin/env: 'bash\r': No such file or directory
+# 从而让 post-receive 钩子静默失败。因此 **所有 shell 脚本必须以 LF 存储与检出**。
+#
+# 例外：.ps1（PowerShell）在 Windows 上运行，保留 CRLF 更友好；
+#       .bat/.cmd 同样保留 CRLF。
+* text=auto eol=lf
+
+*.sh    text eol=lf
+*.bash  text eol=lf
+*.py    text eol=lf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.md    text eol=lf
+*.html  text eol=lf
+*.css   text eol=lf
+*.js    text eol=lf
+*.ts    text eol=lf
+*.tsx   text eol=lf
+
+*.ps1   text eol=crlf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.zip   binary
+*.gz    binary
+*.woff  binary
+*.woff2 binary
+*.xlsx  binary
+*.pdf   binary

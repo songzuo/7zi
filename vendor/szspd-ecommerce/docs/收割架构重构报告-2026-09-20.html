@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SZSPD 收割架构重构报告：从「刷新已知 8,683」到「全量收割发现真实全集」</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230F766E'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>S</text></svg>">
+<style>
+  :root {
+    --ink: #1A202C;
+    --sub: #64748B;
+    --bg: #F8FAFC;
+    --card: #FFFFFF;
+    --line: #E2E8F0;
+    --teal: #0F766E;
+    --teal-soft: #CCFBF1;
+    --amber: #B45309;
+    --amber-soft: #FEF3C7;
+    --rose: #BE123C;
+    --rose-soft: #FFE4E6;
+    --blue: #1D4ED8;
+    --blue-soft: #DBEAFE;
+    --green: #15803D;
+    --green-soft: #DCFCE7;
+    --radius: 14px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: "Noto Sans SC", "Microsoft YaHei", -apple-system, sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+  .hero {
+    background: linear-gradient(135deg, #134E4A 0%, #0F766E 55%, #0D9488 100%);
+    color: #fff; border-radius: 20px; padding: 44px 40px 40px; margin-bottom: 32px;
+    position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: ""; position: absolute; right: -60px; top: -60px; width: 260px; height: 260px;
+    border-radius: 50%; background: rgba(255,255,255,0.07); pointer-events: none; z-index: 0;
+  }
+  .hero .tag, .hero h1, .hero .sub, .hero .meta { position: relative; z-index: 1; }
+  .hero .tag { display:inline-block; background: rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.25); padding:4px 14px; border-radius: 999px; font-size:13px; letter-spacing:1px; margin-bottom:18px; }
+  .hero h1 { font-size: 30px; font-weight: 800; letter-spacing: 0.5px; line-height:1.35; max-width: 780px; }
+  .hero .sub { margin-top: 14px; font-size: 15px; opacity: 0.85; max-width: 700px; }
+  .hero .meta { margin-top: 22px; display:flex; gap:24px; flex-wrap:wrap; font-size:13px; opacity:0.75; }
+  .section { margin-bottom: 36px; }
+  h2 { font-size: 22px; font-weight: 800; margin-bottom: 6px; display:flex; align-items:center; gap:10px; }
+  h2 .no { background: var(--teal); color:#fff; width:30px; height:30px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+  .lead { color: var(--sub); font-size: 14px; margin-bottom: 18px; }
+  .grid { display:grid; gap:16px; }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 860px) { .grid-4 { grid-template-columns: repeat(2,1fr); } .grid-2,.grid-3 { grid-template-columns: 1fr; } .hero { padding: 32px 24px; } .hero h1 { font-size: 22px; } }
+  @media (max-width: 520px) { .grid-4 { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .card .big { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+  .card .lbl { font-size: 12px; color: var(--sub); margin-top: 2px; }
+  .card .note { font-size: 12px; color: var(--sub); margin-top: 6px; }
+  .kpi { display:flex; align-items: baseline; gap: 8px; }
+  .pill { display:inline-block; font-size: 11px; padding: 2px 10px; border-radius: 999px; font-weight: 600; }
+  .pill-green { background: var(--green-soft); color: var(--green); }
+  .pill-amber { background: var(--amber-soft); color: var(--amber); }
+  .pill-rose { background: var(--rose-soft); color: var(--rose); }
+  .pill-blue { background: var(--blue-soft); color: var(--blue); }
+  .chart-box { background: var(--card); border:1px solid var(--line); border-radius: var(--radius); padding: 16px 16px 8px; margin-bottom: 16px; }
+  .chart-box .ct { font-size: 13px; font-weight: 700; padding: 2px 4px 10px; }
+  .chart-box .cap { font-size: 12px; color: var(--sub); padding: 6px 4px 0; }
+  table { width:100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align:left; background: #F1F5F9; font-weight: 700; padding: 10px 12px; white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .compare { display:grid; grid-template-columns: 1fr 1fr; gap: 0; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; }
+  @media (max-width:860px){ .compare { grid-template-columns:1fr; } }
+  .compare .side { padding: 20px; }
+  .compare .old { background: #FFF7F7; }
+  .compare .new { background: #F4FDF7; }
+  .compare h4 { font-size: 14px; margin-bottom: 12px; display:flex; align-items:center; gap:8px; }
+  .compare .badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 700; }
+  .badge-old { background: var(--rose-soft); color: var(--rose); }
+  .badge-new { background: var(--green-soft); color: var(--green); }
+  .compare ul { list-style:none; }
+  .compare li { padding: 7px 0; font-size: 13.5px; border-bottom: 1px dashed var(--line); }
+  .compare li:last-child { border-bottom: none; }
+  .compare li b { font-weight: 700; }
+  .flow { display:flex; flex-direction: column; gap: 0; }
+  .flow-step { display:grid; grid-template-columns: 34px 1fr; gap: 14px; position: relative; padding-bottom: 22px; }
+  .flow-step:last-child { padding-bottom: 0; }
+  .flow-step .dot { width: 34px; height: 34px; border-radius: 50%; background: var(--teal); color: #fff; display:flex; align-items:center; justify-content:center; font-size: 13px; font-weight: 700; z-index: 1; }
+  .flow-step .dot.alt { background: var(--blue); }
+  .flow-step .dot.done { background: var(--green); }
+  .flow-step .body h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 3px; }
+  .flow-step .body p { font-size: 13px; color: var(--sub); }
+  .flow-step::before { content:""; position:absolute; left: 16.5px; top: 36px; bottom: 0; width: 2px; background: var(--line); }
+  .flow-step:last-child::before { display:none; }
+  .callout { border-left: 4px solid var(--teal); background: var(--teal-soft); padding: 14px 18px; border-radius: 0 10px 10px 0; font-size: 14px; margin-bottom: 16px; }
+  .callout.warn { border-color: var(--amber); background: var(--amber-soft); }
+  .callout b { font-weight: 700; }
+  .mono { font-family: "JetBrains Mono", Consolas, monospace; font-size: 12px; background: #F1F5F9; padding: 2px 6px; border-radius: 4px; }
+  .foot { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12px; color: var(--sub); }
+  .ok { color: var(--green); font-weight: 700; }
+  .no { color: var(--rose); font-weight: 700; }
+  .warn-t { color: var(--amber); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="tag">SZSPD · 收割架构重构 · 2026-09-20</span>
+    <h1>从「刷新已知 8,683」到「全量收割发现真实全集」<br>SZSPD 收割架构重构报告</h1>
+    <div class="sub">本轮核心：承认「8,683 只是历史快照、不是真实可见集」——正因为不知道，才需要收割去发现。架构重写为「一次性全量收割 + 增量刷新」两阶段，已在服务器 bot6 落地运行。</div>
+    <div class="meta">
+      <span>服务器：bot6 (109.123.246.140)</span>
+      <span>报告时间：2026-09-20 15:20</span>
+      <span>git：02a53b2 (服务器) / 74962a8 (本地)</span>
+    </div>
+  </div>
+
+  <!-- ===== 1. 认知修正 ===== -->
+  <div class="section">
+    <h2><span class="no">1</span>认知修正：8,683 不是「已知」，是「历史快照」</h2>
+    <div class="lead">你连续两次追问是这次重构的真正起点：<b>「你怎么知道可见 SKU 是 8,683？」「如果你都知道了 SKU 了，那还要筛选干嘛？正是因为我们并不知道，才需要收割、才需要刷新。」</b></div>
+
+    <div class="compare">
+      <div class="side old">
+        <h4><span class="badge badge-old">被推翻</span>旧方案：刷新「已知 8,683」</h4>
+        <ul>
+          <li>假设：前台 JSON 里的 <b>8,683 个 SKU = 真实可见全集</b>，每个都带 pid</li>
+          <li>做法：GET /product/query 逐 pid 精确刷新（10 点/个）</li>
+          <li>成本：8,683 × 10 点 ≈ <b>86,830 点</b> ≈ 1 天额度</li>
+          <li>致命伤：<b>8,683 只是某个时刻的 JSON 快照</b>，不是全量真实可见集。新 SKU 永远发现不了；已下架/隐藏的也无法识别</li>
+        </ul>
+      </div>
+      <div class="side new">
+        <h4><span class="badge badge-new">新架构</span>全量收割：发现真实全集</h4>
+        <ul>
+          <li>认知：<b>「知道 SKU」不是前提，是收割的结果</b>。可见集 = 服务端筛选后的有效 SKU 数据</li>
+          <li>做法：V1 /product/list 全站查询（不带 categoryId）→ <b>total=1,553,986</b> 恒定，每页 200 条 100% 带 productSku / saleStatus=3 / 非 test</li>
+          <li>成本：155 万 × 0.25 点 ≈ <b>38.9 万点</b> ≈ 4.4 天额度</li>
+          <li>本质：收割即发现——<b>一次性把真实可见 SKU 全集拉进库</b>，之后增量刷新</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:16px;">
+      <b>为什么「可见 SKU 是 8,683」这个说法本身就不成立？</b> 旧 JSON（cj-local-data.json）是某次运行留下的产物，它的 8,683 条只是「那一次抓到的商品」。真实可见集是动态的：每天有新品上架、旧品下架、审核状态变化。V1 全站查询实测 <b>1,553,986</b> 条，是 CJ 服务端按当前有效状态筛选后的真实结果——这才是「真实可见全集」。
+    </div>
+  </div>
+
+  <!-- ===== 2. 真实规模实测 ===== -->
+  <div class="section">
+    <h2><span class="no">2</span>真实规模实测：1,553,986，不是 8,683</h2>
+    <div class="lead">2026-09-20 全站 V1 查询实测（每页 200 条、0.25 点/条、100% 有效 SKU）。</div>
+
+    <div class="grid grid-4">
+      <div class="card">
+        <div class="kpi"><span class="big">1,553,986</span></div>
+        <div class="lbl">全站真实可见 SKU 总数</div>
+        <div class="note">V1 /product/list 全站 total（恒定）</div>
+      </div>
+      <div class="card">
+        <div class="kpi"><span class="big">8,683</span> <span class="pill pill-rose">旧快照</span></div>
+        <div class="lbl">旧 JSON 可见集（历史快照）</div>
+        <div class="note">仅为真实规模的 0.56%</div>
+      </div>
+      <div class="card">
+        <div class="kpi"><span class="big">~38.9万</span></div>
+        <div class="lbl">全量收割点数成本</div>
+        <div class="note">155万 × 0.25 点/条</div>
+      </div>
+      <div class="card">
+        <div class="kpi"><span class="big">~4.4天</span></div>
+        <div class="lbl">全量完成预计时间</div>
+        <div class="note">89,012 点/天 额度 · cron 每 10 分钟一轮</div>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <div class="ct">年份规模构成（V1 total 实测，2019-2026）</div>
+      <div id="chartYear" style="height:320px;"></div>
+      <div class="cap">数据来源：2026-09-20 对 V1 /product/list 按 createTimeFrom/To 逐年实测。2026 为全站 1,553,986 的补集（1,553,986 − 其余年份合计）。</div>
+    </div>
+
+    <div class="callout warn">
+      <b>规模认知转变：</b> 旧的「叶子维度收割」（578 叶逐叶翻页）建立在 8,683 快照的假设上，20 号当天 578 叶仅完成 1 叶（1,196 条）就耗尽 5.5 小时额度——因为每页 50 点、逐叶探测的命中率极低。全站收割以 <b>0.25 点/条</b> 直接拉全量，每轮 2,000-12,000 条，效率高一个数量级。
+    </div>
+  </div>
+
+  <!-- ===== 3. 两阶段架构 ===== -->
+  <div class="section">
+    <h2><span class="no">3</span>两阶段收割架构（已落地）</h2>
+    <div class="lead">阶段 1 全量收割「发现真实全集」→ 阶段 2 增量刷新「保持新鲜」。纯队列驱动，cron 每 10 分钟自动推进。</div>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="dot done">1</div>
+        <div class="body">
+          <h4>全站时间窗口二分收割 <span class="pill pill-green">进行中</span></h4>
+          <p>起始窗口 [2019-01-01, now]。每窗口探测 total：&gt;6,000 则二分入栈（先收后半=新数据）；≤6,000 则整窗翻页收完。断点 = meta[fullSiteQueue] 窗口栈，每轮持久化，cron 断点续传。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="dot alt">2</div>
+        <div class="body">
+          <h4>增量刷新（全量完成后自动切换）</h4>
+          <p>全量完成时写 meta[incrCursor]=完成时刻。之后每轮只拉 [cursor, now] 窗口——每天新增仅几百条（09-19 实测单日 880 条），成本几十点/天。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="dot">3</div>
+        <div class="body">
+          <h4>publish 源切换：收割 = 发现落地</h4>
+          <p>全量完成（incrCursor 存在）→ 前台 JSON 以 products 表真实全集回写；收割期保持旧 JSON 兼容，避免前台瞬间大改。</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="dot">4</div>
+        <div class="body">
+          <h4>curate 上架规则（前台规模控制）</h4>
+          <p>全量完成后的前台规模由规则决定：all（全部上架，慎用）/ price-range / new-arrivals / top-by-category。默认轻量起步。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-box" style="margin-top:20px;">
+      <div class="ct">收割进度：库内真实可见 SKU（09-20 15:00-15:16 实测序列）</div>
+      <div id="chartProgress" style="height:280px;"></div>
+      <div class="cap">数据来自服务器 logs/cj-catalog.log 各轮收割结束快照：15:01→36,962；15:10→38,753；15:16→40,348（cron 每 10 分钟自动推进）。</div>
+    </div>
+  </div>
+
+  <!-- ===== 4. 踩坑与修复 ===== -->
+  <div class="section">
+    <h2><span class="no">4</span>关键踩坑与修复（方法论）</h2>
+    <div class="lead">每个坑都是真实调用/日志里抓出来的，修复已部署并验证。</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table>
+        <thead><tr><th style="width:150px;">问题</th><th>现象</th><th>修复</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="pill pill-rose">token 污染</span></td>
+            <td>getToken 响应的 pointsInfo 陈旧（remaining=0），capturePoints 把 stopReason 设成「points low」→ 一进全站收割就退出</td>
+            <td class="ok">pacedFetch 加 capture 参数；token 调用不采信 pointsInfo；fullsite 开头重置 points</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-rose">时区偏移</span></td>
+            <td>服务器 UTC+2，CJ 数据库上海时区——窗口字符串偏差 6 小时</td>
+            <td class="ok">toV1Time 统一按 UTC+8 生成上海时区字符串；解析反向 -8</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-rose">splitWindow 误用</span></td>
+            <td>用格式化函数（toV1Time）当时间解析 → NaN → 不二分、一轮就停</td>
+            <td class="ok">改用 toV1TimeFromDateStr 解析</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-rose">死循环风险</span></td>
+            <td>auto 用「叶子 done &lt; total」判断阶段——队列清空后仍重建全量</td>
+            <td class="ok">纯队列驱动：fullSiteQueue 非空才收割；空 → 增量 + publish + curate</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-rose">手动重跑</span></td>
+            <td>fullsite 队列空且有完成标记时手动触发会重建全量</td>
+            <td class="ok">incrCursor 存在时禁止重建</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-blue">缺 createTime</span></td>
+            <td>products 表没有 CJ 真实上架时间列——年份/上架分析做不了</td>
+            <td class="ok">加 createTime 列（毫秒），upsert 带 createAt 入库，已验证 1,600 条填充</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 5. 当前运行状态 ===== -->
+  <div class="section">
+    <h2><span class="no">5</span>当前运行状态（2026-09-20 15:20）</h2>
+    <div class="grid grid-4">
+      <div class="card">
+        <div class="kpi"><span class="big">40,348</span></div>
+        <div class="lbl">库内真实可见 SKU</div>
+        <div class="note">占全量 2.6%，持续增长中</div>
+      </div>
+      <div class="card">
+        <div class="kpi"><span class="big">5</span></div>
+        <div class="lbl">剩余窗口数</div>
+        <div class="note">窗口栈持续二分细化</div>
+      </div>
+      <div class="card">
+        <div class="kpi"><span class="big">$0.00</span> <span class="pill pill-rose">需充值</span></div>
+        <div class="lbl">CJ 账户余额</div>
+        <div class="note">当日额度 used=141,020，remaining≈3,868</div>
+      </div>
+      <div class="card">
+        <div class="kpi"><span class="big">8,683</span> <span class="pill pill-blue">过渡态</span></div>
+        <div class="lbl">前台可见（收割期兼容）</div>
+        <div class="note">全量完成后切真实全集</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <h3>cron 调度（bot6）</h3>
+      <table>
+        <thead><tr><th>表达式</th><th>任务</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">*/10 * * * *</td><td>cj-catalog auto（全站收割/增量刷新）</td><td><span class="pill pill-green">运行中</span></td></tr>
+          <tr><td class="mono">40 */2 * * *</td><td>publish（前台回写）</td><td><span class="pill pill-green">运行中</span></td></tr>
+          <tr><td class="mono">*/10 * * * *</td><td>shop-fulfill-tick（履约）</td><td><span class="pill pill-green">运行中</span></td></tr>
+          <tr><td class="mono">30 2 * * *</td><td>cj-detail-warm（详情预热）</td><td><span class="pill pill-green">运行中</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 6. 第一份报告 7 条建议落实对照 ===== -->
+  <div class="section">
+    <h2><span class="no">6</span>第一份报告 7 条建议落实对照</h2>
+    <div class="lead">第一份报告（同日）的 7 条优化建议，本轮逐一核对落实状态。</div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table>
+        <thead><tr><th style="width:60px;">优先级</th><th style="width:220px;">建议</th><th>落实情况</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill pill-rose">P0</span></td><td>给 CJ 充值，解锁履约链</td><td><span class="warn-t">待用户操作</span>——余额 $0.00，影响详情查询与履约</td></tr>
+          <tr><td><span class="pill pill-rose">P0</span></td><td>人工处理 4 个「缺支付链接」订单</td><td>第一份报告已列出；需用户侧确认</td></tr>
+          <tr><td><span class="pill pill-amber">P1</span></td><td>收割优先顺序改为「可见 SKU 优先」</td><td><span class="ok">已被「全量收割发现全集」取代</span>——更彻底：不猜可见集，全站收割</td></tr>
+          <tr><td><span class="pill pill-amber">P1</span></td><td>点数消耗节奏与每日预算对齐</td><td><span class="ok">已落实</span>——reserve 保底（4000-6000 点）+ cron 每 10 分钟节奏化消耗</td></tr>
+          <tr><td><span class="pill pill-amber">P1</span></td><td>上架数据源切换过渡方案</td><td><span class="ok">已落实</span>——publish 源切换：全量完成前旧 JSON 兼容，完成后真实全集回写</td></tr>
+          <tr><td><span class="pill pill-blue">P2</span></td><td>固化 git 协作规范</td><td><span class="ok">已落实</span>——双端 git 基线 0 差异，本轮 4 个 commit 双端同步</td></tr>
+          <tr><td><span class="pill pill-blue">P2</span></td><td>全目录收割预期管理</td><td><span class="ok">已落实</span>——真实规模 155 万、成本 38.9 万点、预计 4.4 天，均已实测</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 7. 方法论 ===== -->
+  <div class="section">
+    <h2><span class="no">7</span>方法论：收割 = 发现</h2>
+    <div class="lead">这次重构最大的收获不是代码，是认知。整理成可复用的原则：</div>
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>数据全集是收割的结果，不是前提</h3>
+        <p style="font-size:13px; color:var(--sub);">任何「已知集合」都可能是快照/样本。真实全集只能通过全量扫描发现——服务端筛选后的结果（saleStatus=3、非 test、带 SKU）就是权威。</p>
+      </div>
+      <div class="card">
+        <h3>全量一次 vs 增量永续</h3>
+        <p style="font-size:13px; color:var(--sub);">一次性全量（高成本、一次性）建立真实基线，之后增量刷新（低成本、永续）保持新鲜。游标（createTime / 队列栈）是断点续传的关键。</p>
+      </div>
+      <div class="card">
+        <h3>点数约束是节奏，不是瓶颈</h3>
+        <p style="font-size:13px; color:var(--sub);">每日额度固定时，用窗口二分 + 断点续传把大任务切成小步，cron 持续推进。每轮记录断点，任何时刻中断都能恢复。</p>
+      </div>
+      <div class="card">
+        <h3>成本模型先算清楚</h3>
+        <p style="font-size:13px; color:var(--sub);">0.25 点/条 vs 10 点/个差 40 倍。动手前先实测 API 的每页点数、每页条数、total 真实性，再定收割通道。</p>
+      </div>
+      <div class="card">
+        <h3>「知道」的验证：永远用实测</h3>
+        <p style="font-size:13px; color:var(--sub);">「应该能」「大概是」都要被真实调用推翻或确认。这次 8,683→155 万，就是从假设到实测的典型。</p>
+      </div>
+      <div class="card">
+        <h3>过渡期兼容 = 安全回滚</h3>
+        <p style="font-size:13px; color:var(--sub);">架构切换期保持旧路径兼容（旧 JSON 兜底），全量完成再切新源——失败可回退，不中断前台服务。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 8. 待办 ===== -->
+  <div class="section">
+    <h2><span class="no">8</span>下一步</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>立即（用户侧）</h3>
+        <ul style="font-size:13.5px; padding-left:18px; line-height:2;">
+          <li>给 CJ 账户充值（当前余额 $0.00）——解锁全量收割的持续推进与详情/履约</li>
+          <li>确认全量完成后前台规模策略（all / 规则选品）</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>自动（系统侧）</h3>
+        <ul style="font-size:13.5px; padding-left:18px; line-height:2;">
+          <li>cron 每 10 分钟推进全量收割（预计 2-4 天完成 155 万）</li>
+          <li>全量完成 → 自动切增量刷新 + publish 真实全集回写</li>
+          <li>本轮 5 个 commit 双端 git 已同步</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>数据来源与口径：</b>全站 total/年份构成/单日新增/每页点数均来自 2026-09-20 对 CJ V1 /product/list 的真实调用实测；库内条数为服务器 SQLite 实时查询；cron 列表来自 bot6 crontab；点数消耗来自当日日志快照。时区统一 Asia/Shanghai。报告由 cj-catalog.mjs 实际运行数据生成，非估算。
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script>
+(function(){
+  // 年份构成（V1 total 实测）
+  var y = echarts.init(document.getElementById('chartYear'));
+  y.setOption({
+    title: { text: '全站可见 SKU 年份构成（V1 total 实测）', left: 0, textStyle: { fontSize: 14, fontWeight: 700, color: '#1A202C' } },
+    tooltip: { trigger: 'axis', triggerOn: 'click', renderMode: 'richText', confine: true },
+    grid: { left: 60, right: 30, top: 44, bottom: 30, containLabel: true },
+    xAxis: { type: 'category', data: ['2019','2020','2021','2022','2023','2024','2025','2026'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: 'SKU 数', axisLabel: { fontSize: 10 } },
+    series: [{
+      type: 'bar', data: [27160, 148420, 281401, 178976, 181738, 197227, 240175, 298889],
+      itemStyle: { color: '#0F766E', borderRadius: [4,4,0,0] },
+      label: { show: true, position: 'top', fontSize: 10, formatter: function(p){ return (p.value/10000).toFixed(0)+'万'; } }
+    }]
+  });
+  // 收割进度序列（cron 各轮快照）
+  var pr = echarts.init(document.getElementById('chartProgress'));
+  pr.setOption({
+    title: { text: '全量收割进度（库内真实可见 SKU）', left: 0, textStyle: { fontSize: 14, fontWeight: 700, color: '#1A202C' } },
+    tooltip: { trigger: 'axis', triggerOn: 'click', renderMode: 'richText', confine: true },
+    grid: { left: 70, right: 30, top: 44, bottom: 30, containLabel: true },
+    xAxis: { type: 'category', data: ['15:01','15:10','15:16'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '库内 SKU', axisLabel: { fontSize: 10 } },
+    series: [{
+      type: 'line', data: [36962, 38753, 40348], smooth: true,
+      lineStyle: { width: 2.5, color: '#0F766E' }, symbolSize: 8, itemStyle: { color: '#0F766E' },
+      label: { show: true, fontSize: 10, position: 'top' },
+      markLine: {
+        silent: true, symbol: 'none',
+        label: { show: true, formatter: '目标 1,553,986', position: 'insideEndTop', fontSize: 10 },
+        lineStyle: { type: 'dashed', color: '#B45309' },
+        data: [{ yAxis: 1553986 }]
+      }
+    }]
+  });
+  window.addEventListener('resize', function(){ y.resize(); pr.resize(); });
+})();
+</script>
+</body>
+</html>

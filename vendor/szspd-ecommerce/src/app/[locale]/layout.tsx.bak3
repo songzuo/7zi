@@ -1,0 +1,33 @@
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
+import { notFound } from 'next/navigation'
+import { locales } from '@/i18n/config'
+import type { Metadata } from 'next'
+
+export function generateStaticParams() {
+  return locales.map(locale => ({ locale }))
+}
+
+const metadataMap: Record<string, { title: string; description: string }> = {
+  zh: { title: '7zi Studio', description: '7zi Studio' },
+  en: { title: '7zi Studio - AI-Powered Digital Studio', description: '7zi Studio' },
+}
+
+type Params = Promise<{ locale: string }>
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { locale } = await params
+  const meta = metadataMap[locale] || metadataMap.zh
+  return { title: meta.title, description: meta.description }
+}
+
+export default async function LocaleLayout({ children, params }: { children: React.ReactNode; params: Params }) {
+  const { locale } = await params
+  if (!locales.includes(locale as any)) { notFound() }
+  const messages = await getMessages()
+  return (
+    <NextIntlClientProvider messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  )
+}

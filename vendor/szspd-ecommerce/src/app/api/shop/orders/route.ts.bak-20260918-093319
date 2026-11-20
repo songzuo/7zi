@@ -1,0 +1,165 @@
+// src/app/api/shop/orders/route.ts
+// 下单：服务端重算金额 → 落库 → 创建收银台会话
+// 注意：这里**只落库收款，不转 CJ**。转 CJ 由收款成功后的
+//      /api/shop/webhook（或内部通道手动）调用 fulfillOrderWithCj 触发。
+import { NextRequest, NextResponse } from 'next/server';
+import { createOrder, getOrderByNo, getOrderItems, listOrders } from '@/lib/shop-db';
+import { createPaySession, providerStatus } from '@/lib/pay-gateway';
+import { loadCatalog, parsePrice } from '@/lib/cj-data';
+import { quoteFreightMulti, countryByCode } from '@/lib/cj-geo';
+
+export const dynamic = 'force-dynamic';
+
+interface IncomingItem {
+  sku?: string;
+  qty?: number;
+  quantity?: number;
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const customer_name = String(body?.customer_name || '').trim();
+    const customer_email = String(body?.customer_email || '').trim();
+    const customer_phone = String(body?.customer_phone || '').trim();
+    const addr = body?.shipping_address || {};
+    const rawItems: IncomingItem[] = Array.isArray(body?.items) ? body.items : [];
+    const logisticName = String(body?.logisticName || body?.logistic_name || '').trim();
+
+    if (!customer_name || !customer_email) {
+      return NextResponse.json({ success: false, error: '请填写姓名与邮箱' }, { status: 400 });
+    }
+    if (rawItems.length === 0) {
+      return NextResponse.json({ success: false, error: '购物车为空' }, { status: 400 });
+    }
+
+    const countryCode = String(addr?.countryCode || addr?.country_code || '').toUpperCase();
+    const country = countryByCode(countryCode);
+    if (!country) {
+      return NextResponse.json(
+        { success: false, error: '请选择有效的配送国家/地区' },
+        { status: 400 }
+      );
+    }
+    if (!String(addr?.address || '').trim() || !String(addr?.city || '').trim()) {
+      return NextResponse.json({ success: false, error: '请填写街道地址与城市' }, { status: 400 });
+    }
+
+    // ---- 1) 服务端定价（绝不信任前端传的金额）----
+    const catalog = loadCatalog();
+    const bySku = new Map(catalog.products.map((p) => [String(p.sku).toUpperCase(), p]));
+
+    const items: { sku: string; name: string; quantity: number; unit_price: number }[] = [];
+    for (const it of rawItems) {
+      const sku = String(it?.sku || '').trim().toUpperCase();
+      const quantity = Math.max(1, Math.min(999, Number(it?.qty ?? it?.quantity) || 1));
+      if (!sku) continue;
+      const p = bySku.get(sku);
+      if (!p) {
+        return NextResponse.json(
+          { success: false, error: `商品已下架或不存在：${sku}` },
+          { status: 422 }
+        );
+      }
+      items.push({ sku, name: p.name, quantity, unit_price: Number(parsePrice(p.price)) || 0 });
+    }
+    if (items.length === 0) {
+      return NextResponse.json({ success: false, error: '没有有效商品' }, { status: 422 });
+    }
+    const subtotal = Math.round(items.reduce((s, i) => s + i.unit_price * i.quantity, 0) * 100) / 100;
+
+    // ---- 2) 服务端重算运费（以最终实时价为准）----
+    const quote = await quoteFreightMulti({
+      to: countryCode,
+      lines: items.map((i) => ({ sku: i.sku, quantity: i.quantity })),
+    });
+    if (!quote.ok) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `暂时无法为 ${country.zh} 计算运费：${quote.error || '上游未返回可用渠道'}。请联系客服确认。`,
+          code: 'FREIGHT_UNAVAILABLE',
+        },
+        { status: 422 }
+      );
+    }
+    const chosen = quote.options.find((o) => o.logisticName === logisticName) || quote.options[0];
+    const shippingFee = chosen.price;
+    const total = Math.round((subtotal + shippingFee) * 100) / 100;
+
+    // ---- 3) 落库 ----
+    const provider = providerStatus().active;
+    const { order, order_no } = await createOrder({
+      customer_name,
+      customer_email,
+      customer_phone,
+      shipping_address: {
+        address: String(addr.address || '').trim(),
+        address2: String(addr.address2 || '').trim(),
+        city: String(addr.city || '').trim(),
+        province: String(addr.province || addr.state || '').trim(),
+        zip: String(addr.zip || '').trim(),
+        country: country.en,
+        countryCode: country.code,
+      },
+      subtotal,
+      shipping_fee: shippingFee,
+      total_amount: total,
+      country_code: country.code,
+      logistic_name: chosen.logisticName,
+      payment_provider: provider,
+      items,
+    });
+
+    // ---- 4) 收银台会话 ----
+    const pay = await createPaySession({
+      orderNo: order_no,
+      amountUsd: total,
+      customer: { name: customer_name, email: customer_email, phone: customer_phone },
+      countryCode: country.code,
+    });
+
+    return NextResponse.json({
+      success: true,
+      order_no,
+      order: {
+        order_no,
+        customer_name,
+        country: country.en,
+        country_code: country.code,
+        subtotal,
+        shipping_fee: shippingFee,
+        total_amount: total,
+        currency: 'USD',
+        logistic_name: chosen.logisticName,
+        logistics_aging: chosen.agingLabel,
+      },
+      payment: pay,
+    });
+  } catch (error: unknown) {
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
+}
+
+/** 查询订单（确认页用） */
+export async function GET(request: NextRequest) {
+  const orderNo = request.nextUrl.searchParams.get('order_no') || request.nextUrl.searchParams.get('order');
+  try {
+    if (orderNo) {
+      const order = await getOrderByNo(orderNo);
+      if (!order) return NextResponse.json({ success: false, error: '订单不存在' }, { status: 404 });
+      const items = await getOrderItems(order.id);
+      return NextResponse.json({ success: true, order: { ...order, items } });
+    }
+    const orders = await listOrders(30);
+    return NextResponse.json({ success: true, orders });
+  } catch (e) {
+    return NextResponse.json(
+      { success: false, error: e instanceof Error ? e.message : String(e) },
+      { status: 500 }
+    );
+  }
+}
