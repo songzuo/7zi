@@ -22,6 +22,8 @@ export interface AuditLogQuery {
   resourceType?: ConfigAuditLog['resourceType'];
   /** 资源ID过滤 */
   resourceId?: string;
+  /** 资源名称过滤 */
+  resourceName?: string;
   /** 操作者ID过滤 */
   operatorId?: string;
   /** 操作者类型过滤 */
@@ -145,6 +147,10 @@ export class AuditLogger {
 
     if (query.resourceId) {
       logs = logs.filter(log => log.resourceId === query.resourceId);
+    }
+
+    if (query.resourceName) {
+      logs = logs.filter(log => log.resourceName === query.resourceName);
     }
 
     if (query.operatorId) {

@@ -466,22 +466,21 @@ describe('useWebRTCMeeting Edge Cases', () => {
         new Error('Permission denied')
       )
 
-      const { unmount } = renderHook(() => useWebRTCMeeting(options))
+      const { result, unmount } = renderHook(() => useWebRTCMeeting(options))
 
+      // 之前这里注释写的是「joinMeeting 会被内部自动调用」并只等 10ms ——
+      // 但 hook 默认不会自动 join（autoJoin 没开），socket 根本没建立，
+      // 所以 disconnect 自然不会被调用。
+      // 现在显式调用 joinMeeting，让它真的走一遍「建 socket → 取媒体流失败」。
       await act(async () => {
-        try {
-          // The hook's joinMeeting will be called internally
-          // We just need to wait a bit for initialization
-          await new Promise(resolve => setTimeout(resolve, 10))
-        } catch (e) {
-          // Expected
-        }
+        await result.current.joinMeeting()
       })
 
-      unmount()
-
-      // Should cleanup without errors (or not error out)
+      // getUserMedia 被拒 → join 失败 → socket 必须被关掉
       expect(mockSocket.disconnect).toHaveBeenCalled()
+      expect(result.current.isConnecting).toBe(false)
+
+      unmount()
     })
 
     it('should handle multiple unmounts gracefully', async () => {
@@ -639,8 +638,16 @@ describe('useWebRTCMeeting Edge Cases', () => {
   describe('Browser Compatibility', () => {
     it('should handle missing mediaDevices API', async () => {
       const originalMediaDevices = navigator.mediaDevices
-      // @ts-ignore
-      delete navigator.mediaDevices
+
+      // jsdom 的 navigator.mediaDevices 是**不可配置**的 ——
+      // delete / defineProperty / spyOn 全都抛
+      // "Cannot redefine property: mediaDevices"（jsdom 的 navigator 是特殊代理）。
+      // 唯一可行的做法：整个替换掉全局 navigator，造一个没有 mediaDevices 的。
+      vi.stubGlobal('navigator', {
+        ...navigator,
+        mediaDevices: undefined,
+        userAgent: navigator.userAgent,
+      })
 
       const onError = vi.fn()
       const options = { ...defaultOptions, onError }
@@ -658,10 +665,7 @@ describe('useWebRTCMeeting Edge Cases', () => {
       expect(onError).toHaveBeenCalled()
 
       // Restore
-      Object.defineProperty(navigator, 'mediaDevices', {
-        value: originalMediaDevices,
-        writable: true,
-      })
+      vi.unstubAllGlobals()
     })
 
     it('should handle missing RTCPeerConnection', async () => {

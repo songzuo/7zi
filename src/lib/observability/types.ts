@@ -121,6 +121,18 @@ export interface PrometheusMetric {
     value: number
     labels: Record<string, string>
     timestamp?: number
+    /**
+     * 样本的指标名后缀。
+     *
+     * Prometheus 的 histogram / summary 不是一个指标名对应一组样本，
+     * 而是三个独立指标：`<name>_bucket` / `<name>_sum` / `<name>_count`。
+     * 没有后缀的话，三组样本会以同一个名字输出，
+     * 而 _sum/_count 的标签集又和 _bucket 冲突（le 标签）——
+     * Prometheus 会直接拒收。
+     *
+     * counter / gauge 不需要后缀，留空即可。
+     */
+    suffix?: string
   }>
 }
 

@@ -16,18 +16,39 @@ import {
 } from './types'
 import fs from 'fs/promises'
 import path from 'path'
+import { getBackupDir } from './paths'
 
-const SCHEDULES_FILE = path.join(process.cwd(), 'backups', 'schedules.json')
-const JOBS_FILE = path.join(process.cwd(), 'backups', 'jobs.json')
-const EVENTS_FILE = path.join(process.cwd(), 'backups', 'events.json')
+/**
+ * 进程内互斥锁：保护 schedules.json / jobs.json 的 "读-改-写" 事务。
+ *
+ * 之前 scheduleBackup / executeBackupSchedule 都是
+ * `getXxx()` -> 修改数组 -> `saveXxx()`，并发调用时后写的会覆盖先写的
+ * （经典 lost update）：并发建 5 个 schedule 只剩 1 个，
+ * 并发 trigger 3 次只记录 1 个 job。
+ *
+ * 用 Promise 链当队列，保证同一时刻只有一个写事务在跑。
+ */
+let writeQueue: Promise<unknown> = Promise.resolve()
+
+/**
+ * 在互斥锁内执行一个读-改-写事务
+ */
+async function withWriteLock<T>(fn: () => Promise<T>): Promise<T> {
+  const run = writeQueue.then(fn, fn)
+  // 链上吞掉错误，避免一次失败阻塞后续队列
+  writeQueue = run.then(
+    () => undefined,
+    () => undefined
+  )
+  return run
+}
 
 /**
  * Ensure backup directory exists
  */
 async function ensureBackupDir(): Promise<void> {
   try {
-    const backupsDir = path.join(process.cwd(), 'backups')
-    await fs.mkdir(backupsDir, { recursive: true })
+    await fs.mkdir(getBackupDir(), { recursive: true })
   } catch (error) {
     logger.error('Failed to create backup directory', error)
     throw error
@@ -42,9 +63,9 @@ export async function getScheduledBackups(): Promise<BackupConfig[]> {
     await ensureBackupDir()
 
     try {
-      const content = await fs.readFile(SCHEDULES_FILE, 'utf-8')
+      const content = await fs.readFile(path.join(getBackupDir(), 'schedules.json'), 'utf-8')
       const schedules = JSON.parse(content) as BackupConfig[]
-      return schedules
+      return Array.isArray(schedules) ? schedules : []
     } catch (error) {
       return []
     }
@@ -60,9 +81,9 @@ export async function getScheduledBackups(): Promise<BackupConfig[]> {
 async function getJobs(): Promise<BackupJob[]> {
   try {
     try {
-      const content = await fs.readFile(JOBS_FILE, 'utf-8')
+      const content = await fs.readFile(path.join(getBackupDir(), 'jobs.json'), 'utf-8')
       const jobs = JSON.parse(content) as BackupJob[]
-      return jobs
+      return Array.isArray(jobs) ? jobs : []
     } catch (error) {
       return []
     }
@@ -77,7 +98,11 @@ async function getJobs(): Promise<BackupJob[]> {
  */
 async function saveSchedules(schedules: BackupConfig[]): Promise<void> {
   await ensureBackupDir()
-  await fs.writeFile(SCHEDULES_FILE, JSON.stringify(schedules, null, 2), 'utf-8')
+  await fs.writeFile(
+    path.join(getBackupDir(), 'schedules.json'),
+    JSON.stringify(schedules, null, 2),
+    'utf-8'
+  )
 }
 
 /**
@@ -85,7 +110,11 @@ async function saveSchedules(schedules: BackupConfig[]): Promise<void> {
  */
 async function saveJobs(jobs: BackupJob[]): Promise<void> {
   await ensureBackupDir()
-  await fs.writeFile(JOBS_FILE, JSON.stringify(jobs, null, 2), 'utf-8')
+  await fs.writeFile(
+    path.join(getBackupDir(), 'jobs.json'),
+    JSON.stringify(jobs, null, 2),
+    'utf-8'
+  )
 }
 
 /**
@@ -96,10 +125,12 @@ async function recordEvent(event: BackupEvent): Promise<void> {
     await ensureBackupDir()
 
     let events: BackupEvent[] = []
+    const eventsFile = path.join(getBackupDir(), 'events.json')
 
     try {
-      const content = await fs.readFile(EVENTS_FILE, 'utf-8')
-      events = JSON.parse(content) as BackupEvent[]
+      const content = await fs.readFile(eventsFile, 'utf-8')
+      const parsed = JSON.parse(content) as BackupEvent[]
+      events = Array.isArray(parsed) ? parsed : []
     } catch (error) {
       // File doesn't exist or is invalid, start fresh
     }
@@ -111,7 +142,7 @@ async function recordEvent(event: BackupEvent): Promise<void> {
       events = events.slice(-1000)
     }
 
-    await fs.writeFile(EVENTS_FILE, JSON.stringify(events, null, 2), 'utf-8')
+    await fs.writeFile(eventsFile, JSON.stringify(events, null, 2), 'utf-8')
   } catch (error) {
     logger.error('Failed to record backup event', error)
   }
@@ -121,8 +152,6 @@ async function recordEvent(event: BackupEvent): Promise<void> {
  * Create a backup schedule
  */
 export async function scheduleBackup(config: Omit<BackupConfig, 'id'>): Promise<BackupConfig> {
-  const schedules = await getScheduledBackups()
-
   const newConfig: BackupConfig = {
     id: uuidv4(),
     ...config,
@@ -130,8 +159,11 @@ export async function scheduleBackup(config: Omit<BackupConfig, 'id'>): Promise<
     nextRunAt: calculateNextRun(config.frequency),
   }
 
-  schedules.push(newConfig)
-  await saveSchedules(schedules)
+  await withWriteLock(async () => {
+    const schedules = await getScheduledBackups()
+    schedules.push(newConfig)
+    await saveSchedules(schedules)
+  })
 
   await recordEvent({
     type: BackupEventType.SCHEDULE_CREATED,
@@ -191,15 +223,22 @@ function calculateNextRun(frequency: BackupFrequency): string {
  * Cancel a backup schedule
  */
 export async function cancelScheduledBackup(scheduleId: string): Promise<boolean> {
-  const schedules = await getScheduledBackups()
-  const index = schedules.findIndex(s => s.id === scheduleId)
+  const removed = await withWriteLock(async () => {
+    const schedules = await getScheduledBackups()
+    const index = schedules.findIndex(s => s.id === scheduleId)
 
-  if (index === -1) {
+    if (index === -1) {
+      return null
+    }
+
+    const removed = schedules.splice(index, 1)[0]
+    await saveSchedules(schedules)
+    return removed
+  })
+
+  if (!removed) {
     return false
   }
-
-  const removed = schedules.splice(index, 1)[0]
-  await saveSchedules(schedules)
 
   await recordEvent({
     type: BackupEventType.SCHEDULE_DELETED,
@@ -227,23 +266,36 @@ export async function updateBackupSchedule(
   scheduleId: string,
   updates: Partial<BackupConfig>
 ): Promise<BackupConfig | null> {
-  const schedules = await getScheduledBackups()
-  const index = schedules.findIndex(s => s.id === scheduleId)
+  const updated = await withWriteLock(async () => {
+    const schedules = await getScheduledBackups()
+    const index = schedules.findIndex(s => s.id === scheduleId)
 
-  if (index === -1) {
+    if (index === -1) {
+      return null
+    }
+
+    const schedule = schedules[index]
+    const next: BackupConfig = {
+      ...schedule,
+      ...updates,
+      // Recalculate next run only if the frequency changed.
+      // 之前无条件取 `schedule.nextRunAt`，导致显式传入的 nextRunAt 更新被吞掉 ——
+      // 调用方改不动下次执行时间，runScheduledBackups 也就永远不会到期。
+      nextRunAt: updates.frequency
+        ? calculateNextRun(updates.frequency)
+        : updates.nextRunAt !== undefined
+          ? updates.nextRunAt
+          : schedule.nextRunAt,
+    }
+
+    schedules[index] = next
+    await saveSchedules(schedules)
+    return next
+  })
+
+  if (!updated) {
     return null
   }
-
-  const schedule = schedules[index]
-  const updated: BackupConfig = {
-    ...schedule,
-    ...updates,
-    // Recalculate next run if frequency changed
-    nextRunAt: updates.frequency ? calculateNextRun(updates.frequency) : schedule.nextRunAt,
-  }
-
-  schedules[index] = updated
-  await saveSchedules(schedules)
 
   logger.info(`Backup schedule updated: ${updated.name}`, {
     category: 'backup',
@@ -289,10 +341,12 @@ async function executeBackupSchedule(schedule: BackupConfig): Promise<BackupJob>
   }
 
   try {
-    // Save job as running
-    const jobs = await getJobs()
-    jobs.push(job)
-    await saveJobs(jobs)
+    // Save job as running（读-改-写必须在锁内，否则并发 trigger 会丢 job）
+    await withWriteLock(async () => {
+      const jobs = await getJobs()
+      jobs.push(job)
+      await saveJobs(jobs)
+    })
 
     logger.info(`Starting scheduled backup: ${schedule.name}`, {
       category: 'backup',
@@ -348,12 +402,14 @@ async function executeBackupSchedule(schedule: BackupConfig): Promise<BackupJob>
     })
   } finally {
     // Update job status
-    const jobs = await getJobs()
-    const jobIndex = jobs.findIndex(j => j.id === job.id)
-    if (jobIndex !== -1) {
-      jobs[jobIndex] = job
-      await saveJobs(jobs)
-    }
+    await withWriteLock(async () => {
+      const jobs = await getJobs()
+      const jobIndex = jobs.findIndex(j => j.id === job.id)
+      if (jobIndex !== -1) {
+        jobs[jobIndex] = job
+        await saveJobs(jobs)
+      }
+    })
   }
 
   return job
@@ -391,9 +447,20 @@ async function cleanupOldBackups(retentionDays: number): Promise<void> {
  */
 export async function getBackupJobs(limit: number = 50): Promise<BackupJob[]> {
   const jobs = await getJobs()
-  return jobs
-    .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())
-    .slice(0, limit)
+
+  // 主排序键：scheduledAt 倒序（新的在前）。
+  // 次排序键：scheduledAt 完全相同时（例如 fake timers 让多次 trigger 落在
+  // 同一毫秒），用原始写入顺序 —— 后写入的（更新的）排前面。
+  // 否则同刻创建的 job 顺序不确定，"新 job 在前" 的断言会随机挂。
+  const indexed = jobs.map((job, index) => ({ job, index }))
+  indexed.sort((a, b) => {
+    const byScheduled =
+      new Date(b.job.scheduledAt).getTime() - new Date(a.job.scheduledAt).getTime()
+    if (byScheduled !== 0) return byScheduled
+    return b.index - a.index
+  })
+
+  return indexed.slice(0, limit).map(entry => entry.job)
 }
 
 /**
@@ -403,7 +470,12 @@ export async function getJobsForSchedule(scheduleId: string): Promise<BackupJob[
   const jobs = await getJobs()
   return jobs
     .filter(j => j.configId === scheduleId)
-    .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())
+    .sort((a, b) => {
+      const byScheduled = new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
+      if (byScheduled !== 0) return byScheduled
+      // 同刻创建的 job：后写入的排前面（与 getBackupJobs 保持一致）
+      return jobs.indexOf(b) - jobs.indexOf(a)
+    })
 }
 
 /**

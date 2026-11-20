@@ -159,6 +159,13 @@ export interface CreditScore {
   level: CreditLevel
   factors: CreditFactors
   history: CreditHistoryEntry[]
+  /**
+   * 累计违规扣分（持久化的负向偏移量）
+   *
+   * 违规扣分必须持久化，否则下一次基于因子的重算会把违规扣分抹掉，
+   * 导致「记录违规 → 分数被悄悄还原」。
+   */
+  penaltyOffset?: number
   lastCalculatedAt: Date
   createdAt: Date
   updatedAt: Date
@@ -176,8 +183,8 @@ export interface CreditFactors {
   taskCompletionRate: number // 任务完成率 0-100
   responseSpeed: number // 响应速度评分 0-100
   userRating: number // 用户平均评分 0-100
-  violationCount: number // 违规记录次数
-  disputeRate: number // 争议率 0-100
+  violationCount: number // 违规记录次数（整数，>= 0）
+  disputeRate: number // 争议次数（整数，>= 0）
   onTimeDeliveryRate: number // 按时交付率 0-100
   repeatCustomerRate: number // 回头客率 0-100
 }
@@ -201,8 +208,8 @@ export interface CreditWeights {
   taskCompletionRate: number // 默认 0.25
   responseSpeed: number // 默认 0.15
   userRating: number // 默认 0.20
-  violationCount: number // 默认 -50 per violation
-  disputeRate: number // 默认 -0.10
+  violationCount: number // 默认 -50，每次违规的基础扣分（按严重度倍数放大）
+  disputeRate: number // 默认 -10，每次争议的扣分
   onTimeDeliveryRate: number // 默认 0.15
   repeatCustomerRate: number // 默认 0.15
 }

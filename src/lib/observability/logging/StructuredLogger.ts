@@ -14,6 +14,7 @@ import {
   TraceId,
   Tags,
 } from '../types'
+import { redactObject, redactString } from './redaction'
 
 // ============================================
 // Logger Options
@@ -147,10 +148,19 @@ export class StructuredLogger {
     }
 
     // 构建日志条目
+    //
+    // 脱敏：落盘前必须做。
+    //
+    // 本仓库 2026-10 发生过 PAT 明文落盘事故 ——
+    // observability 这条链路当时完全没接脱敏，
+    // token / 口令 / apiKey 原样进日志、进 console、进内存 entries。
+    //
+    // redaction.ts 是上一轮写好的实现（按字段名 + 按值形态双策略），
+    // 但一直没接线 —— 这里补上。
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level: this.getLevelName(level),
-      message,
+      message: redactString(message),
     }
 
     // 添加追踪上下文
@@ -160,15 +170,17 @@ export class StructuredLogger {
 
     // 添加额外字段
     if (fields && Object.keys(fields).length > 0) {
-      entry.fields = fields
+      entry.fields = redactObject(fields as Record<string, unknown>) as Tags
     }
 
     // 添加错误信息
+    // error.message 和 error.stack 里同样可能带凭据
+    // （比如连接串里的密码、URL 里的 token），一并脱敏。
     if (error) {
       entry.error = {
         type: error.constructor.name,
-        message: error.message,
-        stacktrace: error.stack,
+        message: redactString(error.message),
+        stacktrace: error.stack ? redactString(error.stack) : '',
       }
     }
 

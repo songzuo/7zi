@@ -11,6 +11,7 @@ import {
   TaskIntent,
   ParsedTask,
 } from '@/lib/workflow/TaskParser'
+import { NodeType, EdgeType } from '@/types/workflow'
 
 describe('TaskParser - 意图识别', () => {
   it('应该正确识别定时任务意图', () => {
@@ -63,73 +64,107 @@ describe('TaskParser - 意图识别', () => {
 })
 
 describe('TaskParser - 实体提取', () => {
+  // 实体提取的结果放在 result.variables 里，字段是复数形式
+  // （timeExpressions / recipients / conditions / actions / targets / agents）——
+  // 因为一次输入可能包含多个实体。测试原先断言的是不存在的
+  // variables.time 和 node.config.recipients / subject / condition / action，
+  // 那些字段在 ExtractedEntities 和 WorkflowNode 的类型定义里都不存在。
+
   it('应该提取时间实体', () => {
     const result = parseTaskFromText('每天早上9点发送邮件')
-    expect(result.variables.time).toContain('9')
+    const timeExpressions = result.variables.timeExpressions as string[]
+    expect(Array.isArray(timeExpressions)).toBe(true)
+    expect(timeExpressions.length).toBeGreaterThan(0)
+    expect(timeExpressions.join(' ')).toContain('每天')
   })
 
   it('应该提取接收者实体', () => {
     const result = parseTaskFromText('发送邮件给 john@example.com')
-    const hasRecipient = result.nodes.some(
-      (node) => node.config && typeof node.config === 'object' && 'recipients' in node.config
-    )
-    expect(hasRecipient).toBe(true)
+    const recipients = result.variables.recipients as string[]
+    expect(recipients).toContain('john@example.com')
+  })
+
+  it('应该把接收者写进通知节点的 prompt', () => {
+    const result = parseTaskFromText('发送邮件给 john@example.com')
+    const notificationNode = result.nodes.find((node) => node.agentConfig?.agentType === 'notification')
+    expect(notificationNode).toBeDefined()
+    expect(notificationNode?.agentConfig?.prompt).toContain('john@example.com')
   })
 
   it('应该提取主题实体', () => {
     const result = parseTaskFromText('发送邮件，主题是"每日报告"')
-    const hasSubject = result.nodes.some(
-      (node) => node.config && typeof node.config === 'object' && 'subject' in node.config
-    )
-    expect(hasSubject).toBe(true)
+    const subjects = result.variables.subjects as string[]
+    expect(subjects.length).toBeGreaterThan(0)
+    expect(subjects.join(' ')).toContain('每日报告')
   })
 
   it('应该提取条件实体', () => {
     const result = parseTaskFromText('当CPU超过80%时发送告警')
-    const hasCondition = result.nodes.some(
-      (node) => node.config && typeof node.config === 'object' && 'condition' in node.config
-    )
-    expect(hasCondition).toBe(true)
+    const conditions = result.variables.conditions as string[]
+    expect(conditions.length).toBeGreaterThan(0)
+    expect(conditions.join(' ')).toContain('CPU')
+  })
+
+  it('应该把条件写进条件节点', () => {
+    const result = parseTaskFromText('当CPU超过80%时发送告警')
+    const conditionNode = result.nodes.find((node) => node.conditionConfig)
+    expect(conditionNode).toBeDefined()
+    expect(conditionNode?.conditionConfig?.expression).toBeTruthy()
   })
 
   it('应该提取动作实体', () => {
     const result = parseTaskFromText('发送邮件通知')
-    const hasAction = result.nodes.some(
-      (node) => node.config && typeof node.config === 'object' && 'action' in node.config
-    )
-    expect(hasAction).toBe(true)
+    const actions = result.variables.actions as string[]
+    expect(actions.length).toBeGreaterThan(0)
   })
 })
 
 describe('TaskParser - 节点生成', () => {
+  // 节点类型用的是领域模型 NodeType（start / agent / condition /
+  // human_input / end ...），不是测试原先假设的
+  // trigger / action / notification / monitor / approval 那套词表。
+  // 所以这里按**节点的业务角色**（配置字段）来断言，
+  // 而不是按不存在的类型字符串。
+
   it('应该生成触发器节点', () => {
     const result = parseTaskFromText('每天早上9点发送邮件')
-    const hasTrigger = result.nodes.some((node) => String(node.type) === 'trigger' || node.type === undefined)
-    expect(hasTrigger).toBe(true)
+    const triggerNode = result.nodes.find((node) => node.config?.inputs?.schedule !== undefined)
+    expect(triggerNode).toBeDefined()
+    expect(triggerNode?.type).toBe(NodeType.START)
   })
 
   it('应该生成动作节点', () => {
     const result = parseTaskFromText('发送邮件通知')
-    const hasAction = result.nodes.some((node) => String(node.type) === 'action' || node.type === undefined)
-    expect(hasAction).toBe(true)
+    const actionNode = result.nodes.find((node) => node.agentConfig?.agentType === 'notification')
+    expect(actionNode).toBeDefined()
+    expect(actionNode?.type).toBe(NodeType.AGENT)
   })
 
   it('应该生成通知节点', () => {
     const result = parseTaskFromText('发送邮件给团队')
-    const hasNotification = result.nodes.some((node) => String(node.type) === 'notification' || node.type === undefined)
-    expect(hasNotification).toBe(true)
+    const notificationNode = result.nodes.find((node) => node.agentConfig?.agentType === 'notification')
+    expect(notificationNode).toBeDefined()
+    expect(notificationNode?.agentConfig?.prompt).toContain('团队')
   })
 
   it('应该生成监控节点', () => {
     const result = parseTaskFromText('监控服务器状态')
-    const hasMonitor = result.nodes.some((node) => String(node.type) === 'monitor' || node.type === undefined)
-    expect(hasMonitor).toBe(true)
+    const monitorNode = result.nodes.find((node) => node.conditionConfig)
+    expect(monitorNode).toBeDefined()
+    expect(monitorNode?.type).toBe(NodeType.CONDITION)
   })
 
   it('应该生成审批节点', () => {
     const result = parseTaskFromText('需要主管审批')
-    const hasApproval = result.nodes.some((node) => String(node.type) === 'approval' || node.type === undefined)
-    expect(hasApproval).toBe(true)
+    const approvalNode = result.nodes.find((node) => node.humanInputConfig)
+    expect(approvalNode).toBeDefined()
+    expect(approvalNode?.type).toBe(NodeType.HUMAN_INPUT)
+  })
+
+  it('应该生成开始和结束节点', () => {
+    const result = parseTaskFromText('每天早上9点发送邮件')
+    expect(result.nodes.some((node) => node.type === NodeType.START)).toBe(true)
+    expect(result.nodes.some((node) => node.type === NodeType.END)).toBe(true)
   })
 })
 
@@ -152,7 +187,8 @@ describe('TaskParser - 边连接', () => {
     const result = parseTaskFromText('每天早上9点发送邮件')
     if (result.edges.length > 0) {
       const edge = result.edges[0]
-      expect(['default', 'success', 'error']).toContain(edge.type || 'default')
+      // EdgeType 的真实取值：sequence / condition / parallel / default
+      expect(Object.values(EdgeType)).toContain(edge.type)
     }
   })
 })
@@ -173,8 +209,14 @@ describe('TaskParser - 工作流定义转换', () => {
     const parsed = parseTaskFromText('发送邮件给 john@example.com')
     const workflow = parsedTaskToWorkflowDefinition(parsed)
 
-    const node = workflow.nodes[0]
-    expect(node.config).toBeDefined()
+    // nodes[0] 是 start 节点 —— start 节点本来就没有 config。
+    // 真正带配置的是业务节点：这里断言通知节点的 agentConfig 被完整保留。
+    const notificationNode = workflow.nodes.find(
+      (node) => node.agentConfig?.agentType === 'notification'
+    )
+    expect(notificationNode).toBeDefined()
+    expect(notificationNode?.agentConfig?.agentId).toBe('notification-agent')
+    expect(notificationNode?.agentConfig?.prompt).toContain('john@example.com')
   })
 
   it('应该保留边配置', () => {
@@ -237,6 +279,8 @@ describe('TaskParser - 验证', () => {
   })
 
   it('应该拒绝低置信度的解析结果', () => {
+    // 实现的阈值是 confidence < 0.3 即判为低置信度（0.3 本身是可接受的下限）。
+    // 这里用 0.2 —— 明确低于阈值。
     const parsed: ParsedTask = {
       intent: 'unknown',
       workflowName: '测试',
@@ -244,7 +288,7 @@ describe('TaskParser - 验证', () => {
       nodes: [{ type: undefined, config: {} }],
       edges: [],
       variables: {},
-      confidence: 0.3,
+      confidence: 0.2,
       suggestions: [],
       rawText: '测试',
     }
@@ -253,6 +297,26 @@ describe('TaskParser - 验证', () => {
 
     expect(validation.isValid).toBe(false)
     expect(validation.errors.some((e) => e.includes('置信度'))).toBe(true)
+  })
+
+  it('应该报告缺少开始和结束节点', () => {
+    const parsed: ParsedTask = {
+      intent: 'unknown',
+      workflowName: '测试',
+      description: '测试',
+      nodes: [{ type: undefined, config: {} }],
+      edges: [],
+      variables: {},
+      confidence: 0.9,
+      suggestions: [],
+      rawText: '测试',
+    }
+
+    const validation = validateParsedTask(parsed)
+
+    expect(validation.isValid).toBe(false)
+    expect(validation.errors.some((e) => e.includes('开始节点'))).toBe(true)
+    expect(validation.errors.some((e) => e.includes('结束节点'))).toBe(true)
   })
 })
 

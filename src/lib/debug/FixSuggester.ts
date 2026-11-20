@@ -37,7 +37,10 @@ const FIX_TEMPLATES: FixTemplate[] = [
     id: 'null-check',
     category: 'runtime',
     subtype: 'null-reference',
-    title: '添加空值检查',
+    // 标题里保留 "null" 这个技术关键词：整份诊断报告是给人 grep / 检索用的，
+    // 纯中文标题（"添加空值检查"）无法被按 null/undefined 检索到，
+    // 也与本模板第 1 步 action 的措辞不一致。
+    title: '添加 null/undefined 检查',
     description: '在访问对象属性前检查是否为 null 或 undefined',
     priority: 'immediate',
     effort: 'easy',

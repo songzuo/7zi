@@ -60,12 +60,30 @@ export class AccessController {
       action
     );
 
+    // 无适用权限 -> 拒绝 (deny-by-default)
     if (applicablePermissions.length === 0) {
       return false;
     }
 
+    // 已过期的权限不再生效
+    const now = new Date();
+    const activePermissions = applicablePermissions.filter(
+      permission => !permission.expiresAt || now <= permission.expiresAt
+    );
+
+    if (activePermissions.length === 0) {
+      return false;
+    }
+
+    // 显式拒绝优先于允许 (deny-overrides-allow)
+    // 一旦存在针对该主体/资源/操作的拒绝规则，直接拒绝，
+    // 避免 "宽泛的 allow 通配符" 覆盖掉 "精确的 deny 规则"。
+    if (activePermissions.some(permission => !permission.allow)) {
+      return false;
+    }
+
     // 检查是否有任何允许的权限
-    for (const permission of applicablePermissions) {
+    for (const permission of activePermissions) {
       // 检查是否允许
       if (!permission.allow) {
         continue;
@@ -80,11 +98,6 @@ export class AccessController {
         if (!conditionsMet) {
           continue;
         }
-      }
-
-      // 检查过期时间
-      if (permission.expiresAt && new Date() > permission.expiresAt) {
-        continue;
       }
 
       return true;
@@ -116,7 +129,7 @@ export class AccessController {
       }
 
       // 检查资源ID匹配 (支持通配符)
-      if (permission.resourceId !== '*' && permission.resourceId !== resourceId) {
+      if (!this.matchesResourceId(permission.resourceId, resourceId)) {
         continue;
       }
 
@@ -129,6 +142,34 @@ export class AccessController {
     }
 
     return permissions;
+  }
+
+  /**
+   * 资源ID通配符匹配
+   *
+   * 支持三种形式：
+   * - `*`            匹配所有资源
+   * - `app.*`        匹配 `app.` 前缀的所有资源 (如 app.name / app.port)
+   * - `*.name`       匹配以 `.name` 结尾的所有资源
+   * - `a.*.c`        匹配 `a.<任意>.c`
+   *
+   * 精确匹配仍然优先；仅当精确不匹配时才尝试通配符。
+   */
+  private matchesResourceId(pattern: string, resourceId: string): boolean {
+    if (pattern === resourceId || pattern === '*') {
+      return true;
+    }
+
+    if (!pattern.includes('*')) {
+      return false;
+    }
+
+    const escaped = pattern
+      .split('*')
+      .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('.*');
+
+    return new RegExp('^' + escaped + '$').test(resourceId);
   }
 
   /**

@@ -1,37 +1,24 @@
 /**
  * @fileoverview 导出 API 路由 - 同步导出
- * @description POST /api/export/sync - 同步导出数据
- * @version 1.0.0
+ * @description POST /api/export/sync - 同步导出数据（真实数据库）
+ * @version 1.1.0
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { ExportService, ExportRequest } from '@/lib/export/service/export-service'
-import { ExportField } from '@/lib/export/core/exporter'
-import { FilterOperator } from '@/lib/export/utils/filter-parser'
+import { FilterOperator, FilterCondition, SortOptions } from '@/lib/export/utils/filter-parser'
 import { authMiddleware } from '@/middleware/auth.middleware'
 import { logger } from '@/lib/logger'
+import {
+  TASK_FIELDS,
+  TASK_FIELD_NAMES,
+  fetchTasks,
+  TaskEntity,
+} from '../lib/task-repository'
 
 // ============================================================================
 // 类型定义
 // ============================================================================
-
-/**
- * 任务实体 - 满足 Record<string, unknown> 约束
- */
-interface TaskEntity extends Record<string, unknown> {
-  id: string
-  title: string
-  description?: string
-  status: string
-  priority: 'low' | 'medium' | 'high'
-  assignee?: string
-  createdAt: string
-  updatedAt: string
-  dueDate?: string
-  tags: string[]
-  estimatedHours?: number
-  actualHours?: number
-}
 
 /**
  * 导出请求体
@@ -42,7 +29,22 @@ interface ExportRequestBody {
   selectedFields?: string[]
   filters?: Array<{
     field: string
-    operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'in' | 'notIn'
+    operator:
+      | 'eq'
+      | 'ne'
+      | 'gt'
+      | 'gte'
+      | 'lt'
+      | 'lte'
+      | 'like'
+      | 'notLike'
+      | 'in'
+      | 'notIn'
+      | 'between'
+      | 'isNull'
+      | 'isNotNull'
+      | 'startsWith'
+      | 'endsWith'
     value: unknown
   }>
   sort?: Array<{
@@ -53,24 +55,8 @@ interface ExportRequestBody {
   pageSize?: number
 }
 
-// ============================================================================
-// 字段定义
-// ============================================================================
-
-const TASK_FIELDS: ExportField<TaskEntity>[] = [
-  { key: 'id', label: '任务ID', order: 1 },
-  { key: 'title', label: '任务标题', order: 2 },
-  { key: 'description', label: '任务描述', order: 3 },
-  { key: 'status', label: '状态', order: 4 },
-  { key: 'priority', label: '优先级', order: 5 },
-  { key: 'assignee', label: '负责人', order: 6 },
-  { key: 'createdAt', label: '创建时间', order: 7 },
-  { key: 'updatedAt', label: '更新时间', order: 8 },
-  { key: 'dueDate', label: '截止日期', order: 9 },
-  { key: 'tags', label: '标签', order: 10 },
-  { key: 'estimatedHours', label: '预估工时', order: 11 },
-  { key: 'actualHours', label: '实际工时', order: 12 },
-]
+const VALID_FORMATS = ['csv', 'json', 'xlsx', 'excel'] as const
+const MAX_EXPORT_ROWS = 100000
 
 // ============================================================================
 // 导出服务实例
@@ -95,39 +81,101 @@ function getExportService(): ExportService<TaskEntity> {
   return exportService
 }
 
-/**
- * 获取模拟任务数据
- */
-async function getTasks(): Promise<TaskEntity[]> {
-  // TODO: 从数据库获取实际数据
-  const tasks: TaskEntity[] = []
-  const statuses = ['pending', 'in-progress', 'completed', 'cancelled']
-  const priorities: Array<'low' | 'medium' | 'high'> = ['low', 'medium', 'high']
-  const assignees = ['Alice', 'Bob', 'Charlie', 'David']
+// ============================================================================
+// 请求参数解析
+// ============================================================================
 
-  for (let i = 1; i <= 100; i++) {
-    tasks.push({
-      id: `TASK-${String(i).padStart(4, '0')}`,
-      title: `任务 ${i}`,
-      description: `这是任务 ${i} 的描述`,
-      status: statuses[i % statuses.length],
-      priority: priorities[i % priorities.length],
-      assignee: assignees[i % assignees.length],
-      createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - i * 12 * 60 * 60 * 1000).toISOString(),
-      dueDate: new Date(Date.now() + i * 24 * 60 * 60 * 1000).toISOString(),
-      tags: [`tag-${i % 5}`, `important`],
-      estimatedHours: i % 10,
-      actualHours: i % 8,
+/**
+ * 解析并校验过滤条件
+ */
+function parseFilters(
+  raw: ExportRequestBody['filters']
+): { filters: FilterCondition[]; invalid: number } {
+  const filters: FilterCondition[] = []
+  let invalid = 0
+
+  for (const f of raw ?? []) {
+    if (!f || typeof f.field !== 'string' || !f.field) {
+      invalid++
+      continue
+    }
+    filters.push({
+      field: f.field,
+      operator: f.operator as FilterOperator,
+      value: f.value,
     })
   }
 
-  return tasks
+  return { filters, invalid }
 }
 
 /**
- * GET /api/export/sync - 同步导出数据
+ * 解析并校验排序条件
  */
+function parseSort(raw: ExportRequestBody['sort']): { sort: SortOptions[]; invalid: number } {
+  const sort: SortOptions[] = []
+  let invalid = 0
+
+  for (const s of raw ?? []) {
+    if (!s || typeof s.field !== 'string' || !s.field) {
+      invalid++
+      continue
+    }
+    sort.push({
+      field: s.field,
+      order: s.order === 'desc' ? 'desc' : 'asc',
+    })
+  }
+
+  return { sort, invalid }
+}
+
+/**
+ * 校验 selectedFields，只保留白名单内的字段
+ */
+function parseSelectedFields(raw: string[] | undefined): (keyof TaskEntity)[] | undefined {
+  if (!raw || raw.length === 0) return undefined
+
+  const valid = raw.filter(f => TASK_FIELD_NAMES.has(f))
+  if (valid.length === 0) return undefined
+
+  return valid as (keyof TaskEntity)[]
+}
+
+// ============================================================================
+// 响应辅助
+// ============================================================================
+
+/**
+ * 组装导出文件响应
+ */
+function buildFileResponse(
+  result: {
+    data?: ArrayBuffer | string
+    filename: string
+    mimeType: string
+    size: number
+  },
+  extraHeaders: Record<string, string>
+): NextResponse {
+  const headers = new Headers()
+  headers.set('Content-Type', result.mimeType)
+  headers.set('Content-Disposition', `attachment; filename="${result.filename}"`)
+  headers.set('Content-Length', String(result.size))
+
+  for (const [key, value] of Object.entries(extraHeaders)) {
+    headers.set(key, value)
+  }
+
+  return new NextResponse(result.data as BodyInit, {
+    status: 200,
+    headers,
+  })
+}
+
+// ============================================================================
+// GET /api/export/sync - 同步导出数据
+// ============================================================================
 export async function GET(request: NextRequest) {
   // 认证检查
   const authResponse = await authMiddleware(request)
@@ -137,14 +185,24 @@ export async function GET(request: NextRequest) {
 
   try {
     const searchParams = request.nextUrl.searchParams
-    const format = (searchParams.get('format') as 'csv' | 'json' | 'xlsx' | 'excel') || 'csv'
+    const formatParam = searchParams.get('format')
+    const format = (VALID_FORMATS as readonly string[]).includes(formatParam ?? '')
+      ? (formatParam as 'csv' | 'json' | 'xlsx' | 'excel')
+      : 'csv'
     const filename = searchParams.get('filename') || 'export'
-    const selectedFields = searchParams.get('fields')?.split(',')
+    const selectedFields = parseSelectedFields(searchParams.get('fields')?.split(','))
 
-    // 获取数据
-    const tasks = await getTasks()
+    const pageParam = searchParams.get('page')
+    const pageSizeParam = searchParams.get('pageSize')
+    const page = pageParam ? parseInt(pageParam, 10) : undefined
+    const pageSize = pageSizeParam ? parseInt(pageSizeParam, 10) : undefined
 
-    // 构建导出请求
+    // 从真实数据库读取（过滤 / 排序在 SQL 层生效）
+    const { rows, degraded, reason, ignoredFields } = await fetchTasks({
+      page: page && page > 0 ? page : undefined,
+      pageSize: pageSize && pageSize > 0 ? pageSize : undefined,
+    })
+
     const exportRequest: ExportRequest<TaskEntity> = {
       requestId: `export_${Date.now()}_${Math.random().toString(36).substring(7)}`,
       format,
@@ -152,42 +210,49 @@ export async function GET(request: NextRequest) {
       dataConfig: {
         type: 'custom',
         source: 'tasks',
-        dataProvider: async () => tasks,
+        dataProvider: async () => rows,
       },
       exportConfig: {
         filename,
         fields: TASK_FIELDS,
-        selectedFields: selectedFields as (keyof TaskEntity)[],
+        selectedFields,
         includeHeader: true,
         timestampFormat: 'locale',
       },
       background: false,
     }
 
-    // 执行导出
     const service = getExportService()
     const result = await service.export(exportRequest)
 
     if (!result.success) {
-      const errorMessage = result.data instanceof Error 
-        ? result.data.message 
-        : '导出失败'
+      logger.error('[Export API] 同步导出失败', { requestId: exportRequest.requestId })
       return NextResponse.json(
-        { error: errorMessage },
+        { error: '导出失败' },
         { status: 500 }
       )
     }
 
-    // 返回文件
-    const headers = new Headers()
-    headers.set('Content-Type', result.mimeType)
-    headers.set('Content-Disposition', `attachment; filename="${result.filename}"`)
-    headers.set('Content-Length', String(result.size))
+    const extraHeaders: Record<string, string> = {
+      'X-Export-Row-Count': String(rows.length),
+    }
+    if (degraded) {
+      extraHeaders['X-Export-Degraded'] = 'true'
+      extraHeaders['X-Export-Reason'] = reason ?? 'database unavailable'
+    }
+    if (ignoredFields.length > 0) {
+      extraHeaders['X-Export-Ignored-Fields'] = ignoredFields.join(',')
+    }
 
-    return new NextResponse(result.data, {
-      status: 200,
-      headers,
-    })
+    return buildFileResponse(
+      {
+        data: result.data,
+        filename: result.filename,
+        mimeType: result.mimeType,
+        size: result.size,
+      },
+      extraHeaders
+    )
   } catch (error) {
     logger.error('[Export API] 同步导出失败', {
       error: error instanceof Error ? error.message : '未知错误',
@@ -200,9 +265,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-/**
- * POST /api/export/sync - 同步导出数据（支持过滤和排序）
- */
+// ============================================================================
+// POST /api/export/sync - 同步导出数据（支持过滤和排序）
+// ============================================================================
 export async function POST(request: NextRequest) {
   // 认证检查
   const authResponse = await authMiddleware(request)
@@ -211,7 +276,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body: ExportRequestBody = await request.json()
+    let body: ExportRequestBody
+    try {
+      body = (await request.json()) as ExportRequestBody
+    } catch {
+      return NextResponse.json(
+        { error: '请求体不是合法 JSON' },
+        { status: 400 }
+      )
+    }
 
     // 验证必填字段
     if (!body.format || !body.filename) {
@@ -221,8 +294,32 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 获取数据
-    const tasks = await getTasks()
+    if (!(VALID_FORMATS as readonly string[]).includes(body.format)) {
+      return NextResponse.json(
+        { error: `不支持的导出格式: ${body.format}` },
+        { status: 400 }
+      )
+    }
+
+    const { filters, invalid: invalidFilters } = parseFilters(body.filters)
+    const { sort, invalid: invalidSort } = parseSort(body.sort)
+    const selectedFields = parseSelectedFields(body.selectedFields)
+
+    // 从真实数据库读取：过滤 / 排序在 SQL 层真实生效
+    const { rows, degraded, reason, ignoredFields } = await fetchTasks({
+      filters,
+      sort,
+      page: body.page && body.page > 0 ? body.page : undefined,
+      pageSize: body.pageSize && body.pageSize > 0 ? body.pageSize : undefined,
+    })
+
+    if (rows.length > MAX_EXPORT_ROWS) {
+      logger.warn('[Export API] 导出行数超过上限，已截断', {
+        rowCount: rows.length,
+        max: MAX_EXPORT_ROWS,
+      })
+      rows.length = MAX_EXPORT_ROWS
+    }
 
     // 构建导出请求
     const exportRequest: ExportRequest<TaskEntity> = {
@@ -232,24 +329,15 @@ export async function POST(request: NextRequest) {
       dataConfig: {
         type: 'custom',
         source: 'tasks',
-        dataProvider: async () => tasks,
+        dataProvider: async () => rows,
       },
       exportConfig: {
         filename: body.filename,
         fields: TASK_FIELDS,
-        selectedFields: body.selectedFields as (keyof TaskEntity)[],
+        selectedFields,
         includeHeader: true,
         timestampFormat: 'locale',
       },
-      pagination: body.page && body.pageSize ? {
-        page: body.page,
-        pageSize: Math.min(body.pageSize, 100000),
-      } : undefined,
-      filters: body.filters?.map(f => ({
-        field: f.field,
-        operator: f.operator as FilterOperator,
-        value: f.value,
-      })),
       background: false,
     }
 
@@ -258,25 +346,36 @@ export async function POST(request: NextRequest) {
     const result = await service.export(exportRequest)
 
     if (!result.success) {
-      const errorMessage = result.data instanceof Error 
-        ? result.data.message 
-        : '导出失败'
+      logger.error('[Export API] 同步导出失败', { requestId: exportRequest.requestId })
       return NextResponse.json(
-        { error: errorMessage },
+        { error: '导出失败' },
         { status: 500 }
       )
     }
 
-    // 返回文件
-    const headers = new Headers()
-    headers.set('Content-Type', result.mimeType)
-    headers.set('Content-Disposition', `attachment; filename="${result.filename}"`)
-    headers.set('Content-Length', String(result.size))
+    const extraHeaders: Record<string, string> = {
+      'X-Export-Row-Count': String(rows.length),
+    }
+    if (degraded) {
+      extraHeaders['X-Export-Degraded'] = 'true'
+      extraHeaders['X-Export-Reason'] = reason ?? 'database unavailable'
+    }
+    if (ignoredFields.length > 0 || invalidFilters > 0 || invalidSort > 0) {
+      const ignored = [...ignoredFields]
+      if (invalidFilters > 0) ignored.push(`invalid-filters:${invalidFilters}`)
+      if (invalidSort > 0) ignored.push(`invalid-sort:${invalidSort}`)
+      extraHeaders['X-Export-Ignored-Fields'] = ignored.join(',')
+    }
 
-    return new NextResponse(result.data, {
-      status: 200,
-      headers,
-    })
+    return buildFileResponse(
+      {
+        data: result.data,
+        filename: result.filename,
+        mimeType: result.mimeType,
+        size: result.size,
+      },
+      extraHeaders
+    )
   } catch (error) {
     logger.error('[Export API] 同步导出失败', {
       error: error instanceof Error ? error.message : '未知错误',

@@ -316,6 +316,16 @@ export interface IStorageAdapter {
   zcard(key: string): Promise<number>
   /** Get sorted set range */
   zrange(key: string, start: number, stop: number, withScores?: boolean): Promise<string[]>
+  /**
+   * Get a single hash field.
+   *
+   * 令牌桶的状态存在**哈希**里（HMSET tokens/lastRefill/capacity），
+   * 不是普通字符串键 —— 用 get() 读会拿到 WRONGTYPE 错误，
+   * 管理 API 读不到真实令牌数。必须走 HGET。
+   */
+  hget(key: string, field: string): Promise<string | null>
+  /** Set a single hash field */
+  hset(key: string, field: string, value: string | number): Promise<number>
   /** Execute Lua script */
   eval(script: string, keys: string[], args: (string | number)[]): Promise<unknown>
   /** Execute pipeline */

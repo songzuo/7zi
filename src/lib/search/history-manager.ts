@@ -19,6 +19,7 @@ const MAX_STORAGE_AGE = 30 * 24 * 60 * 60 * 1000 // 30 days
 
 export class SearchHistoryManager {
   private history: SearchHistoryEntry[] = []
+  private frequencies: Map<string, number> = new Map()
   private maxSize: number
   private maxAge: number
 
@@ -39,6 +40,10 @@ export class SearchHistoryManager {
 
     // Remove duplicate queries (case-insensitive)
     this.history = this.history.filter(h => h.query.toLowerCase() !== entry.query.toLowerCase())
+
+    // 记录查询频次（大小写不敏感），供 getPopular 使用
+    const key = entry.query.toLowerCase()
+    this.frequencies.set(key, (this.frequencies.get(key) || 0) + 1)
 
     // Add to beginning
     this.history.unshift(newEntry)
@@ -89,13 +94,15 @@ export class SearchHistoryManager {
 
   /**
    * Get popular searches (most frequent)
+   * 频次来源于累计的 add 调用次数（大小写不敏感），与历史列表去重策略相互独立
    */
   getPopular(limit: number = 10): Array<{ query: string; count: number }> {
     const counts = new Map<string, number>()
 
     for (const entry of this.history) {
       const query = entry.query.toLowerCase()
-      counts.set(query, (counts.get(query) || 0) + 1)
+      // 以历史中真实存在的查询为准，频次取累计值
+      counts.set(query, Math.max(counts.get(query) || 0, this.frequencies.get(query) || 1))
     }
 
     return Array.from(counts.entries())
@@ -137,6 +144,7 @@ export class SearchHistoryManager {
    */
   remove(query: string): void {
     this.history = this.history.filter(entry => entry.query.toLowerCase() !== query.toLowerCase())
+    this.frequencies.delete(query.toLowerCase())
     this.saveToStorage()
   }
 
@@ -145,6 +153,7 @@ export class SearchHistoryManager {
    */
   clear(): void {
     this.history = []
+    this.frequencies.clear()
     this.saveToStorage()
   }
 
@@ -272,6 +281,7 @@ export class SearchHistoryManager {
       if (data) {
         const storage: SearchHistoryStorage = JSON.parse(data)
         this.history = storage.entries || []
+        this.frequencies = new Map(Object.entries(storage.frequencies || {}))
       }
     } catch (error) {
       console.error('Failed to load search history:', error)
@@ -289,6 +299,7 @@ export class SearchHistoryManager {
       const storage: SearchHistoryStorage = {
         entries: this.history,
         maxSize: this.maxSize,
+        frequencies: Object.fromEntries(this.frequencies),
       }
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(storage))

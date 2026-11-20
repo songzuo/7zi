@@ -213,18 +213,19 @@ export class Broker {
       throw new Error(`Queue not found: ${queueName}`);
     }
 
+    // 必须在 reject 之前取出消息快照:
+    // reject(requeue=false) 会把消息从队列中移除, 之后再查就拿不到了
+    const message = queue.getMessage(messageId);
+
     await queue.reject(messageId, requeue);
 
     // 如果不重试且启用死信队列，添加到死信队列
-    if (!requeue) {
-      const message = queue.getMessage(messageId);
-      if (message) {
-        await this.deadLetterQueue.addDeadLetter(
-          message,
-          queueName,
-          'Message rejected'
-        );
-      }
+    if (!requeue && message) {
+      await this.deadLetterQueue.addDeadLetter(
+        message,
+        queueName,
+        'Message rejected'
+      );
     }
   }
 

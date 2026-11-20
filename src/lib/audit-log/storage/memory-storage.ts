@@ -375,18 +375,31 @@ export class MemoryAuditStorage implements AuditLogStorage {
     events: AuditEvent[],
     options: AuditQueryOptions
   ): AuditEvent[] {
+    // 只有**显式传 false** 才裁剪字段；不传（undefined）表示「要」。
+    //
+    // 原实现写的是 `if (!options.includeDetails)` —— undefined 取反为 true，
+    // 于是只要调用方没显式带上 includeDetails/details/changes/metadata，
+    // 这些字段就**全部被静默删掉**。
+    // 合规报告（generateReport）只传 filter + pagination，
+    // 于是内存存储出来的报告里 events 全都没有 details / changes，
+    // 而文件存储（file-storage）根本不处理这些开关、字段始终保留 ——
+    // 同一份代码换个存储后端结果就不一样。
+    const includeDetails = options.includeDetails !== false;
+    const includeChanges = options.includeChanges !== false;
+    const includeMetadata = options.includeMetadata !== false;
+
     return events.map((event) => {
       const processed = { ...event };
 
-      if (!options.includeDetails) {
+      if (!includeDetails) {
         delete processed.details;
       }
 
-      if (!options.includeChanges) {
+      if (!includeChanges) {
         delete processed.changes;
       }
 
-      if (!options.includeMetadata) {
+      if (!includeMetadata) {
         delete processed.metadata;
       }
 

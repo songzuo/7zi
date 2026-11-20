@@ -119,12 +119,43 @@ export abstract class BaseLogParser implements ILogParser {
       }
     }
 
-    // Common log format
-    const commonMatch = text.match(/\d{2}\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2}/);
+    // Common log format (Nginx $time_local / Apache)
+    //
+    // 形如 `01/Jan/2024:00:00:00 +0000`。
+    //
+    // 原来直接 `new Date(commonMatch[0])` —— 但 JS 的 Date 解析器
+    // 根本不认识这个格式（既不是 ISO 8601，也不是它能识别的
+    // `Jan 01 2024` 那种斜杠写法），结果永远是 Invalid Date，
+    // 于是 `isNaN(date.getTime())` 恒真 → 整个分支被跳过。
+    //
+    // 后果：Nginx / Apache 日志**永远解析不出 timestamp**，
+    // 而 LogAggregator.parseEntries 会用 parsedData.timestamp
+    // 覆盖 entry.timestamp → 落库的日志时间戳全是收集时刻，
+    // 时间范围查询/趋势分析全部失真。
+    //
+    // 正确做法是手工组装 ISO 字符串：
+    //   `01/Jan/2024:00:00:00 +0000` → `2024-01-01T00:00:00+00:00`
+    const commonMatch = text.match(
+      /(\d{2})\/(\w{3})\/(\d{4}):(\d{2}):(\d{2}):(\d{2})(?:\s*([+-]\d{2}:?\d{2}))?/
+    );
     if (commonMatch) {
-      const date = new Date(commonMatch[0]);
-      if (!isNaN(date.getTime())) {
-        return date;
+      const [, dd, mon, yyyy, hh, mm, ss, tz] = commonMatch;
+      const months: Record<string, string> = {
+        jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+        jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
+      };
+      const month = months[mon.toLowerCase()];
+      if (month) {
+        // 时区写成 +0000 → ISO 要求 +00:00
+        let offset = 'Z';
+        if (tz) {
+          offset = tz.includes(':') ? tz : `${tz.slice(0, 3)}:${tz.slice(3)}`;
+        }
+        const iso = `${yyyy}-${month}-${dd}T${hh}:${mm}:${ss}${offset}`;
+        const date = new Date(iso);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
       }
     }
 
@@ -284,8 +315,19 @@ export class JsonLogParser extends BaseLogParser {
  * Nginx 日志解析器
  */
 export class NginxLogParser extends BaseLogParser {
-  private readonly defaultPattern = 
-    /^(\S+)\s+(\S+)\s+\[([^\]]+)\]\s+"(\S+ \S+ \S+)"\s+(\d+)\s+(\d+)\s+"([^"]*)"\s+"([^"]*)"/;
+  // Nginx combined log format：
+  //   $remote_addr $remote_user $http_x_forwarded_for [$time_local]
+  //   "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"
+  //
+  // 注意是**三个**前导字段，不是两个 —— combined 格式比 common 格式多一个
+  // $http_x_forwarded_for。原来的正则只吃两个，于是真实日志一行都匹配不上：
+  // parse 返回 null、detectFormat 返回 null、status 派生的 level 也就
+  // 永远算不出来（error/warn 全是 undefined）。
+  //
+  // 第三段可能为空（没有 X-Forwarded-For 时 nginx 记 "-"），
+  // 所以用 (\S*) 允许空值，但整段括号要保留以维持字段下标。
+  private readonly defaultPattern =
+    /^(\S+)\s+(\S+)\s+(\S*)\s+\[([^\]]+)\]\s+"(\S+ \S+ \S+)"\s+(\d+)\s+(\d+)\s+"([^"]*)"\s+"([^"]*)"/;
 
   async parse(raw: string): Promise<ParsedLogData | null> {
     const pattern = this.config.pattern || this.defaultPattern;
@@ -299,13 +341,27 @@ export class NginxLogParser extends BaseLogParser {
     const fields: Record<string, unknown> = {
       remote_addr: match[1],
       remote_user: match[2],
-      time_local: match[3],
-      request: match[4],
-      status: match[5],
-      body_bytes_sent: match[6],
-      http_referer: match[7],
-      http_user_agent: match[8],
+      http_x_forwarded_for: match[3],
+      time_local: match[4],
+      request: match[5],
+      status: match[6],
+      body_bytes_sent: match[7],
+      http_referer: match[8],
+      http_user_agent: match[9],
     };
+
+    // Parse request → method / path / protocol
+    //
+    // ApacheLogParser 里做了这一步，NginxLogParser 漏了 ——
+    // 结果 fields.method / fields.path 一直是 undefined，
+    // 而下面拼 message 时恰恰用的是这两个字段，
+    // 于是 message 永远是 "undefined undefined - 200"。
+    if (fields.request && typeof fields.request === 'string') {
+      const requestParts = fields.request.split(' ');
+      fields.method = requestParts[0];
+      fields.path = requestParts[1];
+      fields.protocol = requestParts[2];
+    }
 
     // Parse status
     if (fields.status && typeof fields.status === 'string') {
@@ -349,7 +405,10 @@ export class NginxLogParser extends BaseLogParser {
 
   detectFormat(raw: string): LogFormatType | null {
     // Check for Nginx common log format
-    const nginxPattern = /^\S+\s+\S+\s+\[[^\]]+\]\s+"\S+ \S+ \S+"\s+\d+\s+\d+/;
+    // 同样是**三个**前导字段（多了 $http_x_forwarded_for），
+    // 与上面的 defaultPattern 保持一致 —— 两处不一致会导致
+    // detectFormat 认得出但 parse 解析不出（或反过来）。
+    const nginxPattern = /^\S+\s+\S+\s+\S*\s+\[[^\]]+\]\s+"\S+ \S+ \S+"\s+\d+\s+\d+/;
     if (nginxPattern.test(raw)) {
       return 'nginx';
     }

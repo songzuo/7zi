@@ -153,6 +153,62 @@ describe('AuditLogSystem', () => {
       expect(isValid).toBe(true);
     });
 
+    it('should reject events with no signature when signing is enabled', () => {
+      // 回归：原实现里 `!event.signature` 直接 return true，
+      // 等于「把 signature 字段删掉就能绕过完整性校验」。
+      const handler = new AuditSignatureHandler(true, 'test-secret-key');
+
+      const event = {
+        id: 'test-123',
+        timestamp: new Date(),
+        level: 'info' as const,
+        category: 'user' as const,
+        action: 'create' as const,
+        status: 'success' as const,
+        severity: 'low' as const,
+        message: 'Test event',
+      };
+
+      expect(handler.verify(event)).toBe(false);
+    });
+
+    it('should accept unsigned events when signing is disabled', () => {
+      const handler = new AuditSignatureHandler(false, 'test-secret-key');
+
+      const event = {
+        id: 'test-123',
+        timestamp: new Date(),
+        level: 'info' as const,
+        category: 'user' as const,
+        action: 'create' as const,
+        status: 'success' as const,
+        severity: 'low' as const,
+        message: 'Test event',
+      };
+
+      expect(handler.verify(event)).toBe(true);
+    });
+
+    it('should reject a signature of a different length', () => {
+      const handler = new AuditSignatureHandler(true, 'test-secret-key');
+
+      const event = {
+        id: 'test-123',
+        timestamp: new Date(),
+        level: 'info' as const,
+        category: 'user' as const,
+        action: 'create' as const,
+        status: 'success' as const,
+        severity: 'low' as const,
+        message: 'Test event',
+      };
+
+      const signed = handler.sign(event);
+      signed.signature = 'abc';
+
+      expect(handler.verify(signed)).toBe(false);
+    });
+
     it('should detect tampered events', () => {
       const handler = new AuditSignatureHandler(true, 'test-secret-key');
 

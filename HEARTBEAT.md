@@ -14,9 +14,16 @@
 集群节点：bot2 / bot3 / bot4 / bot5 / bot6，共享仓库 `songzuo/botmem`。
 
 **先确认自己在哪台**：`hostname` + `curl -s ifconfig.me` ——
-⚠️ **本机是 bot3**（hostname=VM-0-4-opencloudos，公网 159.75.149.84 = bot3.szspd.cn）。
-"本机"指 bot3，**不是 bot2 也不是 bot4**。bot6 是另一台独立机器 109.123.246.140。
-清单第 2/3/4/5 项要 SSH 到**其他**节点，先排除本机。
+⚠️ **先跑 `hostname` + `curl -s ifconfig.me` 确认自己是谁，别信这段文字**——
+本文件的"本机"在不同节点上指不同的机器，历史上写错过多次：
+- bot3 → hostname=VM-0-4-opencloudos，公网 159.75.149.84
+- bot5 → hostname=ecm-cd59，公网 182.43.36.134（**2026-10-30 实测：本巡检会话跑在 bot5 上**）
+- bot6 → 独立机器 109.123.246.140
+
+判据（最可靠）：`cat memory/claw-mesh-state.json` 的 `machine` 字段
+—— 它由各节点自己的同步脚本写入，与实际主机一致；
+反例见 §2（历史上 bot5 写成 ecm-cd59、bot6 和 bot3 都写成 bot4，那是错标不是别名）。
+清单第 2/3/4/5 项要 SSH 到**其他**节点，先用上面的方法排除本机。
 
 **核心提醒：不要只看"同步是否成功"。** 2026-10-22 的经验是，
 同步成功不代表健康 —— 失效 cron、防护规则误伤、时区错配、凭据明文，
@@ -360,17 +367,17 @@ state 里 `status: healthy` 只说明**最后一次写 state 时**是健康的�
 都会留下"健康的旧 state"。
 ```bash
 git log --format='%ad %s' --date=format:'%H:%M' origin/main --grep='<节点>: Claw-Mesh' | head -4
-# 对比该节点的推送节奏（bot5 每 5 分钟、bot2 :00 / bot4 :15 / bot6 :30 / bot3 :45）
+# 对比该节点的推送节奏（bot5 每 15 分钟 :08/:23/:38/:53、bot2 :00 / bot4 :10 / bot6 :30 / bot3 :45）
 ```
 落后超过 2 个周期 → 节点已停摆，即使 state 显示 healthy。
 
 ⚠️ **各节点节奏不同，别用同一把尺子**（据 2026-10-25 实测）：
 | 节点 | 节奏 | 槽位 |
 |---|---|---|
-| bot5 | 每 5 分钟 | `*/5` |
+| bot5 | 每 15 分钟 | `8,23,38,53`（实测，非 `*/5`） |
 | bot2 | 每 4 小时 | `:00` |
 | bot3 | 每 4 小时 | `:45` |
-| bot4 | 每 4 小时 | `:15` |
+| bot4 | 每 4 小时 | `:10`（实测） |
 | bot6 | 每 4 小时 | `:30` |
 → bot3 08:45、bot6 08:30 之后没新同步是**正常**，下一槽位 12:45 / 12:30。
 → 只有超出**自己节奏** 2 个周期才算停摆。
@@ -703,6 +710,179 @@ fatal: could not read Password for 'https://ghp_%5B%E5%B7%B2%E7%A7%BB%E9%99%A4%5
 - 更稳的做法：**章节号 + 标题关键词一起写**（`§64 pat-scan 脱敏`），
   撞号时读者仍能定位。
 
+## 80. 模板版本号收敛法：结束各节点护栏互相回滚的 ping-pong（2026-10-29 20:13-20:37 实测，bot2）
+
+**症状**：20 分钟内出现 **7 次**"身份护栏自动修复"提交，仓库噪声极大：
+```
+20:13 bot4   护栏自动修复（5 个副本各改 1 行）
+20:26 bot2   护栏自动修复（7 个文件 +2 行）
+20:28 bot4   模板版本号升到 4
+20:28 bot4   护栏自动修复（5 个副本各改 1 行）
+```
+
+**根因（两层）**：
+1. **各节点的 canonical 固化副本版本不同** → 护栏"本机优先"选到旧版 → 推上去 → 别人的新版被覆盖
+2. **版本号缺失/相同导致选择不稳定** —— 各节点都在抢"最高版本"，
+   但当两个源版本号**相同而内容不同**时，选择结果取决于执行顺序 → 随机翻转
+
+**修法（已落地，全节点验证）**：
+1. **模板加单调版本号** `CLAWMESH_TEMPLATE_VERSION=4`
+2. **护栏改为"收集所有候选源，取版本号最高者"**，不再本机优先：
+   ```bash
+   tpl_version() { grep -m1 '^CLAWMESH_TEMPLATE_VERSION=' "$1" | sed 's/.*=//'; }
+   # 候选源：本机固化 / 工作副本 / **raw.githubusercontent.com（远端权威副本）**
+   ```
+   ⚠️ **raw 必须进候选源** —— 本机固化副本和工作副本都可能是旧的，
+   只有 raw 拿到的才是 origin/main 的权威版本。
+3. **选定后回写本机固化副本**，避免旧版长期留在磁盘上（§40）。
+
+**验证（20:37 五节点同刻跑护栏）**：
+```
+bot2 [20:37:38] 本机固化 canonical 已更新到版本 4  ✅ 身份不变量全部通过
+bot3 [20:37:57] 本机固化 canonical 已更新到版本 4  ✅
+bot4 [20:37:41] 本机固化 canonical 已更新到版本 4  ✅
+bot5 [20:37:43] 本机固化 canonical 已更新到版本 4  ✅
+bot6 [20:32:00] 本机固化 canonical 已更新到版本 4  ✅
+```
+→ **五节点同时跑完，零护栏提交**（此前每 30 分钟必产生回滚提交）✅
+→ 仓库一致性：五个副本与 canonical 的 diff **全部 = 0 行** ✅
+
+### 巡检必查（防复发）
+```bash
+# 1) 护栏是否还在产生提交（正常应是 0）
+git log --format='%h %ad %an %s' --date=format:'%H:%M' origin/main --since='30 min ago' \
+  | grep '护栏自动修复' | wc -l
+# 2) canonical 版本号是否单调（不应反复翻转）
+git log --format='%h %ad %an %s' --date=format:'%H:%M' origin/main -- \
+  claw-mesh-deploy/scripts/claw-mesh-template-canonical.sh | head -5
+# 3) 各节点本机 canonical 版本是否一致
+for p in 16003 16004 16005 16006; do
+  ssh -A -i ~/.ssh/id_ed25519_backuptunnel -o BatchMode=yes root@198.44.179.155 \
+    "ssh -o BatchMode=yes -o StrictHostKeyChecking=no -p $p root@127.0.0.1 \
+     'grep -m1 CLAWMESH_TEMPLATE_VERSION /root/.openclaw/cron/claw-mesh-template-canonical.sh'"
+done
+```
+
+**教训（可推广）**：
+- **"本机优先"在多节点场景下是错的** —— 本机只是候选之一，
+  权威源永远在远端。护栏类脚本必须**按版本/时间选权威源**，不能按位置选。
+- **"护栏每轮都报 ✅"反而掩盖了问题** —— 护栏只检查"副本是否等于 canonical"，
+  而 canonical 本身在漂移 → 检查通过但内容在反复翻。
+  → 护栏必须**额外检查"canonical 本身有没有在变"**（版本号单调性）。
+- **多节点各跑同一个"自动修复器"时，修复器本身必须幂等且收敛**，
+  否则它就是一台"降级机"，比不装护栏更糟。
+
+## 81. ⚠️ 巡检命令自己会把 PAT 写进会话记录 → 反查命中的是"我自己"（2026-10-29 21:05 实测，bot6）
+
+**症状**：用"活跃 PAT 反查"做 §6 巡检，扫出一堆命中：
+```
+/root/.openclaw/agents/main/sessions/091fb1ec-....jsonl          （1 次）
+/root/.openclaw/agents/main/sessions/92312ed6-....jsonl          （6 次）
+/var/log/journal/.../system@42a8677352....journal                 （1 次）
+```
+看起来又是 §53/§56 说的"PAT 明文复发"，而且**每天复发**。
+
+**根因（两层，都很反直觉）**：
+
+1. **巡检命令本身是泄漏源**：
+   ```bash
+   TOK=$(grep -oE 'gh[p]_[A-Za-z0-9]{20,}' /root/.git-credentials | head -1)
+   grep -rl "$TOK" ...
+   ```
+   这条命令**把 PAT 的字面值作为参数传给了 grep** → OpenClaw 把完整命令行
+   写进当前会话的 `.jsonl` → **扫出来的命中就是这次巡检自己造成的**。
+   → 第二次扫（同一轮巡检里再跑一次）会命中得更多 —— 越查越多。
+
+2. **journal 里的命中是 5 月的归档残留**：
+   ```
+   May 07 07:46:09 bot6 node[986887]: | **环境变量泄露 GitHub Token** | `ghp_...` 直接暴露在进程环境变量中
+   ```
+   是当时那条**安全告警本身**把 token 写进了日志。
+
+**修法（已落地，bot6）**：
+- session 文件：备份到 `.redacted-backup/` 后 `sed` 替换，**备份也一起脱敏**（§53 的教训）
+- journal 文件：二进制格式**不能直接 sed**（会破坏结构）→
+  用 **等长替换**（`ghp_[REDACTED]____` 补齐到原长度），
+  **保持文件大小与所有偏移不变**，`journalctl --file=` 复核仍可读
+- 巡检命令改成**不回显 token**的形式：先读进变量、比对时用
+  `grep -rl -a "$TOK"`，但**不要 echo 变量**，且**不要把 token 写进命令行**
+
+### 巡检必查（新增，务必记住）
+```bash
+# ❌ 会把 PAT 写进会话记录
+TOK=$(grep -oE 'gh[p]_[A-Za-z0-9]{20,}' /root/.git-credentials | head -1)
+echo "$TOK"          # 这行是纯泄漏
+
+# ✅ 用 python 读文件比对，不经过命令行参数
+python3 - <<'PY'
+import re, subprocess
+tok = re.search(rb'gh[p]_[A-Za-z0-9]{20,}', open('/root/.git-credentials','rb').read()).group(0).decode()
+for t in ['/root/.openclaw/agents','/var/log','/etc']:
+    r = subprocess.run(['grep','-rl','-a',tok,t], capture_output=True, text=True, timeout=90)
+    print(t, len([h for h in r.stdout.split() if '.git-credential' not in h]))
+PY
+```
+⚠️ 即便用 python，**`grep` 的参数里仍然带着 token**（会出现在 `ps` 里，
+但不进会话记录）。更彻底的做法是 python 自己读文件比对，全程不过命令行。
+
+**教训（比技术细节重要）**：
+- **巡检工具本身会成为泄漏源** —— "扫描泄露"的动作可能制造新的泄露。
+  → 任何用**秘密做参数**的检查命令，都要先想清楚"这个参数会落到哪里"。
+- **"同一轮扫两遍，第二遍命中更多"是自污染的典型信号** —— 看到这个就该
+  怀疑是扫描命令自己写的，而不是继续加扫描范围。
+- **journal 是二进制**，`sed -i` 会破坏它；要**等长替换**保偏移。
+- **归档日志里的"安全告警"可能本身就是泄漏点** —— 告警把 token 原文写进日志，
+  等于把秘密存进了最容易被忽略的地方。
+- 结论不变：**轮换 PAT 是唯一能一次性作废所有历史副本的手段**（§53）。
+
+## 86. ⚠️ 裁剪持久化产物 ≠ 修复：真源常驻**进程内存**（2026-10-31 05:13-06:20 实测，bot4）
+
+**症状**：MiniMax Token Plan 持续 429「已达到用量上限」。
+逐层排除后（模型失效 ❌ / 请求过大 ❌ / 并发限流 ❌ / key 失效 ❌，直连 API 全 200），
+定位到 **picoclaw 心跳会话无节制膨胀** → 每次心跳全量重发巨大上下文 → 吃光共享额度。
+
+**真正的坑是"修了两轮才修对"**：
+
+### 第一层：压掉"紧急压缩提示堆"（v3）
+- picoclaw 的 `[System Note: Emergency compression dropped N oldest messages due to
+  context limit]` 是**追加到第一条 user 消息内部**的，不是独立消息
+- 只裁剪 `messages` 数组尾部对它无效：实测 bot4 第一条消息堆了 **2392 条**、单条 **204KB**
+- ⚠️ 还会形成正反馈：满屏"超限→紧急压缩"提示 → 每次心跳把这 200KB+ 全量重发
+
+### 第二层（关键）：真源在**进程内存**，不在磁盘
+- v3 裁完磁盘文件 → **不到 30 分钟原样复活**
+  （bot3：裁完 20 条/0 提示/19.7KB → 下一轮又变 86 条提示/122KB；
+  bot5：裁掉的 73 条提示原样复活）
+- 根因：picoclaw 把会话**常驻内存**，每次心跳结束把内存里的会话**整个写回**
+  `sessions/heartbeat.json` —— 磁盘文件只是**快照**
+- → **只裁磁盘 = 白裁**。典型"改了产物、没改真源"
+- 修法：裁剪后**重启 picoclaw.service**，让服务从干净的磁盘文件重新加载
+  （只在确有改动时重启；`PICOCLAW_RESTART_AFTER_TRIM=0` 可关闭）
+
+### 巡检必查（防复发）
+```bash
+# 各节点心跳会话的膨胀指标（notes 应为 0，bytes 应稳定不涨）
+python3 -c "
+import json;d=json.load(open('/root/.picoclaw/workspace/sessions/heartbeat.json'))
+m=d.get('messages',[])
+print('msgs',len(m),'notes',sum(json.dumps(x,ensure_ascii=False).count('Emergency compression dropped') for x in m),
+      'bytes',len(json.dumps(d,ensure_ascii=False)))"
+```
+- `notes > 0` → 内存里的真源又脏了，裁剪脚本没跑或没生效
+- `bytes` 持续上涨 → 瘦身没起作用
+- 脚本位置：`/root/.openclaw/cron/picoclaw-hb-json-trim.sh`
+  （仓库副本 `claw-mesh-deploy/scripts/picoclaw-hb-json-trim.sh`，md5 43fbf7566f1e712d94c8569c1b6cd06e）
+- ⚠️ bot2 用的是 `heartbeat.jsonl`（裁 .jsonl 才对），**无本问题**
+
+### 教训（可推广）
+1. **"裁剪持久化产物"类修复，必须同时处理进程内存里的真源**；
+   否则表现为"改了→一会儿就回来"，极易误判成"没改成功"而反复重做
+2. **修复后要等一个完整周期再复查** —— 本例 v3 改完 05:45 就报了"修复完成"，
+   06:14 一查果然原样回去了（§30 护栏教训的同源问题：**验证要双向、要延时**）
+3. **共享额度类故障，先查"谁在吃"再查"额度够不够"**：
+   5 台节点 + OpenClaw 共用一把 `sk-cp--` 编码计划 key，配额是共享的，
+   单台上下文膨胀就能把全集群挤爆
+
 ## 已知遗留（需用户决策，勿擅自处理）
 - git 历史中可能仍残留旧 token —— 彻底清除需重写历史 + 强制推送
 - 仓库内 7.5 万个 node_modules 文件 —— 清理需重写历史
@@ -712,7 +892,7 @@ fatal: could not read Password for 'https://ghp_%5B%E5%B7%B2%E7%A7%BB%E9%99%A4%5
   bot4 公钥指纹：`selfadm-bot4 SHA256:HVsRFkhJH6LJBZsPD3XbDVtyoHO45Ow3sjVx64NTtQM`
 
 ## 推送时间（已错峰，勿改成同一时刻）
-bot2 `:00` / bot4 `:15` / bot6 `:30` / bot3 `:45` / bot5 `*/5`
+bot2 `:00` / bot4 `:10` / bot6 `:30` / bot3 `:45` / bot5 `:08/:23/:38/:53`（每 15 分钟）
 
 ## 38. 备份脚本的 rebase 会因"工作区有改动"而中止（2026-10-26 05:05 实测）
 
@@ -1859,3 +2039,400 @@ bot6: SYNTAX_OK [15:38:02] ✅ 身份不变量全部通过
 - **一个护栏在部分节点上"从未成功过"，却没人发现** —— 因为大家只看"护栏脚本存在"。
   → **护栏必须有"最近一次成功"的日志**，且巡检要逐节点看这行日志，不能看本机。
 - **中途失败的 clone 会留下损坏的 .git** → 必须 `rm -rf` 后重试，不能在坏仓库上 fetch。
+
+## 77. 巡检全节点可达性已打通：隧道两跳法 + 身份护栏逐节点日志（2026-10-29 00:27 实测，bot5）
+
+**结论**：§70 的备份服务器反向隧道是目前**唯一稳定**的全节点通道（bot5 → 198.44.179.155 → 127.0.0.1:1600x）。
+本次巡检**首次逐台**核到了 bot2/bot3/bot4/bot6 的 state、磁盘、cron、fail2ban、护栏日志。
+
+**隧道用法（务必照抄）**：
+```bash
+ssh -A -i ~/.ssh/id_ed25519_backuptunnel -o BatchMode=yes root@198.44.179.155 \
+  "ssh -o BatchMode=yes -o StrictHostKeyChecking=no -p 16004 root@127.0.0.1 '<cmd>'"
+```
+端口：16001 bot / 16002 bot2 / 16003 bot3 / 16004 bot4 / 16005 bot5 / 16006 bot6。
+⚠️ **三坑**：① 必须 `-A`（agent forwarding，备份服务器手里没有集群私钥）
+② 端口只绑在备份服务器的 127.0.0.1，直连公网会 timeout
+③ 所有巡检 SSH 必须带 `-o IdentitiesOnly=yes`（否则多密钥挨个试会触发 fail2ban，见 §76）
+
+**本次各节点实测（2026-10-29 00:27）**：
+| 节点 | state | lastSync | 磁盘 | 时区 | 身份护栏最近成功 |
+|---|---|---|---|---|---|
+| bot2 | healthy | 00:00 | 73% | CST | — |
+| bot3 | healthy | 10-28 20:45 | 71% | CST | 00:13 ✅ |
+| bot4 | healthy | 00:10 | 65% | CST | 00:13 ✅ |
+| bot5 | healthy | 00:23 | 61% | CST | 00:13 ✅ |
+| bot6 | healthy | 10-28 20:30 | 75% | CST | 00:13 ✅ |
+- cron.d 缺 user 检查（含 `@reboot` 特判）：**三台全部无输出** ✅
+- crontab 脚本全部存在且可执行 ✅；bot6 fail2ban ignoreip 已含全部集群 IP ✅
+
+**⚠️ bot5 的 git fetch 是全集群最弱的一环（2026-10-29 00:27 实测）**
+- 今日 `fetch 失败` **59 次**，根因错误几乎全是：
+  `fatal: unable to access 'https://github.com/songzuo/botmem.git/': Operation too slow. Less than 1 bytes/sec transferred the last 30 seconds`
+- 但 **重试 4 次全部救回**：`fetch 失败（重试 4 次后仍失败）` = **0 次**，
+  `fetch 经代理链路成功` = 13 次 → 代理回退分支（attempt 3-4 走 ghproxy.net）**确实在工作** ✅
+- 根因：本地工作副本 `/tmp/botmem-upload/botmem` 是 **完整克隆**（`.git` 265M / 65979 个提交），
+  每次 fetch 都要传整个 pack → 弱链路必然触发 lowSpeed 阈值。
+→ **待改进**：把同步工作副本改成 `--depth 1` 浅克隆，或让 fetch 只取 `main` 的增量
+  （`git fetch --depth 1 origin main`），可把 pack 体积降一到两个数量级。
+  ⚠️ 浅克隆会让 `git rebase origin/main` 行为变化（§63 的 rebase 冲突自愈逻辑要一起验）。
+
+**巡检判据补充（§31 的延伸）**：bot3/bot6 的槽位是 4 小时一次（:45 / :30），
+跨天时 lastSync 停在上一槽位属于正常 —— 判断停摆要按**各自节奏**换算，别用同一把尺子。
+
+## 78. ⚠️ 本机 HEARTBEAT.md 的新增章节会被 static/ 覆盖抹掉 → 必须推给 bot2 合并（2026-10-29 10:44 实测，bot5）
+
+**症状**：bot5 在 00:28 提交了 §77（`d527d3bd17`，684 行新增），
+但 00:38 那轮同步后本机 `HEARTBEAT.md` 里 **§77 整节消失**（文件从 106KB 掉回 102KB）。
+
+**根因**：同步脚本的"步骤 3"会做
+```bash
+cp "static/HEARTBEAT.md" "$BOT4_DIR/HEARTBEAT.md"   # 仓库版本 → 本机，无条件覆盖
+```
+`static/HEARTBEAT.md` 由 **bot2 独家维护**（其他节点跳过写入）。
+→ bot5 本地新增的任何章节，**只要 bot2 的 static 还没合进去，
+下一轮 bot5 同步就会被原样覆盖回去**（§21/§32 同族：仓库改了 ≠ 本机生效）。
+
+**修法**：新章节不要只提交在 bot5 本机，必须**通过隧道把章节交给 bot2**，
+由 bot2 的 `merge-heartbeat.py` 合并进 `static/` 后再推共享仓库。
+（bot5 自己提交的那份 commit 只是"暂存"，`git checkout -- HEARTBEAT.md` 可恢复，
+但下一轮同步还会再被抹。）
+
+**判据**：巡检时对比本机 `HEARTBEAT.md` 与 `git show HEAD:HEARTBEAT.md`
+—— 出现"HEAD 里有、本机没有"的章节 = 已被覆盖抹掉。
+
+## 79. ⚠️ CJ 的 `getOrderDetail` 接口在服务端挂死 → 履约链路整体停摆 5 天（2026-10-29 05:00-05:52 实测，bot2）
+
+**这是本轮最重要的发现：一个上游单接口故障，让整条履约链路静默停摆 5 天以上。**
+
+**症状**：
+- bot6 的 `shop-fulfill.log` 里 `cj-pay-sync` **每轮都是 `failed:4`**，
+  4 笔待付货款核验失败，**持续 5 天以上**（2026-10-24 23:20 起）
+- app 侧每笔都报：`暂时无法向 CJ 核验该订单（This operation was aborted）。
+  这通常是上游限流或网络抖动，未做任何付款动作，稍后会自动重试。`
+- 看起来像"上游限流"，实际是**接口彻底挂死**
+
+**排查过程（每一步都有排除）**：
+1. 任务本身在跑（`*/10` 槽位日志都在）→ 不是 §57 的"脚本没 x 权限"
+2. CJ 站点可达（`api.cjdropshipping.com` 302 / 2.8s）→ 不是网络断
+3. CJ 余额接口正常（`/shopping/pay/getBalance` → `code:200`，308ms）
+4. CJ 订单列表正常（`/shopping/order/list` → `code:200`，**313ms**）
+5. **只有 `/shopping/order/getOrderDetail` 挂死**：
+   - Node fetch 实测：12-20s 超时，`This operation was aborted`
+   - **curl 直连同样挂**（HTTP=000, t=20s）→ 排除 Node/undici 问题
+   - **对不存在的订单号也挂**（`FAKE123456` 一样超时）→ 排除"订单数据问题"
+   - POST 更糟：`{"code":16900202,"message":"Request method 'POST' not supported"}`
+   → **结论：CJ 上游该接口故障，不是我们的代码 bug**
+
+**关键发现：列表接口已经包含判定所需的全部字段**
+```ts
+// detailPaid() 只需要这三个字段，全都在列表行里：
+orderStatus   // UNPAID / UNSHIPPED / SHIPPED / DELIVERED / PART_SHIPPED
+paymentDate   // 非空即已付
+orderAmount
+```
+→ **兜底方案**：`channelOrderDetail` 失败时改用订单列表定位该单。
+
+**修法（已落地并验证）**：
+```ts
+const DETAIL_PROBE_TIMEOUT_MS = 6000;   // 探路超时，远小于通用 20s
+let detailEndpointBroken = false;        // 进程内标记
+
+export async function channelOrderDetail(orderId: string) {
+  if (detailEndpointBroken) {            // 已知坏了 → 直接走列表，不再浪费探测
+    const found = await findOrderInList(orderId);
+    if (found) return found;
+    throw new Error(`CJ 订单详情接口不可用，且订单列表中未找到 ${orderId}`);
+  }
+  try {
+    return await cjOk<any>(`/shopping/order/getOrderDetail?...`, undefined, DETAIL_PROBE_TIMEOUT_MS);
+  } catch (e) {
+    if (!/abort|timeout|.../i.test(msg)) throw e;   // 只对"上游挂了"兜底
+    detailEndpointBroken = true;
+    const found = await findOrderInList(orderId);
+    if (!found) throw e;                              // 列表也没有 → 保留原错误，不伪造"已付"
+    return found;
+  }
+}
+```
+⚠️ **两个关键设计点**（都是踩过的坑）：
+1. **探路超时必须短（6s）+ 进程内只探一次** ——
+   我第一版每笔订单都先等满 20s 才转列表，8 笔 = 160s，**比原来还慢**，
+   实测整体仍然 HTTP 000 超时。改成"探一次就记住坏了"后 → 53s 返回 HTTP 200 ✅
+2. **列表里也没有时必须抛原错误**，不能伪造"已付" ——
+   否则会把根本没付的单标记成已付 → 真扣钱、真发货。
+
+**验证（真实调用）**：
+```
+修复前: HTTP=000  t=190s  (整体超时)
+修复后: HTTP=200  t=53.7s  {"ok":true,"scanned":8,"paid":0,"awaiting":4,"failed":4}
+```
+且 05:50 / 11:00 / 11:30 等多个 cron 槽位**稳定产出完整 JSON**，不再出现空行。
+
+**兜底生效后暴露出的真实业务问题**（原来被"上游挂了"掩盖了）：
+| 订单 | 结果 | 真实原因 |
+|---|---|---|
+| SZ-260918-3HMG4 / XTO23 / P3V3G / WIRLP | `awaiting-page` | 余额 $0 不足，需人工点 CJ 收银台链接付清 |
+| SZ-260918-44XLR / Z1Y0I / PQ4EJ / 5YE0R | `failed` | **早期 payType=3 建的空壳单**，CJ 不生成支付页、也没有接口补发 → 只能①给 CJ 充值走「余额付清」②到 CJ 后台按单号处理 |
+
+→ 这 8 笔全是 **2026-09-18** 的老单，**CJ 账户余额 $0**。
+→ **属需主人决策**：① 给 CJ 账户充值（$79.28 左右）→ 走余额付清 ② 或人工处理 4 笔空壳单。
+
+**教训（可推广）**：
+- **"上游限流"和"上游接口挂了"在错误文案里长得一模一样** ——
+  app 把 abort / timeout / 1600200 全归成"网络抖动，稍后会自动重试"，
+  于是**自动重试了 5 天也没用**，因为它永远不会自愈。
+  → **错误文案必须区分"可重试的限流"和"不可重试的故障"**，
+    否则监控里看到的一直是"暂时失败"，人会以为再等等就好。
+- **排查"上游挂了"要同时用两种客户端测**（Node fetch + curl）：
+  只有 Node 挂可能是 undici 的问题；**两个都挂才是真的上游故障**。
+- **"对不存在的 ID 也挂"是排除"数据问题"的关键一步** —— 一次就定性。
+- **兜底不是万能**：兜底源必须包含判定所需的**全部字段**，
+  且**找不到时必须抛原错误**（否则会把"查不到"变成"已付"）。
+
+## 83. ⚠️ 身份护栏的"本机优先"会变成**模板降级机** —— 各节点互相回滚 ping-pong（2026-10-29 20:30 实测并修复，bot2）
+
+**症状**：仓库里 `claw-mesh-deploy/scripts/claw-mesh-template-canonical.sh`
+每 30 分钟被改一次，两个版本来回翻转：
+```
+16:13 bot2 推 915 行版（无 own-files 修复）
+16:43 bot4 推 965 行版（有 own-files 修复）
+17:13 bot5 推 915 行版
+20:13 bot4 推 965 行版
+```
+护栏日志每次都写「✅ 身份不变量全部通过」，**看起来一切正常**，
+但 bot4 的 §61 串台修复（`claw-mesh-own-files.py` 过滤 + 辅助脚本缺失时降级）
+在 bot2/bot3/bot5/bot6 的副本里**反复被删掉**。
+
+**根因**：护栏取 canonical 的逻辑是**"本机固化副本优先"**
+（`/root/.openclaw/cron/claw-mesh-template-canonical.sh`），
+而各节点的固化副本**版本不同**（bot2/3/5/6 = 915 行，bot4 = 965 行）。
+→ 每台节点都拿自己的旧版去覆盖别人的新版 → 永远收敛不了。
+
+**修法（已落地，五节点统一）**：
+1. **模板加单调版本号** `CLAWMESH_TEMPLATE_VERSION=4`
+2. **护栏改为"收集所有候选源，取版本号最高者"**，不再本机优先：
+   ```bash
+   tpl_version() { grep -m1 '^CLAWMESH_TEMPLATE_VERSION=' "$1" | sed 's/.*=//'; }
+   # 候选源：本机固化 / 工作副本 / **raw.githubusercontent.com（远端权威副本）**
+   ```
+   ⚠️ **raw 必须进候选源** —— 本机固化副本和工作副本都可能是旧的，
+   只有 raw 拿到的才是 origin/main 的权威版本。
+   （第一版修完仍差一版：bot2 工作副本是旧的 → 选出低版本 → 又刷了一轮。）
+3. **选定后回写本机固化副本**，避免旧版长期留在磁盘上（§40）。
+4. 版本号缺失（老模板）视为 0。
+
+**验证（双向）**：
+- 五个节点的护栏**全部跑完后，仓库 HEAD 一字未变** ✅
+- 连续两轮跑完，只有 bot6 的常规 memory 同步提交，**零护栏提交** ✅
+- 仓库现状：canonical 版本 4，bot2..bot6 副本全部 ver=4 / own-files=8 ✅
+
+### 巡检必查（防复发）
+```bash
+# 1) 护栏是否还在产生提交（正常应是 0）
+git log --format='%h %ad %an %s' --date=format:'%H:%M' origin/main --since='30 min ago' \
+  | grep '身份护栏自动修复' | wc -l
+# 2) canonical 版本号是否单调（不应反复翻转）
+git log --format='%h %ad %an %s' --date=format:'%H:%M' origin/main -- \
+  claw-mesh-deploy/scripts/claw-mesh-template-canonical.sh | head -5
+# 3) 各节点本机 canonical 版本是否一致
+for p in 16003 16004 16005 16006; do
+  ssh -A -i ~/.ssh/id_ed25519_backuptunnel -o BatchMode=yes root@198.44.179.155 \
+    "ssh -o BatchMode=yes -o StrictHostKeyChecking=no -p $p root@127.0.0.1 \
+     'grep -m1 CLAWMESH_TEMPLATE_VERSION /root/.openclaw/cron/claw-mesh-template-canonical.sh'"
+done
+```
+
+**教训（可推广）**：
+- **"本机优先"在多节点场景下是错的** —— 本机只是候选之一，
+  权威源永远在远端。护栏类脚本必须**按版本/时间选权威源**，不能按位置选。
+- **"护栏每轮都报 ✅"反而掩盖了问题** —— 护栏只检查"副本是否等于 canonical"，
+  而 canonical 本身在漂移 → 检查通过但内容在反复翻。
+  → 护栏必须**额外检查"canonical 本身有没有在变"**（版本号单调性）。
+- **多节点各跑同一个"自动修复器"时，修复器本身必须幂等且收敛**，
+  否则它就是一台"降级机"，比不装护栏更糟。
+
+## 82. ⚠️ 全集群 LLM 供应商集体失效 → picoclaw 心跳全挂（2026-10-29 10:44-15:50 实测，bot5）
+
+**症状**：bot3 的 picoclaw 每 30 分钟报一次 `LLM call failed`，
+错误 `InvalidEndpoint.ClosedEndpoint`（HTTP 400，coze 端点已关闭），**已连续 309 次**（10-23 起）；
+bot5 报 `UnsupportedModel`（doubao-seed-code 不支持 coding plan）；
+bot6 报 `The model "abab6.5s-chat" is no longer available`（404）。
+
+**根因**：各节点 `/root/.picoclaw/config.json` 的 `agents.defaults.provider/model` 指向
+**各自不同的、且大部分已失效**的模型：
+| 节点 | 原 provider/model | 状态 |
+|---|---|---|
+| bot2 | minimax/MiniMax-M3.1-Flash | ✅ 可用 |
+| bot3 | volcengine/doubao-1-5-pro | ❌ ClosedEndpoint |
+| bot4 | custom/MiniMax-M2.5 | ❌（protocol 解析失败）|
+| bot5 | custom/doubao-seed-code | ❌ UnsupportedModel |
+| bot6 | minimax/abab6.5s-chat | ❌ 模型已下线 |
+
+**⚠️ 坑 1：picoclaw 有两套配置**（bot3）：
+- `/root/.picoclaw/config.json` —— **真正生效**的（`agents.defaults.provider/model` + `providers` + `model_list`）
+- `/root/.picoclaw/picoclaw.json` —— OpenClaw 迁移过来的旧格式，**改了没用**
+→ 改错文件 = 服务重启后错误依旧。
+
+**⚠️ 坑 2：provider 名 ≠ 模型 id 的一部分**：
+`agents.defaults.model` 写成 `minimax/MiniMax-M2.5` 时，picoclaw 会去解析
+`minimax/MiniMax-M2.5` 里的 `minimax` 当协议 → `unknown protocol "minimax"` → **服务起不来**。
+→ 正确写法：`provider` = 协议名（providers 里的 key，如 `minimax`/`custom`），
+  `model` = **纯模型名**（`MiniMax-M2.5`，不带前缀）。
+
+**⚠️ 坑 3：`model_list[].model` 字段也带前缀会 400**：
+MiniMax 请求体要 `MiniMax-M2.5`，写成 `minimax/MiniMax-M2.5` →
+`unknown model 'minimax/minimax-m2.5'`。bot5 首次修复后仍报错，就是这个原因。
+
+**修复（已落地，bot3/bot4/bot5/bot6 全部验证 ✅）**：
+```python
+ad = d['agents']['defaults']
+ad['provider'] = 'minimax'
+ad['model']   = 'MiniMax-M2.5'     # 纯模型名，无前缀
+# 且 model_list 里 MiniMax 那条的 model 字段也要改成 'MiniMax-M2.5'
+```
+重启后 `Heartbeat OK - silent`，picoclaw 错误数归零。
+
+**教训**：
+1. **provider 失效要逐节点查，不能只修一台** —— 各节点的模型配置本来就是各写各的。
+2. **改配置前先做一次真实 API 探测**（`urllib` 打一次 chat/completions），
+   否则改完还是 400/404，只是日志换了条错误。
+3. **"心跳报错"和"同步报错"是两回事** —— 别把 picoclaw 的 LLM 失败当成 Claw-Mesh 同步失败。
+
+## 84. ⚠️ 同步脚本的「自有文件过滤」把所有节点自己的巡检记录都丢了（2026-10-30 10:30-11:00 实测并修复，bot5）
+
+**症状**：工作区里有 `memory/2026-10-30-bot5.md`（84 行，内容完整），
+但共享仓库 `bot5/memory/` 里**没有这个文件**；节点 state 显示 healthy、同步日志全是「✅ 同步成功」。
+→ **典型的"同步成功 ≠ 真的同步了"**（§31 的老教训，又抓到一个新的）。
+
+**根因**（`claw-mesh-sync.sh` 步骤 2 的自有文件过滤）：
+```bash
+case "$_rel" in
+    *-bot[0-9].md)
+        _own=$(echo "$_rel" | sed -E 's/.*-bot([0-9]+)\.md/\1/')
+        [ "$_own" = "$MACHINE_NAME" ] || continue
+        ;;
+esac
+```
+- sed 只捕获**数字组**：`2026-10-30-bot5.md` → `"5"`
+- `$MACHINE_NAME` 是 `"bot5"`（带前缀）
+- → `"5" = "bot5"` **永远为假** → **每个节点自己的 `-botN.md` 全部被 `continue` 跳过**
+- → 兄弟节点的被正确跳过（这部分逻辑本来是对的），**但本机的也被一起丢了**
+
+**危害比想象的大**：
+1. §61 明确建议用 `memory/<日期>-botN.md` 这种带节点标识的文件名来避免节点间互相顶替 ——
+   **而这个命名恰恰是被这个 bug 吞掉的**。也就是说 §61 的推荐做法在同步层直接失效。
+2. 所有节点的所有「带节点后缀的巡检记录」都没进过共享仓库，集群的记忆是**残缺的**。
+3. 修好之前 bot5/memory/ 里最早的只有 `2026-10-27-bot5.md`（10-27 手工 `git add` 进去的，不是同步流程）。
+
+**修法**（已落地，v5）：
+```bash
+_own=$(echo "$_rel" | sed -E 's/.*-(bot[0-9]+)\.md/\1/')   # 捕获时带上 "bot" 前缀
+```
+- 模板 `CLAWMESH_TEMPLATE_VERSION` **4 → 5**（§80 的单调版本号机制，
+  护栏按版本选 canonical → 各节点自动收敛到 v5，不需要逐台手工改）
+- 本机 live 脚本按 §81 的方式生成：`sed 's/^MACHINE_NAME="bot4"$/MACHINE_NAME="bot5"/' canonical > live`
+
+**已验证（全五节点，§77 隧道两跳法逐台实跑）**：
+| 节点 | MACHINE_NAME | 期望 | host | 自有文件 | 他节点文件 |
+|---|---|---|---|---|---|
+| bot2 | bot2 | bot2 | bot2 | COPY ✅ | SKIP ✅ |
+| bot3 | bot3 | bot3 | VM-0-4-opencloudos | COPY ✅ | SKIP ✅ |
+| bot4 | bot4 | bot4 | bot4 | COPY ✅ | SKIP ✅ |
+| bot5 | bot5 | bot5 | ecm-cd59 | COPY ✅ | SKIP ✅ |
+| bot6 | bot6 | bot6 | bot6 | COPY ✅ | SKIP ✅ |
+
+**分发方式（这次没踩 §21/§32 的坑）**：
+1. 只改**模板** + 升版本号 → 跑一次身份护栏 → 它按版本号选 canonical，
+   自动把 v5 模板重新生成 bot2..bot6 五份副本并推回仓库（`fdb8dfd8b1`）
+2. 再用 §77 隧道**逐台**把本机 live 脚本替换成 v5（每台都先 `bash -n` + 查 `_EXPECT_NODE` + 备份旧文件）
+3. 逐台核对 `MACHINE_NAME` / 期望节点 / 过滤行为三个维度
+
+**教训（可推广）**：
+- **"跳过别人的文件"和"保留自己的文件"是两件事，必须分别验证** ——
+  只测"外来的被挡住了"（这个 bug 里一直是对的）就会漏掉"自己的被误挡"。
+  这与 §30 的教训同源：**护栏必须双向验证放行和拦截**。
+- **过滤条件里的字符串比较要两端同形**（`"5"` vs `"bot5"`）——
+  写的时候顺手加一句 `echo` 就能看出来。
+- §61 推荐的文件名规范**必须同步验证同步链路能处理它** ——
+  规范和实现脱节时，规范会把文件送进黑洞。
+
+**巡检必查（防复发）**：
+```bash
+# 1) 工作区里有、但仓库节点目录里没有的 memory 文件（漏同步）
+for f in /root/.openclaw/workspace/memory/*-bot*.md; do
+  b=$(basename "$f"); [ -f "/tmp/botmem-upload/botmem/$MACHINE_NAME/memory/$b" ] || echo "漏同步: $b"
+done
+# 2) 各节点过滤逻辑的匹配结果（应为 COPY/SKIP 且符合预期）
+_own=$(echo "2026-10-30-bot${MACHINE_NAME#bot}.md" | sed -E 's/.*-(bot[0-9]+)\.md/\1/')
+[ "$_own" = "$MACHINE_NAME" ] && echo "过滤逻辑正常" || echo "❌ 过滤逻辑仍是坏的"
+```
+
+## 85. ⚠️ selfheal 的「受损文件排除」用硬编码日期窗口 → 巡检记录被**整份回滚**丢数据（2026-10-31 05:37-06:20 实测，bot3 定位 / bot5 落地）
+
+**症状（bot3 于 05:37 提出，标注"待主人授权"）**：
+`claw-mesh-selfheal.sh` 判定"受损文件"的排除规则是
+```bash
+| grep -vE '2026-10-2[0-9]'      # ← 硬编码日期窗口，只覆盖 10-20..10-29
+```
+→ **从 10-30 起，所有新写的巡检记录全部落进 DAMAGED 检测面**。
+
+巡检记录里只要**引用一次损坏样例**（如 `ta[已移除].py`，见 §18/§45），
+就会被判"受损" → 触发"找最后一个**不含 marker 的历史版本**整份还原"
+→ **整份巡检记录被回滚到更早版本 → 数据丢失**。
+
+**实测证据**：`bot2/memory/2026-10-30-bot2.md` 在 10-30 16:00→16:30 之间
+**57 行 → 36 行来回两次**，对应仓库提交 `f7510c800a` / `0dad80f249`
+（"自动还原被旧脱敏脚本破坏的标识符"）。
+
+**修法（已落地，全节点验证 ✅）**：把日期窗口换成**文件模式**，
+与日期彻底解耦：
+```bash
+| grep -vE '(^|/)memory/[0-9]{4}-[0-9]{2}-[0-9]{2}(-[A-Za-z0-9]+)*\.md$'
+```
+- **只改"是否整份回滚"，不改"是否检测"** ——
+  非日期命名的文件（脚本/配置）若真被破坏，仍会被修复 ✅
+- **密钥片段清理（`KEY_FRAG_FILES`）与 SSH 密码清理是独立分支**，
+  不受这条排除影响 —— §19/§28 的防线保留 ✅
+
+**双向验证（§30 的要求，先在夹具仓库上跑通两个方向再上生产）**：
+| 方向 | 用例 | 期望 | 实测 |
+|---|---|---|---|
+| 放行 | `bot2/memory/2026-10-31-bot2.md`（合法引用损坏样例的巡检记录） | 不进 DAMAGED | ✅ 排除 |
+| 拦截 | `scripts/conf.json` / `scripts/notes.md`（真损坏） | 进 DAMAGED | ✅ 仍被拦 |
+
+真实共享仓库上，OLD / NEW 两条规则的 DAMAGED 集合**均为空** → 无回归 ✅
+实跑一次 selfheal → "无可自动修复的文件"，无误回滚 ✅
+
+**分发（没踩 §21/§32 的坑）**：
+1. 独立 clone（§29）改模板 → 推 `origin/main`（`2bd6587`）
+2. **逐台就地改 live 脚本**（bot2/3/4/5 各改各的，**保留 bot4 的串台自愈块**）
+   —— bot4 的 live 脚本 11647 字节（带 `CROSSNODE_FILES`），
+   bot2/3/5 是 8271 字节（无该块）→ **不能整份覆盖**，只能改那一行
+3. 每个节点的三处副本都改了：`cron/` 下 live、`workspace/claw-mesh-deploy/scripts/`、
+   `workspace/bot5/`（防其它节点把陈旧副本推回仓库，§23/§34）
+
+**巡检必查（防复发）**：
+```bash
+# 1) 各节点 live 脚本的排除规则（应无 2026-10-2[0-9]）
+grep -n "2026-10-2\[0-9\]" /root/.openclaw/cron/claw-mesh-selfheal.sh   # 应无输出
+grep -c "grep -vE '(^|/)memory" /root/.openclaw/cron/claw-mesh-selfheal.sh  # 应 ≥1
+# 2) 模板与各节点副本是否一致
+git show origin/main:claw-mesh-deploy/scripts/claw-mesh-selfheal.sh | grep -n "grep -vE '(^|/)memory"
+# 3) 自愈日志是否出现非预期的"已还原"
+grep -E '已还原|自动修复' /var/log/claw-mesh-selfheal.log | tail -5
+```
+
+**教训（可推广）**：
+- **"排除规则"里的日期窗口是定时炸弹** —— 它只在写规则那天成立，
+  过了窗口就静默失效，而且**失效方向是"多做事"**（误判受损 → 破坏数据），
+  不是"少做事"。
+  → **排除规则一律用文件模式/内容特征，绝不用日期**；
+  → 巡检要**定期验证排除规则本身**（拿真实数据跑一遍，看集合是否符合预期）。
+- **"自动修复"脚本的回滚动作本身就是破坏性操作** ——
+  它会把"当前内容"换成"历史版本"，历史版本不一定更新。
+  → 任何"整份还原"类动作，必须先确认**目标文件确实损坏**，
+    且**损坏形态是机械可判的**；判定放宽会毁数据（§30/§45 同族）。
+- **不要整份覆盖节点的 live 脚本** —— 各节点版本已分叉
+  （bot4 多一个串台自愈块），覆盖会**删掉别人的功能**。
+  → 共享脚本升级要**逐台打补丁**，或在改之前先比对版本差异。

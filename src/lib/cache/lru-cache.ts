@@ -89,7 +89,12 @@ export class LRUCache<T> {
 
     // Check if expired
     if (now > entry.expiresAt) {
-      this.delete(key)
+      // 过期项**不立刻删除**：它仍占着一个名额，
+      // 直到下次淘汰清扫（evictLRU）时被清掉。
+      //
+      // 立刻删除的话，容量判断会基于「有效条目数」而不是「实际占位」，
+      // 于是本该被淘汰的 LRU 条目会活下来（缓存实际超出 maxSize），
+      // 而真正过期的条目却因为 get 时被删掉了、白占名额。
       return null
     }
 
@@ -127,9 +132,15 @@ export class LRUCache<T> {
 
     const now = Date.now()
     if (now > entry.expiresAt) {
-      this.delete(key)
+      // 同 get()：过期项保留名额，等淘汰清扫时统一清理
       return false
     }
+
+    // has() 是一次「访问」，语义上等同于 get()：命中即刷新 LRU 顺序。
+    // 否则「用 has() 探活」的热键因为没走 get() 会被优先淘汰。
+    entry.lastAccess = now
+    this.store.delete(key)
+    this.store.set(key, entry)
 
     return true
   }
@@ -139,6 +150,19 @@ export class LRUCache<T> {
    * @private
    */
   private evictLRU(): void {
+    if (this.store.size === 0) return
+
+    // 优先清理已过期条目：
+    // 过期条目占着名额却取不到值，淘汰它们不损失任何可用数据。
+    // 不这么做的话，会把仍在有效期内的 key 淘汰掉，
+    // 而已过期的 key 反而留在缓存里继续占位。
+    const now = Date.now()
+    for (const [key, entry] of this.store) {
+      if (now > entry.expiresAt) {
+        this.store.delete(key)
+      }
+    }
+
     if (this.store.size === 0) return
 
     // Map preserves insertion order, so the first key is the LRU

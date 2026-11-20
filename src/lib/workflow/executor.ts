@@ -44,7 +44,10 @@ export class EnhancedWorkflowExecutor {
     const errors: string[] = []
 
     // 基本验证
-    if (!workflow.name) {
+    //
+    // 注意这里用 trim()：'   \t\n   ' 是 truthy 的，
+    // 只判 !workflow.name 的话，纯空白名称会被当成合法名字放过去。
+    if (!workflow.name || !workflow.name.trim()) {
       errors.push('工作流名称不能为空')
     }
 
@@ -61,6 +64,22 @@ export class EnhancedWorkflowExecutor {
         errors.push(`节点 ID 重复: ${node.id}`)
       } else {
         nodeIds.add(node.id)
+      }
+
+      // 检查节点位置
+      //
+      // position 在 WorkflowNode 类型上是必填（用于可视化布局），
+      // 但一直没做运行时校验 —— 缺位置的节点能一路跑通，
+      // 到前端画图时才炸。缺 x/y 也要挡，不能只判 position 对象存不存在。
+      if (!node.position) {
+        errors.push(`节点 ${node.id} 缺少位置信息`)
+      } else if (
+        typeof node.position.x !== 'number' ||
+        typeof node.position.y !== 'number' ||
+        !Number.isFinite(node.position.x) ||
+        !Number.isFinite(node.position.y)
+      ) {
+        errors.push(`节点 ${node.id} 位置信息无效`)
       }
 
       // 检查是否有执行器

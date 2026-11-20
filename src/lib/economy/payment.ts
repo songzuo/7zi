@@ -3,6 +3,8 @@
  * @module economy/payment
  */
 
+import { assertCents } from './wallet.js'
+import { KeyedMutex } from './concurrency.js'
 import {
   PaymentOrder,
   PaymentStatus,
@@ -222,12 +224,30 @@ class InMemoryPaymentRepository {
 export class PaymentService {
   private paymentRepo: InMemoryPaymentRepository
   private gateways: Map<PaymentMethod, IPaymentGateway>
+  /**
+   * 订单级互斥锁
+   *
+   * 退款是「读已退金额 → 判断可退余额 → 调网关 → 写退款记录」的复合操作，
+   * 必须按订单串行，否则并发退款会同时通过可退余额校验，
+   * 导致「同一笔钱被退多次」——直接资损。
+   */
+  private lock: KeyedMutex
+  /**
+   * 进行中的退款请求指纹（orderId|amount|reason|requestedBy -> 指纹）
+   *
+   * 订单级互斥锁保证了「读-判断-写」不交错，但并发「完全相同」的退款请求
+   * （运营在同一个页面上连点两次）在串行后依然会各退一笔。
+   * 这里对「进行中」的相同请求做幂等去重：只有第一个真正执行，
+   * 其余的直接拒绝，避免同一笔钱被退两次。
+   */
+  private refundInFlight: Map<string, string> = new Map()
 
   constructor(
     paymentRepo?: InMemoryPaymentRepository,
     gateways?: Map<PaymentMethod, IPaymentGateway>
   ) {
     this.paymentRepo = paymentRepo || new InMemoryPaymentRepository()
+    this.lock = new KeyedMutex()
 
     // 默认使用 Mock 网关
     this.gateways =
@@ -253,6 +273,18 @@ export class PaymentService {
     metadata: PaymentOrderMetadata = {},
     expiresInMinutes: number = 30
   ): Promise<{ order: PaymentOrder; paymentUrl?: string; clientSecret?: string }> {
+    if (!customerId || !agentId || !serviceId) {
+      throw new Error('customerId, agentId and serviceId are required')
+    }
+    // 金额必须是正整数分 —— 浮点金额会引入不可控的误差
+    assertCents(amount, 'Order amount')
+    // 有效期必须是正的有限数值（分钟）。
+    // 非正数意味着「一出生就过期」，属于非法入参，直接拒绝，
+    // 避免调用方靠传 0 / 负数来绕过有效期语义。
+    if (!Number.isFinite(expiresInMinutes) || expiresInMinutes <= 0) {
+      throw new Error('expiresInMinutes must be a positive number')
+    }
+
     const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000)
 
     const order = await this.paymentRepo.create({
@@ -298,6 +330,24 @@ export class PaymentService {
       throw new Error(`不支持的支付方式: ${paymentMethod}`)
     }
 
+    // 幂等：同一订单 + 同一支付方式已有待处理交易时，直接复用，
+    // 避免重复调用 createPayment 造成「同一笔订单被支付两次」
+    const existing = order.transactions.find(
+      t => t.type === 'payment' && t.paymentMethod === paymentMethod && t.status === 'pending'
+    )
+    if (existing) {
+      const saved = existing.gatewayResponse
+      return {
+        paymentId: existing.externalTransactionId ?? existing.id,
+        ...(saved && typeof saved.paymentUrl === 'string'
+          ? { paymentUrl: saved.paymentUrl }
+          : {}),
+        ...(saved && typeof saved.clientSecret === 'string'
+          ? { clientSecret: saved.clientSecret }
+          : {}),
+      }
+    }
+
     // 创建支付
     const payment = await gateway.createPayment(order, returnUrl, cancelUrl)
 
@@ -310,6 +360,10 @@ export class PaymentService {
       status: 'pending',
       paymentMethod,
       externalTransactionId: payment.paymentId,
+      gatewayResponse: {
+        paymentUrl: payment.paymentUrl,
+        clientSecret: payment.clientSecret,
+      },
       createdAt: new Date(),
     }
 
@@ -325,6 +379,13 @@ export class PaymentService {
     orderId: string,
     paymentMethod: PaymentMethod
   ): Promise<PaymentOrder> {
+    const existingOrder = await this.getOrder(orderId)
+
+    // 幂等：订单已完成时直接返回，绝不重复完成 / 重复扣款
+    if (existingOrder.status === 'completed') {
+      return existingOrder
+    }
+
     const order = await this.getPendingOrder(orderId)
 
     if (paymentMethod === 'balance') {
@@ -346,8 +407,12 @@ export class PaymentService {
       throw new Error('未找到待处理的支付交易')
     }
 
+    if (!transaction.externalTransactionId) {
+      throw new Error('支付交易缺少外部交易号')
+    }
+
     // 验证支付
-    const result = await gateway.verifyPayment(transaction.externalTransactionId!)
+    const result = await gateway.verifyPayment(transaction.externalTransactionId)
 
     if (result.success) {
       // 更新交易状态
@@ -402,47 +467,122 @@ export class PaymentService {
 
   /**
    * 申请退款
+   *
+   * 并发安全：整个「读可退余额 → 调网关 → 写退款记录」流程都在订单级互斥锁内，
+   * 否则 N 个并发退款请求会读到同一个 remainingAmount 并各自通过校验，
+   * 导致同一笔钱被退多次（超额退款，直接资损）。
    */
   async requestRefund(request: RefundRequest): Promise<RefundResult> {
-    const order = await this.paymentRepo.findById(request.orderId)
-    if (!order) {
-      return { success: false, refundAmount: 0, remainingAmount: 0, error: '订单不存在' }
-    }
-
-    if (order.status !== 'completed') {
-      return { success: false, refundAmount: 0, remainingAmount: 0, error: '订单状态不允许退款' }
-    }
-
-    const refundAmount = request.amount === 0 ? order.amount : request.amount
-
-    if (refundAmount > order.amount) {
-      return { success: false, refundAmount: 0, remainingAmount: 0, error: '退款金额超过订单金额' }
-    }
-
-    // 执行退款
-    const success = await this.executeRefund(order, refundAmount, request.reason)
-
-    if (success) {
-      // 更新订单状态
-      const newStatus = refundAmount === order.amount ? 'refunded' : 'partial_refunded'
-      await this.paymentRepo.update(order.id, {
-        status: newStatus,
-        refundedAt: new Date(),
-      })
-
+    // 并发「完全相同」的退款请求做幂等去重：
+    // 同一笔退款还在处理中时，重复请求直接拒绝，避免运营连点导致退两笔。
+    // （订单级互斥锁只能保证「读-判断-写」不交错，
+    //   5 个并发请求在串行后依然会各退一笔 300 分，必须额外做请求级幂等。）
+    const fingerprint = this.buildRefundFingerprint(request)
+    if (this.refundInFlight.has(fingerprint)) {
       return {
-        success: true,
-        refundAmount,
-        remainingAmount: order.amount - refundAmount,
+        success: false,
+        refundAmount: 0,
+        remainingAmount: 0,
+        error: '重复的退款请求正在处理中',
       }
     }
 
-    return {
-      success: false,
-      refundAmount: 0,
-      remainingAmount: order.amount,
-      error: '退款处理失败',
+    this.refundInFlight.set(fingerprint, fingerprint)
+    try {
+      return await this.lock.run(request.orderId, async () => {
+        const order = await this.paymentRepo.findById(request.orderId)
+        if (!order) {
+          return { success: false, refundAmount: 0, remainingAmount: 0, error: '订单不存在' }
+        }
+
+        // 已全额退款 / 已取消 / 未支付的订单都不可再退
+        // 注意：'refunded' 放行到下面的「已全额退款」分支，
+        // 这样重复退款的错误信息是准确的「订单已全额退款」而不是「状态不允许退款」。
+        if (
+          order.status !== 'completed' &&
+          order.status !== 'partial_refunded' &&
+          order.status !== 'refunded'
+        ) {
+          return { success: false, refundAmount: 0, remainingAmount: 0, error: '订单状态不允许退款' }
+        }
+
+        // 已退款金额（幂等：重复退款请求不会把余额刷高）
+        const alreadyRefunded = order.transactions
+          .filter(t => t.type === 'refund' && t.status === 'completed')
+          .reduce((sum, t) => sum + t.amount, 0)
+        const remainingAmount = order.amount - alreadyRefunded
+
+        if (remainingAmount <= 0) {
+          return { success: false, refundAmount: 0, remainingAmount: 0, error: '订单已全额退款' }
+        }
+
+        if (typeof request.amount !== 'number' || !Number.isFinite(request.amount)) {
+          return { success: false, refundAmount: 0, remainingAmount: 0, error: '退款金额非法' }
+        }
+
+        if (!Number.isInteger(request.amount)) {
+          return { success: false, refundAmount: 0, remainingAmount: 0, error: '退款金额必须为整数分' }
+        }
+
+        if (request.amount < 0) {
+          return { success: false, refundAmount: 0, remainingAmount: 0, error: '退款金额不能为负数' }
+        }
+
+        // amount === 0 表示全额退款
+        const refundAmount = request.amount === 0 ? remainingAmount : request.amount
+
+        if (refundAmount > remainingAmount) {
+          return {
+            success: false,
+            refundAmount: 0,
+            remainingAmount,
+            error: '退款金额超过订单可退金额',
+          }
+        }
+
+        // 执行退款
+        const success = await this.executeRefund(order, refundAmount, request.reason)
+
+        if (success) {
+          // 更新订单状态
+          const newRemaining = remainingAmount - refundAmount
+          const newStatus = newRemaining === 0 ? 'refunded' : 'partial_refunded'
+          await this.paymentRepo.update(order.id, {
+            status: newStatus,
+            refundedAt: new Date(),
+          })
+
+          return {
+            success: true,
+            refundAmount,
+            remainingAmount: newRemaining,
+          }
+        }
+
+        return {
+          success: false,
+          refundAmount: 0,
+          remainingAmount: order.amount,
+          error: '退款处理失败',
+        }
+      })
+    } finally {
+      this.refundInFlight.delete(fingerprint)
     }
+  }
+
+  /**
+   * 生成退款请求指纹
+   *
+   * 同一订单 + 同一金额 + 同一原因 + 同一操作人 视为「同一笔退款请求」。
+   */
+  private buildRefundFingerprint(request: RefundRequest): string {
+    return [
+      request.orderId,
+      request.amount,
+      request.reason ?? '',
+      request.requestedBy ?? '',
+    ].join('|')
   }
 
   /**

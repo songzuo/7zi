@@ -53,7 +53,18 @@ interface KeywordRule {
  */
 const INTENT_RULES: KeywordRule[] = [
   {
-    keywords: ['自动化', '自动', '定时', 'schedule', 'cron', '每天', '每周', '定期'],
+    keywords: [
+      // 只放**时间/周期**线索。
+      //
+      // 「自动化」「自动」原本在这里，但它们是**通用词** ——
+      // "自动化处理订单" 应该是 automation 而非 scheduled。
+      // 留着它会让 weight 1.0 的 scheduled 压过命中数更多的 automation。
+      '定时', 'schedule', 'cron', '每天', '每周', '定期', '周期',
+      // 注意：不要用单个「点」—— "随便说点什么" 也会命中它。
+      '早上', '上午', '中午', '下午', '晚上', '凌晨', '点钟', '小时', '分钟',
+      // 英文周期表达 —— "Send email at 9am every day" 这类混合输入很常见。
+      'every day', 'everyday', 'every week', 'every month', 'daily', 'weekly', 'monthly',
+    ],
     intent: 'scheduled',
     weight: 1.0,
   },
@@ -88,9 +99,9 @@ const INTENT_RULES: KeywordRule[] = [
     weight: 0.8,
   },
   {
-    keywords: ['任务', 'task', '执行', 'run', '处理'],
+    keywords: ['任务', 'task', '执行', 'run', '处理', '自动化', '自动'],
     intent: 'automation',
-    weight: 0.5,
+    weight: 0.8,
   },
 ]
 
@@ -142,6 +153,7 @@ const _ACTION_PATTERNS: ActionPattern[] = [
 interface ExtractedEntities {
   timeExpressions: string[]
   recipients: string[]
+  subjects: string[]
   conditions: string[]
   actions: string[]
   targets: string[]
@@ -212,6 +224,34 @@ function extractConditions(text: string): string[] {
   })
 
   return conditions
+}
+
+/**
+ * 主题提取
+ *
+ * 「发送邮件，主题是"每日报告"」这类表达里的主题 —— 通知任务的重要实体。
+ * 支持中文（主题/标题）和英文（subject/title），引号可省略。
+ */
+function extractSubjects(text: string): string[] {
+  const subjects: string[] = []
+  const patterns = [
+    /主题(?:是|为|[:：])\s*["'“”]?([^"'“”，。\n]+)["'“”]?/g,
+    /标题(?:是|为|[:：])\s*["'“”]?([^"'“”，。\n]+)["'“”]?/g,
+    /subject\s*[:：]\s*["'“”]?([^"'“”，。\n]+)["'“”]?/gi,
+    /title\s*[:：]\s*["'“”]?([^"'“”，。\n]+)["'“”]?/gi,
+  ]
+
+  patterns.forEach(pattern => {
+    let match
+    while ((match = pattern.exec(text)) !== null) {
+      const value = match[1]?.trim()
+      if (value) {
+        subjects.push(value)
+      }
+    }
+  })
+
+  return subjects
 }
 
 /**
@@ -296,7 +336,31 @@ function recognizeIntent(text: string): { intent: TaskIntent; confidence: number
 
   INTENT_RULES.forEach(rule => {
     const matches = rule.keywords.filter(keyword => lowerText.includes(keyword.toLowerCase()))
-    const score = (matches.length / rule.keywords.length) * rule.weight
+    if (matches.length === 0) {
+      return
+    }
+
+    // 打分：命中**任一**关键词即拿满该规则的基础分，
+    // 命中更多关键词只做小幅加成。
+    //
+    // 之前用的是 (命中数 / 关键词总数) × weight —— 那会把分数按命中率
+    // 平均掉：一条规则有 8 个关键词，只命中 1 个也只有 0.125 的分数，
+    // 置信度算出来 0.325，远低于实际把握（"每天早上9点发送邮件" 明显是
+    // 定时任务）。关键词匹配是**或**关系，不是**比例**关系。
+    //
+    // 打分：命中**数量**体现具体程度，权重体现意图的典型性。
+    //
+    //   score = weight × (1 + 0.05 × (命中数 - 1))
+    //
+    // 两条关键用例说明这个组合为什么必要：
+    //   "每天早上9点发送邮件" → scheduled 命中「每天/早上/点」3 个，
+    //     notification 命中「发送/邮件」2 个 → scheduled 胜（有时间线索）
+    //   "自动化处理订单" → automation 命中「自动化/处理」2 个，
+    //     scheduled 只命中「自动化」1 个 → automation 胜
+    //
+    // 命中数相同则比权重（data_processing 0.85 > automation 0.5）。
+    const bonus = Math.min((matches.length - 1) * 0.05, 0.2)
+    const score = rule.weight * (1 + bonus)
 
     if (score > bestScore) {
       bestScore = score
@@ -304,10 +368,12 @@ function recognizeIntent(text: string): { intent: TaskIntent; confidence: number
     }
   })
 
-  // 如果没有匹配到任何意图，默认是自动化任务
+  // 没有匹配到任何关键词 → 意图未知。
+  // （之前这里硬返回 'automation' + 0.5，但 TaskIntent 里明明有
+  // 'unknown'，且解析结果里也有 unknown 分支 —— 属于实现与类型定义不一致。）
   if (bestScore === 0) {
-    bestIntent = 'automation'
-    bestScore = 0.5
+    bestIntent = 'unknown'
+    bestScore = 0.2
   }
 
   return { intent: bestIntent, confidence: Math.min(bestScore + 0.2, 1.0) }
@@ -491,6 +557,22 @@ function generateEdges(nodes: Partial<WorkflowNode>[]): Partial<WorkflowEdge>[] 
 function generateSuggestions(text: string, intent: TaskIntent): string[] {
   const suggestions: string[] = []
 
+  // 模糊的时间表达是最需要提示的场景之一 ——
+  // 但原来所有建议都排在它前面，再被 slice(0, 3) 一截，
+  // 它永远出现在不了。所以时间建议**优先**入列。
+  const vagueTime =
+    (text.includes('某个时间') ||
+      text.includes('某时') ||
+      text.includes('某个时候') ||
+      text.includes(' sometime') ||
+      text.includes('at some point')) &&
+    !/\d{1,2}[:：]\d{2}/.test(text) &&
+    !/\d+\s*(秒|分钟|小时|天|周)/.test(text)
+
+  if (vagueTime) {
+    suggestions.push('建议指定具体时间，例如「每天早上9点」')
+  }
+
   if (!text.includes('如果') && !text.includes('条件')) {
     suggestions.push('建议添加条件分支来处理不同情况')
   }
@@ -543,10 +625,27 @@ function extractWorkflowName(text: string): string {
  * @returns 解析后的任务结构
  */
 export function parseTaskFromText(text: string): ParsedTask {
+  // 空输入 —— 置信度为 0（不是 unknown 分支的 0.4）。
+  // 空文本没有任何信息可提取，给一个非零置信度会误导调用方。
+  if (!text || text.trim().length === 0) {
+    return {
+      intent: 'unknown',
+      workflowName: '未命名工作流',
+      description: text,
+      nodes: [],
+      edges: [],
+      variables: { originalText: text },
+      confidence: 0,
+      suggestions: [],
+      rawText: text,
+    }
+  }
+
   // 1. 实体提取
   const entities: ExtractedEntities = {
     timeExpressions: parseTimeExpression(text),
     recipients: extractRecipients(text),
+    subjects: extractSubjects(text),
     conditions: extractConditions(text),
     actions: extractActions(text),
     targets: extractTargets(text),
@@ -558,6 +657,23 @@ export function parseTaskFromText(text: string): ParsedTask {
 
   // 3. 生成节点
   const nodes = generateNodesFromText(text, intent, entities)
+
+  // 3.5 条件实体如果被提取到了，但意图不是 monitoring（因而没生成
+  // CONDITION 节点），那这条条件就凭空丢了 —— 挂在业务节点的
+  // conditionConfig 上，别让提取到的信息白费。
+  if (entities.conditions.length > 0) {
+    const hasConditionNode = nodes.some((node) => node.conditionConfig)
+    if (!hasConditionNode) {
+      const businessNode = nodes.find((node) => node.agentConfig)
+      if (businessNode) {
+        businessNode.conditionConfig = {
+          expression: entities.conditions[0],
+          trueLabel: '满足条件',
+          falseLabel: '不满足条件',
+        }
+      }
+    }
+  }
 
   // 4. 生成边
   const edges = generateEdges(nodes)

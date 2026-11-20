@@ -112,9 +112,23 @@ export class PluginSandbox implements IPluginSandbox {
 
     try {
       // Prepare code
+      //
+      // 字符串形式的插件代码必须包一层函数体：`new vm.Script('return 1 + 1')`
+      // 会抛 "Illegal return statement" —— 顶层 return 在脚本里非法，
+      // 只有函数体里才合法。包成 IIFE 后 `return` 语义与插件作者预期一致。
       const script = typeof code === 'string'
-        ? new vm.Script(code)
+        ? new vm.Script(`(function(){ ${code} })()`)
         : new vm.Script(`(${code.toString()})(${JSON.stringify(context || {})})`);
+
+      // 调用期上下文注入：只注入沙箱里尚不存在的键，
+      // 不允许调用方覆盖 require / console / process 等安全设施。
+      if (context) {
+        for (const [key, value] of Object.entries(context)) {
+          if (!(key in sandbox)) {
+            (sandbox as Record<string, unknown>)[key] = value;
+          }
+        }
+      }
 
       // Execute with timeout
       const result = script.runInContext(sandbox, {

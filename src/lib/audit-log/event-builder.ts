@@ -317,6 +317,15 @@ export class AuditEventBuilder {
    */
   public fromEvent(event: Partial<AuditEvent>): this {
     this.event = { ...event };
+    // 拷贝嵌套对象，避免与源事件共享引用
+    if (event.details) this.event.details = { ...event.details };
+    if (event.tags) this.event.tags = [...event.tags];
+    if (event.changes) this.event.changes = event.changes.map((c) => ({ ...c }));
+    if (event.metadata) this.event.metadata = { ...event.metadata };
+    if (event.user) this.event.user = { ...event.user };
+    if (event.request) this.event.request = { ...event.request };
+    if (event.resource) this.event.resource = { ...event.resource };
+    if (event.error) this.event.error = { ...event.error };
     return this;
   }
 
@@ -344,8 +353,31 @@ export class AuditEventBuilder {
       );
     }
 
-    // 返回完整事件
-    return this.event as AuditEvent;
+    // 返回完整事件（拷贝一份，避免与构建器共享引用）
+    //
+    // 原实现直接 `return this.event as AuditEvent` —— build() 之后继续
+    // 调用 builder.addDetail() / addTag()，会**就地改写已经 build 出来的事件**。
+    // 已经写进审计存储（或已经签名过）的事件因此会莫名其妙多出字段。
+    return this.copyEvent();
+  }
+
+  /**
+   * 深拷贝当前事件状态
+   */
+  private copyEvent(): AuditEvent {
+    const source = this.event;
+    const copy: Partial<AuditEvent> = { ...source };
+
+    if (source.details) copy.details = { ...source.details };
+    if (source.tags) copy.tags = [...source.tags];
+    if (source.changes) copy.changes = source.changes.map((c) => ({ ...c }));
+    if (source.metadata) copy.metadata = { ...source.metadata };
+    if (source.user) copy.user = { ...source.user };
+    if (source.request) copy.request = { ...source.request };
+    if (source.resource) copy.resource = { ...source.resource };
+    if (source.error) copy.error = { ...source.error };
+
+    return copy as AuditEvent;
   }
 
   /**
@@ -376,7 +408,12 @@ export class AuditEventBuilder {
       cloned.event.tags = [...this.event.tags];
     }
     if (this.event.changes) {
-      cloned.event.changes = [...this.event.changes];
+      cloned.event.changes = this.event.changes.map((c) => ({ ...c }));
+    }
+    // metadata 也要拷贝 —— 否则 clone 出来的构建器 addMetadata() 会
+    // 写回原构建器的 metadata（两者共享同一个对象引用）。
+    if (this.event.metadata) {
+      cloned.event.metadata = { ...this.event.metadata };
     }
     return cloned;
   }

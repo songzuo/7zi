@@ -3,6 +3,7 @@
  * @module economy/pricing
  */
 
+import { assertCents, assertCentsNonNegative } from './wallet.js'
 import {
   ServicePricing,
   PricingModel,
@@ -28,6 +29,10 @@ class InMemoryPricingRepository {
     const pricingId = this.agentServiceIndex.get(key)
     if (!pricingId) return null
     return this.pricings.get(pricingId) || null
+  }
+
+  async findById(id: string): Promise<ServicePricing | null> {
+    return this.pricings.get(id) || null
   }
 
   async findByAgentId(agentId: string): Promise<ServicePricing[]> {
@@ -94,7 +99,10 @@ class InMemoryCouponRepository {
   private usageRecords: Map<string, CouponUsage[]> = new Map() // couponId -> usages
 
   async findByCode(code: string): Promise<Coupon | null> {
-    const couponId = this.codeIndex.get(code)
+    // 券码统一按大写归一化存储与查找，避免「用户输入小写 → 查不到券」
+    // 这种静默失败（用户看到的是「优惠券不存在」，实际是自己打了小写）。
+    const normalized = code.toUpperCase()
+    const couponId = this.codeIndex.get(normalized) ?? this.codeIndex.get(code)
     if (!couponId) return null
     return this.coupons.get(couponId) || null
   }
@@ -120,7 +128,7 @@ class InMemoryCouponRepository {
     }
 
     this.coupons.set(id, newCoupon)
-    this.codeIndex.set(coupon.code, id)
+    this.codeIndex.set(coupon.code.toUpperCase(), id)
     this.usageRecords.set(id, [])
 
     return newCoupon
@@ -190,6 +198,13 @@ export class PricingService {
       throw new Error(`Pricing already exists for agent ${agentId} and service ${serviceId}`)
     }
 
+    // 基础价格必须是正整数分；免费服务请使用 pricingModel = 'freemium'
+    assertCents(basePrice, 'Base price')
+
+    if (validFrom && validUntil && validUntil <= validFrom) {
+      throw new Error('validUntil must be after validFrom')
+    }
+
     return await this.pricingRepo.create({
       agentId,
       serviceId,
@@ -214,6 +229,10 @@ export class PricingService {
     const pricing = await this.pricingRepo.findByAgentAndService(agentId, serviceId)
     if (!pricing) {
       throw new Error(`Pricing not found for agent ${agentId} and service ${serviceId}`)
+    }
+
+    if (updates.basePrice !== undefined) {
+      assertCents(updates.basePrice, 'Base price')
     }
 
     return await this.pricingRepo.update(pricing.id, updates)
@@ -248,6 +267,13 @@ export class PricingService {
    */
   async calculatePrice(calculation: PricingCalculation): Promise<PricingResult> {
     const { pricing, quantity, resultSuccess = true, discountCode, customerId } = calculation
+
+    // 数量必须是非负整数（次数/分钟数/小时数）
+    if (!Number.isFinite(quantity) || !Number.isInteger(quantity) || quantity < 0) {
+      throw new Error('quantity must be a non-negative integer')
+    }
+
+    assertCentsNonNegative(pricing.basePrice, 'Base price')
 
     let originalPrice = pricing.basePrice * quantity
 
@@ -287,9 +313,10 @@ export class PricingService {
     const mockMemberLevel = customerId ? await this.getMemberLevel(customerId) : null
     if (mockMemberLevel) {
       const membershipDiscountRate = this.getMembershipDiscountRate(mockMemberLevel)
-      breakdown.membershipDiscount =
-        Math.round((originalPrice - breakdown.quantityDiscount) * membershipDiscountRate * 100) /
-        100
+      // 金额单位为「分」，必须是整数 —— 向下取整避免产生小数分
+      breakdown.membershipDiscount = Math.floor(
+        (originalPrice - breakdown.quantityDiscount) * membershipDiscountRate
+      )
     }
 
     const totalDiscount =
@@ -322,9 +349,34 @@ export class PricingService {
     } = {}
   ): Promise<Coupon> {
     // 检查代码是否已存在
-    const existing = await this.couponRepo.findByCode(code)
+    if (!code || typeof code !== 'string' || code.trim().length === 0) {
+      throw new Error('Coupon code must be a non-empty string')
+    }
+
+    const existing = await this.couponRepo.findByCode(code.toUpperCase())
     if (existing) {
       throw new Error(`Coupon code already exists: ${code}`)
+    }
+
+    // 折扣值必须为非负整数；百分比不得超过 100
+    assertCentsNonNegative(value, 'Coupon value')
+    if (type === 'percentage' && value > 100) {
+      throw new Error('Percentage coupon value must not exceed 100')
+    }
+    if (type !== 'percentage' && type !== 'fixed' && type !== 'free_trial') {
+      throw new Error(`Unsupported coupon type: ${type}`)
+    }
+    if (validUntil <= validFrom) {
+      throw new Error('validUntil must be after validFrom')
+    }
+    if (options.minPurchase !== undefined) {
+      assertCentsNonNegative(options.minPurchase, 'minPurchase')
+    }
+    if (options.maxDiscount !== undefined) {
+      assertCentsNonNegative(options.maxDiscount, 'maxDiscount')
+    }
+    if (options.usageLimit !== undefined) {
+      assertCentsNonNegative(options.usageLimit, 'usageLimit')
     }
 
     return await this.couponRepo.create({
@@ -350,7 +402,7 @@ export class PricingService {
     serviceId: string,
     purchaseAmount: number
   ): Promise<{ valid: boolean; coupon?: Coupon; reason?: string }> {
-    const coupon = await this.couponRepo.findByCode(code)
+    const coupon = await this.couponRepo.findByCode(code.toUpperCase())
     if (!coupon) {
       return { valid: false, reason: '优惠券不存在' }
     }
@@ -394,6 +446,10 @@ export class PricingService {
     customerId: string,
     purchaseAmount: number
   ): Promise<{ discountAmount: number; coupon?: Coupon }> {
+    if (!Number.isInteger(purchaseAmount) || purchaseAmount < 0) {
+      throw new Error('purchaseAmount must be a non-negative integer number of cents')
+    }
+
     const validation = await this.validateCoupon(code, pricing.serviceId, purchaseAmount)
     if (!validation.valid) {
       throw new Error(validation.reason || '优惠券无效')
@@ -429,10 +485,17 @@ export class PricingService {
     orderId: string,
     discountAmount: number
   ): Promise<void> {
-    const coupon = await this.couponRepo.findByCode(couponCode)
+    const coupon = await this.couponRepo.findByCode(couponCode.toUpperCase())
     if (!coupon) {
       throw new Error(`Coupon not found: ${couponCode}`)
     }
+
+    // 使用次数上限：超过上限时拒绝记录，防止优惠券被超量使用
+    if (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) {
+      throw new Error('Coupon usage limit reached')
+    }
+
+    assertCentsNonNegative(discountAmount, 'discountAmount')
 
     await this.couponRepo.recordUsage({
       id: this.generateUsageId(),

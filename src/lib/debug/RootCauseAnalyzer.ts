@@ -12,6 +12,7 @@ import type {
   TimelineEvent,
   PropagationStep,
   ErrorClassification,
+  ErrorSubtype,
   StackAnalysis,
   ContextAnalysis,
 } from './types'
@@ -26,20 +27,54 @@ interface RootCauseRule {
   patterns: (string | RegExp)[]
   severity: 'critical' | 'high' | 'medium' | 'low'
   description: string
+  /**
+   * 贡献因素。必须与 {@link remediation} 一一对应 —— 第 i 个因素的处置办法
+   * 就是 remediation[i]。历史上这里写死成 remediation[0]，导致「类型不匹配」
+   * 之类的因素也被建议「添加 null/undefined 检查」，完全对不上号。
+   */
   contributingFactors: string[]
   remediation: string[]
 }
 
+/**
+ * 统一把规则里的模式编译成「大小写不敏感、无 g/y 状态」的正则。
+ *
+ * 旧代码对字符串模式用 `i`、对字面量正则直接沿用原 flags，
+ * 导致 "ETIMEDOUT" 这类大小写敏感的代码名匹配不稳定。
+ */
+function compileRootCausePattern(pattern: string | RegExp): RegExp {
+  if (typeof pattern === 'string') {
+    return new RegExp(pattern, 'i')
+  }
+  const flags = pattern.flags.replace(/[gy]/g, '')
+  return new RegExp(pattern.source, flags.includes('i') ? flags : `${flags}i`)
+}
+
+/**
+ * 根因规则（按优先级自上而下，第一条命中即采用）
+ *
+ * 规则收紧要点：
+ * 1. 只对「错误消息 + 错误名 + 错误码」做匹配，绝不匹配整个 stack
+ *    —— 旧实现把 stack 也喂给正则，文件路径里的 "os" / "timeout" /
+ *    "closed" 等子串会命中环境/超时规则，把根因带偏到完全无关的类型；
+ * 2. 去掉过宽的裸词（`/timeout/`、`/lock/`、`/null|undefined/`），
+ *    换成有上下文的短语，避免不同根因互相抢匹配；
+ * 3. 「数据库连接池耗尽」归 resource-exhaustion（连接池是有界资源被耗尽），
+ *    「死锁 / 竞态」才归 concurrency-issue。
+ */
 const ROOT_CAUSE_RULES: RootCauseRule[] = [
   // 代码缺陷
   {
     type: 'code-defect',
     patterns: [
-      /null|undefined/,
-      /is not defined/,
-      /is not a function/,
-      /cannot read/,
-      /type error/i,
+      /cannot read (?:property|properties)/i,
+      /cannot access .*(?:null|undefined)/i,
+      /(?:null|undefined) is not an object/i,
+      /null or undefined/i,
+      /is not defined/i,
+      /is not a function/i,
+      /type ?error/i,
+      /reading .* of (?:null|undefined)/i,
     ],
     severity: 'high',
     description: '代码中存在空值引用、类型错误或未定义变量',
@@ -57,15 +92,150 @@ const ROOT_CAUSE_RULES: RootCauseRule[] = [
     ],
   },
 
+  // 资源耗尽
+  // 注意：数据库连接池耗尽也属于「有界资源被耗尽」，归到这一类，
+  // 而不是 data-issue（那是数据内容/约束问题）或 concurrency-issue（竞态/死锁）。
+  {
+    type: 'resource-exhaustion',
+    patterns: [
+      /out of memory/i,
+      /heap/i,
+      /ENOMEM/i,
+      /too many/i,
+      /limit exceeded/i,
+      /quota/i,
+      /EMFILE/i,
+      /pool.*exhaust/i,
+      /connection pool/i,
+      /too many connections/i,
+      /resource exhausted/i,
+      // 数据库查询超时：服务端资源（CPU / IO / 锁等待）被长查询占满，
+      // 属于有界资源被耗尽，而不是「与外部服务集成失败」。
+      // 必须放在 integration-issue 规则之前 —— 后者有裸的 /timeout/i，
+      // 否则 "query execution timeout" 会被抢走。
+      /query[^.]*timeout/i,
+      /statement timeout/i,
+      /execution timeout/i,
+      /slow query/i,
+    ],
+    severity: 'critical',
+    description: '系统资源（内存、文件句柄、连接池等）耗尽',
+    contributingFactors: [
+      '内存泄漏',
+      '未释放的资源',
+      '并发请求过多',
+      '资源限制过低',
+    ],
+    remediation: [
+      '修复内存泄漏',
+      '增加资源限制',
+      '实现资源池',
+      '优化资源使用',
+    ],
+  },
+
+  // 并发问题
+  // 只保留真正的并发症状（竞态 / 死锁 / 锁等待）。
+  // 裸的 /timeout/、/lock/ 会把网络超时、连接池耗尽都抢过来。
+  {
+    type: 'concurrency-issue',
+    patterns: [
+      /race condition/i,
+      /concurrent (?:modification|update|access)/i,
+      /optimistic lock/i,
+      /deadlock/i,
+      /lock wait timeout/i,
+      /could not obtain .*lock/i,
+      /lost update/i,
+    ],
+    severity: 'high',
+    description: '并发访问导致的竞态条件或死锁',
+    contributingFactors: [
+      '缺少同步机制',
+      '锁使用不当',
+      '异步操作未正确等待',
+      '共享状态未保护',
+    ],
+    remediation: [
+      '添加锁机制',
+      '使用原子操作',
+      '改进异步处理',
+      '避免共享状态',
+    ],
+  },
+
+  // 数据问题
+  {
+    type: 'data-issue',
+    patterns: [
+      /constraint/i,
+      /duplicate (?:key|entry|value)/i,
+      /unique violation/i,
+      /foreign key/i,
+      /invalid .*data/i,
+      /data integrity/i,
+      /serialization failed/i,
+      /data truncated/i,
+    ],
+    severity: 'medium',
+    description: '数据格式错误、约束违规或数据不一致',
+    contributingFactors: [
+      '数据验证不足',
+      '数据库约束冲突',
+      '数据格式错误',
+      '数据迁移问题',
+    ],
+    remediation: [
+      '添加数据验证',
+      '检查数据库约束',
+      '修复数据格式',
+      '实施数据迁移',
+    ],
+  },
+
+  // 集成问题（外部服务 / API / 网络）
+  {
+    type: 'integration-issue',
+    patterns: [
+      /ECONNREFUSED/i,
+      /ETIMEDOUT/i,
+      /ECONNRESET/i,
+      /EAI_AGAIN/i,
+      /ENOTFOUND/i,
+      /network/i,
+      /connection (?:refused|reset|closed|failed)/i,
+      /socket hang up/i,
+      /api (?:error|failed|unavailable)/i,
+      /service unavailable/i,
+      /\b(?:502|503|504)\b/,
+      /timeout/i,
+      /\bapi\b/i,
+    ],
+    severity: 'high',
+    description: '与外部服务或 API 集成时出现问题',
+    contributingFactors: [
+      '外部服务不可用',
+      '网络连接问题',
+      'API 变更',
+      '认证失败',
+    ],
+    remediation: [
+      '检查网络连接',
+      '验证 API 凭证',
+      '添加重试逻辑',
+      '实现降级策略',
+    ],
+  },
+
   // 配置错误
   {
     type: 'configuration-error',
     patterns: [
-      /config/i,
-      /env/i,
-      /environment/i,
-      /missing.*key/i,
-      /invalid.*config/i,
+      /invalid .*config/i,
+      /config(uration)? (?:error|missing|invalid)/i,
+      /environment variable/i,
+      /\benv\b/i,
+      /missing .*(?:key|setting)/i,
     ],
     severity: 'medium',
     description: '配置文件或环境变量设置不正确',
@@ -89,9 +259,10 @@ const ROOT_CAUSE_RULES: RootCauseRule[] = [
     patterns: [
       /cannot find module/i,
       /module not found/i,
+      /ERR_MODULE_NOT_FOUND/,
       /require.*not found/i,
       /import.*not found/i,
-      /version/i,
+      /version (?:mismatch|conflict|incompatible|not supported)/i,
     ],
     severity: 'high',
     description: '依赖包缺失、版本不兼容或安装错误',
@@ -114,10 +285,10 @@ const ROOT_CAUSE_RULES: RootCauseRule[] = [
     type: 'environment-issue',
     patterns: [
       /platform/i,
-      /os/i,
       /node version/i,
-      /browser/i,
-      /unsupported/i,
+      /unsupported (?:os|platform|browser|node)/i,
+      /browser (?:not supported|unsupported)/i,
+      /operating system/i,
     ],
     severity: 'medium',
     description: '运行环境不满足要求',
@@ -132,112 +303,6 @@ const ROOT_CAUSE_RULES: RootCauseRule[] = [
       '检查浏览器兼容性',
       '安装系统依赖',
       '使用 polyfill',
-    ],
-  },
-
-  // 资源耗尽
-  {
-    type: 'resource-exhaustion',
-    patterns: [
-      /out of memory/i,
-      /heap/i,
-      /too many/i,
-      /limit exceeded/i,
-      /quota/i,
-      /EMFILE/i,
-    ],
-    severity: 'critical',
-    description: '系统资源（内存、文件句柄等）耗尽',
-    contributingFactors: [
-      '内存泄漏',
-      '未释放的资源',
-      '并发请求过多',
-      '资源限制过低',
-    ],
-    remediation: [
-      '修复内存泄漏',
-      '增加资源限制',
-      '实现资源池',
-      '优化资源使用',
-    ],
-  },
-
-  // 并发问题
-  {
-    type: 'concurrency-issue',
-    patterns: [
-      /race condition/i,
-      /concurrent/i,
-      /deadlock/i,
-      /lock/i,
-      /timeout/i,
-    ],
-    severity: 'high',
-    description: '并发访问导致的竞态条件或死锁',
-    contributingFactors: [
-      '缺少同步机制',
-      '锁使用不当',
-      '异步操作未正确等待',
-      '共享状态未保护',
-    ],
-    remediation: [
-      '添加锁机制',
-      '使用原子操作',
-      '改进异步处理',
-      '避免共享状态',
-    ],
-  },
-
-  // 数据问题
-  {
-    type: 'data-issue',
-    patterns: [
-      /database/i,
-      /query/i,
-      /constraint/i,
-      /duplicate/i,
-      /invalid.*data/i,
-    ],
-    severity: 'medium',
-    description: '数据格式错误、约束违规或数据不一致',
-    contributingFactors: [
-      '数据验证不足',
-      '数据库约束冲突',
-      '数据格式错误',
-      '数据迁移问题',
-    ],
-    remediation: [
-      '添加数据验证',
-      '检查数据库约束',
-      '修复数据格式',
-      '实施数据迁移',
-    ],
-  },
-
-  // 集成问题
-  {
-    type: 'integration-issue',
-    patterns: [
-      /api/i,
-      /network/i,
-      /connection/i,
-      /timeout/i,
-      /ECONNREFUSED/i,
-      /ETIMEDOUT/i,
-    ],
-    severity: 'high',
-    description: '与外部服务或 API 集成时出现问题',
-    contributingFactors: [
-      '外部服务不可用',
-      '网络连接问题',
-      'API 变更',
-      '认证失败',
-    ],
-    remediation: [
-      '检查网络连接',
-      '验证 API 凭证',
-      '添加重试逻辑',
-      '实现降级策略',
     ],
   },
 
@@ -266,6 +331,53 @@ const ROOT_CAUSE_RULES: RootCauseRule[] = [
     ],
   },
 ]
+
+/**
+ * 分类子类型 → 根因类型
+ *
+ * 当错误消息本身不含明确特征（规则未命中）时，用分类器已经判定好的
+ * 子类型反推根因，比只按大类粗粒度推断准确得多。
+ */
+const ROOT_CAUSE_BY_SUBTYPE: Partial<Record<ErrorSubtype, RootCauseType>> = {
+  // 语法 / 运行时
+  'unexpected-token': 'code-defect',
+  'missing-bracket': 'code-defect',
+  'invalid-syntax': 'code-defect',
+  'type-mismatch': 'code-defect',
+  'null-reference': 'code-defect',
+  'undefined-reference': 'code-defect',
+  'type-error': 'code-defect',
+  'range-error': 'code-defect',
+  'reference-error': 'code-defect',
+  // 逻辑
+  'infinite-loop': 'design-flaw',
+  'off-by-one': 'code-defect',
+  'race-condition': 'concurrency-issue',
+  'deadlock': 'concurrency-issue',
+  // 系统
+  'out-of-memory': 'resource-exhaustion',
+  'stack-overflow': 'design-flaw',
+  'permission-denied': 'environment-issue',
+  'file-not-found': 'dependency-issue',
+  // 网络
+  timeout: 'integration-issue',
+  'connection-refused': 'integration-issue',
+  'dns-error': 'integration-issue',
+  'ssl-error': 'integration-issue',
+  // 数据库
+  'query-timeout': 'resource-exhaustion',
+  'connection-pool-exhausted': 'resource-exhaustion',
+  'deadlock-detected': 'concurrency-issue',
+  'constraint-violation': 'data-issue',
+}
+
+/**
+ * 提取 Node.js 错误上的 code 字段（如 'ETIMEDOUT'、'ECONNREFUSED'）
+ */
+function extractErrorCode(error: Error): string | undefined {
+  const candidate = error as Error & { code?: unknown }
+  return typeof candidate.code === 'string' ? candidate.code : undefined
+}
 
 // ============================================
 // 根因分析器
@@ -327,26 +439,46 @@ export class RootCauseAnalyzer {
 
   /**
    * 识别根因类型
+   *
+   * 判定顺序：
+   * 1. 消息级规则匹配（最具体的证据优先）；
+   * 2. 若没有任何规则命中，用「分类子类型」推断（分类器已经做过精细化判定）；
+   * 3. 最后用「分类大类」兜底。
+   *
+   * 关键修复：旧实现把整个 error.stack 也喂给正则，
+   * 文件路径里的 "os"（closed/os）、"version"、"timeout" 等子串会命中
+   * environment-issue / dependency-issue / integration-issue，
+   * 导致「连接池耗尽」「网络超时」被误判成完全无关的根因。
    */
   private identifyRootCauseType(
     error: Error,
     classification: ErrorClassification,
     _stackAnalysis: StackAnalysis
   ): RootCauseType {
-    const message = error.message.toLowerCase()
-    const stack = error.stack || ''
+    const searchText = [
+      error.name || 'Error',
+      error.message || '',
+      extractErrorCode(error) || '',
+    ]
+      .filter(part => part.length > 0)
+      .join(' ')
 
-    // 检查规则匹配
+    // 1. 规则匹配
     for (const rule of ROOT_CAUSE_RULES) {
       for (const pattern of rule.patterns) {
-        const regex = typeof pattern === 'string' ? new RegExp(pattern, 'i') : pattern
-        if (regex.test(message) || regex.test(stack)) {
+        if (compileRootCausePattern(pattern).test(searchText)) {
           return rule.type
         }
       }
     }
 
-    // 基于分类推断
+    // 2. 分类子类型推断
+    const bySubtype = ROOT_CAUSE_BY_SUBTYPE[classification.subtype]
+    if (bySubtype) {
+      return bySubtype
+    }
+
+    // 3. 分类大类兜底
     switch (classification.category) {
       case 'syntax':
         return 'code-defect'
@@ -457,14 +589,15 @@ export class RootCauseAnalyzer {
     // 从规则中获取
     const rule = ROOT_CAUSE_RULES.find(r => r.type === type)
     if (rule) {
-      for (const factor of rule.contributingFactors) {
+      rule.contributingFactors.forEach((factor, index) => {
         factors.push({
           factor,
           impact: 'moderate',
           description: factor,
-          remediation: rule.remediation[0],
+          // 第 i 个因素对应第 i 条处置办法；数量不齐时退回最后一条
+          remediation: rule.remediation[index] ?? rule.remediation[rule.remediation.length - 1],
         })
-      }
+      })
     }
 
     // 从上下文中提取

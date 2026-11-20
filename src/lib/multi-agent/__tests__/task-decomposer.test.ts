@@ -50,7 +50,7 @@ describe('TaskDecomposer', () => {
 
       expect(task).toHaveProperty('id')
       expect(task.name).toBe('Test Task')
-      expect(task.description).toBe('A test Task')
+      expect(task.description).toBe('A test task')
       expect(task.status).toBe(TaskStatus.PENDING)
       expect(task.subTasks).toBeDefined()
     })
@@ -272,7 +272,11 @@ describe('TaskDecomposer', () => {
     })
 
     it('应该处理任务执行失败', async () => {
-      vi.spyOn(messageBus, 'request').mockRejectedValueOnce(new Error('Agent error'))
+      // 注意：必须 mock 所有次尝试（而不是 mockRejectedValueOnce）。
+      // 开启自动重试后（enableAutoRetry 默认 true，maxRetries 默认 2），
+      // 首次失败会按指数退避重试；只 mock 一次的话后续尝试会打到真实
+      // messageBus 上并等到 60s 超时，导致用例超时失败。
+      vi.spyOn(messageBus, 'request').mockRejectedValue(new Error('Agent error'))
 
       const template = {
         type: 'test',

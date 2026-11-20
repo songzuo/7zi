@@ -1,7 +1,7 @@
 /**
  * @fileoverview 导出核心 - 通用导出器
  * @description 支持 CSV/JSON/Excel 格式的统一导出接口
- * @version 2.0.0
+ * @version 3.0.0
  */
 
 import { logger } from '../../logger'
@@ -91,27 +91,50 @@ export interface ExportResult {
 
 /**
  * 数据导出器
- * 提供统一的导出接口，支持多种格式
+ * 提供统一的导出接口，支持多种格式。
+ *
+ * 两种用法：
+ * 1. 构造时传入配置：`new DataExporter(cfg).export(data)`
+ * 2. 导出时传入配置：`new DataExporter().export(data, cfg)`
  */
 export class DataExporter<T extends Record<string, unknown> = Record<string, unknown>> {
+  private readonly baseConfig?: Partial<ExportConfig<T>>
+
+  constructor(config?: Partial<ExportConfig<T>>) {
+    this.baseConfig = config
+  }
+
+  /**
+   * 合并构造配置与调用配置
+   */
+  private resolveConfig(config?: Partial<ExportConfig<T>>): ExportConfig<T> {
+    const merged = { ...(this.baseConfig ?? {}), ...(config ?? {}) } as ExportConfig<T>
+    if (!merged.fields) merged.fields = []
+    if (!merged.filename) merged.filename = 'export'
+    if (!merged.format) merged.format = 'csv'
+    return merged
+  }
+
   /**
    * 执行导出
    */
-  async export(data: T[], config: ExportConfig<T>): Promise<ExportResult> {
+  async export(data: T[], config?: Partial<ExportConfig<T>>): Promise<ExportResult> {
+    const resolved = this.resolveConfig(config)
     try {
       // 根据格式选择导出方法
-      switch (config.format) {
+      switch (resolved.format) {
         case 'csv':
-          return this.exportCSV(data, config)
+          return this.exportCSV(data, resolved)
         case 'json':
-          return this.exportJSON(data, config)
+          return this.exportJSON(data, resolved)
         case 'xlsx':
         case 'excel':
-          return this.exportExcel(data, config)
+          return await this.exportExcel(data, resolved)
         default:
-          return { success: false, error: `不支持的导出格式: ${config.format}` }
+          return { success: false, error: `不支持的导出格式: ${resolved.format}` }
       }
     } catch (error) {
+      logger.error('[DataExporter] 导出失败', { error })
       return {
         success: false,
         error: error instanceof Error ? error.message : '导出失败',
@@ -126,6 +149,7 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
     try {
       const fields = this.getSelectedFields(config)
       const rows = this.processData(data, fields, config)
+      const validationErrors = this.validateRows(rows, fields, config)
 
       // 生成 CSV 内容
       const csvLines: string[] = []
@@ -137,12 +161,14 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
 
       // 数据行
       rows.forEach(row => {
-        csvLines.push(fields.map(f => this.escapeCSV(this.formatValue(row[f.key], f, row))).join(','))
+        csvLines.push(
+          fields.map(f => this.escapeCSV(this.formatValue(row[f.key], f, row))).join(',')
+        )
       })
 
       // 创建 Blob
       const csvContent = csvLines.join('\n')
-      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' })
 
       return {
         success: true,
@@ -150,6 +176,7 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
         filename: `${config.filename}.csv`,
         rowCount: rows.length,
         columnCount: fields.length,
+        validationErrors,
       }
     } catch (error) {
       logger.error('[DataExporter] CSV 导出失败', { error })
@@ -161,25 +188,25 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
   }
 
   /**
-   * 导出 JSON
+   * 导出 JSON（以字段 label 作为键）
    */
   private exportJSON(data: T[], config: ExportConfig<T>): ExportResult {
     try {
       const fields = this.getSelectedFields(config)
       const rows = this.processData(data, fields, config)
+      const validationErrors = this.validateRows(rows, fields, config)
 
-      // 处理时间戳格式
       const processedRows = rows.map(row => {
         const processedRow: Record<string, unknown> = {}
         fields.forEach(f => {
-          processedRow[String(f.key)] = this.formatValue(row[f.key], f, row)
+          processedRow[f.label] = this.formatValue(row[f.key], f, row)
         })
         return processedRow
       })
 
       // 创建 JSON Blob
       const jsonContent = JSON.stringify(processedRows, null, 2)
-      const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' })
+      const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8' })
 
       return {
         success: true,
@@ -187,6 +214,7 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
         filename: `${config.filename}.json`,
         rowCount: rows.length,
         columnCount: fields.length,
+        validationErrors,
       }
     } catch (error) {
       logger.error('[DataExporter] JSON 导出失败', { error })
@@ -205,10 +233,11 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
       const ExcelJS = await import('exceljs')
       const fields = this.getSelectedFields(config)
       const rows = this.processData(data, fields, config)
+      const validationErrors = this.validateRows(rows, fields, config)
 
       // 创建工作簿
       const workbook = new ExcelJS.Workbook()
-      const worksheet = workbook.addWorksheet(config.sheetName || 'Sheet1')
+      const worksheet = workbook.addWorksheet(config.sheetName || config.excelOptions?.sheetName || 'Sheet1')
 
       // 表头行
       if (config.includeHeader !== false) {
@@ -236,15 +265,20 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
           } else if (style?.autoWidth) {
             col.width = 15
           }
+          if (f.width) {
+            col.width = f.width
+          }
         })
       }
 
       // 冻结行
       if (config.excelOptions?.freezeRows) {
-        worksheet.views = [{
-          state: 'frozen',
-          ySplit: config.excelOptions.freezeRows,
-        }]
+        worksheet.views = [
+          {
+            state: 'frozen',
+            ySplit: config.excelOptions.freezeRows,
+          },
+        ]
       }
 
       // 自动筛选
@@ -267,6 +301,7 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
         filename: `${config.filename}.xlsx`,
         rowCount: rows.length,
         columnCount: fields.length,
+        validationErrors,
       }
     } catch (error) {
       logger.error('[DataExporter] Excel 导出失败', { error })
@@ -278,22 +313,24 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
   }
 
   /**
-   * 获取选中的字段
+   * 获取参与导出的字段
+   * - 指定 selectedFields 时按其过滤
+   * - 否则排除 defaultSelected === false 的字段
    */
   private getSelectedFields(config: ExportConfig<T>): ExportField<T>[] {
-    if (config.selectedFields && config.selectedFields.length > 0) {
-      return config.fields
-        .filter(f => config.selectedFields!.includes(f.key))
-        .sort((a, b) => (a.order || 0) - (b.order || 0))
-    }
-    return config.fields.sort((a, b) => (a.order || 0) - (b.order || 0))
+    const all = [...(config.fields ?? [])]
+    const filtered =
+      config.selectedFields && config.selectedFields.length > 0
+        ? all.filter(f => config.selectedFields!.includes(f.key))
+        : all.filter(f => f.defaultSelected !== false)
+    return filtered.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   }
 
   /**
    * 处理数据
    */
   private processData(data: T[], fields: ExportField<T>[], config: ExportConfig<T>): T[] {
-    let processed = [...data]
+    let processed = [...(data ?? [])]
 
     // 数据转换
     if (config.transform) {
@@ -309,22 +346,78 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
   }
 
   /**
+   * 行级与字段级校验
+   */
+  private validateRows(
+    rows: T[],
+    fields: ExportField<T>[],
+    config: ExportConfig<T>
+  ): Array<{ row: number; field: string; message: string }> {
+    const errors: Array<{ row: number; field: string; message: string }> = []
+
+    rows.forEach((row, index) => {
+      fields.forEach(field => {
+        const value = row?.[field.key]
+
+        // required 校验：null / undefined / 空字符串视为缺失
+        if (field.required && (value === null || value === undefined || value === '')) {
+          errors.push({
+            row: index,
+            field: String(field.key),
+            message: `${field.label} 为必填项`,
+          })
+          return
+        }
+
+        // 自定义字段校验器
+        if (field.validator) {
+          const outcome = field.validator(value)
+          if (outcome === false) {
+            errors.push({
+              row: index,
+              field: String(field.key),
+              message: `${field.label} 校验未通过`,
+            })
+          } else if (typeof outcome === 'string' && outcome) {
+            errors.push({ row: index, field: String(field.key), message: outcome })
+          }
+        }
+      })
+
+      // 行级校验回调
+      if (config.onValidate) {
+        const outcome = config.onValidate(row, index)
+        if (outcome === false) {
+          errors.push({ row: index, field: '*', message: `第 ${index + 1} 行校验未通过` })
+        } else if (typeof outcome === 'string' && outcome) {
+          errors.push({ row: index, field: '*', message: outcome })
+        }
+      }
+    })
+
+    return errors
+  }
+
+  /**
    * 格式化值
+   * - 有 formatter 时完全交给 formatter 处理（formatter 可接收 null）
+   * - 无 formatter 时 null / undefined 保留为 null
    */
   private formatValue(value: unknown, field: ExportField<T>, row: T): string | number | boolean | null {
-    if (value === null || value === undefined) {
-      return ''
-    }
-
     // 使用自定义格式化器
     if (field.formatter) {
-      return field.formatter(value as T[keyof T], row)
+      const result = field.formatter(value as T[keyof T], row)
+      return result === undefined ? null : result
+    }
+
+    if (value === null || value === undefined) {
+      return null
     }
 
     // 处理日期
     if (value instanceof Date) {
-      const formatter = (field.formatter || 'iso') as string
-      switch (formatter) {
+      const mode = (field.numFmt || 'iso') as string
+      switch (mode) {
         case 'locale':
           return value.toLocaleString()
         case 'unix':
@@ -347,13 +440,13 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
    * CSV 转义
    */
   private escapeCSV(value: unknown): string {
-    const str = String(value || '')
-    
+    const str = value === null || value === undefined ? '' : String(value)
+
     // 如果包含逗号、引号或换行符，需要转义
     if (str.includes(',') || str.includes('"') || str.includes('\n')) {
       return `"${str.replace(/"/g, '""')}"`
     }
-    
+
     return str
   }
 }

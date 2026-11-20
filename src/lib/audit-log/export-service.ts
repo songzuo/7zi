@@ -20,6 +20,7 @@ import path from 'path';
 import zlib from 'zlib';
 import { promisify } from 'util';
 import { logger } from '../logger/index.js';
+import { AuditSignatureHandler } from './signature-handler.js';
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);
@@ -28,7 +29,11 @@ const gunzip = promisify(zlib.gunzip);
  * 审计日志导出服务
  */
 export class AuditExportService {
-  constructor(private storage: AuditLogStorage) {}
+  constructor(
+    private storage: AuditLogStorage,
+    /** 签名校验器 —— 导入时校验事件完整性用 */
+    private signatureHandler?: AuditSignatureHandler
+  ) {}
 
   /**
    * 导出审计日志
@@ -119,14 +124,36 @@ export class AuditExportService {
     }
 
     // 验证签名
+    //
+    // 之前的实现是个空壳：filter 的回调**恒返回 true**，
+    // 所以 verifySignature 这个选项完全无效 —— 无论事件签名对不对
+    // 都会被导入。现在改成真正用 signatureHandler 校验。
     if (options?.verifySignature) {
-      events = events.filter((event) => {
-        if (event.signature) {
-          // TODO: 实际的签名验证
-          return true;
+      const handler = this.signatureHandler;
+
+      if (!handler) {
+        // 没有校验器就无法校验 —— 不能假装通过。
+        result.failed += events.length;
+        result.errors?.push({
+          line: 0,
+          error: 'Signature verification requested but no signature handler is configured',
+        });
+        return result;
+      }
+
+      const validEvents: AuditEvent[] = [];
+      for (const event of events) {
+        if (handler.verify(event)) {
+          validEvents.push(event);
+        } else {
+          result.failed++;
+          result.errors?.push({
+            line: 0,
+            error: `Signature verification failed for event ${event.id}`,
+          });
         }
-        return true;
-      });
+      }
+      events = validEvents;
     }
 
     // 检查重复
@@ -271,6 +298,9 @@ export class AuditExportService {
 
       return events.filter((event: unknown) => {
         if (this.validateEvent(event)) {
+          // JSON 里的 timestamp 是 ISO 字符串 —— 转成 Date 实例，
+          // 与内存中的事件保持一致（签名计算也依赖这一点）。
+          this.normalizeTimestamp(event);
           return true;
         } else {
           result.failed++;
@@ -458,7 +488,7 @@ export class AuditExportService {
     const e = event as Record<string, unknown>;
     return (
       typeof e.id === 'string' &&
-      e.timestamp instanceof Date &&
+      this.isValidTimestamp(e.timestamp) &&
       typeof e.level === 'string' &&
       typeof e.category === 'string' &&
       typeof e.action === 'string' &&
@@ -466,6 +496,33 @@ export class AuditExportService {
       typeof e.severity === 'string' &&
       typeof e.message === 'string'
     );
+  }
+
+  /**
+   * 时间戳校验
+   *
+   * JSON 里存的时间戳是 ISO **字符串**，JSON.parse 之后不是 Date 实例。
+   * 原来这里只认 `instanceof Date`，导致**从 JSON 导入的事件永远通不过
+   * 结构校验** —— JSON 导入功能实际上完全不可用。
+   * 现在字符串形式也接受，并在解析阶段转成 Date。
+   */
+  private isValidTimestamp(value: unknown): boolean {
+    if (value instanceof Date) {
+      return !Number.isNaN(value.getTime());
+    }
+    if (typeof value === 'string' || typeof value === 'number') {
+      return !Number.isNaN(new Date(value).getTime());
+    }
+    return false;
+  }
+
+  /**
+   * 把 timestamp 规范成 Date 实例
+   */
+  private normalizeTimestamp(event: AuditEvent): void {
+    if (!(event.timestamp instanceof Date)) {
+      event.timestamp = new Date(event.timestamp);
+    }
   }
 
   /**

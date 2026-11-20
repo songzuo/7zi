@@ -55,8 +55,23 @@ describe('Workflow Validation Tests', () => {
       const workflow = createBaseWorkflow('valid', 'Valid Workflow')
       workflow.nodes = [
         { id: 'start', type: NodeType.START, name: 'Start', position: { x: 0, y: 0 } },
-        { id: 'task1', type: NodeType.AGENT, name: 'Task 1', position: { x: 100, y: 0 } },
-        { id: 'task2', type: NodeType.AGENT, name: 'Task 2', position: { x: 200, y: 0 } },
+        {
+          id: 'task1',
+          type: NodeType.AGENT,
+          name: 'Task 1',
+          position: { x: 100, y: 0 },
+          // Agent 节点必须配 agentConfig（AgentExecutor.validate 会检查），
+          // 否则校验会报「Agent 节点必须配置 agentConfig」——
+          // 这不是环形依赖问题，是测试数据缺字段。
+          agentConfig: { agentId: 'agent-1', agentType: 'test' },
+        },
+        {
+          id: 'task2',
+          type: NodeType.AGENT,
+          name: 'Task 2',
+          position: { x: 200, y: 0 },
+          agentConfig: { agentId: 'agent-2', agentType: 'test' },
+        },
         { id: 'end', type: NodeType.END, name: 'End', position: { x: 300, y: 0 } },
       ]
       // 有效的线性流程
@@ -238,9 +253,11 @@ describe('Workflow Validation Tests', () => {
       const result = orchestrator.validateWorkflow(workflow)
 
       expect(result.valid).toBe(false)
-      expect(result.errors.some(e => e.includes('expression') || e.includes('Condition'))).toBe(
-        true
-      )
+      // 实现的错误文案是中文「条件节点必须包含表达式」
+      // （ConditionExecutor.validate），不是英文 'Condition'。
+      expect(
+        result.errors.some(e => e.includes('表达式') || e.includes('expression'))
+      ).toBe(true)
     })
 
     it('should reject wait node without config', () => {
@@ -263,7 +280,11 @@ describe('Workflow Validation Tests', () => {
       const result = orchestrator.validateWorkflow(workflow)
 
       expect(result.valid).toBe(false)
-      expect(result.errors.some(e => e.includes('duration') || e.includes('Wait'))).toBe(true)
+      // 实现的错误文案是中文「等待节点必须配置 waitConfig」
+      // （WaitExecutor.validate）。
+      expect(result.errors.some(e => e.includes('waitConfig') || e.includes('等待'))).toBe(
+        true
+      )
     })
 
     it('should reject edge referencing non-existent source node', () => {

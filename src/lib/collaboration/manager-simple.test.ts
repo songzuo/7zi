@@ -1,4 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+// See manager.test.ts: the global setup mocks this module; unit tests need the real one.
+vi.unmock('./manager');
+
 import { transform } from './manager';
 
 // Simple test to verify the fix

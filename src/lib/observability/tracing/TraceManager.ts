@@ -24,6 +24,7 @@ import {
   generateTraceId,
   generateSpanId,
 } from '../types'
+import { redactString } from '@/lib/observability/logging/redaction'
 
 // ============================================
 // Active Trace
@@ -356,7 +357,10 @@ export class TraceManager {
    * 设置 Span 属性
    */
   setAttribute(span: Span, key: string, value: string | number | boolean): void {
-    span.attributes[key] = value
+    // 脱敏：span 属性会随 trace 一起导出/落盘，
+    // http.authorization / http.request.header.x-api-key 这类
+    // 名字的键值如果原样写进去，凭据就跟着 trace 走了。
+    span.attributes[key] = typeof value === 'string' ? redactString(value) : value
   }
 
   /**
@@ -612,7 +616,13 @@ export class TraceManager {
         return false
 
       case 'probabilistic':
-        if (!strategy.rate) return true
+        // rate = 0 的语义是「一条都不采」，
+        // 不是「全采」。原来写 `if (!strategy.rate) return true`，
+        // 把 0 当成了「未配置」—— 配了 0% 反而 100% 全采，
+        // 与配置意图正好相反。
+        if (strategy.rate === undefined || strategy.rate === null) return true
+        if (strategy.rate <= 0) return false
+        if (strategy.rate >= 1) return true
         const hash = this.hashString(traceId)
         return hash % 100 < strategy.rate * 100
 
@@ -624,12 +634,32 @@ export class TraceManager {
         if (timestamps.length < strategy.maxTracesPerSecond) {
           timestamps.push(now)
           this.rateLimiter.set(key, timestamps)
+          this.pruneRateLimiter(now)
           return true
         }
         return false
 
       default:
         return true
+    }
+  }
+
+  /**
+   * 清理速率限制器的过期分桶
+   *
+   * rateLimiter 按秒分桶，只增不减 —— 跑久了 map 里会堆满
+   * 几百万个历史时间桶，永远不释放（内存泄漏）。
+   *
+   * 只保留最近 60 秒的桶就够了：限流只看当前秒，
+   * 更早的桶不可能再影响判定。
+   */
+  private pruneRateLimiter(now: number): void {
+    const cutoff = Math.floor((now - 60_000) / 1000)
+    for (const key of this.rateLimiter.keys()) {
+      const bucket = Number(key)
+      if (Number.isFinite(bucket) && bucket < cutoff) {
+        this.rateLimiter.delete(key)
+      }
     }
   }
 

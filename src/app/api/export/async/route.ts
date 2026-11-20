@@ -1,37 +1,24 @@
 /**
  * @fileoverview 导出 API 路由 - 异步导出（后台任务）
- * @description POST /api/export/async - 提交异步导出任务
- * @version 1.0.0
+ * @description POST /api/export/async - 提交异步导出任务（真实数据库）
+ * @version 1.1.0
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { ExportService, ExportRequest } from '@/lib/export/service/export-service'
-import { ExportField } from '@/lib/export/core/exporter'
-import { FilterOperator } from '@/lib/export/utils/filter-parser'
+import { FilterOperator, FilterCondition, SortOptions } from '@/lib/export/utils/filter-parser'
 import { authMiddleware } from '@/middleware/auth.middleware'
 import { logger } from '@/lib/logger'
+import {
+  TASK_FIELDS,
+  TASK_FIELD_NAMES,
+  fetchTasks,
+  TaskEntity,
+} from '../lib/task-repository'
 
 // ============================================================================
 // 类型定义
 // ============================================================================
-
-/**
- * 任务实体 - 满足 Record<string, unknown> 约束
- */
-interface TaskEntity extends Record<string, unknown> {
-  id: string
-  title: string
-  description?: string
-  status: string
-  priority: 'low' | 'medium' | 'high'
-  assignee?: string
-  createdAt: string
-  updatedAt: string
-  dueDate?: string
-  tags: string[]
-  estimatedHours?: number
-  actualHours?: number
-}
 
 /**
  * 异步导出请求体
@@ -42,7 +29,22 @@ interface AsyncExportRequestBody {
   selectedFields?: string[]
   filters?: Array<{
     field: string
-    operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'in' | 'notIn'
+    operator:
+      | 'eq'
+      | 'ne'
+      | 'gt'
+      | 'gte'
+      | 'lt'
+      | 'lte'
+      | 'like'
+      | 'notLike'
+      | 'in'
+      | 'notIn'
+      | 'between'
+      | 'isNull'
+      | 'isNotNull'
+      | 'startsWith'
+      | 'endsWith'
     value: unknown
   }>
   sort?: Array<{
@@ -54,24 +56,7 @@ interface AsyncExportRequestBody {
   callbackUrl?: string
 }
 
-// ============================================================================
-// 字段定义
-// ============================================================================
-
-const TASK_FIELDS: ExportField<TaskEntity>[] = [
-  { key: 'id', label: '任务ID', order: 1 },
-  { key: 'title', label: '任务标题', order: 2 },
-  { key: 'description', label: '任务描述', order: 3 },
-  { key: 'status', label: '状态', order: 4 },
-  { key: 'priority', label: '优先级', order: 5 },
-  { key: 'assignee', label: '负责人', order: 6 },
-  { key: 'createdAt', label: '创建时间', order: 7 },
-  { key: 'updatedAt', label: '更新时间', order: 8 },
-  { key: 'dueDate', label: '截止日期', order: 9 },
-  { key: 'tags', label: '标签', order: 10 },
-  { key: 'estimatedHours', label: '预估工时', order: 11 },
-  { key: 'actualHours', label: '实际工时', order: 12 },
-]
+const VALID_FORMATS = ['csv', 'json', 'xlsx', 'excel'] as const
 
 // ============================================================================
 // 导出服务实例
@@ -96,39 +81,51 @@ function getExportService(): ExportService<TaskEntity> {
   return exportService
 }
 
-/**
- * 获取模拟任务数据
- */
-async function getTasks(): Promise<TaskEntity[]> {
-  // TODO: 从数据库获取实际数据
-  const tasks: TaskEntity[] = []
-  const statuses = ['pending', 'in-progress', 'completed', 'cancelled']
-  const priorities: Array<'low' | 'medium' | 'high'> = ['low', 'medium', 'high']
-  const assignees = ['Alice', 'Bob', 'Charlie', 'David']
+// ============================================================================
+// 请求参数解析
+// ============================================================================
 
-  for (let i = 1; i <= 100; i++) {
-    tasks.push({
-      id: `TASK-${String(i).padStart(4, '0')}`,
-      title: `任务 ${i}`,
-      description: `这是任务 ${i} 的描述`,
-      status: statuses[i % statuses.length],
-      priority: priorities[i % priorities.length],
-      assignee: assignees[i % assignees.length],
-      createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(Date.now() - i * 12 * 60 * 60 * 1000).toISOString(),
-      dueDate: new Date(Date.now() + i * 24 * 60 * 60 * 1000).toISOString(),
-      tags: [`tag-${i % 5}`, `important`],
-      estimatedHours: i % 10,
-      actualHours: i % 8,
+function parseFilters(
+  raw: AsyncExportRequestBody['filters']
+): FilterCondition[] {
+  const filters: FilterCondition[] = []
+
+  for (const f of raw ?? []) {
+    if (!f || typeof f.field !== 'string' || !f.field) continue
+    filters.push({
+      field: f.field,
+      operator: f.operator as FilterOperator,
+      value: f.value,
     })
   }
 
-  return tasks
+  return filters
 }
 
-/**
- * POST /api/export/async - 提交异步导出任务
- */
+function parseSort(raw: AsyncExportRequestBody['sort']): SortOptions[] {
+  const sort: SortOptions[] = []
+
+  for (const s of raw ?? []) {
+    if (!s || typeof s.field !== 'string' || !s.field) continue
+    sort.push({
+      field: s.field,
+      order: s.order === 'desc' ? 'desc' : 'asc',
+    })
+  }
+
+  return sort
+}
+
+function parseSelectedFields(raw: string[] | undefined): (keyof TaskEntity)[] | undefined {
+  if (!raw || raw.length === 0) return undefined
+  const valid = raw.filter(f => TASK_FIELD_NAMES.has(f))
+  if (valid.length === 0) return undefined
+  return valid as (keyof TaskEntity)[]
+}
+
+// ============================================================================
+// POST /api/export/async - 提交异步导出任务
+// ============================================================================
 export async function POST(request: NextRequest) {
   // 认证检查
   const authResponse = await authMiddleware(request)
@@ -137,7 +134,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body: AsyncExportRequestBody = await request.json()
+    let body: AsyncExportRequestBody
+    try {
+      body = (await request.json()) as AsyncExportRequestBody
+    } catch {
+      return NextResponse.json(
+        { error: '请求体不是合法 JSON' },
+        { status: 400 }
+      )
+    }
 
     // 验证必填字段
     if (!body.format || !body.filename) {
@@ -147,8 +152,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 获取数据
-    const tasks = await getTasks()
+    if (!(VALID_FORMATS as readonly string[]).includes(body.format)) {
+      return NextResponse.json(
+        { error: `不支持的导出格式: ${body.format}` },
+        { status: 400 }
+      )
+    }
+
+    const filters = parseFilters(body.filters)
+    const sort = parseSort(body.sort)
+    const selectedFields = parseSelectedFields(body.selectedFields)
+
+    // 从真实数据库读取：过滤 / 排序在 SQL 层真实生效
+    const { rows, degraded, reason, ignoredFields } = await fetchTasks({
+      filters,
+      sort,
+      page: body.page && body.page > 0 ? body.page : undefined,
+      pageSize: body.pageSize && body.pageSize > 0 ? body.pageSize : undefined,
+    })
 
     // 构建导出请求
     const exportRequest: ExportRequest<TaskEntity> = {
@@ -158,24 +179,15 @@ export async function POST(request: NextRequest) {
       dataConfig: {
         type: 'custom',
         source: 'tasks',
-        dataProvider: async () => tasks,
+        dataProvider: async () => rows,
       },
       exportConfig: {
         filename: body.filename,
         fields: TASK_FIELDS,
-        selectedFields: body.selectedFields as (keyof TaskEntity)[],
+        selectedFields,
         includeHeader: true,
         timestampFormat: 'locale',
       },
-      pagination: body.page && body.pageSize ? {
-        page: body.page,
-        pageSize: Math.min(body.pageSize, 100000),
-      } : undefined,
-      filters: body.filters?.map(f => ({
-        field: f.field,
-        operator: f.operator as FilterOperator,
-        value: f.value,
-      })),
       background: true,
       callbackUrl: body.callbackUrl,
     }
@@ -198,6 +210,10 @@ export async function POST(request: NextRequest) {
       requestId: result.requestId,
       message: result.message,
       expiresAt: result.expiresAt,
+      rowCount: rows.length,
+      degraded,
+      degradedReason: degraded ? reason : undefined,
+      ignoredFields: ignoredFields.length > 0 ? ignoredFields : undefined,
     })
   } catch (error) {
     logger.error('[Export API] 提交异步导出任务失败', {

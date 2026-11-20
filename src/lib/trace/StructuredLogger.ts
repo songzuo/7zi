@@ -12,6 +12,7 @@
  */
 
 import type { TraceId, SpanId, TraceContext } from '../tracing/types'
+import { redactObject, redactString } from '@/lib/observability/logging/redaction'
 
 // ============================================
 // Log Levels
@@ -306,10 +307,14 @@ export class StructuredLogger {
     }
 
     // 构建日志条目
+    //
+    // 脱敏：与 observability/logging/StructuredLogger 保持同一套策略。
+    // trace 这条链路同样会把 token / 口令 / apiKey 原样落盘 ——
+    // observability 那边已经接了 redaction，这边不能漏。
     const entry: LogEntry = {
       timestamp: this.options.addTimestamp ? new Date().toISOString() : '',
       level: LogLevelNames[level],
-      message,
+      message: redactString(message),
     }
 
     // 添加追踪上下文
@@ -327,21 +332,26 @@ export class StructuredLogger {
         }
       }
       if (Object.keys(filteredFields).length > 0) {
-        entry.fields = filteredFields
+        // 脱敏（token / 口令 / apiKey 不落盘）
+        entry.fields = redactObject(filteredFields)
       }
     }
 
     // 添加错误信息
+    // error.message / stack / cause 里同样可能带凭据
+    // （连接串密码、URL 里的 token），一并脱敏。
     if (error) {
       entry.error = {
         type: error.constructor.name,
-        message: error.message,
-        stacktrace: error.stack,
+        message: redactString(error.message),
+        stacktrace: error.stack ? redactString(error.stack) : '',
       }
 
       // 如果有 cause，添加
       if ('cause' in error && error.cause) {
-        entry.error.cause = error.cause instanceof Error ? error.cause.message : String(error.cause)
+        entry.error.cause = redactString(
+          error.cause instanceof Error ? error.cause.message : String(error.cause)
+        )
       }
     }
 

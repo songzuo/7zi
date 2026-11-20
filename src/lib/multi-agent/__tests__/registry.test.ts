@@ -108,7 +108,10 @@ describe('AgentRegistry', () => {
     })
 
     it('应该拒绝注销不存在的 Agent', async () => {
-      await expect(registry.unregister('non-existent')).rejects.toThrow('not found')
+      // registry.unregister 是幂等操作（生产代码里明确注释了「幂等操作：即使 agent
+      // 不存在也能完成清理」），所以不存在时不应该抛错，而是静默成功。
+      await expect(registry.unregister('non-existent')).resolves.toBeUndefined()
+      expect(registry.getAgent('non-existent')).toBeUndefined()
     })
   })
 
@@ -129,7 +132,9 @@ describe('AgentRegistry', () => {
       await expect(registry.heartbeat('agent-1')).resolves.not.toThrow()
 
       const retrieved = registry.getAgent('agent-1')
-      expect(retrieved?.lastSeen).toBeGreaterThan(agent.lastSeen)
+      // register() 本身就会把 lastSeen 刷成当前时间，heartbeat() 随后再刷新；
+      // 两次调用可能落在同一毫秒，所以断言「不早于注册时刻」而不是严格大于。
+      expect(retrieved?.lastSeen).toBeGreaterThanOrEqual(agent.lastSeen)
     })
 
     it('应该拒绝不存在的 Agent 的心跳', async () => {

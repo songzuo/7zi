@@ -32,6 +32,8 @@ export interface SearchHistoryEntry {
 export interface SearchHistoryStorage {
   entries: SearchHistoryEntry[]
   maxSize: number
+  /** 查询频次（key 为小写查询词），用于热门搜索统计 */
+  frequencies?: Record<string, number>
 }
 
 // ============================================================================

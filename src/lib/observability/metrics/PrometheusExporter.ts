@@ -70,7 +70,9 @@ export class PrometheusExporter {
     const lines: string[] = []
 
     // HELP
-    lines.push(`# HELP ${metric.name} ${metric.help}`)
+    // HELP 文本里的反斜杠和换行必须转义 ——
+    // 否则 help 里有个 \n 就会把后面的行顶掉，产出畸形 exposition 文本。
+    lines.push(`# HELP ${metric.name} ${this.escapeHelp(metric.help)}`)
 
     // TYPE
     lines.push(`# TYPE ${metric.name} ${metric.type}`)
@@ -79,7 +81,11 @@ export class PrometheusExporter {
     for (const sample of metric.samples) {
       const labels = this.formatLabels(sample.labels)
       const labelStr = labels ? `{${labels}}` : ''
-      lines.push(`${metric.name}${labelStr} ${sample.value}${sample.timestamp ? ` ${sample.timestamp}` : ''}`)
+      // histogram / summary 的三组样本是**三个独立指标**
+      // （_bucket / _sum / _count），必须带后缀，
+      // 否则会以同一个名字输出多组标签集不同的样本 —— Prometheus 拒收。
+      const sampleName = sample.suffix ? `${metric.name}_${sample.suffix}` : metric.name
+      lines.push(`${sampleName}${labelStr} ${sample.value}${sample.timestamp ? ` ${sample.timestamp}` : ''}`)
     }
 
     return lines.join('\n')
@@ -151,6 +157,7 @@ export class PrometheusExporter {
       samples.push({
         value: count,
         labels: { ...labels, le: String(bucket) },
+        suffix: 'bucket',
       })
     }
 
@@ -158,18 +165,23 @@ export class PrometheusExporter {
     samples.push({
       value: numbers.length,
       labels: { ...labels, le: '+Inf' },
+      suffix: 'bucket',
     })
 
     // Sum
+    // 注意：_sum 不能带 le 标签 —— 它和 _bucket 的标签集冲突，
+    // Prometheus 规定同一指标名下的样本必须标签集一致。
     samples.push({
       value: numbers.reduce((a, b) => a + b, 0),
-      labels: { ...labels, le: '' },
+      labels: { ...labels },
+      suffix: 'sum',
     })
 
     // Count
     samples.push({
       value: numbers.length,
-      labels: { ...labels, le: '' },
+      labels: { ...labels },
+      suffix: 'count',
     })
 
     return samples
@@ -188,11 +200,15 @@ export class PrometheusExporter {
     const samples: PrometheusMetric['samples'] = []
 
     // Quantiles
+    // 与 histogram 一样，summary 的 quantile / sum / count
+    // 是三个独立指标（Prometheus 规范里 summary 也是
+    // <name> / <name>_sum / <name>_count 三组）。
     for (const q of quantiles) {
       const idx = Math.ceil(q * numbers.length) - 1
       samples.push({
         value: numbers[Math.max(0, idx)] || 0,
         labels: { ...labels, quantile: String(q) },
+        suffix: '',
       })
     }
 
@@ -200,15 +216,31 @@ export class PrometheusExporter {
     samples.push({
       value: numbers.reduce((a, b) => a + b, 0),
       labels,
+      suffix: 'sum',
     })
 
     // Count
     samples.push({
       value: numbers.length,
       labels,
+      suffix: 'count',
     })
 
     return samples
+  }
+
+  /**
+   * 转义 HELP 文本
+   *
+   * exposition 格式里 HELP 的值只能占一行，
+   * 反斜杠要转义、换行要转成 \n 字面量，
+   * 否则一段带换行的 help 会把后面的 TYPE/Sample 行顶掉。
+   */
+  private escapeHelp(text: string): string {
+    return text
+      .replace(/\\/g, '\\\\')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
   }
 
   /**

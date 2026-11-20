@@ -605,6 +605,9 @@ export class CodeCompleter {
     for (let i = 0; i < position.line - 1; i++) {
       const line = lines[i]
 
+      // 越界保护：position 可能超出代码范围（例如 line: 100 而代码只有 1 行）
+      if (line === undefined) continue
+
       // TypeScript/JavaScript 变量声明
       const varMatch = line.match(/(?:const|let|var)\s+(\w+)\s*(?::\s*(\w+))?\s*=/)
       if (varMatch) {
@@ -659,6 +662,9 @@ export class CodeCompleter {
     // 分析当前位置之前的代码
     for (let i = 0; i < position.line - 1; i++) {
       const line = lines[i]
+
+      // 越界保护：position 可能超出代码范围
+      if (line === undefined) continue
 
       // TypeScript/JavaScript 函数声明
       const tsMatch = line.match(/(?:function|const\s+\w+\s*=\s*(?:async\s+)?)(\w+)\s*\(([^)]*)\)/)

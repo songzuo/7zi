@@ -13,6 +13,12 @@ export class PriorityQueue extends Queue {
   /** 优先级堆 */
   protected heap: Message[] = [];
 
+  /** 入队序号: 用于同优先级下的稳定排序 (先进先出) */
+  protected sequence: Map<string, number> = new Map();
+
+  /** 自增序号 */
+  protected sequenceCounter: number = 0;
+
   /**
    * 发布消息
    */
@@ -21,33 +27,63 @@ export class PriorityQueue extends Queue {
     if (message.priority === undefined) {
       message.priority = 5; // 默认优先级
     }
-    
+
+    // 记录入队序号, 保证同优先级消息按入队顺序 (FIFO) 投递
+    this.sequence.set(message.id, this.sequenceCounter++);
+
     // 插入堆
     this.heapInsert(message);
   }
 
   /**
-   * 消费消息 (优先级最高)
+   * 消费消息 (优先级最高, 同优先级按入队顺序)
    */
   protected async onConsume(consumerId?: string): Promise<Message | null> {
-    // 从堆顶取出优先级最高的消息
-    while (this.heap.length > 0) {
-      const message = this.heapExtractMax();
-      
-      if (!message) break;
-      
-      // 跳过已过期消息
-      if (message.isExpired()) {
-        this.removeMessage(message.id);
-        continue;
-      }
-      
-      // 标记为处理中
-      message.markProcessing(consumerId);
-      return message;
+    // 清理已过期的消息
+    const expired = this.heap.filter(m => m.isExpired()).map(m => m.id);
+    for (const id of expired) {
+      this.removeMessage(id);
     }
-    
-    return null;
+
+    // 选出优先级最高且当前可投递的消息
+    let best: Message | null = null;
+
+    for (const candidate of this.heap) {
+      // 跳过仍在消费中 (尚未被确认) 的消息, 避免重复投递
+      if (this.isInFlight(candidate.id)) continue;
+
+      // 跳过尚未到期的延迟消息
+      if (candidate.delay && candidate.needsDelay()) continue;
+
+      if (best === null || this.isHigherPriority(candidate, best)) {
+        best = candidate;
+      }
+    }
+
+    if (!best) return null;
+
+    // 标记为处理中并登记 in-flight, 保证并发消费时同一条消息不会被重复投递
+    return this.deliver(best, consumerId);
+  }
+
+  /**
+   * 重新入队: 消息保持在堆中, 解除 in-flight 后即可再次被投递
+   */
+  protected async onRequeue(_message: Message): Promise<void> {
+    // 消息始终保留在堆内, 无需额外操作
+  }
+
+  /**
+   * 判断 a 是否应先于 b 被投递
+   * 优先级更高者优先; 优先级相同时按入队顺序 (先入先出)
+   */
+  protected isHigherPriority(a: Message, b: Message): boolean {
+    const pa = a.priority ?? 5;
+    const pb = b.priority ?? 5;
+
+    if (pa !== pb) return pa > pb;
+
+    return (this.sequence.get(a.id) ?? 0) < (this.sequence.get(b.id) ?? 0);
   }
 
   /**
@@ -142,5 +178,24 @@ export class PriorityQueue extends Queue {
    */
   protected async onClear(): Promise<void> {
     this.heap = [];
+    this.sequence.clear();
+  }
+
+  /**
+   * 移除消息: 同时从堆与序号表摘除
+   */
+  protected removeMessage(messageId: string): void {
+    const index = this.heap.findIndex(m => m.id === messageId);
+    if (index > -1) {
+      // 用最后一个元素补位后重新调整堆
+      const last = this.heap.pop();
+      if (last && index < this.heap.length) {
+        this.heap[index] = last;
+        this.heapifyDown(index);
+        this.heapifyUp(index);
+      }
+    }
+    this.sequence.delete(messageId);
+    super.removeMessage(messageId);
   }
 }

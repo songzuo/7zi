@@ -331,7 +331,17 @@ export class AlertManager {
    * Add an alert rule
    */
   addRule(rule: AlertRule): void {
-    this.rules.set(rule.id, rule)
+    // 存副本，不存原对象引用。
+    //
+    // DEFAULT_ALERT_RULES 是模块级共享常量，构造函数会把它们装进
+    // 每个实例的 rules Map。之前这里存的是同一批对象引用，于是
+    // setRuleEnabled('lcp-critical', false) 改的是**全局**规则对象 ——
+    // 一个实例禁用规则，所有实例（包括之后新建的）的同名规则一起没了。
+    // 症状是：单测里先跑"禁用规则"的用例，后面所有依赖该规则的用例
+    // 莫名其妙全部拿到 0 条告警。
+    //
+    // 复制一份再存，各实例互不影响；调用方后续修改自己那份引用也仍然生效。
+    this.rules.set(rule.id, { ...rule })
   }
 
   /**

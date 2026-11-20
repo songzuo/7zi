@@ -72,12 +72,14 @@ export function transform(op1: Operation, op2: Operation): { op1: Operation; op2
     return { op1, op2 }
   }
 
-  // If op1 is retain, adjust op2 based on op1 (retain doesn't change document)
-  // But we need to consider what op2 would look like after retain is applied
+  // If op1 is retain: `retain` is a content no-op (see applyOperationToContent),
+  // so op2 stays exactly where it was. Only op1 (the retain) has to be
+  // re-positioned as if op2 had been applied first.
+  // This branch must stay symmetric with the `op2.type === 'retain'` branch below.
   if (op1.type === 'retain') {
     return {
-      op1,
-      op2: transformByRetain(op2, op1),
+      op1: transformRetainByOp(op1, op2),
+      op2,
     }
   }
 
@@ -87,6 +89,7 @@ export function transform(op1: Operation, op2: Operation): { op1: Operation; op2
     // When op1 (insert/delete) is applied first, op2 (retain) needs adjustment
     // - If op1 is delete: retain position shifts left by delete length (if after delete)
     // - If op1 is insert: retain position shifts right by insert length (if at/before insert)
+    // op1 itself is untouched because a retain never changes the content.
     return {
       op1,
       op2: transformRetainByOp(op2, op1),
@@ -95,40 +98,6 @@ export function transform(op1: Operation, op2: Operation): { op1: Operation; op2
 
   // Both are insert or delete operations
   return transformConcurrentOps(op1, op2)
-}
-
-/**
- * Transform a retain operation by another operation
- * Retain at position P means "keep P characters" or "skip to position P"
- */
-function transformByRetain(op: Operation, retain: Operation): Operation {
-  const retainPos = retain.position
-  
-  // For delete: if position >= retainPos, shift left by delete's own length
-  // (because retain will have "skipped" over the deleted area)
-  if (op.type === 'delete') {
-    if (op.position >= retainPos) {
-      return {
-        ...op,
-        position: op.position - (op.length || 0),
-      }
-    }
-    return op
-  }
-  
-  // For insert: if position >= retainPos, shift right by insert's own length
-  // (because retain position needs to account for the inserted content)
-  if (op.type === 'insert') {
-    if (op.position >= retainPos) {
-      return {
-        ...op,
-        position: op.position + (op.content?.length || 0),
-      }
-    }
-    return op
-  }
-  
-  return op
 }
 
 /**
@@ -142,23 +111,15 @@ function transformRetainByOp(retain: Operation, op: Operation): Operation {
     const delPos = op.position
     const delLen = op.length || 0
 
-    // Debug logging
-    console.log('[transformRetainByOp] delete:', { retainPos, delPos, delLen })
-
     // If retain is at or after the deleted region, shift left
     if (retainPos >= delPos + delLen) {
-      const result = { ...retain, position: retainPos - delLen }
-      console.log('[transformRetainByOp] shifting left to:', result.position)
-      return result
+      return { ...retain, position: retainPos - delLen }
     }
     // If retain is within the deleted region, clamp to delete start
     if (retainPos > delPos) {
-      const result = { ...retain, position: delPos }
-      console.log('[transformRetainByOp] clamping to delete start:', result.position)
-      return result
+      return { ...retain, position: delPos }
     }
     // If retain is before delete, no change
-    console.log('[transformRetainByOp] no change')
     return retain
   }
 

@@ -219,6 +219,8 @@ export interface ILogStorage {
   delete(query: DeleteQuery): Promise<DeleteResult>;
   getStats(): StorageStats;
   optimize(): Promise<void>;
+  /** 按 retentionDays 清理过期日志，返回被清理的条目数 */
+  cleanup(): Promise<number>;
   backup(path: string): Promise<BackupResult>;
   restore(path: string): Promise<RestoreResult>;
 }
@@ -709,7 +711,8 @@ export interface IAlertManager {
  * 告警历史查询
  */
 export interface AlertHistoryQuery {
-  timeRange: TimeRange;
+  /** 可选：不传表示不按时间过滤 */
+  timeRange?: TimeRange;
   severity?: AlertSeverity[];
   status?: AlertStatus[];
   ruleId?: string;

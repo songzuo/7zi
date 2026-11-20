@@ -17,7 +17,10 @@ vi.mock('@/lib/auth/jwt', () => ({
 }))
 
 function makeRequest(authHeader?: string): NextRequest {
-  const headers = authHeader ? { authorization: authHeader } : {}
+  const headers = new Headers()
+  if (authHeader) {
+    headers.set('authorization', authHeader)
+  }
   return new NextRequest('http://localhost/api/admin/test', { headers })
 }
 

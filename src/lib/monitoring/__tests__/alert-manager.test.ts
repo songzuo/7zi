@@ -193,7 +193,7 @@ describe('AlertManager', () => {
   })
 
   describe('alert lifecycle', () => {
-    it.skip('should track alert count for repeated violations', () => {
+    it('should track alert count for repeated violations', () => {
       const metrics = { LCP: 5000 }
 
       // Multiple evaluations
@@ -207,7 +207,7 @@ describe('AlertManager', () => {
       expect(lcpAlert?.count).toBeGreaterThanOrEqual(1)
     })
 
-    it.skip('should acknowledge alerts', () => {
+    it('should acknowledge alerts', () => {
       const metrics = { LCP: 5000 }
       manager.evaluate(metrics)
 
@@ -226,7 +226,7 @@ describe('AlertManager', () => {
       expect(acknowledgedAlert?.acknowledgedBy).toBe('test-user')
     })
 
-    it.skip('should resolve alerts', () => {
+    it('should resolve alerts', () => {
       const metrics = { LCP: 5000 }
       manager.evaluate(metrics)
 
@@ -317,7 +317,7 @@ describe('AlertManager', () => {
       expect(triggeredAlerts.length).toBe(0)
     })
 
-    it.skip('should not suppress alerts not matching silence rule', () => {
+    it('should not suppress alerts not matching silence rule', () => {
       const matcher: AlertMatcher = {
         level: ['p3'],
       }
@@ -350,7 +350,7 @@ describe('AlertManager', () => {
       expect(triggeredAlerts.length).toBe(0)
     })
 
-    it.skip('should unsuppress after duration', () => {
+    it('should unsuppress after duration', () => {
       // Suppression is based on rule.suppressUntil timestamp comparison with Date.now()
       // This test verifies the basic suppression works
       manager.suppressRule('lcp-critical', 60000)
@@ -362,7 +362,7 @@ describe('AlertManager', () => {
   })
 
   describe('throttling', () => {
-    it.skip('should throttle rapid alerts', () => {
+    it('should throttle rapid alerts', () => {
       const metrics = { LCP: 5000 }
 
       // First alert should fire
@@ -372,7 +372,7 @@ describe('AlertManager', () => {
   })
 
   describe('statistics', () => {
-    it.skip('should calculate alert statistics', () => {
+    it('should calculate alert statistics', () => {
       manager.evaluate({ LCP: 5000 })
 
       const stats = manager.getStats()
@@ -381,14 +381,14 @@ describe('AlertManager', () => {
       expect(stats.totalAlerts).toBeGreaterThanOrEqual(1)
     })
 
-    it.skip('should count alerts by level', () => {
+    it('should count alerts by level', () => {
       manager.evaluate({ LCP: 5000 })
 
       const stats = manager.getStats()
       expect(stats.byLevel.p0).toBeGreaterThanOrEqual(1)
     })
 
-    it.skip('should track top alerts', () => {
+    it('should track top alerts', () => {
       manager.evaluate({ LCP: 5000 })
 
       const stats = manager.getStats()
@@ -421,7 +421,7 @@ describe('AlertManager', () => {
   })
 
   describe('alert history', () => {
-    it.skip('should track alert history', () => {
+    it('should track alert history', () => {
       manager.evaluate({ LCP: 5000 })
 
       const history = manager.getAlertHistory()
@@ -451,7 +451,7 @@ describe('AlertManager', () => {
   })
 
   describe('alert sending', () => {
-    it.skip('should send alerts through alert system', () => {
+    it('should send alerts through alert system', () => {
       // sendAlert is fire-and-forget - we test that alerts are created
       const metrics = { LCP: 5000 }
       const triggeredAlerts = manager.evaluate(metrics)

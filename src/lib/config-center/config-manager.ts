@@ -13,6 +13,9 @@ import {
   ConfigCenterOptions,
   StorageAdapter,
   HotReloadResult,
+  ConfigPermission,
+  ConfigPermissionAction,
+  PermissionCondition,
 } from './types';
 import { VersionManager } from './version-manager';
 import { EnvironmentManager } from './environment-manager';
@@ -600,6 +603,88 @@ export class ConfigManager {
    */
   getAccessController(): AccessController | null {
     return this.accessController;
+  }
+
+  /**
+   * 显式授予访问权限
+   *
+   * 配置中心默认是 **deny-by-default**：任何未被显式授权的主体，
+   * 其 set / delete 操作都会被拒绝。本方法用于在初始化阶段
+   * 显式授予权限（例如给某个管理账号或角色授予 `config:*` 的写权限），
+   * 而不是隐式放开默认权限。
+   */
+  async grantAccess(
+    principalId: string,
+    actions: ConfigPermissionAction[],
+    options: {
+      principalType?: ConfigPermission['principalType'];
+      resourceType?: ConfigPermission['resourceType'];
+      resourceId?: string;
+      conditions?: PermissionCondition[];
+      expiresAt?: Date;
+    } = {}
+  ): Promise<ConfigPermission | null> {
+    if (!this.accessController) {
+      return null;
+    }
+
+    return await this.accessController.createPermission({
+      principalId,
+      principalType: options.principalType || 'user',
+      resourceType: options.resourceType || 'config',
+      resourceId: options.resourceId || '*',
+      actions,
+      allow: true,
+      conditions: options.conditions,
+      expiresAt: options.expiresAt,
+    });
+  }
+
+  /**
+   * 撤销访问权限
+   *
+   * 撤销后该主体对对应资源的操作立即被拒绝 (deny 规则优先于 allow 规则)。
+   */
+  async revokeAccess(
+    principalId: string,
+    options: {
+      resourceType?: ConfigPermission['resourceType'];
+      resourceId?: string;
+      actions?: ConfigPermissionAction[];
+    } = {}
+  ): Promise<number> {
+    if (!this.accessController) {
+      return 0;
+    }
+
+    const permissions = await this.accessController.getPermissions({
+      principalId,
+      resourceType: options.resourceType,
+      resourceId: options.resourceId,
+    });
+
+    let revoked = 0;
+
+    for (const permission of permissions) {
+      if (options.actions && !options.actions.some(a => permission.actions.includes(a))) {
+        continue;
+      }
+
+      // 写入一条显式 deny 规则，覆盖之前的 allow
+      await this.accessController.createPermission({
+        principalId: permission.principalId,
+        principalType: permission.principalType,
+        resourceType: permission.resourceType,
+        resourceId: permission.resourceId,
+        actions: permission.actions,
+        allow: false,
+      });
+
+      await this.accessController.deletePermission(permission.id);
+      revoked++;
+    }
+
+    return revoked;
   }
 
   /**

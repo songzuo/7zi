@@ -67,15 +67,35 @@ export class AuditComplianceService {
   }
 
   /**
+   * 构建报告最终使用的过滤器
+   *
+   * = 报告类型自带的过滤条件 + 调用方传入的 filter + 报告时间范围。
+   *
+   * 之前 getEventsForReport 与 generateStatistics 各自拼过滤器，
+   * generateStatistics 只用了 config.filter（**完全没带报告类型的过滤条件**），
+   * 于是「安全事件报告」的统计数据里混进了所有类别的数据，
+   * 报告正文和统计图表自相矛盾。现在两边共用同一个过滤器。
+   */
+  private buildCombinedFilter(config: ComplianceReportConfig): AuditQueryFilter {
+    const typeFilter = this.buildFilterForReportType(config);
+
+    return {
+      ...typeFilter,
+      ...config.filter,
+      timeRange: config.timeRange,
+    };
+  }
+
+  /**
    * 获取报告所需事件
    */
   private async getEventsForReport(
     config: ComplianceReportConfig
   ): Promise<AuditEvent[]> {
-    const filter = this.buildFilterForReportType(config);
+    const filter = this.buildCombinedFilter(config);
 
     const result = await this.storage.query({
-      filter: { ...filter, ...config.filter, timeRange: config.timeRange },
+      filter,
       pagination: { page: 1, pageSize: 10000 },
     });
 
@@ -207,12 +227,18 @@ export class AuditComplianceService {
   ): Promise<AuditAggregationResult[]> {
     const statistics: AuditAggregationResult[] = [];
 
+    // 统计口径必须和报告正文一致 —— 用同一个合并后的过滤器。
+    // 原来这里只传 config.filter，丢掉了报告类型自带的过滤条件
+    // （比如 security_events 的 categories/severities），
+    // 导致报告正文是「安全事件」而统计图表是「全量数据」。
+    const filter = this.buildCombinedFilter(config);
+
     // 按操作类型统计
     statistics.push(
       await this.analyticsService.aggregate({
         field: 'action',
         timeRange: config.timeRange,
-        filter: config.filter,
+        filter,
         limit: 10,
       })
     );
@@ -222,7 +248,7 @@ export class AuditComplianceService {
       await this.analyticsService.aggregate({
         field: 'user',
         timeRange: config.timeRange,
-        filter: config.filter,
+        filter,
         limit: 10,
       })
     );
@@ -232,7 +258,7 @@ export class AuditComplianceService {
       await this.analyticsService.aggregate({
         field: 'category',
         timeRange: config.timeRange,
-        filter: config.filter,
+        filter,
       })
     );
 
@@ -241,7 +267,7 @@ export class AuditComplianceService {
       await this.analyticsService.aggregate({
         field: 'status',
         timeRange: config.timeRange,
-        filter: config.filter,
+        filter,
       })
     );
 
@@ -337,6 +363,12 @@ export class AuditComplianceService {
 
   /**
    * 脱敏报告
+   *
+   * 原实现直接 `report.events = report.events.map(...)`，
+   * **就地改写了调用方传进来的 report 对象** —— 导出一次之后，
+   * 内存里那份报告的邮箱/密码也已经被替换成掩码了，
+   * 后续再拿同一个 report 导出「含敏感数据」的版本会拿到脱敏后的数据。
+   * 现在返回一份新对象，不碰入参。
    */
   private sanitizeReport(report: ComplianceReport): ComplianceReport {
     if (report.config.includeSensitive) {
@@ -344,18 +376,21 @@ export class AuditComplianceService {
     }
 
     // 脱敏事件中的敏感数据
-    if (report.events) {
-      report.events = report.events.map((event) => ({
+    if (!report.events) {
+      return { ...report };
+    }
+
+    return {
+      ...report,
+      events: report.events.map((event) => ({
         ...event,
         user: event.user ? {
           ...event.user,
           email: event.user.email ? this.maskEmail(event.user.email) : undefined,
         } : undefined,
         details: event.details ? this.maskSensitiveFields(event.details) : undefined,
-      }));
-    }
-
-    return report;
+      })),
+    };
   }
 
   /**

@@ -178,14 +178,19 @@ export function multiFieldSearch<T extends object>(
     })
   }
 
+  // 应用最低分数阈值（config.minScore）
+  const minScore = config.minScore ?? 0
+  const filteredResults =
+    minScore > 0 ? results.filter(result => result.score >= minScore) : results
+
   // 按综合分数排序
-  results.sort((a, b) => {
+  filteredResults.sort((a, b) => {
     const scoreA = a.score + a.crossFieldScore
     const scoreB = b.score + b.crossFieldScore
     return scoreB - scoreA
   })
 
-  return results
+  return filteredResults
 }
 
 /**
@@ -339,7 +344,7 @@ function fuzzyMatch(
     return { match: true, score: 1, start: 0 }
   }
 
-  if (query.length > text.length) {
+  if (text.length === 0) {
     return { match: false, score: 0, start: -1 }
   }
 
@@ -352,24 +357,82 @@ function fuzzyMatch(
     }
   }
 
-  // 简化的编辑距离计算（仅前缀）
-  let distance = 0
-  const maxLen = Math.min(text.length, query.length)
-  for (let i = 0; i < maxLen; i++) {
-    if (text[i] !== query[i]) {
-      distance++
-      if (distance > threshold) {
-        return { match: false, score: 0, start: -1 }
+  // 滑动窗口 + 编辑距离：查询词可以出现在文本任意位置
+  const best = findBestWindowMatch(text, query, threshold)
+
+  if (best) {
+    const score = Math.max(0, 1 - best.distance / Math.max(text.length, query.length))
+    return { match: true, score, start: best.start }
+  }
+
+  return { match: false, score: 0, start: -1 }
+}
+
+/** 模糊扫描的最大文本长度，避免超长文本导致性能问题 */
+const FUZZY_MAX_SCAN_LENGTH = 2000
+
+/**
+ * 在文本中滑动窗口，寻找与查询词编辑距离最小的片段
+ */
+function findBestWindowMatch(
+  text: string,
+  query: string,
+  threshold: number
+): { distance: number; start: number } | null {
+  const qLen = query.length
+  if (qLen === 0 || text.length === 0) return null
+
+  const scanText = text.length > FUZZY_MAX_SCAN_LENGTH ? text.slice(0, FUZZY_MAX_SCAN_LENGTH) : text
+  const minLen = Math.max(1, qLen - threshold)
+  const maxLen = Math.min(scanText.length, qLen + threshold)
+
+  let best: { distance: number; start: number } | null = null
+
+  for (let len = minLen; len <= maxLen; len++) {
+    for (let start = 0; start + len <= scanText.length; start++) {
+      const window = scanText.slice(start, start + len)
+      const distance = levenshteinDistance(window, query)
+
+      if (!best || distance < best.distance) {
+        best = { distance, start }
+      }
+
+      if (distance === 0) {
+        return best
       }
     }
   }
 
-  if (distance <= threshold) {
-    const score = Math.max(0, 1 - distance / Math.max(text.length, query.length))
-    return { match: true, score, start: 0 }
+  if (best && best.distance <= threshold) {
+    return best
   }
 
-  return { match: false, score: 0, start: -1 }
+  return null
+}
+
+/**
+ * 计算两个字符串的编辑距离（Levenshtein）
+ */
+function levenshteinDistance(a: string, b: string): number {
+  if (a === b) return 0
+  if (a.length === 0) return b.length
+  if (b.length === 0) return a.length
+
+  let prev = new Array<number>(b.length + 1)
+  let curr = new Array<number>(b.length + 1)
+
+  for (let j = 0; j <= b.length; j++) prev[j] = j
+
+  for (let i = 1; i <= a.length; i++) {
+    curr[0] = i
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      curr[j] = Math.min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost)
+    }
+    ;[prev, curr] = [curr, prev]
+  }
+
+  return prev[b.length]
 }
 
 /**

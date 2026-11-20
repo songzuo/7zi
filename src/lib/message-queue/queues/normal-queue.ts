@@ -33,14 +33,18 @@ export class NormalQueue extends Queue {
         continue;
       }
       
+      // 跳过仍在消费中 (尚未被确认) 的消息, 避免重复投递
+      if (this.isInFlight(messageId)) {
+        continue;
+      }
+      
       // 跳过需要延迟的消息
       if (message.needsDelay()) {
         continue;
       }
       
-      // 标记为处理中
-      message.markProcessing(consumerId);
-      return message;
+      // 标记为处理中并登记 in-flight, 保证并发消费时同一条消息不会被重复投递
+      return this.deliver(message, consumerId);
     }
     
     return null;
